@@ -8,36 +8,36 @@
   --opaque-button-border-intensity: -8;
   --elevate-1: rgba(0,0,0, .03);
   --elevate-2: rgba(0,0,0, .08);
-  --background: 214 50% 7%;
-  --foreground: 210 20% 95%;
-  --border: 214 30% 12%;
-  --card: 214 45% 9%;
-  --card-foreground: 210 20% 95%;
-  --card-border: 214 35% 12%;
-  --sidebar: 214 40% 11%;
-  --sidebar-foreground: 210 20% 95%;
-  --sidebar-border: 214 35% 14%;
+  --background: 210 40% 96%;
+  --foreground: 222 47% 11%;
+  --border: 214 20% 85%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --card-border: 214 20% 88%;
+  --sidebar: 210 40% 96%;
+  --sidebar-foreground: 222 47% 11%;
+  --sidebar-border: 214 20% 85%;
   --sidebar-primary: 174 84% 30%;
   --sidebar-primary-foreground: 174 84% 98%;
-  --sidebar-accent: 214 30% 14%;
-  --sidebar-accent-foreground: 210 20% 95%;
+  --sidebar-accent: 210 40% 92%;
+  --sidebar-accent-foreground: 222 47% 11%;
   --sidebar-ring: 174 84% 40%;
-  --popover: 214 40% 10%;
-  --popover-foreground: 210 20% 95%;
-  --popover-border: 214 30% 14%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --popover-border: 214 20% 88%;
   --primary: 174 84% 30%;
   --primary-foreground: 174 84% 98%;
-  --secondary: 214 30% 14%;
-  --secondary-foreground: 210 20% 95%;
-  --muted: 214 25% 13%;
-  --muted-foreground: 214 15% 55%;
-  --accent: 214 25% 12%;
-  --accent-foreground: 210 20% 95%;
+  --secondary: 210 40% 92%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 94%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 210 40% 92%;
+  --accent-foreground: 222 47% 11%;
   --destructive: 0 84% 48%;
-  --destructive-foreground: 0 84% 98%;
-  --input: 214 25% 20%;
+  --destructive-foreground: 0 0% 100%;
+  --input: 214 20% 88%;
   --ring: 174 84% 40%;
-  --chart-1: 174 84% 40%;
+  --chart-1: 174 84% 30%;
   --chart-2: 38 92% 50%;
   --chart-3: 262 83% 58%;
   --chart-4: 221 83% 53%;
@@ -46,14 +46,14 @@
   --font-serif: Georgia, serif;
   --font-mono: Menlo, monospace;
   --radius: .5rem;
-  --shadow-2xs: 0px 2px 0px 0px hsl(210 6% 12% / 0.00);
-  --shadow-xs: 0px 2px 0px 0px hsl(210 6% 12% / 0.00);
-  --shadow-sm: 0px 2px 0px 0px hsl(210 6% 12% / 0.00), 0px 1px 2px -1px hsl(210 6% 12% / 0.00);
-  --shadow: 0px 2px 0px 0px hsl(210 6% 12% / 0.00), 0px 1px 2px -1px hsl(210 6% 12% / 0.00);
-  --shadow-md: 0px 2px 0px 0px hsl(210 6% 12% / 0.00), 0px 2px 4px -1px hsl(210 6% 12% / 0.00);
-  --shadow-lg: 0px 2px 0px 0px hsl(210 6% 12% / 0.00), 0px 4px 6px -1px hsl(210 6% 12% / 0.00);
-  --shadow-xl: 0px 2px 0px 0px hsl(210 6% 12% / 0.00), 0px 8px 10px -1px hsl(210 6% 12% / 0.00);
-  --shadow-2xl: 0px 2px 0px 0px hsl(210 6% 12% / 0.00);
+  --shadow-2xs: 0px 1px 2px 0px hsl(210 6% 12% / 0.04);
+  --shadow-xs: 0px 1px 3px 0px hsl(210 6% 12% / 0.06);
+  --shadow-sm: 0px 2px 4px 0px hsl(210 6% 12% / 0.06), 0px 1px 2px -1px hsl(210 6% 12% / 0.04);
+  --shadow: 0px 4px 6px -1px hsl(210 6% 12% / 0.06), 0px 2px 4px -2px hsl(210 6% 12% / 0.04);
+  --shadow-md: 0px 6px 10px -1px hsl(210 6% 12% / 0.08), 0px 4px 6px -2px hsl(210 6% 12% / 0.04);
+  --shadow-lg: 0px 10px 15px -3px hsl(210 6% 12% / 0.08), 0px 4px 6px -4px hsl(210 6% 12% / 0.04);
+  --shadow-xl: 0px 20px 25px -5px hsl(210 6% 12% / 0.1), 0px 8px 10px -6px hsl(210 6% 12% / 0.04);
+  --shadow-2xl: 0px 25px 50px -12px hsl(210 6% 12% / 0.25);
   --tracking-normal: 0em;
   --spacing: 0.25rem;
 
@@ -71,6 +71,34 @@
   --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --app-bg: #F8FAFC;
+  --app-panel: #FFFFFF;
+  --app-panel-translucent: rgba(255,255,255,0.8);
+  --app-card-translucent: rgba(241,245,249,0.7);
+  --app-text: #1E293B;
+  --app-text-secondary: #475569;
+  --app-text-muted: #64748B;
+  --app-text-dim: #94A3B8;
+  --app-text-bright: #334155;
+  --app-border: rgba(0,0,0,0.1);
+  --app-border-hover: rgba(0,0,0,0.18);
+  --app-border-teal: rgba(20,184,166,0.3);
+  --app-border-teal-subtle: rgba(20,184,166,0.15);
+  --app-input-bg: #F1F5F9;
+  --app-header-bg: rgba(248,250,252,0.95);
+  --app-shadow-popover: rgba(0,0,0,0.12);
+  --app-grid-line: rgba(20,184,166,0.04);
+  --app-circle-bg: #F1F5F9;
+  --app-overlay: rgba(0,0,0,0.4);
+  --app-node-bg: #F8FAFC;
+  --app-expand-bg: rgba(255,255,255,0.05);
+  --app-zone-bg: rgba(241,245,249,0.8);
+  --app-info-block-bg: rgba(241,245,249,0.8);
+  --app-teal-text: #0F766E;
+  --app-amber-alert-text: #92400E;
+  --app-red-alert-text: #991B1B;
+  --app-teal-alert-text: #115E59;
 }
 
 .dark {
@@ -136,6 +164,34 @@
   --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+
+  --app-bg: #07101E;
+  --app-panel: #0F2040;
+  --app-panel-translucent: rgba(15,32,64,0.6);
+  --app-card-translucent: rgba(15,32,64,0.5);
+  --app-text: #F1F5F9;
+  --app-text-secondary: #94A3B8;
+  --app-text-muted: #64748B;
+  --app-text-dim: #475569;
+  --app-text-bright: #CBD5E1;
+  --app-border: rgba(255,255,255,0.07);
+  --app-border-hover: rgba(255,255,255,0.12);
+  --app-border-teal: rgba(20,184,166,0.22);
+  --app-border-teal-subtle: rgba(20,184,166,0.12);
+  --app-input-bg: #07101E;
+  --app-header-bg: rgba(7,16,30,0.95);
+  --app-shadow-popover: rgba(0,0,0,0.4);
+  --app-grid-line: rgba(20,184,166,0.025);
+  --app-circle-bg: #0A1628;
+  --app-overlay: rgba(0,0,0,0.7);
+  --app-node-bg: #07101E;
+  --app-expand-bg: rgba(255,255,255,0.05);
+  --app-zone-bg: rgba(7,16,30,0.5);
+  --app-info-block-bg: rgba(7,16,30,0.6);
+  --app-teal-text: #14B8A6;
+  --app-amber-alert-text: #FCD34D;
+  --app-red-alert-text: #FCA5A5;
+  --app-teal-alert-text: #14B8A6;
 }
 
 @layer base {
@@ -145,8 +201,8 @@
 
   body {
     @apply font-sans antialiased;
-    background: #07101E;
-    color: #F1F5F9;
+    background: var(--app-bg);
+    color: var(--app-text);
   }
 
   body::before {
@@ -154,8 +210,8 @@
     position: fixed;
     inset: 0;
     background-image:
-      linear-gradient(rgba(20,184,166,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(20,184,166,0.025) 1px, transparent 1px);
+      linear-gradient(var(--app-grid-line) 1px, transparent 1px),
+      linear-gradient(90deg, var(--app-grid-line) 1px, transparent 1px);
     background-size: 56px 56px;
     pointer-events: none;
     z-index: 0;

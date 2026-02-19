@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { ComplianceTerm } from "@shared/schema";
+import { ThemeToggle } from "@/components/theme-provider";
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -139,21 +140,27 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#07101E] text-[#F1F5F9]">
-      <header className="sticky top-0 z-[200] flex items-center justify-between px-14 py-4 bg-[rgba(7,16,30,0.95)] backdrop-blur-[14px] border-b border-[rgba(255,255,255,0.07)] max-md:px-5">
+    <div className="min-h-screen" style={{ background: "var(--app-bg)", color: "var(--app-text)" }}>
+      <header
+        className="sticky top-0 z-[200] flex items-center justify-between px-14 py-4 backdrop-blur-[14px] border-b max-md:px-5"
+        style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }}
+      >
         <div className="font-heading font-black text-[20px] tracking-[2px] text-[#14B8A6]">
           DSCVR
-          <span className="font-normal text-[10px] tracking-[3px] text-[#64748B] block mt-[2px] uppercase">
+          <span className="font-normal text-[10px] tracking-[3px] block mt-[2px] uppercase" style={{ color: "var(--app-text-muted)" }}>
             Term Admin
           </span>
         </div>
-        <a
-          href="/"
-          className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase text-[#14B8A6] py-[8px] px-[16px] rounded border border-[rgba(20,184,166,0.22)] bg-[rgba(13,148,136,0.06)] hover-elevate no-underline"
-          data-testid="back-to-app"
-        >
-          {"\u2190"} Back to App
-        </a>
+        <div className="flex items-center gap-3">
+          <ThemeToggle />
+          <a
+            href="/"
+            className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase text-[#14B8A6] py-[8px] px-[16px] rounded border border-[rgba(20,184,166,0.22)] bg-[rgba(13,148,136,0.06)] hover-elevate no-underline"
+            data-testid="back-to-app"
+          >
+            {"\u2190"} Back to App
+          </a>
+        </div>
       </header>
 
       <div className="max-w-[900px] mx-auto px-14 py-10 max-md:px-5">
@@ -189,7 +196,8 @@ export default function AdminPage() {
           <form
             onSubmit={handleSubmit}
             data-testid="term-form"
-            className="bg-[#0F2040] border border-[rgba(255,255,255,0.07)] rounded-[10px] p-[24px] mb-8"
+            className="border rounded-[10px] p-[24px] mb-8"
+            style={{ background: "var(--app-panel)", borderColor: "var(--app-border)" }}
           >
             <h2 className="font-heading font-extrabold text-[16px] text-[#14B8A6] mb-5 tracking-[-0.1px]">
               {editingId ? "Edit Term" : "New Term"}
@@ -197,106 +205,115 @@ export default function AdminPage() {
 
             <div className="space-y-4">
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">Term *</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Term *</label>
                 <input
                   data-testid="input-term"
                   value={form.term}
                   onChange={(e) => updateField("term", e.target.value)}
                   required
-                  className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)]"
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)]"
+                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">Plain-English Definition *</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Plain-English Definition *</label>
                 <textarea
                   data-testid="input-definition"
                   value={form.plainDefinition}
                   onChange={(e) => updateField("plainDefinition", e.target.value)}
                   required
                   rows={3}
-                  className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">Why it Matters * (one per line)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Why it Matters * (one per line)</label>
                 <textarea
                   data-testid="input-why"
                   value={form.whyItMatters}
                   onChange={(e) => updateField("whyItMatters", e.target.value)}
                   required
                   rows={3}
-                  className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">Typical Process Steps (one per line, optional)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Typical Process Steps (one per line, optional)</label>
                 <textarea
                   data-testid="input-steps"
                   value={form.typicalProcessSteps}
                   onChange={(e) => updateField("typicalProcessSteps", e.target.value)}
                   rows={4}
-                  className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">What to Store in DSCVR * (one per line)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>What to Store in DSCVR * (one per line)</label>
                 <textarea
                   data-testid="input-store"
                   value={form.whatToStore}
                   onChange={(e) => updateField("whatToStore", e.target.value)}
                   required
                   rows={2}
-                  className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">Common Pitfalls (one per line, optional)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Common Pitfalls (one per line, optional)</label>
                 <textarea
                   data-testid="input-pitfalls"
                   value={form.commonPitfalls}
                   onChange={(e) => updateField("commonPitfalls", e.target.value)}
                   rows={2}
-                  className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
+                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">Synonyms (comma-separated, optional)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Synonyms (comma-separated, optional)</label>
                 <input
                   data-testid="input-synonyms"
                   value={form.synonyms}
                   onChange={(e) => updateField("synonyms", e.target.value)}
                   placeholder="e.g. physical signature, ink signature"
-                  className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)]"
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)]"
+                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
                 />
-                <div className="text-[10px] text-[#475569] mt-[4px]">Alternative names that will auto-link to this term in Process Navigation guides</div>
+                <div className="text-[10px] mt-[4px]" style={{ color: "var(--app-text-dim)" }}>Alternative names that will auto-link to this term in Process Navigation guides</div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
                 <div>
-                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">Tags * (comma-separated)</label>
+                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Tags * (comma-separated)</label>
                   <input
                     data-testid="input-tags"
                     value={form.tags}
                     onChange={(e) => updateField("tags", e.target.value)}
                     required
                     placeholder="e.g. Documents, Legal, OSS"
-                    className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)]"
+                    className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)]"
+                    style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
                   />
                 </div>
                 <div>
-                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">Last Updated</label>
+                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Last Updated</label>
                   <input
                     data-testid="input-date"
                     type="date"
                     value={form.lastUpdated}
                     onChange={(e) => updateField("lastUpdated", e.target.value)}
-                    className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)]"
+                    className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)]"
+                    style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
                   />
                 </div>
               </div>
@@ -310,7 +327,7 @@ export default function AdminPage() {
                     onChange={(e) => updateField("isActive", e.target.checked)}
                     className="accent-[#14B8A6]"
                   />
-                  <span className="text-[12px] text-[#94A3B8]">Active (visible in glossary)</span>
+                  <span className="text-[12px]" style={{ color: "var(--app-text-secondary)" }}>Active (visible in glossary)</span>
                 </label>
               </div>
             </div>
@@ -320,7 +337,8 @@ export default function AdminPage() {
                 type="submit"
                 data-testid="btn-save-term"
                 disabled={isPending}
-                className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] bg-[#14B8A6] text-[#07101E] cursor-pointer disabled:opacity-50"
+                className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] bg-[#14B8A6] cursor-pointer disabled:opacity-50"
+                style={{ color: "var(--app-bg)" }}
               >
                 {isPending ? "Saving..." : editingId ? "Update Term" : "Create Term"}
               </button>
@@ -328,7 +346,8 @@ export default function AdminPage() {
                 type="button"
                 data-testid="btn-cancel"
                 onClick={resetForm}
-                className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] border border-[rgba(255,255,255,0.1)] text-[#64748B] cursor-pointer hover:text-[#94A3B8]"
+                className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] border cursor-pointer hover:text-[#94A3B8]"
+                style={{ borderColor: "var(--app-border)", color: "var(--app-text-muted)" }}
               >
                 Cancel
               </button>
@@ -337,7 +356,7 @@ export default function AdminPage() {
         )}
 
         {isLoading ? (
-          <div className="text-[13px] text-[#64748B] py-8 text-center">Loading terms...</div>
+          <div className="text-[13px] py-8 text-center" style={{ color: "var(--app-text-muted)" }}>Loading terms...</div>
         ) : (
           <div className="space-y-[4px]">
             {terms.map(t => (
@@ -345,17 +364,20 @@ export default function AdminPage() {
                 key={t.id}
                 data-testid={`admin-term-${t.slug}`}
                 className={`flex items-center justify-between gap-4 p-[14px_18px] rounded-[8px] border ${
-                  t.isActive
-                    ? "bg-[#0F2040] border-[rgba(255,255,255,0.07)]"
-                    : "bg-[rgba(255,255,255,0.02)] border-[rgba(255,255,255,0.04)] opacity-60"
+                  !t.isActive ? "opacity-60" : ""
                 }`}
+                style={
+                  t.isActive
+                    ? { background: "var(--app-panel)", borderColor: "var(--app-border)" }
+                    : { background: "var(--app-expand-bg)", borderColor: "var(--app-border)" }
+                }
               >
                 <div className="min-w-0">
-                  <div className="font-heading font-extrabold text-[14px] text-[#F1F5F9] tracking-[-0.1px] truncate">
+                  <div className="font-heading font-extrabold text-[14px] tracking-[-0.1px] truncate" style={{ color: "var(--app-text)" }}>
                     {t.term}
                     {!t.isActive && <span className="ml-2 text-[10px] text-[#EF4444] font-normal">(inactive)</span>}
                   </div>
-                  <div className="text-[11px] text-[#64748B] truncate mt-[2px]">{t.plainDefinition}</div>
+                  <div className="text-[11px] truncate mt-[2px]" style={{ color: "var(--app-text-muted)" }}>{t.plainDefinition}</div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button

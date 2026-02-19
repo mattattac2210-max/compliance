@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlossarySection from "@/components/glossary";
 import { ProcessNavigation } from "@/components/process-navigation";
+import { ThemeToggle } from "@/components/theme-provider";
 
 type TabId = "flow" | "audit" | "guide";
 
@@ -551,9 +552,13 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
       data-testid={`gate-card-${gate.id}`}
       className={`rounded-[10px] border transition-all duration-200 cursor-pointer ${
         isOpen
-          ? "border-[rgba(20,184,166,0.3)] bg-[rgba(13,148,136,0.04)]"
-          : "border-[rgba(255,255,255,0.07)] bg-[#0F2040] hover:border-[rgba(255,255,255,0.12)]"
+          ? "bg-[rgba(13,148,136,0.04)]"
+          : ""
       }`}
+      style={{
+        borderColor: isOpen ? "var(--app-border-teal)" : "var(--app-border)",
+        ...(!isOpen ? { background: "var(--app-panel)" } : {}),
+      }}
       onClick={onToggle}
     >
       <div className="flex items-center justify-between gap-4 p-[18px_22px]">
@@ -564,10 +569,10 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
           >
             {gate.layerLabel}
           </div>
-          <div className="font-heading font-extrabold text-[15px] text-[#F1F5F9] mb-[3px] tracking-[-0.2px]">
+          <div className="font-heading font-extrabold text-[15px] mb-[3px] tracking-[-0.2px]" style={{ color: "var(--app-text)" }}>
             {gate.title}
           </div>
-          <div className="text-[12px] font-light text-[#64748B] italic">{gate.subtitle}</div>
+          <div className="text-[12px] font-light italic" style={{ color: "var(--app-text-muted)" }}>{gate.subtitle}</div>
         </div>
         <div className="flex items-center gap-[10px] shrink-0">
           <span
@@ -581,9 +586,13 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
             {gate.rolePillText}
           </span>
           <div
-            className={`w-[26px] h-[26px] rounded-full bg-[rgba(255,255,255,0.05)] flex items-center justify-center text-[18px] font-light transition-all duration-200 ${
-              isOpen ? "rotate-45 text-[#14B8A6]" : "text-[#64748B]"
+            className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[18px] font-light transition-all duration-200 ${
+              isOpen ? "rotate-45 text-[#14B8A6]" : ""
             }`}
+            style={{
+              background: "var(--app-expand-bg)",
+              ...(!isOpen ? { color: "var(--app-text-muted)" } : {}),
+            }}
           >
             +
           </div>
@@ -600,11 +609,11 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
             className="overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="border-t border-[rgba(255,255,255,0.07)] px-[22px] pb-[22px]">
+            <div className="border-t px-[22px] pb-[22px]" style={{ borderColor: "var(--app-border)" }}>
               <div className="pt-[18px]">
                 <div className="flex items-start gap-3 p-[12px_16px] rounded-[7px] mb-4 bg-[rgba(20,184,166,0.06)] border border-[rgba(20,184,166,0.15)]">
                   <span className="text-[13px] shrink-0 mt-[1px] text-[#14B8A6]">{"\u25C8"}</span>
-                  <div className="text-[12px] leading-[1.6] text-[#94A3B8]">
+                  <div className="text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
                     <strong className="font-heading font-bold text-[#14B8A6] text-[11px] tracking-[0.5px] block mb-[3px]">
                       {gate.dscvrRole}
                     </strong>
@@ -617,11 +626,18 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                     key={i}
                     className={`flex gap-[10px] items-start p-[11px_14px] rounded-[7px] mb-[14px] text-[13px] leading-[1.65] ${
                       alert.type === "amber"
-                        ? "bg-[rgba(245,158,11,0.06)] border border-[rgba(245,158,11,0.18)] text-[#FCD34D]"
+                        ? "bg-[rgba(245,158,11,0.06)] border border-[rgba(245,158,11,0.18)]"
                         : alert.type === "red"
-                          ? "bg-[rgba(239,68,68,0.06)] border border-[rgba(239,68,68,0.18)] text-[#FCA5A5]"
+                          ? "bg-[rgba(239,68,68,0.06)] border border-[rgba(239,68,68,0.18)]"
                           : "bg-[rgba(13,148,136,0.06)] border border-[rgba(20,184,166,0.18)] text-[#14B8A6]"
                     }`}
+                    style={{
+                      color: alert.type === "amber"
+                        ? "var(--app-amber-alert-text)"
+                        : alert.type === "red"
+                          ? "var(--app-red-alert-text)"
+                          : undefined,
+                    }}
                   >
                     <span className="text-[13px] shrink-0 mt-[2px]">{alert.icon}</span>
                     <span dangerouslySetInnerHTML={{ __html: alert.content }} />
@@ -633,12 +649,13 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                     {gate.zones.map((zone) => (
                       <div
                         key={zone.name}
-                        className="flex items-center gap-2 p-[8px_10px] rounded-[6px] bg-[rgba(7,16,30,0.5)] border border-[rgba(255,255,255,0.07)]"
+                        className="flex items-center gap-2 p-[8px_10px] rounded-[6px] border"
+                        style={{ background: "var(--app-zone-bg)", borderColor: "var(--app-border)" }}
                       >
                         <div className="w-[10px] h-[10px] rounded-full shrink-0" style={{ background: zone.color }} />
                         <div>
-                          <span className="font-heading text-[11px] font-bold text-[#CBD5E1] block">{zone.name}</span>
-                          <span className="text-[10px] text-[#64748B] block">{zone.status}</span>
+                          <span className="font-heading text-[11px] font-bold block" style={{ color: "var(--app-text-bright)" }}>{zone.name}</span>
+                          <span className="text-[10px] block" style={{ color: "var(--app-text-muted)" }}>{zone.status}</span>
                         </div>
                       </div>
                     ))}
@@ -649,10 +666,10 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                   {gate.infoBlocks.map((block, i) => (
                     <div
                       key={i}
-                      className="bg-[rgba(7,16,30,0.6)] rounded-[7px] p-[14px_16px] border-l-2"
-                      style={{ borderLeftColor: block.borderColor }}
+                      className="rounded-[7px] p-[14px_16px] border-l-2"
+                      style={{ background: "var(--app-info-block-bg)", borderLeftColor: block.borderColor }}
                     >
-                      <h4 className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[9px]">
+                      <h4 className="font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[9px]" style={{ color: "var(--app-text-muted)" }}>
                         {block.title}
                       </h4>
                       {block.items ? (
@@ -660,14 +677,16 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                           {block.items.map((item, j) => (
                             <li
                               key={j}
-                              className="text-[13px] text-[#94A3B8] leading-[1.65] ml-[14px] mb-[3px] [&_strong]:text-[#CBD5E1] [&_strong]:font-bold"
+                              className="text-[13px] leading-[1.65] ml-[14px] mb-[3px] [&_strong]:font-bold"
+                              style={{ color: "var(--app-text-secondary)" }}
                               dangerouslySetInnerHTML={{ __html: item }}
                             />
                           ))}
                         </ul>
                       ) : (
                         <p
-                          className="text-[13px] text-[#94A3B8] leading-[1.65] [&_strong]:text-[#CBD5E1] [&_strong]:font-bold"
+                          className="text-[13px] leading-[1.65] [&_strong]:font-bold"
+                          style={{ color: "var(--app-text-secondary)" }}
                           dangerouslySetInnerHTML={{ __html: block.content }}
                         />
                       )}
@@ -675,7 +694,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                   ))}
                 </div>
 
-                <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase text-[#64748B] mb-[9px] mt-[16px]">
+                <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase mb-[9px] mt-[16px]" style={{ color: "var(--app-text-muted)" }}>
                   Government Portals
                 </div>
                 <div className="flex flex-wrap gap-[7px]">
@@ -706,9 +725,9 @@ function Connector() {
   return (
     <div className="h-[28px] flex items-center pl-[36px] relative z-[1]">
       <div className="flex flex-col items-center gap-1">
-        <div className="w-[3px] h-[3px] rounded-full bg-[rgba(20,184,166,0.3)]" />
-        <div className="w-[3px] h-[3px] rounded-full bg-[rgba(20,184,166,0.3)]" />
-        <div className="w-[3px] h-[3px] rounded-full bg-[rgba(20,184,166,0.3)]" />
+        <div className="w-[3px] h-[3px] rounded-full" style={{ background: "var(--app-border-teal)" }} />
+        <div className="w-[3px] h-[3px] rounded-full" style={{ background: "var(--app-border-teal)" }} />
+        <div className="w-[3px] h-[3px] rounded-full" style={{ background: "var(--app-border-teal)" }} />
       </div>
     </div>
   );
@@ -718,8 +737,9 @@ function NodeButton({ gate, onClick }: { gate: GateData; onClick: () => void }) 
   return (
     <button
       data-testid={`node-btn-${gate.id}`}
-      className="w-[72px] h-[72px] rounded-full flex flex-col items-center justify-center bg-[#07101E] transition-transform duration-200 hover:scale-[1.08] shrink-0 cursor-pointer"
+      className="w-[72px] h-[72px] rounded-full flex flex-col items-center justify-center transition-transform duration-200 hover:scale-[1.08] shrink-0 cursor-pointer"
       style={{
+        background: "var(--app-node-bg)",
         border: gate.isDashed ? `2px dashed ${gate.borderColor}` : `2px solid ${gate.borderColor}`,
         boxShadow: `0 0 18px ${gate.glowColor}`,
       }}
@@ -767,23 +787,26 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative z-[1]">
-      <header className="sticky top-0 z-[200] flex items-center justify-between px-14 py-4 bg-[rgba(7,16,30,0.95)] backdrop-blur-[14px] border-b border-[rgba(255,255,255,0.07)] max-md:px-5" data-testid="header">
+      <header className="sticky top-0 z-[200] flex items-center justify-between px-14 py-4 backdrop-blur-[14px] border-b max-md:px-5" style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }} data-testid="header">
         <div className="font-heading font-black text-[20px] tracking-[2px] text-[#14B8A6]">
           DSCVR
-          <span className="font-normal text-[10px] tracking-[3px] text-[#64748B] block mt-[2px] uppercase">
+          <span className="font-normal text-[10px] tracking-[3px] block mt-[2px] uppercase" style={{ color: "var(--app-text-muted)" }}>
             Compliance Navigator
           </span>
         </div>
-        <div className="inline-flex items-center gap-[7px] bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.22)] rounded-full py-[6px] px-[14px] font-heading text-[10px] font-bold tracking-[1.5px] text-[#FCA5A5] uppercase" data-testid="deadline-pill">
+        <div className="inline-flex items-center gap-[7px] bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.22)] rounded-full py-[6px] px-[14px] font-heading text-[10px] font-bold tracking-[1.5px] uppercase" style={{ color: "var(--app-red-alert-text)" }} data-testid="deadline-pill">
           <span className="w-[7px] h-[7px] rounded-full bg-[#EF4444] animate-blink shrink-0" />
           OTA Deadline — 31 Mar 2026
         </div>
-        <div className="text-[11px] text-[#64748B] text-right leading-[1.8] max-md:hidden">
-          Bali Villa Operations<br />Seven-Gate Compliance Journey
+        <div className="flex items-center gap-4">
+          <div className="text-[11px] text-right leading-[1.8] max-md:hidden" style={{ color: "var(--app-text-muted)" }}>
+            Bali Villa Operations<br />Seven-Gate Compliance Journey
+          </div>
+          <ThemeToggle />
         </div>
       </header>
 
-      <div className="sticky top-[57px] z-[150] bg-[rgba(7,16,30,0.95)] backdrop-blur-[14px] border-b border-[rgba(255,255,255,0.07)] px-14 flex max-md:px-5" data-testid="tab-nav">
+      <div className="sticky top-[57px] z-[150] backdrop-blur-[14px] border-b px-14 flex max-md:px-5" style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }} data-testid="tab-nav">
         {[
           { id: "flow" as const, label: "\u21B3 Compliance Flow" },
           { id: "audit" as const, label: "\u2299 Self-Audit Checklist" },
@@ -795,8 +818,9 @@ export default function Home() {
             className={`font-heading font-bold text-[11px] tracking-[1.5px] uppercase py-[14px] px-[22px] border-b-2 cursor-pointer transition-all duration-200 mb-[-1px] bg-transparent ${
               activeTab === tab.id
                 ? "text-[#14B8A6] border-b-[#14B8A6]"
-                : "text-[#64748B] border-b-transparent hover:text-[#14B8A6]"
+                : "border-b-transparent hover:text-[#14B8A6]"
             }`}
+            style={activeTab !== tab.id ? { color: "var(--app-text-muted)" } : undefined}
             onClick={() => setActiveTab(tab.id)}
           >
             {tab.label}
@@ -811,49 +835,49 @@ export default function Home() {
               <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
               Interactive compliance reference
             </div>
-            <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] text-[#F1F5F9] mb-[18px] max-md:text-[34px]">
+            <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--app-text)" }}>
               Seven Gates.<br />
               <span className="text-[#14B8A6]">One Legal Path.</span>
             </h1>
-            <p className="text-[16px] font-light leading-[1.8] text-[#94A3B8] max-w-[580px]">
+            <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--app-text-secondary)" }}>
               Structural gates are sequential — each blocks the next. Operational streams run concurrently once the entity exists. Click any gate to expand the procedure and open the government portal where it is done.
             </p>
 
-            <div className="mt-9 grid grid-cols-2 border border-[rgba(255,255,255,0.07)] rounded-[10px] overflow-hidden max-md:grid-cols-1">
-              <div className="p-[22px_26px] border-r border-[rgba(255,255,255,0.07)] bg-[rgba(20,184,166,0.04)] max-md:border-r-0 max-md:border-b max-md:border-b-[rgba(255,255,255,0.07)]">
+            <div className="mt-9 grid grid-cols-2 border rounded-[10px] overflow-hidden max-md:grid-cols-1" style={{ borderColor: "var(--app-border)" }}>
+              <div className="p-[22px_26px] border-r bg-[rgba(20,184,166,0.04)] max-md:border-r-0 max-md:border-b" style={{ borderColor: "var(--app-border)" }}>
                 <div className="font-heading text-[9px] font-extrabold tracking-[3px] uppercase text-[#14B8A6] mb-[14px]">
                   DSCVR Tracks
                 </div>
                 {["Licence documents and expiry dates", "Permit inspection schedules", "Staff documentation and permit status", "Safety compliance task logs", "SOP execution evidence", "Filing calendar alerts"].map((item) => (
-                  <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] text-[#94A3B8] leading-[1.5]">
+                  <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] leading-[1.5]" style={{ color: "var(--app-text-secondary)" }}>
                     <span className="w-[5px] h-[5px] rounded-full bg-[#14B8A6] shrink-0 mt-[6px]" />
                     {item}
                   </div>
                 ))}
               </div>
               <div className="p-[22px_26px] bg-[rgba(239,68,68,0.03)]">
-                <div className="font-heading text-[9px] font-extrabold tracking-[3px] uppercase text-[#FCA5A5] mb-[14px]">
+                <div className="font-heading text-[9px] font-extrabold tracking-[3px] uppercase mb-[14px]" style={{ color: "var(--app-red-alert-text)" }}>
                   DSCVR Does Not
                 </div>
                 {["Interpret zoning or legal status", "Provide legal or tax advice", "Validate corporate structures", "File returns or submissions", "Certify compliance status", "Replace licensed professionals"].map((item) => (
-                  <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] text-[#94A3B8] leading-[1.5]">
-                    <span className="w-[5px] h-[5px] rounded-full bg-[#FCA5A5] shrink-0 mt-[6px]" />
+                  <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] leading-[1.5]" style={{ color: "var(--app-text-secondary)" }}>
+                    <span className="w-[5px] h-[5px] rounded-full shrink-0 mt-[6px]" style={{ background: "var(--app-red-alert-text)" }} />
                     {item}
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="flex mt-6 border border-[rgba(255,255,255,0.07)] rounded-[10px] overflow-hidden max-md:flex-col" data-testid="stats-row">
+            <div className="flex mt-6 border rounded-[10px] overflow-hidden max-md:flex-col" style={{ borderColor: "var(--app-border)" }} data-testid="stats-row">
               {[
                 { n: "7", l: "Compliance layers" },
                 { n: "8\u201314wk", l: "Estimated full timeline" },
                 { n: "5yr", l: "SLF renewal cycle" },
                 { n: "31 Mar", l: "OTA verification deadline" },
               ].map((stat, i) => (
-                <div key={i} className={`flex-1 p-[18px_22px] ${i < 3 ? "border-r border-[rgba(255,255,255,0.07)] max-md:border-r-0 max-md:border-b max-md:border-b-[rgba(255,255,255,0.07)]" : ""}`}>
+                <div key={i} className={`flex-1 p-[18px_22px] ${i < 3 ? "border-r max-md:border-r-0 max-md:border-b" : ""}`} style={i < 3 ? { borderColor: "var(--app-border)" } : undefined}>
                   <div className="font-heading font-black text-[26px] text-[#14B8A6] leading-none mb-[5px] tracking-[-0.5px]">{stat.n}</div>
-                  <div className="text-[11px] text-[#64748B]">{stat.l}</div>
+                  <div className="text-[11px]" style={{ color: "var(--app-text-muted)" }}>{stat.l}</div>
                 </div>
               ))}
             </div>
@@ -865,7 +889,7 @@ export default function Home() {
             <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] mt-2 relative z-[2]">
               <div />
               <div>
-                <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase text-[#64748B] py-1 pl-[2px]">
+                <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--app-text-muted)" }}>
                   Foundation — required before all gates
                 </div>
                 <div className="h-[1px] bg-gradient-to-r from-[rgba(100,116,139,0.3)] to-transparent" />
@@ -887,7 +911,7 @@ export default function Home() {
                     <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] relative z-[2]">
                       <div />
                       <div>
-                        <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase text-[#64748B] py-1 pl-[2px]">
+                        <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--app-text-muted)" }}>
                           Structural gates — sequential, each blocks the next
                         </div>
                         <div className="h-[1px] bg-gradient-to-r from-[rgba(100,116,139,0.3)] to-transparent" />
@@ -903,7 +927,7 @@ export default function Home() {
             <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] relative z-[2]">
               <div />
               <div>
-                <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase text-[#64748B] py-1 pl-[2px]">
+                <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--app-text-muted)" }}>
                   Operational streams — run concurrently once entity is established
                 </div>
                 <div className="h-[1px] bg-gradient-to-r from-[rgba(100,116,139,0.3)] to-transparent" />
@@ -946,20 +970,20 @@ export default function Home() {
             ))}
 
             <div className="mt-[10px] ml-[92px] max-md:ml-0">
-              <div className="bg-gradient-to-br from-[rgba(13,148,136,0.09)] to-[rgba(34,197,94,0.05)] border border-[rgba(20,184,166,0.22)] rounded-[10px] p-[26px_30px] flex items-center gap-[22px]">
+              <div className="bg-gradient-to-br from-[rgba(13,148,136,0.09)] to-[rgba(34,197,94,0.05)] border rounded-[10px] p-[26px_30px] flex items-center gap-[22px]" style={{ borderColor: "var(--app-border-teal)" }}>
                 <span className="text-[32px] shrink-0">{"\u2713"}</span>
                 <div>
                   <div className="font-heading font-black text-[17px] text-[#14B8A6] tracking-[-0.2px] mb-[5px]">
                     Fully Compliant — OTA-Ready
                   </div>
-                  <div className="text-[13px] font-light text-[#64748B] leading-[1.7] italic">
+                  <div className="text-[13px] font-light leading-[1.7] italic" style={{ color: "var(--app-text-muted)" }}>
                     When all seven gates are cleared and documents remain current, the property is positioned for OTA verification and ongoing operational compliance under Indonesian tourism regulations.
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="mt-9 ml-[92px] pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light text-[#64748B] leading-[1.7] italic max-md:ml-0">
+            <div className="mt-9 ml-[92px] pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic max-md:ml-0" style={{ color: "var(--app-text-muted)" }}>
               This compliance navigator is an operational reference tool. It does not constitute legal, tax, or regulatory advice. All regulatory interpretations, filings, and submissions should be managed by appropriately licensed Indonesian professionals. Timelines, costs, and requirements are indicative and subject to change.
             </div>
           </div>
@@ -973,11 +997,11 @@ export default function Home() {
               <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
               Pre-verification audit
             </div>
-            <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] text-[#F1F5F9] mb-[18px] max-md:text-[34px]">
+            <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--app-text)" }}>
               Self-Audit<br />
               <span className="text-[#14B8A6]">Checklist.</span>
             </h1>
-            <p className="text-[16px] font-light leading-[1.8] text-[#94A3B8] max-w-[580px]">
+            <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--app-text-secondary)" }}>
               Click each item to cycle through status: unchecked {"\u2192"} compliant {"\u2192"} flagged {"\u2192"} needs attention {"\u2192"} unchecked. Use this to track your pre-verification readiness across all compliance layers.
             </p>
           </div>
@@ -986,23 +1010,23 @@ export default function Home() {
             <div className="flex gap-[10px] items-start p-[20px_24px] rounded-[10px] mb-10 bg-[rgba(239,68,68,0.05)] border border-[rgba(239,68,68,0.15)]" data-testid="audit-alert">
               <span className="text-[28px] shrink-0">{"\u26A0"}</span>
               <div>
-                <h2 className="font-heading font-extrabold text-[18px] text-[#F1F5F9] mb-[6px] tracking-[-0.2px]">
+                <h2 className="font-heading font-extrabold text-[18px] mb-[6px] tracking-[-0.2px]" style={{ color: "var(--app-text)" }}>
                   OTA Verification Deadline: 31 March 2026
                 </h2>
-                <p className="text-[13px] font-light text-[#94A3B8] leading-[1.7]">
+                <p className="text-[13px] font-light leading-[1.7]" style={{ color: "var(--app-text-secondary)" }}>
                   All items marked as Critical must be resolved before platform verification submission. High-severity items should be addressed within the current compliance cycle. Non-compliance with critical items risks listing suspension.
                 </p>
               </div>
             </div>
 
-            <div className="flex gap-4 mb-7 p-[14px_18px] bg-[rgba(255,255,255,0.02)] border border-[rgba(255,255,255,0.07)] rounded-[8px] flex-wrap" data-testid="audit-legend">
+            <div className="flex gap-4 mb-7 p-[14px_18px] border rounded-[8px] flex-wrap" style={{ background: "var(--app-expand-bg)", borderColor: "var(--app-border)" }} data-testid="audit-legend">
               {[
                 { color: "#22C55E", label: "Compliant" },
                 { color: "#EF4444", label: "Flagged" },
                 { color: "#F59E0B", label: "Needs attention" },
                 { color: "#64748B", label: "Not checked" },
               ].map((item) => (
-                <div key={item.label} className="flex items-center gap-[7px] text-[12px] text-[#94A3B8]">
+                <div key={item.label} className="flex items-center gap-[7px] text-[12px]" style={{ color: "var(--app-text-secondary)" }}>
                   <div className="w-[10px] h-[10px] rounded-[3px] shrink-0" style={{ background: item.color }} />
                   {item.label}
                 </div>
@@ -1011,7 +1035,7 @@ export default function Home() {
 
             {auditSections.map((section) => (
               <div key={section.num}>
-                <div className="font-heading font-extrabold text-[13px] text-[#14B8A6] tracking-[0.3px] mb-[14px] pb-[10px] border-b border-b-[rgba(20,184,166,0.12)] flex items-center gap-[10px]">
+                <div className="font-heading font-extrabold text-[13px] text-[#14B8A6] tracking-[0.3px] mb-[14px] pb-[10px] border-b flex items-center gap-[10px]" style={{ borderColor: "rgba(20,184,166,0.12)" }}>
                   <span className="font-heading text-[9px] font-bold tracking-[2px] bg-[rgba(13,148,136,0.12)] border border-[rgba(20,184,166,0.2)] text-[#0D9488] py-[3px] px-[9px] rounded uppercase">
                     {section.num}
                   </span>
@@ -1031,8 +1055,9 @@ export default function Home() {
                               ? "bg-[rgba(239,68,68,0.05)] border-[rgba(239,68,68,0.14)]"
                               : status === "warn"
                                 ? "bg-[rgba(245,158,11,0.05)] border-[rgba(245,158,11,0.14)]"
-                                : "bg-[rgba(255,255,255,0.02)] border-[rgba(226,232,240,0.06)] hover:bg-[rgba(255,255,255,0.035)]"
+                                : "border-[rgba(226,232,240,0.06)] hover:bg-[rgba(255,255,255,0.035)]"
                         }`}
+                        style={!status ? { background: "var(--app-expand-bg)" } : undefined}
                         onClick={() => cycleCheck(item.id)}
                       >
                         <div
@@ -1049,21 +1074,30 @@ export default function Home() {
                           {status === "checked" ? "\u2713" : status === "flagged" ? "\u2717" : status === "warn" ? "!" : ""}
                         </div>
                         <div>
-                          <div className="font-heading font-bold text-[13px] text-[#F1F5F9] mb-[3px] tracking-[-0.1px]">
+                          <div className="font-heading font-bold text-[13px] mb-[3px] tracking-[-0.1px]" style={{ color: "var(--app-text)" }}>
                             {item.title}
                           </div>
-                          <div className="text-[12px] font-light text-[#64748B] leading-[1.55]">{item.desc}</div>
+                          <div className="text-[12px] font-light leading-[1.55]" style={{ color: "var(--app-text-muted)" }}>{item.desc}</div>
                         </div>
                         <span
                           className={`font-heading text-[9px] font-bold tracking-[1px] py-[3px] px-[8px] rounded shrink-0 self-start mt-[2px] uppercase ${
                             item.severity === "critical"
-                              ? "bg-[rgba(239,68,68,0.12)] text-[#FCA5A5]"
+                              ? "bg-[rgba(239,68,68,0.12)]"
                               : item.severity === "high"
-                                ? "bg-[rgba(245,158,11,0.12)] text-[#FCD34D]"
+                                ? "bg-[rgba(245,158,11,0.12)]"
                                 : item.severity === "medium"
                                   ? "bg-[rgba(20,184,166,0.12)] text-[#14B8A6]"
-                                  : "bg-[rgba(148,163,184,0.12)] text-[#94A3B8]"
+                                  : "bg-[rgba(148,163,184,0.12)]"
                           }`}
+                          style={{
+                            color: item.severity === "critical"
+                              ? "var(--app-red-alert-text)"
+                              : item.severity === "high"
+                                ? "var(--app-amber-alert-text)"
+                                : item.severity === "low"
+                                  ? "var(--app-text-secondary)"
+                                  : undefined,
+                          }}
                         >
                           {item.severity}
                         </span>
@@ -1074,7 +1108,7 @@ export default function Home() {
               </div>
             ))}
 
-            <div className="mt-8 pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light text-[#64748B] leading-[1.7] italic">
+            <div className="mt-8 pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic" style={{ color: "var(--app-text-muted)" }}>
               This checklist is an operational self-assessment tool. Completion does not constitute legal certification of compliance. All regulatory assessments, submissions, and verifications should be conducted by appropriately licensed professionals.
             </div>
           </div>
@@ -1088,11 +1122,11 @@ export default function Home() {
               <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
               Compliance reference library
             </div>
-            <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] text-[#F1F5F9] mb-[18px] max-md:text-[34px]">
+            <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--app-text)" }}>
               Operator<br />
               <span className="text-[#14B8A6]">Guidebook.</span>
             </h1>
-            <p className="text-[16px] font-light leading-[1.8] text-[#94A3B8] max-w-[580px]">
+            <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--app-text-secondary)" }}>
               Quick-reference cards covering each compliance area with direct links to the relevant government portals and indicative timelines for the full compliance journey.
             </p>
           </div>
@@ -1103,12 +1137,13 @@ export default function Home() {
                 <div
                   key={card.num}
                   data-testid={`guide-card-${card.num}`}
-                  className="bg-[#0F2040] border border-[rgba(255,255,255,0.07)] rounded-[10px] p-[22px_24px] transition-transform duration-200 block no-underline hover:-translate-y-[2px] hover-elevate"
+                  className="border rounded-[10px] p-[22px_24px] transition-transform duration-200 block no-underline hover:-translate-y-[2px] hover-elevate"
+                  style={{ background: "var(--app-panel)", borderColor: "var(--app-border)" }}
                 >
                   <div className="font-heading text-[9px] font-bold tracking-[2.5px] uppercase text-[#0D9488] mb-[10px]">
                     {card.num}
                   </div>
-                  <div className="font-heading font-extrabold text-[15px] text-[#F1F5F9] mb-2 tracking-[-0.2px]">
+                  <div className="font-heading font-extrabold text-[15px] mb-2 tracking-[-0.2px]" style={{ color: "var(--app-text)" }}>
                     {card.title}
                   </div>
                   <span
@@ -1121,7 +1156,7 @@ export default function Home() {
                   >
                     {card.role}
                   </span>
-                  <div className="text-[13px] font-light text-[#94A3B8] leading-[1.65] mb-4">{card.desc}</div>
+                  <div className="text-[13px] font-light leading-[1.65] mb-4" style={{ color: "var(--app-text-secondary)" }}>{card.desc}</div>
                   <div className="flex flex-wrap gap-[6px]">
                     {card.links.map((link) => (
                       <a
@@ -1146,27 +1181,27 @@ export default function Home() {
             </div>
 
             <div className="mb-12">
-              <h3 className="font-heading font-extrabold text-[16px] text-[#14B8A6] mb-6 pb-[10px] border-b border-b-[rgba(20,184,166,0.12)] tracking-[-0.2px]">
+              <h3 className="font-heading font-extrabold text-[16px] text-[#14B8A6] mb-6 pb-[10px] border-b tracking-[-0.2px]" style={{ borderColor: "rgba(20,184,166,0.12)" }}>
                 Indicative Compliance Timeline
               </h3>
               <div className="relative pl-8">
                 <div className="absolute left-[8px] top-[8px] bottom-[8px] w-[1px] bg-gradient-to-b from-[#0D9488] to-[rgba(13,148,136,0.1)]" />
                 {timelineItems.map((item, i) => (
                   <div key={i} className="relative mb-[26px]">
-                    <div className="absolute left-[-28px] top-[5px] w-[11px] h-[11px] rounded-full border-[1.5px] border-[#0D9488] bg-[#07101E]" />
+                    <div className="absolute left-[-28px] top-[5px] w-[11px] h-[11px] rounded-full border-[1.5px] border-[#0D9488]" style={{ background: "var(--app-node-bg)" }} />
                     <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#0D9488] mb-1">
                       {item.week}
                     </div>
-                    <div className="font-heading font-bold text-[14px] text-[#F1F5F9] mb-[5px] tracking-[-0.1px]">
+                    <div className="font-heading font-bold text-[14px] mb-[5px] tracking-[-0.1px]" style={{ color: "var(--app-text)" }}>
                       {item.title}
                     </div>
-                    <div className="text-[13px] font-light text-[#64748B] leading-[1.6]">{item.desc}</div>
+                    <div className="text-[13px] font-light leading-[1.6]" style={{ color: "var(--app-text-muted)" }}>{item.desc}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div className="mt-4 pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light text-[#64748B] leading-[1.7] italic">
+            <div className="mt-4 pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic" style={{ color: "var(--app-text-muted)" }}>
               This guidebook is an operational reference tool for villa operators in Bali. It does not constitute legal, tax, immigration, or regulatory advice. All timelines and cost estimates are indicative and subject to change. Engage appropriately licensed Indonesian professionals for all regulatory matters.
             </div>
           </div>

@@ -72,13 +72,18 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
               transition={{ duration: 0.15 }}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              className="absolute bottom-full left-0 mb-2 z-[300] w-[280px] bg-[#0F2040] border border-[rgba(20,184,166,0.22)] rounded-[8px] p-[14px_16px] shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+              className="absolute bottom-full left-0 mb-2 z-[300] w-[280px] rounded-[8px] p-[14px_16px] border"
+              style={{
+                background: "var(--app-panel)",
+                borderColor: "var(--app-border-teal)",
+                boxShadow: "0 8px 24px var(--app-shadow-popover)",
+              }}
               data-testid={`glossary-popover-${term.slug}`}
             >
-              <div className="font-heading font-extrabold text-[13px] text-[#F1F5F9] mb-[6px] tracking-[-0.1px]">
+              <div className="font-heading font-extrabold text-[13px] mb-[6px] tracking-[-0.1px]" style={{ color: "var(--app-text)" }}>
                 {term.term}
               </div>
-              <div className="text-[11px] font-light text-[#94A3B8] leading-[1.6] mb-[8px]">
+              <div className="text-[11px] font-light leading-[1.6] mb-[8px]" style={{ color: "var(--app-text-secondary)" }}>
                 {term.plainDefinition}
               </div>
               {whyItMatters.length > 0 && (
@@ -94,7 +99,14 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
               >
                 View full guide
               </button>
-              <div className="absolute left-[20px] bottom-[-5px] w-[10px] h-[10px] bg-[#0F2040] border-r border-b border-[rgba(20,184,166,0.22)] rotate-45" />
+              <div
+                className="absolute left-[20px] bottom-[-5px] w-[10px] h-[10px] rotate-45"
+                style={{
+                  background: "var(--app-panel)",
+                  borderRight: "1px solid var(--app-border-teal)",
+                  borderBottom: "1px solid var(--app-border-teal)",
+                }}
+              />
             </motion.div>
           )}
         </AnimatePresence>
@@ -102,30 +114,37 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
 
       {showModal && (
         <div
-          className="fixed inset-0 z-[500] flex items-center justify-center bg-[rgba(0,0,0,0.7)] backdrop-blur-[4px]"
+          className="fixed inset-0 z-[500] flex items-center justify-center backdrop-blur-[4px]"
+          style={{ background: "var(--app-overlay)" }}
           onClick={() => setShowModal(false)}
           data-testid={`glossary-modal-${term.slug}`}
         >
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-[#0F2040] border border-[rgba(20,184,166,0.22)] rounded-[12px] p-[28px_32px] max-w-[520px] w-[90vw] max-h-[80vh] overflow-y-auto shadow-[0_16px_48px_rgba(0,0,0,0.5)]"
+            className="rounded-[12px] p-[28px_32px] max-w-[520px] w-[90vw] max-h-[80vh] overflow-y-auto border"
+            style={{
+              background: "var(--app-panel)",
+              borderColor: "var(--app-border-teal)",
+              boxShadow: "0 16px 48px var(--app-shadow-popover)",
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
-              <div className="font-heading font-black text-[20px] text-[#F1F5F9] tracking-[-0.3px]">
+              <div className="font-heading font-black text-[20px] tracking-[-0.3px]" style={{ color: "var(--app-text)" }}>
                 {term.term}
               </div>
               <button
                 onClick={() => setShowModal(false)}
-                className="text-[#64748B] hover:text-[#94A3B8] cursor-pointer text-[18px] leading-none"
+                className="cursor-pointer text-[18px] leading-none"
+                style={{ color: "var(--app-text-muted)" }}
                 data-testid="glossary-modal-close"
               >
                 {"\u2715"}
               </button>
             </div>
 
-            <div className="text-[13px] font-light text-[#94A3B8] leading-[1.7] mb-5">
+            <div className="text-[13px] font-light leading-[1.7] mb-5" style={{ color: "var(--app-text-secondary)" }}>
               {term.plainDefinition}
             </div>
 
@@ -136,7 +155,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
                 </div>
                 <ul className="space-y-[5px]">
                   {whyItMatters.map((item, i) => (
-                    <li key={i} className="flex items-start gap-[8px] text-[12px] text-[#94A3B8] leading-[1.6]">
+                    <li key={i} className="flex items-start gap-[8px] text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
                       <span className="w-[4px] h-[4px] rounded-full bg-[#F59E0B] shrink-0 mt-[7px]" />
                       {item}
                     </li>
@@ -151,7 +170,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
               </div>
               <ul className="space-y-[5px]">
                 {whatToStore.map((item, i) => (
-                  <li key={i} className="flex items-start gap-[8px] text-[12px] text-[#94A3B8] leading-[1.6]">
+                  <li key={i} className="flex items-start gap-[8px] text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
                     <span className="w-[4px] h-[4px] rounded-full bg-[#14B8A6] shrink-0 mt-[7px]" />
                     {item}
                   </li>
@@ -175,7 +194,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
               </div>
             )}
 
-            <div className="text-[10px] text-[#475569] mt-4">
+            <div className="text-[10px] mt-4" style={{ color: "var(--app-text-dim)" }}>
               Last updated: {term.lastUpdated}
             </div>
           </motion.div>
