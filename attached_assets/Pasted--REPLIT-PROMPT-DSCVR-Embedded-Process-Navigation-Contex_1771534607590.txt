@@ -1,0 +1,319 @@
+# REPLIT PROMPT — DSCVR: Embedded Process Navigation + Contextual Glossary (FINAL STRUCTURE)
+
+We are building DSCVR’s Compliance Guide system.
+
+This is NOT documentation.
+
+This is operational workflow intelligence embedded directly inside compliance steps.
+
+We need two connected layers:
+
+1️⃣ Process Navigation (primary UX)  
+2️⃣ Terminology Decoder (reference database)
+
+Glossary definitions must appear contextually inside workflow steps via hover hyperlinks.
+
+---
+
+## GLOBAL DISCLAIMER (DISPLAY IN GUIDE HEADER)
+
+"This guide provides general workflow patterns and document-handling guidance based on industry practice. Requirements may vary by regency and may change. This is not legal or tax advice. Confirm with a licensed consultant or authority."
+
+---
+
+# 1️⃣ DATA STRUCTURE
+
+## Table: compliance_terms
+
+Fields:
+
+- id (uuid)
+- term (string, unique)
+- slug (string, unique)
+- plain_definition (text)
+- why_it_matters (json array)
+- what_to_store (json array)
+- common_pitfalls (json array, optional)
+- synonyms (json array, optional)
+- last_updated (date)
+- is_active (boolean)
+
+---
+
+## Table: process_navigation_guides
+
+Fields:
+
+- id (uuid)
+- gate_number (int)
+- title (string)
+- summary (text)
+- authority_handled_by (string)
+- submission_type (enum: digital | physical | hybrid)
+- sequence_steps (json array)
+- what_to_expect (json array)
+- typical_delays (json array)
+- common_rejection_reasons (json array)
+- dscvr_recommended_storage (json array)
+- last_updated (date)
+- is_active (boolean)
+
+---
+
+## sequence_steps object structure
+
+Each step contains:
+
+- step_number
+- action_description
+- where_it_goes
+- digital_or_physical (digital | physical | hybrid)
+- who_handles_it
+- notes (optional)
+- expand_details (json object, optional)
+
+expand_details may include:
+
+- why_this_matters
+- common_issues
+- preparation_tips
+- storage_reminders
+
+---
+
+# 2️⃣ PRIMARY UI — PROCESS NAVIGATION
+
+Add Guide section:
+
+### "Process Navigation — How It Actually Happens"
+
+Inside this section:
+
+### Filters
+
+- Gate number
+- Submission type
+- Search workflows
+
+---
+
+## Workflow Card Layout
+
+Each workflow displays:
+
+- Title
+- Summary
+- Authority handled by
+- Submission type badge
+
+Then:
+
+### Step Timeline
+
+Vertical sequence list.
+
+Each step card shows:
+
+- Step number
+- Action description
+- Where it goes
+- Digital / Physical badge
+- Who handles it
+
+---
+
+## Expandable Step Details
+
+Each step has:
+
+[ Expand Details ▾ ]
+
+When opened, show:
+
+- Why this matters
+- Common issues
+- Preparation tips
+- DSCVR storage reminders
+
+---
+
+# 3️⃣ EMBEDDED GLOSSARY HOVER SYSTEM (CRITICAL)
+
+Glossary is NOT separate from steps.
+
+It is embedded contextually.
+
+---
+
+## Behavior
+
+Any glossary term appearing in:
+
+- action_description
+- notes
+- expand_details
+- what_to_expect
+- delays
+- rejection reasons
+
+Should automatically render as a hover hyperlink.
+
+---
+
+## Example
+
+Text:
+
+"Apply wet signature and company stamp."
+
+Rendered:
+
+Apply **wet signature** and **company stamp** (hover enabled)
+
+---
+
+## Hover Tooltip Shows
+
+- Term title
+- Short definition
+- 1 “why it matters” bullet
+- Button: “View full guide”
+
+Click opens full glossary entry modal.
+
+---
+
+# 4️⃣ COMPONENTS TO BUILD
+
+## GlossaryLink Component
+
+Props:
+
+- term
+- children
+
+Behavior:
+
+- Dotted underline
+- Hover popover
+- Click opens glossary modal
+
+---
+
+## GlossaryAwareText Renderer
+
+Function:
+
+- Scans text
+- Matches glossary terms
+- Wraps matches in GlossaryLink
+
+Requirements:
+
+- Case insensitive
+- Word boundary matching
+- Synonym support
+- Longest match priority
+- Safe rendering (no XSS)
+
+---
+
+# 5️⃣ MASTER GLOSSARY SECTION (REFERENCE)
+
+Add Guide subpage:
+
+### "Terminology Decoder"
+
+This is a searchable glossary reference.
+
+Includes:
+
+- Search bar
+- Tag filters
+- Accordion entries
+- Full definitions
+- Storage guidance
+- Pitfalls
+
+This exists for exploration — not primary UX.
+
+---
+
+# 6️⃣ SEED TERMS (MINIMUM)
+
+Seed glossary with:
+
+- Wet Signature
+- Company Stamp / Chop
+- Notarised Document
+- Certified Copy
+- OSS
+- NIB
+- KBLI
+- PBG
+- SLF
+- Zoning Certificate
+
+Each must include:
+
+- Plain definition
+- Why it matters
+- Storage guidance
+
+---
+
+# 7️⃣ SEED WORKFLOW EXAMPLE
+
+Add:
+
+### SLF Renewal Workflow
+
+Include steps like:
+
+- Schedule inspection
+- Host inspector onsite
+- Apply wet signature
+- Stamp report
+- Scan + upload
+- Store originals
+
+Use hybrid submission classification.
+
+---
+
+# 8️⃣ ADMIN MANAGEMENT
+
+Add protected admin pages to:
+
+- Create/edit glossary terms
+- Add synonyms
+- Create/edit workflows
+- Toggle active status
+
+---
+
+# 9️⃣ CONSTRAINTS
+
+Do NOT:
+
+- Provide legal advice
+- Validate compliance legality
+- Certify documentation
+- Interpret zoning law
+
+All content framed as:
+
+"Typical workflow patterns"
+
+---
+
+# 10️⃣ DELIVERABLES
+
+- Process Navigation UI
+- Embedded glossary hover links
+- Glossary reference page
+- Step expand details
+- Admin editors
+- Disclaimer banner
+
+Build clean, minimal, and scalable.

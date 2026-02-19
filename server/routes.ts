@@ -1,7 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertComplianceTermSchema } from "@shared/schema";
+import { insertComplianceTermSchema, insertProcessGuideSchema } from "@shared/schema";
 import { seedComplianceTerms } from "./seed";
 
 export async function registerRoutes(
@@ -50,6 +50,41 @@ export async function registerRoutes(
     }
 
     const updated = await storage.updateTerm(req.params.id, parsed.data);
+    res.json(updated);
+  });
+
+  app.get("/api/guides", async (_req, res) => {
+    const activeOnly = _req.query.activeOnly !== "false";
+    const guides = await storage.getAllGuides(activeOnly);
+    res.json(guides);
+  });
+
+  app.get("/api/guides/:id", async (req, res) => {
+    const guide = await storage.getGuideById(req.params.id);
+    if (!guide) return res.status(404).json({ message: "Guide not found" });
+    res.json(guide);
+  });
+
+  app.post("/api/guides", async (req, res) => {
+    const parsed = insertProcessGuideSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
+    }
+    const guide = await storage.createGuide(parsed.data);
+    res.status(201).json(guide);
+  });
+
+  app.patch("/api/guides/:id", async (req, res) => {
+    const existing = await storage.getGuideById(req.params.id);
+    if (!existing) return res.status(404).json({ message: "Guide not found" });
+
+    const updateSchema = insertProcessGuideSchema.partial();
+    const parsed = updateSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
+    }
+
+    const updated = await storage.updateGuide(req.params.id, parsed.data);
     res.json(updated);
   });
 

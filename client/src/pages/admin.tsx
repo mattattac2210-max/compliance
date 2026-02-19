@@ -14,6 +14,7 @@ interface TermFormData {
   typicalProcessSteps: string;
   whatToStore: string;
   commonPitfalls: string;
+  synonyms: string;
   tags: string;
   lastUpdated: string;
   isActive: boolean;
@@ -26,6 +27,7 @@ const emptyForm: TermFormData = {
   typicalProcessSteps: "",
   whatToStore: "",
   commonPitfalls: "",
+  synonyms: "",
   tags: "",
   lastUpdated: new Date().toISOString().split("T")[0],
   isActive: true,
@@ -39,6 +41,7 @@ function termToForm(t: ComplianceTerm): TermFormData {
     typicalProcessSteps: t.typicalProcessSteps ? (t.typicalProcessSteps as string[]).join("\n") : "",
     whatToStore: (t.whatToStore as string[]).join("\n"),
     commonPitfalls: t.commonPitfalls ? (t.commonPitfalls as string[]).join("\n") : "",
+    synonyms: t.synonyms ? (t.synonyms as string[]).join(", ") : "",
     tags: (t.tags as string[]).join(", "),
     lastUpdated: t.lastUpdated,
     isActive: t.isActive,
@@ -55,6 +58,7 @@ function formToPayload(form: TermFormData) {
     typicalProcessSteps: form.typicalProcessSteps.trim() ? splitLines(form.typicalProcessSteps) : null,
     whatToStore: splitLines(form.whatToStore),
     commonPitfalls: form.commonPitfalls.trim() ? splitLines(form.commonPitfalls) : null,
+    synonyms: form.synonyms.trim() ? form.synonyms.split(",").map(s => s.trim()).filter(Boolean) : null,
     tags: form.tags.split(",").map(t => t.trim()).filter(Boolean),
     lastUpdated: form.lastUpdated,
     isActive: form.isActive,
@@ -71,10 +75,15 @@ export default function AdminPage() {
     queryKey: ["/api/terms?activeOnly=false"],
   });
 
+  const invalidateTerms = () => {
+    queryClient.invalidateQueries({ queryKey: ["/api/terms"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/terms?activeOnly=false"] });
+  };
+
   const createMutation = useMutation({
     mutationFn: (data: ReturnType<typeof formToPayload>) => apiRequest("POST", "/api/terms", data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/terms"] });
+      invalidateTerms();
       resetForm();
       setMessage({ type: "success", text: "Term created successfully." });
     },
@@ -85,7 +94,7 @@ export default function AdminPage() {
     mutationFn: ({ id, data }: { id: string; data: ReturnType<typeof formToPayload> }) =>
       apiRequest("PATCH", `/api/terms/${id}`, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/terms"] });
+      invalidateTerms();
       resetForm();
       setMessage({ type: "success", text: "Term updated successfully." });
     },
@@ -96,7 +105,7 @@ export default function AdminPage() {
     mutationFn: ({ id, isActive }: { id: string; isActive: boolean }) =>
       apiRequest("PATCH", `/api/terms/${id}`, { isActive }),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["/api/terms"] });
+      invalidateTerms();
     },
   });
 
@@ -254,6 +263,18 @@ export default function AdminPage() {
                   rows={2}
                   className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
                 />
+              </div>
+
+              <div>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#64748B] mb-[6px]">Synonyms (comma-separated, optional)</label>
+                <input
+                  data-testid="input-synonyms"
+                  value={form.synonyms}
+                  onChange={(e) => updateField("synonyms", e.target.value)}
+                  placeholder="e.g. physical signature, ink signature"
+                  className="w-full bg-[#07101E] border border-[rgba(255,255,255,0.07)] rounded-[6px] py-[9px] px-[12px] text-[13px] text-[#F1F5F9] outline-none focus:border-[rgba(20,184,166,0.35)]"
+                />
+                <div className="text-[10px] text-[#475569] mt-[4px]">Alternative names that will auto-link to this term in Process Navigation guides</div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">

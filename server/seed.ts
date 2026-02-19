@@ -1,6 +1,5 @@
 import { db } from "./db";
-import { complianceTerms } from "@shared/schema";
-import { sql } from "drizzle-orm";
+import { complianceTerms, processNavigationGuides } from "@shared/schema";
 
 const seedTerms = [
   {
@@ -28,6 +27,7 @@ const seedTerms = [
       "Missing signature page",
       "Wrong signatory (must be authorised director)"
     ],
+    synonyms: ["physical signature", "ink signature", "manual signature"],
     tags: ["Signatures", "Documents"],
     lastUpdated: "2025-02-19",
     isActive: true,
@@ -53,6 +53,7 @@ const seedTerms = [
       "Using the wrong stamp (e.g. old company name)",
       "Stamping over key text making it unreadable"
     ],
+    synonyms: ["company seal", "chop", "corporate stamp"],
     tags: ["Signatures", "Documents"],
     lastUpdated: "2025-02-19",
     isActive: true,
@@ -74,6 +75,7 @@ const seedTerms = [
       "Confusing notarised vs certified copy — they are different",
       "Using expired or incorrect document versions"
     ],
+    synonyms: ["notarized document", "notary-certified"],
     tags: ["Documents", "Legal"],
     lastUpdated: "2025-02-19",
     isActive: true,
@@ -94,6 +96,7 @@ const seedTerms = [
     commonPitfalls: [
       "Uploading a normal photocopy instead of a properly legalised copy"
     ],
+    synonyms: ["legalized copy"],
     tags: ["Documents", "Legal"],
     lastUpdated: "2025-02-19",
     isActive: true,
@@ -114,6 +117,7 @@ const seedTerms = [
     commonPitfalls: [
       "Missing certifier details or date on the copy"
     ],
+    synonyms: ["true copy"],
     tags: ["Documents"],
     lastUpdated: "2025-02-19",
     isActive: true,
@@ -136,6 +140,7 @@ const seedTerms = [
       "Losing login credentials to the OSS portal",
       "Incomplete fields leading to rejections or delays"
     ],
+    synonyms: ["OSS portal", "OSS RBA"],
     tags: ["OSS", "Permits"],
     lastUpdated: "2025-02-19",
     isActive: true,
@@ -157,6 +162,7 @@ const seedTerms = [
       "Wrong business category data entered during registration",
       "Mismatched company details between NIB and other documents"
     ],
+    synonyms: ["NIB", "business ID number"],
     tags: ["OSS", "Permits"],
     lastUpdated: "2025-02-19",
     isActive: true,
@@ -177,6 +183,7 @@ const seedTerms = [
     commonPitfalls: [
       "Selecting the wrong KBLI and needing to redo the registration process"
     ],
+    synonyms: ["KBLI code", "business classification"],
     tags: ["OSS", "Permits"],
     lastUpdated: "2025-02-19",
     isActive: true,
@@ -199,6 +206,7 @@ const seedTerms = [
       "Missing technical drawings in the application",
       "Assuming old building permits (IMB) are still valid — PBG has replaced IMB"
     ],
+    synonyms: ["PBG", "building permit", "building approval"],
     tags: ["Permits", "Building"],
     lastUpdated: "2025-02-19",
     isActive: true,
@@ -221,20 +229,255 @@ const seedTerms = [
       "Letting the SLF expire without renewal",
       "Missing inspection evidence needed for renewal"
     ],
+    synonyms: ["SLF", "building function certificate", "occupancy certificate"],
     tags: ["Permits", "Building"],
     lastUpdated: "2025-02-19",
     isActive: true,
   },
+  {
+    term: "Zoning Certificate",
+    slug: "zoning-certificate",
+    plainDefinition: "An official document confirming the permitted land use classification for a specific property or plot.",
+    whyItMatters: [
+      "Determines what activities are legally permitted on the land",
+      "Required before applying for building or operational permits"
+    ],
+    typicalProcessSteps: null,
+    whatToStore: [
+      "Zoning certificate PDF",
+      "KKPR documentation",
+      "Map or plot reference"
+    ],
+    commonPitfalls: [
+      "Assuming verbal confirmation is sufficient — always obtain written documentation",
+      "Not checking if zoning has been reclassified recently"
+    ],
+    synonyms: ["KKPR", "zoning document", "land use certificate"],
+    tags: ["Permits", "Zoning"],
+    lastUpdated: "2025-02-19",
+    isActive: true,
+  },
+];
+
+const seedWorkflows = [
+  {
+    gateNumber: 6,
+    title: "SLF Renewal Workflow",
+    summary: "Step-by-step process for renewing your SLF (Building Function Certificate) before it expires. This hybrid workflow involves both digital submissions and physical inspections.",
+    authorityHandledBy: "Local DPMPTSP / Public Works Office",
+    submissionType: "hybrid",
+    sequenceSteps: [
+      {
+        stepNumber: 1,
+        actionDescription: "Check SLF expiry date and schedule inspection at least 3 months before expiry",
+        whereItGoes: "Internal / DPMPTSP",
+        digitalOrPhysical: "digital" as const,
+        whoHandlesIt: "Villa operator or compliance consultant",
+        notes: "Start early — inspections can take weeks to schedule.",
+        expandDetails: {
+          whyThisMatters: "If the SLF expires before renewal is complete, the property technically operates without a valid certificate. Starting early avoids gaps.",
+          commonIssues: [
+            "Forgetting the expiry date until it's too late",
+            "DPMPTSP backlog during busy periods"
+          ],
+          preparationTips: [
+            "Set calendar reminders 6 months and 3 months before expiry",
+            "Confirm which DPMPTSP office handles your regency"
+          ],
+          storageReminders: [
+            "Save a copy of current SLF with expiry date highlighted",
+            "Upload inspection appointment confirmation to DSCVR"
+          ]
+        }
+      },
+      {
+        stepNumber: 2,
+        actionDescription: "Prepare building documentation package including original PBG, previous SLF, and as-built drawings",
+        whereItGoes: "Internal preparation",
+        digitalOrPhysical: "physical" as const,
+        whoHandlesIt: "Villa operator",
+        notes: "Ensure all documents are current and match the actual building state.",
+        expandDetails: {
+          whyThisMatters: "Incomplete documentation is the most common reason for inspection delays. Having everything ready speeds up the process significantly.",
+          commonIssues: [
+            "Cannot find original PBG documents",
+            "As-built drawings don't match current building layout"
+          ],
+          preparationTips: [
+            "Gather PBG, previous SLF, structural drawings, and MEP diagrams",
+            "Verify drawings match any renovations made since last SLF"
+          ],
+          storageReminders: [
+            "Upload complete document package to DSCVR before inspection",
+            "Create a checklist of all required documents"
+          ]
+        }
+      },
+      {
+        stepNumber: 3,
+        actionDescription: "Host building inspector onsite for physical inspection",
+        whereItGoes: "Onsite at property",
+        digitalOrPhysical: "physical" as const,
+        whoHandlesIt: "Inspector (DPMPTSP) + villa operator",
+        notes: "Inspector will check structural integrity, fire safety, and MEP systems.",
+        expandDetails: {
+          whyThisMatters: "The physical inspection is the core requirement. Inspectors verify that the building matches documentation and meets current safety standards.",
+          commonIssues: [
+            "Inspector finds undocumented modifications",
+            "Fire safety equipment not serviced or expired",
+            "Access issues preventing full inspection"
+          ],
+          preparationTips: [
+            "Service all fire extinguishers and safety equipment beforehand",
+            "Ensure all areas are accessible for inspection",
+            "Have a staff member available to assist the inspector"
+          ],
+          storageReminders: [
+            "Photograph the inspection process",
+            "Get a copy of the inspector's preliminary notes if possible"
+          ]
+        }
+      },
+      {
+        stepNumber: 4,
+        actionDescription: "Receive inspection report and address any findings or remediation requirements",
+        whereItGoes: "DPMPTSP issues report",
+        digitalOrPhysical: "hybrid" as const,
+        whoHandlesIt: "Villa operator + consultant",
+        notes: "Some findings may require corrections before the SLF can be issued.",
+        expandDetails: {
+          whyThisMatters: "The inspection report determines whether the SLF can be renewed directly or if corrections are needed first. Quick response to findings avoids extended delays.",
+          commonIssues: [
+            "Delayed report delivery from DPMPTSP",
+            "Unclear remediation requirements"
+          ],
+          preparationTips: [
+            "Follow up with DPMPTSP if report is not received within 2 weeks",
+            "Engage your consultant to interpret technical findings"
+          ],
+          storageReminders: [
+            "Upload full inspection report to DSCVR",
+            "Document any remediation work completed with photos"
+          ]
+        }
+      },
+      {
+        stepNumber: 5,
+        actionDescription: "Apply wet signature and company stamp to the SLF application form",
+        whereItGoes: "Internal — signed by director",
+        digitalOrPhysical: "physical" as const,
+        whoHandlesIt: "Company director / authorised signatory",
+        notes: "Must be signed by the person registered as director in the company deed.",
+        expandDetails: {
+          whyThisMatters: "Government offices require original wet signatures. Digital or photocopied signatures will be rejected.",
+          commonIssues: [
+            "Director not available to sign in person",
+            "Using wrong signatory"
+          ],
+          preparationTips: [
+            "Confirm who is the registered director before signing",
+            "Have the company stamp ready"
+          ],
+          storageReminders: [
+            "Scan the signed application clearly",
+            "Upload both the signed form and stamped version to DSCVR"
+          ]
+        }
+      },
+      {
+        stepNumber: 6,
+        actionDescription: "Submit renewal application with all supporting documents to DPMPTSP",
+        whereItGoes: "DPMPTSP office",
+        digitalOrPhysical: "hybrid" as const,
+        whoHandlesIt: "Consultant or villa operator",
+        notes: "Some regencies accept digital submission via OSS; others require physical delivery.",
+        expandDetails: {
+          whyThisMatters: "This is the formal submission. Missing documents will delay processing and may require resubmission.",
+          commonIssues: [
+            "Incomplete document package",
+            "Wrong office or submission channel"
+          ],
+          preparationTips: [
+            "Double-check the document checklist before submission",
+            "Confirm whether your regency uses OSS or physical submission"
+          ],
+          storageReminders: [
+            "Upload submission receipt or confirmation to DSCVR",
+            "Note the submission date and expected processing time"
+          ]
+        }
+      },
+      {
+        stepNumber: 7,
+        actionDescription: "Receive renewed SLF certificate and store originals securely",
+        whereItGoes: "DPMPTSP issues certificate",
+        digitalOrPhysical: "digital" as const,
+        whoHandlesIt: "Villa operator",
+        notes: "Set reminder for next renewal cycle (typically 5 years).",
+        expandDetails: {
+          whyThisMatters: "The renewed SLF is your proof of building compliance. Store it carefully and set reminders for the next renewal.",
+          commonIssues: [
+            "Not following up on delayed issuance",
+            "Forgetting to update DSCVR with the new certificate"
+          ],
+          preparationTips: [
+            "Follow up if certificate is not issued within the stated timeframe",
+            "Verify all details on the new SLF are correct"
+          ],
+          storageReminders: [
+            "Upload the new SLF certificate PDF to DSCVR",
+            "Update the renewal date tracker",
+            "Store physical original in a secure location"
+          ]
+        }
+      }
+    ],
+    whatToExpect: [
+      "Process typically takes 4-8 weeks from inspection to certificate issuance",
+      "Inspection scheduling may take 2-4 weeks depending on DPMPTSP availability",
+      "Minor remediation items are common and usually resolved quickly",
+      "Some regencies process renewals faster than initial applications"
+    ],
+    typicalDelays: [
+      "Inspector availability — can be 2-4 weeks wait",
+      "Incomplete documentation requiring resubmission",
+      "Remediation work needed after inspection findings",
+      "DPMPTSP administrative processing backlog"
+    ],
+    commonRejectionReasons: [
+      "Building modifications not reflected in submitted drawings",
+      "Fire safety equipment expired or missing",
+      "Structural concerns identified during inspection",
+      "Incomplete or incorrectly signed application forms"
+    ],
+    dscvrRecommendedStorage: [
+      "Current and renewed SLF certificates (PDF)",
+      "Inspection reports and findings",
+      "Remediation evidence (photos and documents)",
+      "Submission receipts and correspondence",
+      "Renewal date reminders"
+    ],
+    lastUpdated: "2025-02-19",
+    isActive: true,
+  }
 ];
 
 export async function seedComplianceTerms() {
   const existing = await db.select({ id: complianceTerms.id }).from(complianceTerms).limit(1);
   if (existing.length > 0) {
     console.log("Compliance terms already seeded, skipping...");
-    return;
+  } else {
+    console.log("Seeding compliance terms...");
+    await db.insert(complianceTerms).values(seedTerms);
+    console.log(`Seeded ${seedTerms.length} compliance terms.`);
   }
 
-  console.log("Seeding compliance terms...");
-  await db.insert(complianceTerms).values(seedTerms);
-  console.log(`Seeded ${seedTerms.length} compliance terms.`);
+  const existingGuides = await db.select({ id: processNavigationGuides.id }).from(processNavigationGuides).limit(1);
+  if (existingGuides.length > 0) {
+    console.log("Process navigation guides already seeded, skipping...");
+  } else {
+    console.log("Seeding process navigation guides...");
+    await db.insert(processNavigationGuides).values(seedWorkflows);
+    console.log(`Seeded ${seedWorkflows.length} process navigation guides.`);
+  }
 }

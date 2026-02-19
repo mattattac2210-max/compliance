@@ -1,6 +1,6 @@
-import { type User, type InsertUser, type ComplianceTerm, type InsertComplianceTerm, complianceTerms } from "@shared/schema";
+import { type User, type InsertUser, type ComplianceTerm, type InsertComplianceTerm, type ProcessGuide, type InsertProcessGuide, complianceTerms, processNavigationGuides } from "@shared/schema";
 import { db } from "./db";
-import { eq, ilike, or, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -12,6 +12,10 @@ export interface IStorage {
   searchTerms(query: string, tags?: string[]): Promise<ComplianceTerm[]>;
   createTerm(term: InsertComplianceTerm): Promise<ComplianceTerm>;
   updateTerm(id: string, term: Partial<InsertComplianceTerm>): Promise<ComplianceTerm | undefined>;
+  getAllGuides(activeOnly?: boolean): Promise<ProcessGuide[]>;
+  getGuideById(id: string): Promise<ProcessGuide | undefined>;
+  createGuide(guide: InsertProcessGuide): Promise<ProcessGuide>;
+  updateGuide(id: string, guide: Partial<InsertProcessGuide>): Promise<ProcessGuide | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -79,6 +83,28 @@ export class DatabaseStorage implements IStorage {
 
   async updateTerm(id: string, updates: Partial<InsertComplianceTerm>): Promise<ComplianceTerm | undefined> {
     const [updated] = await db.update(complianceTerms).set(updates).where(eq(complianceTerms.id, id)).returning();
+    return updated;
+  }
+
+  async getAllGuides(activeOnly = true): Promise<ProcessGuide[]> {
+    if (activeOnly) {
+      return db.select().from(processNavigationGuides).where(eq(processNavigationGuides.isActive, true)).orderBy(processNavigationGuides.gateNumber);
+    }
+    return db.select().from(processNavigationGuides).orderBy(processNavigationGuides.gateNumber);
+  }
+
+  async getGuideById(id: string): Promise<ProcessGuide | undefined> {
+    const [guide] = await db.select().from(processNavigationGuides).where(eq(processNavigationGuides.id, id));
+    return guide;
+  }
+
+  async createGuide(guide: InsertProcessGuide): Promise<ProcessGuide> {
+    const [created] = await db.insert(processNavigationGuides).values(guide).returning();
+    return created;
+  }
+
+  async updateGuide(id: string, updates: Partial<InsertProcessGuide>): Promise<ProcessGuide | undefined> {
+    const [updated] = await db.update(processNavigationGuides).set(updates).where(eq(processNavigationGuides.id, id)).returning();
     return updated;
   }
 }

@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, json, date, boolean } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, json, date, boolean, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -26,6 +26,7 @@ export const complianceTerms = pgTable("compliance_terms", {
   typicalProcessSteps: json("typical_process_steps").$type<string[]>(),
   whatToStore: json("what_to_store").$type<string[]>().notNull(),
   commonPitfalls: json("common_pitfalls").$type<string[]>(),
+  synonyms: json("synonyms").$type<string[]>(),
   tags: json("tags").$type<string[]>().notNull(),
   lastUpdated: date("last_updated").notNull(),
   isActive: boolean("is_active").notNull().default(true),
@@ -37,3 +38,43 @@ export const insertComplianceTermSchema = createInsertSchema(complianceTerms).om
 
 export type InsertComplianceTerm = z.infer<typeof insertComplianceTermSchema>;
 export type ComplianceTerm = typeof complianceTerms.$inferSelect;
+
+export interface ExpandDetails {
+  whyThisMatters?: string;
+  commonIssues?: string[];
+  preparationTips?: string[];
+  storageReminders?: string[];
+}
+
+export interface SequenceStep {
+  stepNumber: number;
+  actionDescription: string;
+  whereItGoes: string;
+  digitalOrPhysical: "digital" | "physical" | "hybrid";
+  whoHandlesIt: string;
+  notes?: string;
+  expandDetails?: ExpandDetails;
+}
+
+export const processNavigationGuides = pgTable("process_navigation_guides", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  gateNumber: integer("gate_number").notNull(),
+  title: text("title").notNull(),
+  summary: text("summary").notNull(),
+  authorityHandledBy: text("authority_handled_by").notNull(),
+  submissionType: text("submission_type").notNull(),
+  sequenceSteps: json("sequence_steps").$type<SequenceStep[]>().notNull(),
+  whatToExpect: json("what_to_expect").$type<string[]>().notNull(),
+  typicalDelays: json("typical_delays").$type<string[]>().notNull(),
+  commonRejectionReasons: json("common_rejection_reasons").$type<string[]>().notNull(),
+  dscvrRecommendedStorage: json("dscvr_recommended_storage").$type<string[]>().notNull(),
+  lastUpdated: date("last_updated").notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export const insertProcessGuideSchema = createInsertSchema(processNavigationGuides).omit({
+  id: true,
+});
+
+export type InsertProcessGuide = z.infer<typeof insertProcessGuideSchema>;
+export type ProcessGuide = typeof processNavigationGuides.$inferSelect;

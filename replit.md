@@ -7,7 +7,8 @@ DSCVR Compliance Navigator is a web application that guides users through a "Sev
 The project follows a full-stack TypeScript architecture with a React frontend (Vite) and Express backend, using PostgreSQL via Drizzle ORM for data persistence. The app now uses the database for a Compliance Terminology Decoder glossary (searchable, tag-filterable accordion cards in the Guide tab), managed via a simple admin page at `/admin`.
 
 ## Recent Changes
-- **2026-02-19**: Added Compliance Terminology Decoder glossary to Guide tab with search, tag filters, expandable accordion cards, copy-to-clipboard, and disclaimer. Database-backed with 10 seeded terms. Admin editor page at `/admin` for creating/editing/deactivating terms. API routes at `/api/terms`.
+- **2026-02-19**: Added Process Navigation Guides feature with step-by-step workflow cards, expandable step timelines with detailed expand panels (why-this-matters, common issues, preparation tips, storage reminders), gate filters, info tabs (what to expect, delays, rejections, storage). GlossaryLink hover popover and GlossaryAwareText auto-linking system that detects glossary terms + synonyms in workflow text. Added `synonyms` field to compliance_terms table. New `process_navigation_guides` table with 1 seeded SLF Renewal workflow. API routes at `/api/guides`. Admin page updated with synonyms field.
+- **2026-02-19**: Added Compliance Terminology Decoder glossary to Guide tab with search, tag filters, expandable accordion cards, copy-to-clipboard, and disclaimer. Database-backed with 11 seeded terms (including Zoning Certificate). Admin editor page at `/admin` for creating/editing/deactivating terms. API routes at `/api/terms`.
 
 ## User Preferences
 

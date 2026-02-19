@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlossarySection from "@/components/glossary";
+import { ProcessNavigation } from "@/components/process-navigation";
 
 type TabId = "flow" | "audit" | "guide";
 
@@ -1139,6 +1140,10 @@ export default function Home() {
             </div>
 
             <GlossarySection />
+
+            <div className="mb-12">
+              <ProcessNavigation />
+            </div>
 
             <div className="mb-12">
               <h3 className="font-heading font-extrabold text-[16px] text-[#14B8A6] mb-6 pb-[10px] border-b border-b-[rgba(20,184,166,0.12)] tracking-[-0.2px]">
