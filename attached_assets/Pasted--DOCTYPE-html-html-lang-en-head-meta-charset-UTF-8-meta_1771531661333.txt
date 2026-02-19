@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSCVR — Compliance Navigator</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+–bg:      #07101E;
+–surface: #0C1A2E;
+–card:    #0F2040;
+–teal:    #0D9488;
+–teal2:   #14B8A6;
+–tealFg:  #5EEAD4;
+–amber:   #F59E0B;
+–red:     #EF4444;
+–green:   #22C55E;
+–blue:    #3B82F6;
+–purple:  #8B5CF6;
+–mid:     #64748B;
+–muted:   #94A3B8;
+–light:   #CBD5E1;
+–white:   #F1F5F9;
+–border:  rgba(255,255,255,0.07);
+}
+
+html, body {
+min-height: 100vh;
+background: var(–bg);
+color: var(–white);
+font-family: ‘Lato’, sans-serif;
+overflow-x: hidden;
+}
+
+body::before {
+content: ‘’;
+position: fixed;
+inset: 0;
+background-image:
+linear-gradient(rgba(20,184,166,0.025) 1px, transparent 1px),
+linear-gradient(90deg, rgba(20,184,166,0.025) 1px, transparent 1px);
+background-size: 56px 56px;
+pointer-events: none;
+z-index: 0;
+}
+
+/* ── HEADER ── */
+header {
+position: sticky;
+top: 0;
+z-index: 200;
+display: flex;
+align-items: center;
+justify-content: space-between;
+padding: 16px 56px;
+background: rgba(7,16,30,0.95);
+backdrop-filter: blur(14px);
+border-bottom: 1px solid var(–border);
+}
+
+.wordmark {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 900;
+font-size: 20px;
+letter-spacing: 2px;
+color: var(–teal2);
+}
+
+.wordmark span {
+font-weight: 400;
+font-size: 10px;
+letter-spacing: 3px;
+color: var(–mid);
+display: block;
+margin-top: 2px;
+text-transform: uppercase;
+}
+
+.deadline-pill {
+display: inline-flex;
+align-items: center;
+gap: 7px;
+background: rgba(239,68,68,0.08);
+border: 1px solid rgba(239,68,68,0.22);
+border-radius: 100px;
+padding: 6px 14px;
+font-family: ‘Montserrat’, sans-serif;
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 1.5px;
+color: #FCA5A5;
+text-transform: uppercase;
+}
+
+.deadline-dot {
+width: 7px; height: 7px;
+border-radius: 50%;
+background: var(–red);
+animation: blink 2s infinite;
+flex-shrink: 0;
+}
+
+@keyframes blink {
+0%, 100% { opacity: 1; }
+50%       { opacity: 0.3; }
+}
+
+.header-note {
+font-family: ‘Lato’, sans-serif;
+font-size: 11px;
+color: var(–mid);
+text-align: right;
+line-height: 1.8;
+}
+
+/* ── TAB NAV ── */
+.tab-nav {
+position: sticky;
+top: 57px;
+z-index: 150;
+background: rgba(7,16,30,0.95);
+backdrop-filter: blur(14px);
+border-bottom: 1px solid var(–border);
+padding: 0 56px;
+display: flex;
+gap: 0;
+}
+
+.tab-btn {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 700;
+font-size: 11px;
+letter-spacing: 1.5px;
+text-transform: uppercase;
+padding: 14px 22px;
+background: transparent;
+border: none;
+border-bottom: 2px solid transparent;
+color: var(–mid);
+cursor: pointer;
+transition: all 0.2s;
+margin-bottom: -1px;
+}
+
+.tab-btn:hover { color: var(–teal2); }
+
+.tab-btn.active {
+color: var(–teal2);
+border-bottom-color: var(–teal2);
+}
+
+/* ── PANELS ── */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* ── SHARED INTRO AREA ── */
+.panel-intro {
+position: relative;
+z-index: 5;
+max-width: 1000px;
+margin: 0 auto;
+padding: 56px 56px 44px;
+}
+
+.kicker {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 4px;
+text-transform: uppercase;
+color: var(–teal);
+margin-bottom: 18px;
+display: flex;
+align-items: center;
+gap: 12px;
+}
+
+.kicker::before {
+content: ‘’;
+display: block;
+width: 28px; height: 1px;
+background: var(–teal);
+flex-shrink: 0;
+}
+
+.panel-intro h1 {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 900;
+font-size: 50px;
+line-height: 1.06;
+letter-spacing: -1.5px;
+color: var(–white);
+margin-bottom: 18px;
+}
+
+.panel-intro h1 em {
+color: var(–teal2);
+font-style: normal;
+}
+
+.panel-intro p {
+font-family: ‘Lato’, sans-serif;
+font-size: 16px;
+font-weight: 300;
+line-height: 1.8;
+color: var(–muted);
+max-width: 580px;
+}
+
+/* SCOPE BOX */
+.scope-box {
+margin-top: 36px;
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 0;
+border: 1px solid var(–border);
+border-radius: 10px;
+overflow: hidden;
+}
+
+.scope-col { padding: 22px 26px; }
+.scope-col:first-child { border-right: 1px solid var(–border); background: rgba(20,184,166,0.04); }
+.scope-col:last-child  { background: rgba(239,68,68,0.03); }
+
+.scope-label {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 800;
+letter-spacing: 3px;
+text-transform: uppercase;
+margin-bottom: 14px;
+}
+
+.scope-col:first-child .scope-label { color: var(–teal2); }
+.scope-col:last-child  .scope-label { color: #FCA5A5; }
+
+.scope-item {
+display: flex;
+align-items: flex-start;
+gap: 10px;
+margin-bottom: 8px;
+font-family: ‘Lato’, sans-serif;
+font-size: 13px;
+color: var(–muted);
+line-height: 1.5;
+}
+
+.scope-item::before {
+content: ‘’;
+width: 5px; height: 5px;
+border-radius: 50%;
+flex-shrink: 0;
+margin-top: 6px;
+}
+
+.scope-col:first-child .scope-item::before { background: var(–teal2); }
+.scope-col:last-child  .scope-item::before { background: #FCA5A5; }
+
+/* STATS */
+.stats-row {
+display: flex;
+gap: 0;
+margin-top: 24px;
+border: 1px solid var(–border);
+border-radius: 10px;
+overflow: hidden;
+}
+
+.stat {
+flex: 1;
+padding: 18px 22px;
+border-right: 1px solid var(–border);
+}
+.stat:last-child { border-right: none; }
+
+.stat-n {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 900;
+font-size: 26px;
+color: var(–teal2);
+line-height: 1;
+margin-bottom: 5px;
+letter-spacing: -0.5px;
+}
+
+.stat-l {
+font-family: ‘Lato’, sans-serif;
+font-size: 11px;
+color: var(–mid);
+}
+
+/* ════════════════════════════════════════
+FLOW PANEL
+════════════════════════════════════════ */
+.flow-wrap {
+position: relative;
+z-index: 5;
+max-width: 1000px;
+margin: 0 auto;
+padding: 0 56px 80px;
+}
+
+.spine {
+position: absolute;
+left: calc(56px + 36px);
+top: 0; bottom: 80px;
+width: 1px;
+background: linear-gradient(to bottom, rgba(20,184,166,0.5) 0%, rgba(20,184,166,0.1) 80%, transparent 100%);
+z-index: 0;
+}
+
+.section-divider {
+display: grid;
+grid-template-columns: 72px 1fr;
+gap: 0 20px;
+align-items: center;
+margin: 8px 0 10px;
+position: relative;
+z-index: 2;
+}
+
+.divider-line {
+height: 1px;
+background: linear-gradient(to right, rgba(100,116,139,0.3), transparent);
+}
+
+.divider-label {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: var(–mid);
+padding: 4px 0 4px 2px;
+}
+
+.gate { position: relative; z-index: 2; margin-bottom: 6px; }
+
+.gate-row {
+display: grid;
+grid-template-columns: 72px 1fr;
+gap: 0 20px;
+align-items: start;
+}
+
+.parallel-row {
+display: grid;
+grid-template-columns: 72px 1fr;
+gap: 0 20px;
+align-items: start;
+margin-bottom: 6px;
+position: relative;
+z-index: 2;
+}
+
+.parallel-nodes {
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 10px;
+padding-top: 8px;
+}
+
+.parallel-label {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 2.5px;
+text-transform: uppercase;
+color: var(–amber);
+padding: 4px 0 8px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.parallel-label::before {
+content: ‘’;
+display: block;
+width: 20px; height: 1px;
+background: rgba(245,158,11,0.4);
+}
+
+.node-btn {
+width: 72px; height: 72px;
+border-radius: 50%;
+border: none;
+cursor: pointer;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: var(–bg);
+transition: transform 0.2s;
+flex-shrink: 0;
+}
+
+.node-btn:hover { transform: scale(1.08); }
+
+.node-num {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 900;
+font-size: 22px;
+line-height: 1;
+letter-spacing: -0.5px;
+}
+
+.node-abbr {
+font-family: ‘Lato’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 1.5px;
+text-transform: uppercase;
+margin-top: 3px;
+opacity: 0.6;
+}
+
+.gate-card {
+background: var(–card);
+border-radius: 10px;
+border: 1px solid var(–border);
+overflow: hidden;
+cursor: pointer;
+transition: border-color 0.2s, background 0.2s;
+}
+
+.gate-card:hover { border-color: rgba(255,255,255,0.12); }
+.gate-card.active { border-color: rgba(20,184,166,0.3); background: rgba(13,148,136,0.04); }
+
+.card-header {
+padding: 18px 22px;
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 16px;
+}
+
+.card-layer {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 2.5px;
+text-transform: uppercase;
+margin-bottom: 5px;
+}
+
+.card-title {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 800;
+font-size: 15px;
+color: var(–white);
+margin-bottom: 3px;
+letter-spacing: -0.2px;
+}
+
+.card-sub {
+font-family: ‘Lato’, sans-serif;
+font-size: 12px;
+font-weight: 300;
+color: var(–mid);
+font-style: italic;
+}
+
+.card-right {
+display: flex;
+align-items: center;
+gap: 10px;
+flex-shrink: 0;
+}
+
+.role-pill {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 1px;
+text-transform: uppercase;
+padding: 4px 10px;
+border-radius: 4px;
+white-space: nowrap;
+}
+
+.toggle-btn {
+width: 26px; height: 26px;
+border-radius: 50%;
+background: rgba(255,255,255,0.05);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+color: var(–mid);
+transition: transform 0.22s, color 0.22s;
+flex-shrink: 0;
+font-weight: 300;
+}
+
+.gate-card.active .toggle-btn { transform: rotate(45deg); color: var(–teal2); }
+
+.card-body {
+display: none;
+padding: 0 22px 22px;
+border-top: 1px solid var(–border);
+}
+
+.gate-card.active .card-body { display: block; }
+
+.body-inner { padding-top: 18px; }
+
+.role-banner {
+display: flex;
+align-items: flex-start;
+gap: 12px;
+padding: 12px 16px;
+border-radius: 7px;
+margin-bottom: 16px;
+background: rgba(20,184,166,0.06);
+border: 1px solid rgba(20,184,166,0.15);
+}
+
+.role-banner-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; color: var(–teal2); }
+
+.role-banner-text {
+font-family: ‘Lato’, sans-serif;
+font-size: 12px;
+line-height: 1.6;
+color: var(–muted);
+}
+
+.role-banner-text strong {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 700;
+color: var(–teal2);
+font-size: 11px;
+letter-spacing: 0.5px;
+display: block;
+margin-bottom: 3px;
+}
+
+.col2 {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 10px;
+margin-bottom: 14px;
+}
+
+.info-block {
+background: rgba(7,16,30,0.6);
+border-radius: 7px;
+padding: 14px 16px;
+border-left: 2px solid;
+}
+
+.info-block h4 {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–mid);
+margin-bottom: 9px;
+}
+
+.info-block p, .info-block li {
+font-family: ‘Lato’, sans-serif;
+font-size: 13px;
+color: var(–muted);
+line-height: 1.65;
+}
+
+.info-block li { margin-left: 14px; margin-bottom: 3px; }
+.info-block strong { color: var(–light); font-weight: 700; }
+
+.alert {
+display: flex;
+gap: 10px;
+align-items: flex-start;
+padding: 11px 14px;
+border-radius: 7px;
+margin-bottom: 14px;
+font-family: ‘Lato’, sans-serif;
+font-size: 13px;
+line-height: 1.65;
+}
+
+.alert.amber { background: rgba(245,158,11,0.06); border: 1px solid rgba(245,158,11,0.18); color: #FCD34D; }
+.alert.red   { background: rgba(239,68,68,0.06);  border: 1px solid rgba(239,68,68,0.18);  color: #FCA5A5; }
+.alert.teal  { background: rgba(13,148,136,0.06); border: 1px solid rgba(20,184,166,0.18); color: var(–teal2); }
+
+.alert-ico { font-size: 13px; flex-shrink: 0; margin-top: 2px; }
+
+.portals-label {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 3px;
+text-transform: uppercase;
+color: var(–mid);
+margin-bottom: 9px;
+margin-top: 16px;
+}
+
+.portals { display: flex; flex-wrap: wrap; gap: 7px; }
+
+.portal-link {
+display: inline-flex;
+align-items: center;
+gap: 6px;
+font-family: ‘Lato’, sans-serif;
+font-size: 12px;
+font-weight: 700;
+padding: 7px 13px;
+border-radius: 5px;
+text-decoration: none;
+border: 1px solid rgba(20,184,166,0.18);
+background: rgba(13,148,136,0.06);
+color: var(–teal2);
+transition: all 0.18s;
+}
+
+.portal-link:hover { background: rgba(13,148,136,0.15); border-color: var(–teal2); color: var(–tealFg); }
+
+.zone-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 7px;
+margin-bottom: 14px;
+}
+
+.zone-chip {
+display: flex;
+align-items: center;
+gap: 8px;
+padding: 8px 10px;
+border-radius: 6px;
+background: rgba(7,16,30,0.5);
+border: 1px solid var(–border);
+}
+
+.zone-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.zone-name { font-family: ‘Montserrat’, sans-serif; font-size: 11px; font-weight: 700; color: var(–light); display: block; }
+.zone-status { font-family: ‘Lato’, sans-serif; font-size: 10px; color: var(–mid); display: block; }
+
+.connector {
+height: 28px;
+display: flex;
+align-items: center;
+padding-left: 36px;
+position: relative;
+z-index: 1;
+}
+
+.c-dots { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.c-dot { width: 3px; height: 3px; border-radius: 50%; background: rgba(20,184,166,0.3); }
+
+.outcome-wrap { margin-top: 10px; margin-left: 92px; }
+
+.outcome {
+background: linear-gradient(135deg, rgba(13,148,136,0.09), rgba(34,197,94,0.05));
+border: 1px solid rgba(20,184,166,0.22);
+border-radius: 10px;
+padding: 26px 30px;
+display: flex;
+align-items: center;
+gap: 22px;
+}
+
+.outcome-glyph { font-size: 32px; flex-shrink: 0; }
+
+.outcome-title {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 900;
+font-size: 17px;
+color: var(–teal2);
+letter-spacing: -0.2px;
+margin-bottom: 5px;
+}
+
+.outcome-desc {
+font-family: ‘Lato’, sans-serif;
+font-size: 13px;
+font-weight: 300;
+color: var(–mid);
+line-height: 1.7;
+font-style: italic;
+}
+
+.footnote {
+margin-top: 36px;
+margin-left: 92px;
+padding: 16px 20px;
+border-left: 2px solid rgba(100,116,139,0.25);
+font-family: ‘Lato’, sans-serif;
+font-size: 12px;
+font-weight: 300;
+color: var(–mid);
+line-height: 1.7;
+font-style: italic;
+}
+
+/* ════════════════════════════════════════
+AUDIT PANEL
+════════════════════════════════════════ */
+.audit-wrap {
+position: relative;
+z-index: 5;
+max-width: 1000px;
+margin: 0 auto;
+padding: 0 56px 80px;
+}
+
+.audit-alert {
+display: flex;
+gap: 16px;
+align-items: flex-start;
+padding: 20px 24px;
+border-radius: 10px;
+margin-bottom: 40px;
+background: rgba(239,68,68,0.05);
+border: 1px solid rgba(239,68,68,0.15);
+}
+
+.audit-alert-icon { font-size: 28px; flex-shrink: 0; }
+
+.audit-alert h2 {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 800;
+font-size: 18px;
+color: var(–white);
+margin-bottom: 6px;
+letter-spacing: -0.2px;
+}
+
+.audit-alert p {
+font-family: ‘Lato’, sans-serif;
+font-size: 13px;
+font-weight: 300;
+color: var(–muted);
+line-height: 1.7;
+}
+
+.audit-section-head {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 800;
+font-size: 13px;
+color: var(–teal2);
+letter-spacing: 0.3px;
+margin-bottom: 14px;
+padding-bottom: 10px;
+border-bottom: 1px solid rgba(20,184,166,0.12);
+display: flex;
+align-items: center;
+gap: 10px;
+}
+
+.section-num {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 2px;
+background: rgba(13,148,136,0.12);
+border: 1px solid rgba(20,184,166,0.2);
+color: var(–teal);
+padding: 3px 9px;
+border-radius: 4px;
+text-transform: uppercase;
+}
+
+.checklist { list-style: none; margin-bottom: 32px; }
+
+.checklist li {
+display: grid;
+grid-template-columns: 22px 1fr auto;
+gap: 12px;
+align-items: start;
+padding: 13px 16px;
+border-radius: 8px;
+margin-bottom: 4px;
+background: rgba(255,255,255,0.02);
+border: 1px solid rgba(226,232,240,0.06);
+transition: background 0.15s;
+cursor: pointer;
+}
+
+.checklist li:hover { background: rgba(255,255,255,0.035); }
+.checklist li.checked { background: rgba(34,197,94,0.05);  border-color: rgba(34,197,94,0.14); }
+.checklist li.flagged { background: rgba(239,68,68,0.05);  border-color: rgba(239,68,68,0.14); }
+.checklist li.warn    { background: rgba(245,158,11,0.05); border-color: rgba(245,158,11,0.14); }
+
+.check-box {
+width: 20px; height: 20px;
+border-radius: 4px;
+border: 1.5px solid var(–mid);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 11px;
+flex-shrink: 0;
+margin-top: 1px;
+transition: all 0.15s;
+font-family: ‘Lato’, sans-serif;
+font-weight: 700;
+}
+
+.checklist li.checked .check-box { background: var(–green);  border-color: var(–green);  color: #fff; }
+.checklist li.flagged .check-box { background: var(–red);    border-color: var(–red);    color: #fff; }
+.checklist li.warn    .check-box { background: var(–amber);  border-color: var(–amber);  color: #fff; }
+
+.check-title {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 700;
+font-size: 13px;
+color: var(–white);
+margin-bottom: 3px;
+letter-spacing: -0.1px;
+}
+
+.check-desc {
+font-family: ‘Lato’, sans-serif;
+font-size: 12px;
+font-weight: 300;
+color: var(–mid);
+line-height: 1.55;
+}
+
+.sev-tag {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 1px;
+padding: 3px 8px;
+border-radius: 4px;
+flex-shrink: 0;
+align-self: flex-start;
+margin-top: 2px;
+text-transform: uppercase;
+}
+
+.sev-critical { background: rgba(239,68,68,0.12);  color: #FCA5A5; }
+.sev-high     { background: rgba(245,158,11,0.12); color: #FCD34D; }
+.sev-medium   { background: rgba(20,184,166,0.12); color: var(–teal2); }
+.sev-low      { background: rgba(148,163,184,0.12);color: var(–muted); }
+
+.audit-legend {
+display: flex;
+gap: 16px;
+margin-bottom: 28px;
+padding: 14px 18px;
+background: rgba(255,255,255,0.02);
+border: 1px solid var(–border);
+border-radius: 8px;
+flex-wrap: wrap;
+}
+
+.legend-item {
+display: flex;
+align-items: center;
+gap: 7px;
+font-family: ‘Lato’, sans-serif;
+font-size: 12px;
+color: var(–muted);
+}
+
+.legend-dot {
+width: 10px; height: 10px;
+border-radius: 3px;
+flex-shrink: 0;
+}
+
+.audit-disclaimer {
+margin-top: 32px;
+padding: 16px 20px;
+border-left: 2px solid rgba(100,116,139,0.25);
+font-family: ‘Lato’, sans-serif;
+font-size: 12px;
+font-weight: 300;
+color: var(–mid);
+line-height: 1.7;
+font-style: italic;
+}
+
+/* ════════════════════════════════════════
+GUIDE PANEL
+════════════════════════════════════════ */
+.guide-wrap {
+position: relative;
+z-index: 5;
+max-width: 1000px;
+margin: 0 auto;
+padding: 0 56px 80px;
+}
+
+.guide-grid {
+display: grid;
+grid-template-columns: 1fr 1fr;
+gap: 14px;
+margin-bottom: 48px;
+}
+
+.guide-card {
+background: var(–card);
+border: 1px solid var(–border);
+border-radius: 10px;
+padding: 22px 24px;
+transition: all 0.22s;
+display: block;
+text-decoration: none;
+}
+
+.guide-card:hover {
+background: rgba(15,32,64,0.9);
+border-color: rgba(20,184,166,0.22);
+transform: translateY(-2px);
+}
+
+.guide-card-num {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 2.5px;
+text-transform: uppercase;
+color: var(–teal);
+margin-bottom: 10px;
+}
+
+.guide-card-title {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 800;
+font-size: 15px;
+color: var(–white);
+margin-bottom: 8px;
+letter-spacing: -0.2px;
+}
+
+.guide-card-role {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 1.5px;
+text-transform: uppercase;
+margin-bottom: 10px;
+padding: 4px 9px;
+border-radius: 4px;
+display: inline-block;
+}
+
+.guide-card-desc {
+font-family: ‘Lato’, sans-serif;
+font-size: 13px;
+font-weight: 300;
+color: var(–muted);
+line-height: 1.65;
+margin-bottom: 16px;
+}
+
+.guide-links { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.g-link {
+display: inline-flex;
+align-items: center;
+gap: 5px;
+font-family: ‘Lato’, sans-serif;
+font-size: 11px;
+font-weight: 700;
+padding: 5px 10px;
+border-radius: 4px;
+text-decoration: none;
+transition: all 0.15s;
+}
+
+.g-gov { color: var(–teal2); background: rgba(13,148,136,0.08); border: 1px solid rgba(20,184,166,0.15); }
+.g-gov:hover { background: rgba(13,148,136,0.18); border-color: var(–teal2); }
+
+/* TIMELINE */
+.timeline-section { margin-top: 8px; margin-bottom: 48px; }
+
+.timeline-section h3 {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 800;
+font-size: 16px;
+color: var(–teal2);
+margin-bottom: 24px;
+padding-bottom: 10px;
+border-bottom: 1px solid rgba(20,184,166,0.12);
+letter-spacing: -0.2px;
+}
+
+.timeline { position: relative; padding-left: 32px; }
+
+.timeline::before {
+content: ‘’;
+position: absolute;
+left: 8px; top: 8px; bottom: 8px;
+width: 1px;
+background: linear-gradient(to bottom, var(–teal), rgba(13,148,136,0.1));
+}
+
+.tl-item { position: relative; margin-bottom: 26px; }
+
+.tl-item::before {
+content: ‘’;
+position: absolute;
+left: -28px; top: 5px;
+width: 11px; height: 11px;
+border-radius: 50%;
+border: 1.5px solid var(–teal);
+background: var(–bg);
+}
+
+.tl-week {
+font-family: ‘Montserrat’, sans-serif;
+font-size: 9px;
+font-weight: 700;
+letter-spacing: 2px;
+text-transform: uppercase;
+color: var(–teal);
+margin-bottom: 4px;
+}
+
+.tl-title {
+font-family: ‘Montserrat’, sans-serif;
+font-weight: 700;
+font-size: 14px;
+color: var(–white);
+margin-bottom: 5px;
+letter-spacing: -0.1px;
+}
+
+.tl-desc {
+font-family: ‘Lato’, sans-serif;
+font-size: 13px;
+font-weight: 300;
+color: var(–mid);
+line-height: 1.6;
+}
+
+.guide-disclaimer {
+margin-top: 16px;
+padding: 16px 20px;
+border-left: 2px solid rgba(100,116,139,0.25);
+font-family: ‘Lato’, sans-serif;
+font-size: 12px;
+font-weight: 300;
+color: var(–mid);
+line-height: 1.7;
+font-style: italic;
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 740px) {
+header, .tab-nav { padding-left: 20px; padding-right: 20px; }
+.panel-intro, .flow-wrap, .audit-wrap, .guide-wrap { padding-left: 20px; padding-right: 20px; }
+.panel-intro h1 { font-size: 34px; }
+.col2, .scope-box, .guide-grid { grid-template-columns: 1fr; }
+.scope-col:first-child { border-right: none; border-bottom: 1px solid var(–border); }
+.zone-grid { grid-template-columns: 1fr 1fr; }
+.stats-row { flex-direction: column; }
+.stat { border-right: none; border-bottom: 1px solid var(–border); }
+.spine { left: calc(20px + 36px); }
+.outcome-wrap, .footnote, .audit-disclaimer, .guide-disclaimer { margin-left: 0; }
+}
+</style>
+
+</head>
+<body>
+
+<!-- HEADER -->
+
+<header>
+  <div class="wordmark">DSCVR<span>Compliance Navigator</span></div>
+  <div class="deadline-pill"><span class="deadline-dot"></span>OTA Deadline — 31 Mar 2026</div>
+  <div class="header-note">Bali Villa Operations<br>Seven-Gate Compliance Journey</div>
+</header>
+
+<!-- TAB NAV -->
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="showTab('flow')">↳ Compliance Flow</button>
+  <button class="tab-btn" onclick="showTab('audit')">⊙ Self-Audit Checklist</button>
+  <button class="tab-btn" onclick="showTab('guide')">◻ Guidebook</button>
+</div>
+
+<!-- ════════════════════════════════════════
+     FLOW PANEL
+════════════════════════════════════════ -->
+
+<div id="panel-flow" class="tab-panel active">
+
+  <div class="panel-intro">
+    <div class="kicker">Interactive compliance reference</div>
+    <h1>Seven Gates.<br><em>One Legal Path.</em></h1>
+    <p>Structural gates are sequential — each blocks the next. Operational streams run concurrently once the entity exists. Click any gate to expand the procedure and open the government portal where it is done.</p>
+
+```
+<div class="scope-box">
+  <div class="scope-col">
+    <div class="scope-label">DSCVR Tracks</div>
+    <div class="scope-item">Licence documents and expiry dates</div>
+    <div class="scope-item">Permit inspection schedules</div>
+    <div class="scope-item">Staff documentation and permit status</div>
+    <div class="scope-item">Safety compliance task logs</div>
+    <div class="scope-item">SOP execution evidence</div>
+    <div class="scope-item">Filing calendar alerts</div>
+  </div>
+  <div class="scope-col">
+    <div class="scope-label">DSCVR Does Not</div>
+    <div class="scope-item">Interpret zoning or legal status</div>
+    <div class="scope-item">Provide legal or tax advice</div>
+    <div class="scope-item">Validate corporate structures</div>
+    <div class="scope-item">File returns or submissions</div>
+    <div class="scope-item">Certify compliance status</div>
+    <div class="scope-item">Replace licensed professionals</div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat"><div class="stat-n">7</div><div class="stat-l">Compliance layers</div></div>
+  <div class="stat"><div class="stat-n">8–14wk</div><div class="stat-l">Estimated full timeline</div></div>
+  <div class="stat"><div class="stat-n">5yr</div><div class="stat-l">SLF renewal cycle</div></div>
+  <div class="stat"><div class="stat-n">31 Mar</div><div class="stat-l">OTA verification deadline</div></div>
+</div>
+```
+
+  </div>
+
+  <div class="flow-wrap">
+    <div class="spine"></div>
+
+```
+<!-- PREREQ -->
+<div class="section-divider"><div></div><div><div class="divider-label">Foundation — required before all gates</div><div class="divider-line"></div></div></div>
+<div class="gate" id="g0">
+  <div class="gate-row">
+    <button class="node-btn" onclick="toggle('g0')" style="border:2px dashed rgba(148,163,184,0.3);">
+      <span class="node-num" style="color:var(--muted)">PT</span>
+      <span class="node-abbr" style="color:var(--mid)">PMA</span>
+    </button>
+    <div class="gate-card" id="card-g0" onclick="toggle('g0')">
+      <div class="card-header">
+        <div>
+          <div class="card-layer" style="color:var(--mid)">Prerequisite</div>
+          <div class="card-title">Legal Entity — PT PMA</div>
+          <div class="card-sub">Company formation must be complete before any licence application</div>
+        </div>
+        <div class="card-right">
+          <span class="role-pill" style="background:rgba(148,163,184,0.08);border:1px solid rgba(148,163,184,0.15);color:var(--muted)">Document storage only</span>
+          <div class="toggle-btn">+</div>
+        </div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="role-banner"><span class="role-banner-icon">◈</span><div class="role-banner-text"><strong>DSCVR Role — Document Storage</strong>DSCVR stores the completed company deed, SK Kemenkumham approval, corporate NPWP, and bank confirmation. PT PMA formation requires a licensed Indonesian notary — DSCVR does not advise on structure or corporate law.</div></div>
+        <div class="alert amber"><span class="alert-ico">▲</span><span><strong>Regulatory exposure risk.</strong> Using Indonesian nationals to hold shares on behalf of a foreign owner carries significant regulatory exposure for both parties and has faced increased scrutiny since 2024. PT PMA with 100% foreign ownership is the documented, low-risk structure for KBLI 55193.</span></div>
+        <div class="col2">
+          <div class="info-block" style="border-color:var(--teal)"><h4>Steps Completed Externally</h4><ul><li>Company name reservation via AHU</li><li>Notarised Deed (Akta Pendirian)</li><li>Ministry approval — SK Kemenkumham</li><li>Corporate NPWP (national tax ID)</li><li>Bank account + IDR 2.5B paid-up capital</li></ul></div>
+          <div class="info-block" style="border-color:var(--mid)"><h4>Indicative Timeline &amp; Costs</h4><p>Estimated 4–8 weeks from deed to NIB + bank account. Professional fees: estimated IDR 30–80M. Costs vary by provider. Minimum paid-up capital: IDR 2.5B (BKPM Reg 5/2025).</p></div>
+        </div>
+        <div class="portals-label">Government Portals</div>
+        <div class="portals">
+          <a class="portal-link" href="https://ahu.go.id" target="_blank">↗ AHU Online — Company Name &amp; Deed</a>
+          <a class="portal-link" href="https://oss.go.id" target="_blank">↗ OSS RBA — Business Registration</a>
+          <a class="portal-link" href="https://pajak.go.id" target="_blank">↗ DJP — Corporate NPWP</a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<div class="connector"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div></div>
+
+<!-- STRUCTURAL GATES -->
+<div class="section-divider"><div></div><div><div class="divider-label">Structural gates — sequential, each blocks the next</div><div class="divider-line"></div></div></div>
+
+<!-- GATE 1 -->
+<div class="gate" id="g1">
+  <div class="gate-row">
+    <button class="node-btn" onclick="toggle('g1')" style="border:2px solid var(--teal2);box-shadow:0 0 18px rgba(20,184,166,0.14);">
+      <span class="node-num" style="color:var(--teal2)">1</span><span class="node-abbr" style="color:var(--teal)">ZONE</span>
+    </button>
+    <div class="gate-card" id="card-g1" onclick="toggle('g1')">
+      <div class="card-header">
+        <div><div class="card-layer" style="color:var(--teal2)">Layer One — Structural</div><div class="card-title">Zoning Documentation — KKPR</div><div class="card-sub">Missing or unverified zone documentation puts all downstream gates at risk</div></div>
+        <div class="card-right"><span class="role-pill" style="background:rgba(20,184,166,0.08);border:1px solid rgba(20,184,166,0.18);color:var(--teal2)">Document + map upload</span><div class="toggle-btn">+</div></div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="role-banner"><span class="role-banner-icon">◈</span><div class="role-banner-text"><strong>DSCVR Role — Document Upload &amp; Status Tracking</strong>DSCVR stores the KKPR certificate, records zone classification as operator-reported, and flags when a KBLI change may require a new KKPR. DSCVR does not determine legal zone status — that rests with a licensed consultant and the relevant DPMPTSP.</div></div>
+        <div class="alert amber"><span class="alert-ico">▲</span><span>Markets including Canggu and Pererenan contain both pink (pariwisata) and yellow (residential) zones in close proximity. Zone status must be verified at the individual land parcel level, not at suburb or street level.</span></div>
+        <div class="zone-grid">
+          <div class="zone-chip"><div class="zone-dot" style="background:#FF85B3"></div><div><span class="zone-name">Pink</span><span class="zone-status">↑ Pariwisata — proceed</span></div></div>
+          <div class="zone-chip"><div class="zone-dot" style="background:#FB923C"></div><div><span class="zone-name">Orange</span><span class="zone-status">↑ Mixed-use — conditional</span></div></div>
+          <div class="zone-chip"><div class="zone-dot" style="background:#EF4444"></div><div><span class="zone-name">Red</span><span class="zone-status">↑ Commercial — viable</span></div></div>
+          <div class="zone-chip"><div class="zone-dot" style="background:#EAB308"></div><div><span class="zone-name">Yellow</span><span class="zone-status">↓ Residential — high risk</span></div></div>
+          <div class="zone-chip"><div class="zone-dot" style="background:#22C55E"></div><div><span class="zone-name">Green</span><span class="zone-status">↓ Agricultural — high risk</span></div></div>
+          <div class="zone-chip"><div class="zone-dot" style="background:#166534"></div><div><span class="zone-name">Konservasi</span><span class="zone-status">↓ Conservation — high risk</span></div></div>
+        </div>
+        <div class="col2">
+          <div class="info-block" style="border-color:var(--teal2)"><h4>KKPR — What It Is</h4><p>Zoning conformity certificate via OSS → DPMPTSP. Confirms land use aligns with stated KBLI. Estimated timeline: 2–6 weeks. No government application fee. OSS cross-checks RDTR automatically on submission.</p></div>
+          <div class="info-block" style="border-color:var(--amber)"><h4>Zone Conversion Risk Note</h4><p>Services promising to convert agricultural or residential zoning face significant regulatory hurdles and extended timelines with no guaranteed outcome. Independent legal advice recommended before proceeding on this basis.</p></div>
+        </div>
+        <div class="portals-label">Government Portals</div>
+        <div class="portals">
+          <a class="portal-link" href="https://gistarubali.id" target="_blank">↗ GISTARU Bali — Official Zone Map</a>
+          <a class="portal-link" href="https://oss.go.id" target="_blank">↗ OSS RBA — KKPR Application</a>
+          <a class="portal-link" href="https://rdtr.atrbpn.go.id" target="_blank">↗ RDTR ATR/BPN — National Spatial Reference</a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+<div class="connector"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div></div>
+
+<!-- GATE 2 -->
+<div class="gate" id="g2">
+  <div class="gate-row">
+    <button class="node-btn" onclick="toggle('g2')" style="border:2px solid #3B82F6;box-shadow:0 0 18px rgba(59,130,246,0.12);">
+      <span class="node-num" style="color:#60A5FA">2</span><span class="node-abbr" style="color:#3B82F6">NIB</span>
+    </button>
+    <div class="gate-card" id="card-g2" onclick="toggle('g2')">
+      <div class="card-header">
+        <div><div class="card-layer" style="color:#60A5FA">Layer Two — Structural</div><div class="card-title">Business Licensing — NIB + KBLI</div><div class="card-sub">NIB must reach Verified status — Issued alone does not pass OTA verification</div></div>
+        <div class="card-right"><span class="role-pill" style="background:rgba(59,130,246,0.08);border:1px solid rgba(59,130,246,0.18);color:#60A5FA">Licence expiry tracking</span><div class="toggle-btn">+</div></div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="role-banner"><span class="role-banner-icon">◈</span><div class="role-banner-text"><strong>DSCVR Role — NIB Status Monitoring</strong>DSCVR stores the NIB certificate, tracks displayed status (Issued / Verified / Suspended), and alerts when documents supporting verification approach expiry. DSCVR does not submit to OSS or advise on KBLI selection — consult a licensed business registration specialist.</div></div>
+        <div class="alert amber"><span class="alert-ico">▲</span><span><strong>Identity consistency requirement.</strong> The legal entity name registered in OSS must match the account name on every OTA listing exactly. A mismatch — even minor formatting — triggers a verification failure regardless of underlying licence status.</span></div>
+        <div class="col2">
+          <div class="info-block" style="border-color:#3B82F6"><h4>Relevant KBLI Codes</h4><ul><li><strong>55193</strong> — Villa (commercial, staffed, 4+ beds)</li><li><strong>55194</strong> — Pondok Wisata (smaller homestay scale)</li><li><strong>55199</strong> — Catch-all: OSS increasingly flagging for large commercial villas. Review with registrar.</li></ul></div>
+          <div class="info-block" style="border-color:var(--amber)"><h4>KBLI 2025 — Transition Note</h4><p>BPS published KBLI 2025 in December 2025, replacing KBLI 2020. A transition window applies to existing registrations. Operators should confirm status with their OSS consultant. DSCVR will flag this as a tracking event.</p></div>
+        </div>
+        <div class="portals-label">Government Portals</div>
+        <div class="portals">
+          <a class="portal-link" href="https://oss.go.id" target="_blank">↗ OSS RBA — NIB Application &amp; Status</a>
+          <a class="portal-link" href="https://www.bps.go.id/id/business-register" target="_blank">↗ BPS — KBLI 2025 Classification</a>
+          <a class="portal-link" href="https://bkpm.go.id" target="_blank">↗ BKPM — Investment Coordinating Board</a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+<div class="connector"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div></div>
+
+<!-- GATE 3 -->
+<div class="gate" id="g3">
+  <div class="gate-row">
+    <button class="node-btn" onclick="toggle('g3')" style="border:2px solid #8B5CF6;box-shadow:0 0 18px rgba(139,92,246,0.12);">
+      <span class="node-num" style="color:#A78BFA">3</span><span class="node-abbr" style="color:#8B5CF6">SLF</span>
+    </button>
+    <div class="gate-card" id="card-g3" onclick="toggle('g3')">
+      <div class="card-header">
+        <div><div class="card-layer" style="color:#A78BFA">Layer Three — Structural</div><div class="card-title">Building Compliance — PBG + SLF</div><div class="card-sub">SLF expiry is the most common cause of sudden NIB status change — 5-year renewal cycle</div></div>
+        <div class="card-right"><span class="role-pill" style="background:rgba(139,92,246,0.08);border:1px solid rgba(139,92,246,0.18);color:#A78BFA">Inspection reminders</span><div class="toggle-btn">+</div></div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="role-banner"><span class="role-banner-icon">◈</span><div class="role-banner-text"><strong>DSCVR Role — Expiry Tracking + Renewal Reminders</strong>DSCVR stores the SLF certificate, tracks the expiry date, and issues alerts at 90 / 60 / 30 / 14 days before expiry. Renewal requires a licensed Pengkaji Teknis and DPMPTSP submission — DSCVR does not manage that process.</div></div>
+        <div class="alert red"><span class="alert-ico">▲</span><span>A significant portion of pre-2021 Bali villa stock holds a PBG or IMB with <strong>Residential function</strong> — the most common structural licensing blocker. Amendment requires as-built drawings from a licensed engineer. Estimated cost: IDR 10–50M. Estimated timeline: 4–12 weeks.</span></div>
+        <div class="col2">
+          <div class="info-block" style="border-color:#8B5CF6"><h4>PBG Function Requirement</h4><p>Must read: <strong>Commercial / Pariwisata / Non-Residential</strong>. Residential function blocks TDUP and NIB Verified status. Applied or amended via SIMBG. IMBs issued before 2021 must be reviewed.</p></div>
+          <div class="info-block" style="border-color:var(--teal2)"><h4>SLF Renewal — Estimated Timeline</h4><p>Commercial SLF valid <strong>5 years</strong>. Allow 8–12 weeks for the full renewal cycle: Pengkaji Teknis, pre-inspection prep, formal inspection, any remediation, DPMPTSP processing (est. 14–45 days).</p></div>
+        </div>
+        <div class="portals-label">Government Portals</div>
+        <div class="portals">
+          <a class="portal-link" href="https://simbg.pu.go.id" target="_blank">↗ SIMBG — PBG &amp; SLF Submission</a>
+          <a class="portal-link" href="https://oss.go.id" target="_blank">↗ OSS RBA — Building Compliance</a>
+          <a class="portal-link" href="https://dpmptsp.badungkab.go.id" target="_blank">↗ DPMPTSP Badung — Permit Office</a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<!-- PARALLEL STREAMS -->
+<div class="connector"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div></div>
+<div class="section-divider"><div></div><div><div class="divider-label">Operational streams — run concurrently once entity is established</div><div class="divider-line"></div></div></div>
+
+<div class="parallel-row">
+  <div class="parallel-nodes">
+    <button class="node-btn" onclick="toggle('g4')" style="border:2px solid var(--amber);box-shadow:0 0 18px rgba(245,158,11,0.12);">
+      <span class="node-num" style="color:var(--amber)">4</span><span class="node-abbr" style="color:#92400E">TAX</span>
+    </button>
+    <button class="node-btn" onclick="toggle('g5')" style="border:2px solid var(--green);box-shadow:0 0 18px rgba(34,197,94,0.1);">
+      <span class="node-num" style="color:var(--green)">5</span><span class="node-abbr" style="color:#166534">STAFF</span>
+    </button>
+  </div>
+  <div>
+    <!-- TAX -->
+    <div class="parallel-label">Tax compliance — concurrent stream</div>
+    <div class="gate-card" id="card-g4" onclick="toggle('g4')" style="margin-bottom:10px;">
+      <div class="card-header">
+        <div><div class="card-layer" style="color:var(--amber)">Layer Four — Operational Stream</div><div class="card-title">Tax — PB1 / NPWPD / PPh</div><div class="card-sub">Begins concurrently with NIB issuance — not downstream of building compliance</div></div>
+        <div class="card-right"><span class="role-pill" style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.18);color:var(--amber)">Filing calendar + storage</span><div class="toggle-btn">+</div></div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="role-banner"><span class="role-banner-icon">◈</span><div class="role-banner-text"><strong>DSCVR Role — Filing Calendar + Document Storage</strong>DSCVR maintains a tax obligation calendar, stores NPWPD registration and SPTPD filing confirmations. DSCVR does not prepare returns, advise on tax positions, or interpret tax law. Engage a licensed Indonesian tax consultant.</div></div>
+        <div class="alert amber"><span class="alert-ico">▲</span><span><strong>Data matching risk (CoreTax, live from Jan 2025).</strong> Indonesia's CoreTax system is reported to cross-reference OTA booking revenue against PB1 filings. Significant discrepancies may generate audit attention. Confirm the extent of OTA data sharing with your tax consultant.</span></div>
+        <div class="col2">
+          <div class="info-block" style="border-color:var(--amber)"><h4>Monthly PB1 — Badung</h4><ul><li>Register NPWPD via e-Palapa (Badung)</li><li>Collect 10% PB1 from each guest — label as local government tax, not VAT</li><li>File SPTPD by 20th of following month</li><li>Remit via BPD Bali or Virtual Account</li></ul></div>
+          <div class="info-block" style="border-color:var(--mid)"><h4>Key Annual Deadlines</h4><ul><li><strong>April 30</strong> — SPT Tahunan (corporate)</li><li><strong>15th monthly</strong> — PPh 25 instalment</li><li><strong>20th monthly</strong> — PPh 21 / 23 / 26</li><li><strong>10th monthly</strong> — BPJS contributions</li></ul></div>
+        </div>
+        <div class="portals-label">Government Portals</div>
+        <div class="portals">
+          <a class="portal-link" href="https://e-palapa.badungkab.go.id" target="_blank">↗ e-Palapa Badung — NPWPD &amp; SPTPD</a>
+          <a class="portal-link" href="https://djponline.pajak.go.id" target="_blank">↗ DJP Online — PPh Filing</a>
+          <a class="portal-link" href="https://pajak.go.id/reformasi-pajak/coretax" target="_blank">↗ CoreTax — Tax Administration</a>
+          <a class="portal-link" href="https://bapenda.badungkab.go.id" target="_blank">↗ Bapenda Badung — Regional Revenue</a>
+        </div>
+      </div></div>
+    </div>
+
+    <!-- STAFF -->
+    <div class="parallel-label">Staff compliance — concurrent stream</div>
+    <div class="gate-card" id="card-g5" onclick="toggle('g5')">
+      <div class="card-header">
+        <div><div class="card-layer" style="color:var(--green)">Layer Five — Operational Stream</div><div class="card-title">Staff &amp; Employment Compliance</div><div class="card-sub">Runs concurrently — does not wait for building or tax gate completion</div></div>
+        <div class="card-right"><span class="role-pill" style="background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.18);color:var(--green)">Permit + contract tracking</span><div class="toggle-btn">+</div></div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="role-banner"><span class="role-banner-icon">◈</span><div class="role-banner-text"><strong>DSCVR Role — Staff Profiles + Permit Expiry Tracking</strong>DSCVR maintains a staff profile per employee, stores BPJS registration, employment contracts, and KITAS documents with expiry alerts. DSCVR does not advise on employment law, immigration applications, or contribution calculations.</div></div>
+        <div class="alert red"><span class="alert-ico">▲</span><span><strong>KITAS exposure risk.</strong> Foreign nationals managing villa operations without a valid Investor KITAS carry significant immigration exposure — increased enforcement attention in Bali since 2024. Estimated cost: IDR 3–8M per year via BKPM or licensed agent.</span></div>
+        <div class="col2">
+          <div class="info-block" style="border-color:var(--green)"><h4>BPJS Indicative Rates</h4><ul><li>Kesehatan: <strong>4%</strong> employer + 1% employee (cap applies)</li><li>Ketenagakerjaan: approx <strong>6.24–7.74%</strong> employer total (varies by risk class)</li><li>Payment deadline: 10th of each month</li><li>Enrol within 30 days of hiring</li></ul></div>
+          <div class="info-block" style="border-color:var(--mid)"><h4>THR — 2026 Lebaran</h4><p>Mandatory one-month salary bonus for all employees. Indicative legal deadline: 7 days before Lebaran (estimated ~March 22, 2026). Applies to all staff regardless of role. Confirm exact date annually.</p></div>
+        </div>
+        <div class="portals-label">Government Portals</div>
+        <div class="portals">
+          <a class="portal-link" href="https://edabu.bpjs-kesehatan.go.id" target="_blank">↗ eDabu — BPJS Kesehatan</a>
+          <a class="portal-link" href="https://sipp.bpjsketenagakerjaan.go.id" target="_blank">↗ SIPP Online — BPJamsostek</a>
+          <a class="portal-link" href="https://imigrasi.go.id" target="_blank">↗ Ditjen Imigrasi — KITAS</a>
+          <a class="portal-link" href="https://bkpm.go.id" target="_blank">↗ BKPM — Investor KITAS</a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<div class="connector" style="margin-top:10px;"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div></div>
+
+<!-- GATE 6 -->
+<div class="gate" id="g6">
+  <div class="gate-row">
+    <button class="node-btn" onclick="toggle('g6')" style="border:2px solid var(--red);box-shadow:0 0 18px rgba(239,68,68,0.1);">
+      <span class="node-num" style="color:#FCA5A5">6</span><span class="node-abbr" style="color:var(--red)">SAFE</span>
+    </button>
+    <div class="gate-card" id="card-g6" onclick="toggle('g6')">
+      <div class="card-header">
+        <div><div class="card-layer" style="color:#FCA5A5">Layer Six — Operational Stream</div><div class="card-title">Operational Safety — Ongoing Standards</div><div class="card-sub">Permenpar 6/2025 requires written SOPs — the task library with timestamps is the evidence</div></div>
+        <div class="card-right"><span class="role-pill" style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.18);color:#FCA5A5">Task execution + logs</span><div class="toggle-btn">+</div></div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="role-banner"><span class="role-banner-icon">◈</span><div class="role-banner-text"><strong>DSCVR Role — Task Execution + Evidence Logs</strong>This is where DSCVR is most operationally native. Recurring tasks, completed checklists, and PoP-timestamped photos generate the evidence trail that functions as the SOP record required under Permenpar 6/2025.</div></div>
+        <div class="alert teal"><span class="alert-ico">◆</span><span>Permenpar 6/2025 requires documented SOPs for check-in, check-out, housekeeping, maintenance, and emergency response. A task library with completion timestamps constitutes the documented SOP evidence during an inspection.</span></div>
+        <div class="col2">
+          <div class="info-block" style="border-color:var(--red)"><h4>Recurring Safety Tasks</h4><ul><li><strong>Monthly:</strong> Fire extinguisher seal and gauge check</li><li><strong>Twice-weekly:</strong> Pool chemistry (Cl 1–3ppm, pH 7.2–7.8)</li><li><strong>Quarterly:</strong> Emergency exit KELUAR signage photo</li><li><strong>Annual:</strong> Fire extinguisher full service + certificate</li></ul></div>
+          <div class="info-block" style="border-color:var(--mid)"><h4>SLF Inspection Alignment</h4><p>SLF renewal inspects structural, electrical, fire, plumbing, pool, and ventilation. Properties running active DSCVR safety task logs are better positioned for pre-inspection preparation, surfacing recurring issues before a formal inspection is triggered.</p></div>
+        </div>
+        <div class="portals-label">Government Portals</div>
+        <div class="portals">
+          <a class="portal-link" href="https://jdih.kemenparekraf.go.id" target="_blank">↗ JDIH Kemenparekraf — Permenpar 6/2025</a>
+          <a class="portal-link" href="https://damkar.badungkab.go.id" target="_blank">↗ Dinas Damkar Badung — Fire Safety</a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<div class="connector"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div></div>
+
+<!-- GATE 7 -->
+<div class="gate" id="g7">
+  <div class="gate-row">
+    <button class="node-btn" onclick="toggle('g7')" style="border:2px solid var(--teal2);box-shadow:0 0 26px rgba(20,184,166,0.22);">
+      <span class="node-num" style="color:var(--teal2)">7</span><span class="node-abbr" style="color:var(--teal)">OTA</span>
+    </button>
+    <div class="gate-card" id="card-g7" onclick="toggle('g7')">
+      <div class="card-header">
+        <div><div class="card-layer" style="color:var(--teal2)">Layer Seven — Enforcement Mechanism</div><div class="card-title">OTA Platform — Compliance Passport</div><div class="card-sub">Verification is automated against OSS — account manager relationships cannot override a failed system check</div></div>
+        <div class="card-right">
+          <div class="deadline-pill" style="font-size:9px;padding:4px 10px;"><span class="deadline-dot"></span>31 MAR 2026</div>
+          <div class="toggle-btn">+</div>
+        </div>
+      </div>
+      <div class="card-body"><div class="body-inner">
+        <div class="role-banner"><span class="role-banner-icon">◈</span><div class="role-banner-text"><strong>DSCVR Role — Compliance Passport Export</strong>DSCVR generates a Compliance Passport — a document export showing all uploaded materials with dates. The export does not certify legal compliance; it provides an operator-attributed evidence record. Legal weight rests with the operator and their advisors.</div></div>
+        <div class="alert red"><span class="alert-ico">▲</span><span>OTA verification queries OSS directly via API. The check returns NIB status, entity name, and KBLI in real time. A previously passing listing will fail if any underlying document expires and causes NIB status to revert. <strong>March 31 is the start of continuous monitoring, not a one-time checkpoint.</strong></span></div>
+        <div class="col2">
+          <div class="info-block" style="border-color:var(--teal)"><h4>What the Verification Checks</h4><ul><li>NIB exists and status = Verified</li><li>Entity name: OTA account = OSS (exact string match)</li><li>KBLI code appropriate for accommodation type</li><li>SLF reference valid (increasingly required)</li></ul></div>
+          <div class="info-block" style="border-color:var(--teal2)"><h4>The Compliance Passport</h4><p>Generated from the DSCVR Compliance Vault in under a minute. Contains: NIB number, KBLI, SLF reference, KKPR, entity name, NPWPD, key expiry dates. Not a legal certification — an operator evidence record submitted on demand.</p></div>
+        </div>
+        <div class="portals-label">Government Portals</div>
+        <div class="portals">
+          <a class="portal-link" href="https://oss.go.id/portalnib" target="_blank">↗ OSS — Public NIB Lookup</a>
+          <a class="portal-link" href="https://oss.go.id" target="_blank">↗ OSS RBA — Full Portal</a>
+          <a class="portal-link" href="https://kemenparekraf.go.id" target="_blank">↗ Kemenparekraf — Ministry of Tourism</a>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
+
+<div class="connector"><div class="c-dots"><div class="c-dot"></div><div class="c-dot"></div><div class="c-dot"></div></div></div>
+<div class="outcome-wrap">
+  <div class="outcome">
+    <div class="outcome-glyph">✦</div>
+    <div>
+      <div class="outcome-title">NIB Verified — Compliance Passport Ready</div>
+      <div class="outcome-desc">All documentation uploaded and tracked. OTA listings protected from delisting risk. Health Report populated with time-stamped compliance history. Property documentation positioned for investor, insurer, and lender review.</div>
+    </div>
+  </div>
+</div>
+
+<div class="footnote">This flowchart is a reference tool for property operators. It does not constitute legal, tax, or regulatory advice. Procedures, costs, and timelines are indicative and may vary by regency, property type, and individual circumstances. Operators should engage licensed Indonesian legal, tax, and compliance professionals for their specific situation. DSCVR provides document tracking and operational tooling — it does not provide compliance certification or legal services.</div>
+```
+
+  </div>
+</div><!-- /panel-flow -->
+
+<!-- ════════════════════════════════════════
+     AUDIT PANEL
+════════════════════════════════════════ -->
+
+<div id="panel-audit" class="tab-panel">
+  <div class="panel-intro">
+    <div class="kicker">Property compliance review</div>
+    <h1>Self-Audit<br><em>Checklist.</em></h1>
+    <p>Use this when onboarding a new property or conducting an annual compliance review. Click any item to cycle its status. This checklist tracks documentation readiness — it is not a legal compliance assessment.</p>
+  </div>
+
+  <div class="audit-wrap">
+
+```
+<div class="audit-alert">
+  <div class="audit-alert-icon">⊙</div>
+  <div>
+    <h2>How to use this checklist</h2>
+    <p>Click any item to cycle through three states: unmarked → confirmed (green) → flagged (red) → needs action (amber). Work through each section in order. Items marked Critical represent the most common causes of OTA delisting and NIB status failure. Engage licensed professionals for any items requiring legal or regulatory action.</p>
+  </div>
+</div>
+
+<div class="audit-legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--green)"></div>Confirmed — document uploaded, status verified</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--red)"></div>Flagged — non-compliant or missing</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--amber)"></div>Action needed — in progress or expiring</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--mid)"></div>Not yet reviewed</div>
+</div>
+
+<!-- PREREQ -->
+<div class="audit-section-head"><span class="section-num">PREREQ</span> Legal Entity &amp; Structure</div>
+<ul class="checklist">
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">PT PMA or Indonesian entity established</div><div class="check-desc">Company deed (Akta Pendirian) signed, SK Kemenkumham approval obtained, directors identified. Nominee arrangement confirmed absent.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Corporate NPWP registered</div><div class="check-desc">National tax ID obtained from DJP. Required before bank account opening or OSS registration can proceed.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Corporate bank account with paid-up capital deposited</div><div class="check-desc">Account in company name. IDR 2.5B minimum paid-up capital deposited per BKPM Reg 5/2025. Confirm with legal team.</div></div><span class="sev-tag sev-high">High</span></li>
+</ul>
+
+<!-- ZONING -->
+<div class="audit-section-head"><span class="section-num">L1</span> Zoning Documentation</div>
+<ul class="checklist">
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">GISTARU zone check completed at parcel level</div><div class="check-desc">Screenshot saved showing zone colour and legend. Verified at individual land parcel — not suburb or street level. Check at gistarubali.id.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Zone classification does not carry high regulatory risk</div><div class="check-desc">Yellow (residential) and green (agricultural) zones carry significant regulatory risk for short-stay rental operations. Independent legal advice recommended if zone is unclear.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">KKPR certificate obtained and uploaded to DSCVR Vault</div><div class="check-desc">Confirms zone compatibility with KBLI code. Issued by DPMPTSP via OSS. Zone classification recorded as operator-reported in DSCVR.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+</ul>
+
+<!-- BUSINESS LICENSING -->
+<div class="audit-section-head"><span class="section-num">L2</span> Business Licensing</div>
+<ul class="checklist">
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">NIB issued and status shows Verified / Effective in OSS</div><div class="check-desc">Check at oss.go.id. NIB status must be Verified — Issued/Unverified fails OTA verification. Confirm with OSS consultant if status is unclear.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">KBLI code is 55193 or 55194 (not 55199)</div><div class="check-desc">55199 increasingly flagged by OSS for commercial villa operations. Confirm correct code with business registration specialist.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Entity name on every OTA listing matches NIB entity name exactly</div><div class="check-desc">String match required character-for-character. Company name in OSS must equal account name on Airbnb, Booking.com, and all other OTA platforms.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">KBLI 2025 transition status confirmed with OSS consultant</div><div class="check-desc">BPS introduced KBLI 2025 in December 2025. Transition window applies to existing KBLI 2020 registrations. Confirm status with your registrar. DSCVR tracks this as a flagged event.</div></div><span class="sev-tag sev-high">High</span></li>
+</ul>
+
+<!-- BUILDING -->
+<div class="audit-section-head"><span class="section-num">L3</span> Building — PBG &amp; SLF</div>
+<ul class="checklist">
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">PBG (or amended IMB) shows function: Commercial / Pariwisata</div><div class="check-desc">Residential function PBG is the most common structural licensing blocker in pre-2021 villa stock. Amendment required via SIMBG with licensed engineer.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">All extensions and modifications included in PBG scope</div><div class="check-desc">Unlicensed structures affect insurance validity and SLF renewal. Retroactive PBG amendment required — engage licensed engineer.</div></div><span class="sev-tag sev-high">High</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">SLF valid and not within 90 days of expiry</div><div class="check-desc">Commercial SLF valid 5 years. Full renewal cycle estimated at 8–12 weeks. DSCVR 90-day alert is the earliest safe trigger point for beginning renewal.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">SLF expiry date stored in DSCVR with alert cascade active</div><div class="check-desc">90 / 60 / 30 / 14-day alerts configured. Expiry date is the primary tracked field — without it no alert schedule can be generated.</div></div><span class="sev-tag sev-high">High</span></li>
+</ul>
+
+<!-- TAX -->
+<div class="audit-section-head"><span class="section-num">L4</span> Tax Compliance</div>
+<ul class="checklist">
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">NPWPD registered with Bapenda (regency-specific)</div><div class="check-desc">Badung: register via e-Palapa. On-site photo verification required by Bapenda Badung. Required before collecting and remitting PB1. Engage tax consultant to confirm regency requirements.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Monthly PB1 filings current — no missed months</div><div class="check-desc">File SPTPD by 20th of following month (Badung). CoreTax is reported to cross-reference OTA data against declared revenue. Engage tax consultant if there are historical gaps.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Annual SPT Tahunan filed and current</div><div class="check-desc">Corporate income tax annual return due April 30. Monthly PPh 25 instalments current (15th of month). Confirm with tax consultant.</div></div><span class="sev-tag sev-high">High</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">PPh 21 / 23 / 26 withholding obligations current</div><div class="check-desc">Monthly filing by 20th. PPh 26 applies to management fees paid to foreign entities — requires correct treaty documentation. Confirm with tax consultant.</div></div><span class="sev-tag sev-high">High</span></li>
+</ul>
+
+<!-- STAFF -->
+<div class="audit-section-head"><span class="section-num">L5</span> Staff &amp; Employment</div>
+<ul class="checklist">
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">All staff enrolled in BPJS Kesehatan and Ketenagakerjaan</div><div class="check-desc">Including all roles: cleaners, gardeners, pool technicians. BPJS-OSS integration means unregistered staff can affect NIB verification status. Enrol within 30 days of hiring.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Foreign owners and managers hold valid Investor KITAS</div><div class="check-desc">Any work activity without a valid KITAS carries significant immigration exposure — increased enforcement attention in Bali since 2024. Estimated cost: IDR 3–8M per year. Engage licensed immigration agent.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Written employment contracts held for all staff</div><div class="check-desc">PKWTT (permanent) or PKWT (fixed-term). Verbal agreements mean a worker's account is presumed correct in any dispute. Engage HR consultant if contracts are missing.</div></div><span class="sev-tag sev-high">High</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">THR paid on time — 2026 Lebaran indicative deadline ~March 22</div><div class="check-desc">Mandatory one-month salary bonus for all employees. Legal obligation — late payment may be grounds for a Manpower Office complaint. Confirm exact date annually with HR consultant.</div></div><span class="sev-tag sev-high">High</span></li>
+</ul>
+
+<!-- SAFETY -->
+<div class="audit-section-head"><span class="section-num">L6</span> Operational Safety</div>
+<ul class="checklist">
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Fire extinguisher annual service current — certificate uploaded</div><div class="check-desc">Service by Dinas Damkar Badung-licensed company. Monthly seal and gauge check logged in DSCVR recurring task. Certificate with expiry date stored in Compliance Vault.</div></div><span class="sev-tag sev-high">High</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Pool water chemistry within safe range and logged</div><div class="check-desc">Twice-weekly test recorded in DSCVR task with readings (Cl 1–3ppm, pH 7.2–7.8). Logged results provide liability evidence in the event of a guest health incident.</div></div><span class="sev-tag sev-medium">Medium</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Emergency exit KELUAR signage installed and photographically logged</div><div class="check-desc">All bedroom exits, corridor intersections, external doors. Illuminated or photoluminescent. Quarterly photo check in DSCVR confirms ongoing compliance.</div></div><span class="sev-tag sev-medium">Medium</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Written SOPs documented for key operational procedures</div><div class="check-desc">Permenpar 6/2025 requirement: check-in, check-out, housekeeping, maintenance, emergency response. DSCVR task library with completion records and timestamps constitutes the SOP evidence.</div></div><span class="sev-tag sev-high">High</span></li>
+</ul>
+
+<!-- OTA -->
+<div class="audit-section-head"><span class="section-num">L7</span> OTA Platform &amp; Compliance Passport</div>
+<ul class="checklist">
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">Compliance Passport generated in DSCVR</div><div class="check-desc">Document export from Compliance Vault containing: NIB number, KBLI, SLF reference, KKPR, entity name, NPWPD, key expiry dates. Available for OTA submission on demand. Not a legal certification.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">OTA account name matches NIB entity name exactly</div><div class="check-desc">Cross-check every OTA listing account name against OSS entity name. Character-for-character match required. A single formatting discrepancy triggers a verification failure.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+  <li onclick="cycleStatus(this)"><div class="check-box">—</div><div><div class="check-title">NIB Verified status confirmed before March 31, 2026</div><div class="check-desc">Verify current status at oss.go.id. If status shows Issued / Unverified — identify which structural gate is incomplete and engage the relevant licensed professional.</div></div><span class="sev-tag sev-critical">Critical</span></li>
+</ul>
+
+<div class="audit-disclaimer">This self-audit checklist is a documentation readiness tool — it is not a legal compliance assessment. Marking an item as confirmed in this checklist does not constitute compliance with Indonesian law or regulation. Operators should engage licensed Indonesian legal, tax, immigration, and compliance professionals to assess their actual compliance status. DSCVR provides document tracking and operational tooling only.</div>
+```
+
+  </div>
+</div><!-- /panel-audit -->
+
+<!-- ════════════════════════════════════════
+     GUIDE PANEL
+════════════════════════════════════════ -->
+
+<div id="panel-guide" class="tab-panel">
+  <div class="panel-intro">
+    <div class="kicker">Layer-by-layer reference</div>
+    <h1>Operator<br><em>Guidebook.</em></h1>
+    <p>Each card covers one compliance layer — what it is, what DSCVR does within it, and the government portals where procedures are performed. This is a reference tool, not legal advice.</p>
+  </div>
+
+  <div class="guide-wrap">
+
+```
+<div class="guide-grid">
+
+  <div class="guide-card">
+    <div class="guide-card-num">Prerequisite — Entity</div>
+    <div class="guide-card-title">PT PMA Setup</div>
+    <div class="guide-card-role" style="background:rgba(148,163,184,0.08);color:var(--muted)">DSCVR: Document storage only</div>
+    <div class="guide-card-desc">Company name → notarised deed → SK Kemenkumham → corporate NPWP → bank account → OSS. Estimated 4–8 weeks, IDR 30–80M in professional fees. 100% foreign ownership permitted for KBLI 55193. Requires licensed notary — DSCVR stores completed documents only.</div>
+    <div class="guide-links">
+      <a class="g-link g-gov" href="https://ahu.go.id" target="_blank">↗ AHU Online</a>
+      <a class="g-link g-gov" href="https://oss.go.id" target="_blank">↗ OSS RBA</a>
+      <a class="g-link g-gov" href="https://pajak.go.id" target="_blank">↗ DJP NPWP</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="guide-card-num">Layer 1 — Zoning</div>
+    <div class="guide-card-title">GISTARU Check + KKPR</div>
+    <div class="guide-card-role" style="background:rgba(20,184,166,0.08);color:var(--teal2)">DSCVR: Document upload + zone record</div>
+    <div class="guide-card-desc">Check parcel at gistarubali.id — pink, orange, red zones are generally viable; yellow and green zones carry significant regulatory risk for short-stay rental. Apply for KKPR through OSS. Estimated 2–6 weeks. No government fee. DSCVR stores KKPR and records zone as operator-reported — does not determine legal zone status.</div>
+    <div class="guide-links">
+      <a class="g-link g-gov" href="https://gistarubali.id" target="_blank">↗ GISTARU Bali</a>
+      <a class="g-link g-gov" href="https://oss.go.id" target="_blank">↗ OSS KKPR</a>
+      <a class="g-link g-gov" href="https://rdtr.atrbpn.go.id" target="_blank">↗ RDTR Map</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="guide-card-num">Layer 2 — Business Licensing</div>
+    <div class="guide-card-title">NIB via OSS + KBLI Selection</div>
+    <div class="guide-card-role" style="background:rgba(59,130,246,0.08);color:#60A5FA">DSCVR: NIB status monitoring</div>
+    <div class="guide-card-desc">Register in OSS-RBA. KBLI 55193 (Villa) or 55194 (Pondok Wisata) required — 55199 increasingly flagged for large commercial villas. NIB must show Verified / Effective status. OTA account name must match OSS entity name exactly. KBLI 2025 transition window applies to existing registrations. Engage OSS consultant to confirm.</div>
+    <div class="guide-links">
+      <a class="g-link g-gov" href="https://oss.go.id" target="_blank">↗ OSS RBA</a>
+      <a class="g-link g-gov" href="https://www.bps.go.id/id/business-register" target="_blank">↗ KBLI 2025 (BPS)</a>
+      <a class="g-link g-gov" href="https://bkpm.go.id" target="_blank">↗ BKPM</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="guide-card-num">Layer 3 — Building</div>
+    <div class="guide-card-title">PBG Function + SLF Renewal</div>
+    <div class="guide-card-role" style="background:rgba(139,92,246,0.08);color:#A78BFA">DSCVR: Expiry tracking + renewal alerts</div>
+    <div class="guide-card-desc">Confirm PBG has Commercial / Pariwisata function — most common failure in pre-2021 stock. SLF renews every 5 years via SIMBG. Full renewal cycle estimated 8–12 weeks. DSCVR 90-day alert is the earliest safe trigger. Licensed Pengkaji Teknis required for inspection — DSCVR does not manage the renewal process.</div>
+    <div class="guide-links">
+      <a class="g-link g-gov" href="https://simbg.pu.go.id" target="_blank">↗ SIMBG Portal</a>
+      <a class="g-link g-gov" href="https://oss.go.id" target="_blank">↗ OSS Building</a>
+      <a class="g-link g-gov" href="https://dpmptsp.badungkab.go.id" target="_blank">↗ DPMPTSP Badung</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="guide-card-num">Layer 4 — Tax (Concurrent)</div>
+    <div class="guide-card-title">NPWPD + Monthly PB1 + PPh</div>
+    <div class="guide-card-role" style="background:rgba(245,158,11,0.08);color:var(--amber)">DSCVR: Filing calendar + document storage</div>
+    <div class="guide-card-desc">Begins concurrently with NIB issuance. Register NPWPD via e-Palapa (Badung). Collect 10% PB1 from guests — label as local government tax, not VAT. File SPTPD by 20th monthly. CoreTax is reported to cross-reference OTA data with declared revenue. Annual SPT Tahunan by April 30. Engage licensed tax consultant.</div>
+    <div class="guide-links">
+      <a class="g-link g-gov" href="https://e-palapa.badungkab.go.id" target="_blank">↗ e-Palapa Badung</a>
+      <a class="g-link g-gov" href="https://djponline.pajak.go.id" target="_blank">↗ DJP Online</a>
+      <a class="g-link g-gov" href="https://pajak.go.id/reformasi-pajak/coretax" target="_blank">↗ CoreTax</a>
+      <a class="g-link g-gov" href="https://bapenda.badungkab.go.id" target="_blank">↗ Bapenda Badung</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="guide-card-num">Layer 5 — Staff (Concurrent)</div>
+    <div class="guide-card-title">BPJS + KITAS + Employment</div>
+    <div class="guide-card-role" style="background:rgba(34,197,94,0.08);color:var(--green)">DSCVR: Staff profiles + permit expiry</div>
+    <div class="guide-card-desc">Runs concurrently — staff registration does not wait for building or tax completion. Enrol all staff in eDabu (Kesehatan) and SIPP Online (Ketenagakerjaan) within 30 days of hiring. Foreign operators carrying management responsibility: Investor KITAS required — estimated IDR 3–8M/year. THR due before Lebaran (~March 22, 2026). Engage HR and immigration consultants.</div>
+    <div class="guide-links">
+      <a class="g-link g-gov" href="https://edabu.bpjs-kesehatan.go.id" target="_blank">↗ eDabu</a>
+      <a class="g-link g-gov" href="https://sipp.bpjsketenagakerjaan.go.id" target="_blank">↗ SIPP Online</a>
+      <a class="g-link g-gov" href="https://imigrasi.go.id" target="_blank">↗ Imigrasi KITAS</a>
+      <a class="g-link g-gov" href="https://bkpm.go.id" target="_blank">↗ BKPM</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="guide-card-num">Layer 6 — Safety (Concurrent)</div>
+    <div class="guide-card-title">Ongoing Safety + Permenpar 6/2025</div>
+    <div class="guide-card-role" style="background:rgba(239,68,68,0.08);color:#FCA5A5">DSCVR: Task execution + evidence logs</div>
+    <div class="guide-card-desc">This is where DSCVR is most operationally native. Fire extinguisher annual service by licensed company. Pool chemistry twice-weekly (logged in DSCVR task). Emergency exit signage quarterly photo. Permenpar 6/2025 requires documented SOPs — the DSCVR task library with PoP timestamps is that SOP evidence.</div>
+    <div class="guide-links">
+      <a class="g-link g-gov" href="https://jdih.kemenparekraf.go.id" target="_blank">↗ Permenpar 6/2025</a>
+      <a class="g-link g-gov" href="https://damkar.badungkab.go.id" target="_blank">↗ Damkar Badung</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <div class="guide-card-num">Layer 7 — OTA Enforcement</div>
+    <div class="guide-card-title">Compliance Passport — March 31, 2026</div>
+    <div class="guide-card-role" style="background:rgba(20,184,166,0.08);color:var(--teal2)">DSCVR: Compliance Passport export</div>
+    <div class="guide-card-desc">OTAs cross-reference NIB against OSS via automated API. Entity names must match exactly. Verification begins March 31, 2026 and is continuous thereafter. DSCVR generates a Compliance Passport from the Vault — an operator evidence record showing all uploaded documents with dates. Not a legal certification. Submit NIB number as primary verification.</div>
+    <div class="guide-links">
+      <a class="g-link g-gov" href="https://oss.go.id/portalnib" target="_blank">↗ NIB Lookup</a>
+      <a class="g-link g-gov" href="https://oss.go.id" target="_blank">↗ OSS RBA</a>
+      <a class="g-link g-gov" href="https://kemenparekraf.go.id" target="_blank">↗ Kemenparekraf</a>
+    </div>
+  </div>
+
+</div>
+
+<!-- TIMELINE -->
+<div class="timeline-section">
+  <h3>Indicative Compliance Timeline — New Operator</h3>
+
+  <div class="alert amber" style="margin-bottom:24px;">
+    <span class="alert-ico">▲</span>
+    <span><strong>These timelines are indicative only.</strong> Indonesian government processing times are not officially published and vary significantly by regency, workload, application quality, and whether remediation is required. The ranges below are drawn from industry practitioner experience — not primary government sources. Treat them as planning estimates, not guarantees. Your legal and compliance team will have the most current, jurisdiction-specific data.</span>
+  </div>
+
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-week">Phase 1 — Variable: Days to Weeks</div>
+      <div class="tl-title">Zone Check + Entity Decision</div>
+      <div class="tl-desc">GISTARU parcel check is immediate — the decision it forces is not. If the zone carries regulatory risk, independent legal advice may take time to obtain and may change the entire property decision. Do not compress this phase. A wrong zone decision cannot be undone cheaply.</div>
+      <div style="margin-top:10px;padding:10px 14px;background:rgba(7,16,30,0.5);border-radius:6px;border-left:2px solid rgba(100,116,139,0.3);">
+        <span style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mid);">What drives the variance</span>
+        <p style="font-family:'Lato',sans-serif;font-size:12px;color:var(--mid);margin-top:6px;line-height:1.6;">Zone ambiguity at the parcel level. Availability of legal counsel. Whether the operator already has an Indonesian entity or is starting from zero.</p>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-week">Phase 2 — Estimated 4–8 Weeks (Highly Variable)</div>
+      <div class="tl-title">PT PMA Formation</div>
+      <div class="tl-desc">Notary deed drafting, Ministry of Law approval, corporate NPWP, bank account opening. Each step has its own queue. Practitioners report ranges from 3 weeks (smooth, experienced notary, no complications) to 3+ months (document corrections, bank onboarding delays, director availability).</div>
+      <div style="margin-top:10px;padding:10px 14px;background:rgba(7,16,30,0.5);border-radius:6px;border-left:2px solid rgba(245,158,11,0.3);">
+        <span style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--amber);">Primary risk factor</span>
+        <p style="font-family:'Lato',sans-serif;font-size:12px;color:var(--mid);margin-top:6px;line-height:1.6;">Bank account onboarding for foreign-owned PT PMA has historically been slow — some banks require in-person visits by foreign directors. Build contingency here before committing to downstream deadlines.</p>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-week">Phase 3 — Estimated 2–12+ Weeks (Most Variable Gate)</div>
+      <div class="tl-title">KKPR Application + PBG Function Review</div>
+      <div class="tl-desc">KKPR itself is reported to process in 2–6 weeks in straightforward cases, but can extend significantly if DPMPTSP requests a site visit or additional documentation. The PBG review is where timelines most often blow out — if the existing permit has Residential function, as-built drawings must be commissioned before an amendment application can even be submitted.</div>
+      <div style="margin-top:10px;padding:10px 14px;background:rgba(7,16,30,0.5);border-radius:6px;border-left:2px solid rgba(239,68,68,0.3);">
+        <span style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#FCA5A5;">Highest variance item in the whole process</span>
+        <p style="font-family:'Lato',sans-serif;font-size:12px;color:var(--mid);margin-top:6px;line-height:1.6;">PBG amendment for Residential-to-Commercial function change. As-built drawings alone can take 2–4 weeks. DPMPTSP review of the amendment: practitioners report anywhere from 6 to 16 weeks. If this gate is required, plan the entire compliance journey around it — everything else waits.</p>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-week">Phase 4 — Concurrent, Estimated 2–6 Weeks Each</div>
+      <div class="tl-title">NIB + NPWPD + BPJS (Parallel Streams)</div>
+      <div class="tl-desc">Once KKPR is approaching completion, NIB application, Bapenda NPWPD registration, and BPJS enrolment can run simultaneously. These are reported to be among the faster processes when documentation is clean — but each has its own queue and verification step that can add weeks if anything is returned for correction.</div>
+      <div style="margin-top:10px;padding:10px 14px;background:rgba(7,16,30,0.5);border-radius:6px;border-left:2px solid rgba(20,184,166,0.3);">
+        <span style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal2);">Run these in parallel</span>
+        <p style="font-family:'Lato',sans-serif;font-size:12px;color:var(--mid);margin-top:6px;line-height:1.6;">The most common delay here is Badung's on-site photo verification for NPWPD — Bapenda schedules the visit, not the operator. This can add 1–2 weeks with no action available to accelerate it.</p>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-week">Phase 5 — Estimated 8–16 Weeks If Required</div>
+      <div class="tl-title">SLF Renewal</div>
+      <div class="tl-desc">The most process-dependent gate. Finding a qualified, available Pengkaji Teknis can itself take 1–2 weeks. Pre-inspection preparation, formal inspection, any conditional remediation, then DPMPTSP processing — each step adds time. The 8-week estimate is the optimistic end. Properties with significant remediation requirements have reported 4–6 month cycles.</div>
+      <div style="margin-top:10px;padding:10px 14px;background:rgba(7,16,30,0.5);border-radius:6px;border-left:2px solid rgba(239,68,68,0.3);">
+        <span style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#FCA5A5;">Start earlier than you think you need to</span>
+        <p style="font-family:'Lato',sans-serif;font-size:12px;color:var(--mid);margin-top:6px;line-height:1.6;">A property operating without a valid SLF during the renewal gap is technically in a documentation gap — DSCVR records this period in the Compliance Vault. DSCVR's 90-day alert exists precisely because 8 weeks is not a safe buffer for most properties.</p>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-week">Ongoing — No Fixed Timeline</div>
+      <div class="tl-title">Continuous Monitoring via DSCVR</div>
+      <div class="tl-desc">Compliance is not a project with a completion date. Documents expire. KBLI codes transition. Tax obligations recur monthly. Staff turn over. The March 31, 2026 OTA deadline is the forcing function that starts the process — not the finish line. DSCVR's value is in making the ongoing state visible and alert-driven rather than reactive.</div>
+    </div>
+
+  </div>
+
+  <div style="margin-top:24px;padding:16px 20px;background:rgba(255,255,255,0.02);border:1px solid var(--border);border-radius:8px;">
+    <div style="font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mid);margin-bottom:10px;">A note on these estimates</div>
+    <p style="font-family:'Lato',sans-serif;font-size:13px;font-weight:300;color:var(--mid);line-height:1.7;">Indonesian government processing times are not formally published and are not guaranteed. The figures above are drawn from practitioner-reported experience via legal and consultancy websites — they have not been independently verified against primary government sources. DSCVR recommends operators obtain current timeline estimates directly from a licensed Bali-based legal firm and OSS consultant before committing to compliance schedules. The ranges will differ by regency, by individual DPMPTSP workload, and by the specific condition of the property's existing documentation.</p>
+  </div>
+
+</div>
+
+<div class="guide-disclaimer">This guidebook is a reference tool for property operators. It does not constitute legal, tax, immigration, or regulatory advice. All timelines and costs are indicative based on available industry information and may vary. Operators should engage licensed Indonesian professionals for their specific situation. DSCVR provides document tracking and operational tooling — it does not certify compliance or provide professional services of any kind.</div>
+```
+
+  </div>
+</div><!-- /panel-guide -->
+
+<script>
+function showTab(id) {
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', ['flow','audit','guide'][i] === id);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function toggle(id) {
+  const card = document.getElementById('card-' + id);
+  const isOpen = card.classList.contains('active');
+  document.querySelectorAll('.gate-card').forEach(c => c.classList.remove('active'));
+  if (!isOpen) card.classList.add('active');
+}
+
+const STATES  = ['', 'checked', 'flagged', 'warn'];
+const ICONS   = ['—', '✓', '✕', '!'];
+
+function cycleStatus(li) {
+  let current = 0;
+  STATES.forEach((s, i) => { if (s && li.classList.contains(s)) current = i; });
+  const next = (current + 1) % STATES.length;
+  STATES.forEach(s => { if (s) li.classList.remove(s); });
+  if (STATES[next]) li.classList.add(STATES[next]);
+  li.querySelector('.check-box').textContent = ICONS[next];
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('card-g1').classList.add('active');
+});
+</script>
+
+</body>
+</html>
