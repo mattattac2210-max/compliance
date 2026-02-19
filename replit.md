@@ -4,7 +4,10 @@
 
 DSCVR Compliance Navigator is a web application that guides users through a "Seven-Gate Compliance Journey" for Bali villa operations. It presents a multi-gate compliance flow where each gate represents a stage in the legal/regulatory process (e.g., PT PMA company formation, licensing, etc.). The app features a dark-themed, teal-accented UI with animated gate cards, tabbed views (flow, audit, guide), and informational panels with alerts and portals to external resources.
 
-The project follows a full-stack TypeScript architecture with a React frontend (Vite) and Express backend, using PostgreSQL via Drizzle ORM for data persistence. Currently, the application is primarily a frontend-heavy informational tool with minimal backend API usage — the server mostly serves the client and provides a storage interface scaffold.
+The project follows a full-stack TypeScript architecture with a React frontend (Vite) and Express backend, using PostgreSQL via Drizzle ORM for data persistence. The app now uses the database for a Compliance Terminology Decoder glossary (searchable, tag-filterable accordion cards in the Guide tab), managed via a simple admin page at `/admin`.
+
+## Recent Changes
+- **2026-02-19**: Added Compliance Terminology Decoder glossary to Guide tab with search, tag filters, expandable accordion cards, copy-to-clipboard, and disclaimer. Database-backed with 10 seeded terms. Admin editor page at `/admin` for creating/editing/deactivating terms. API routes at `/api/terms`.
 
 ## User Preferences
 

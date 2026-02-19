@@ -1,0 +1,164 @@
+# REPLIT PROMPT — Add “Compliance Terminology Decoder” to Guide Section (DSCVR)
+
+You are building DSCVR (Bali hospitality ops + compliance readiness platform).  
+I need you to add a new subsection to the **Guide** area called:
+
+## “Compliance Terminology Decoder” (Glossary)
+
+### Goal
+Create an in-app glossary that explains confusing compliance / bureaucratic terms (e.g., “wet signature”) in **plain English**, with:
+- a short definition
+- why it matters
+- typical workflow steps (when relevant)
+- what to upload/store in DSCVR (scanned copy, photo, PDF, etc.)
+- a “common pitfalls” note (optional)
+This is **procedural guidance**, NOT legal advice. Add a disclaimer.
+
+---
+
+## UI / UX Requirements
+
+### Placement
+- Add a new Guide section entry: **Compliance Terminology Decoder**
+- Inside it, show:
+  1) a search bar (instant filter)
+  2) category filter chips (optional)
+  3) expandable term cards (accordion)
+  4) a “Copy” button for each term (copies the term + definition + steps)
+
+### Card Layout (Accordion)
+Each term card should include:
+- **Term title**
+- **Plain-English meaning** (1–2 sentences)
+- **Why it matters** (1–2 bullets)
+- **Typical process** (numbered steps; show only if provided)
+- **What to store in DSCVR** (bullets)
+- **Common pitfalls** (optional)
+- **Last updated** (date string)
+- **Tag(s)** (e.g., “Signatures”, “Documents”, “OSS”, “Tax”, “Staff”)
+
+### Disclaimer (must display at top)
+> “This guide provides general operational guidance and document-handling tips. It is not legal or tax advice. Requirements can vary by regency and may change. Confirm with your licensed consultant or relevant authority.”
+
+---
+
+## Data Model
+
+Implement a `compliance_terms` table (or collection) with:
+- `id` (uuid)
+- `term` (string, unique)
+- `slug` (string, unique)
+- `plain_definition` (text)
+- `why_it_matters` (json array of strings)
+- `typical_process_steps` (json array of strings; optional)
+- `what_to_store` (json array of strings)
+- `common_pitfalls` (json array of strings; optional)
+- `tags` (json array of strings)
+- `last_updated` (date)
+- `is_active` (boolean)
+
+Seed the table with initial terms (below).
+
+---
+
+## Initial Seed Content (add these)
+
+### 1) Wet Signature
+- definition: A physical signature made with pen on a printed document (not a digital signature).
+- why: Many offices require paper signatures for verification; digital signatures may be rejected.
+- steps:
+  1. Download/export the form or document (PDF).
+  2. Print it.
+  3. Sign with pen (director/authorized signatory).
+  4. Apply company stamp if required.
+  5. Scan or photograph clearly.
+  6. Upload to DSCVR and attach to the relevant compliance item.
+- store: Signed PDF scan; photo of signature page if needed.
+- pitfalls: Low-quality scans; missing signature page; wrong signatory.
+
+### 2) Company Stamp / Chop
+- definition: A company seal/stamp used to authenticate documents.
+- why: Often requested to confirm documents are officially issued by the business.
+- steps (optional):
+  1. Print document.
+  2. Apply stamp where indicated (often near signature).
+  3. Scan + upload.
+- store: Scanned stamped document; photo evidence if required.
+- pitfalls: Using the wrong stamp; stamping over key text.
+
+### 3) Notarised Document
+- definition: A document that has been verified/authenticated by a notary.
+- why: Used to confirm identities/signatures and document authenticity.
+- store: Notary-certified copy PDF; receipt/reference number if issued.
+- pitfalls: Confusing notarised vs certified copy; using expired/incorrect versions.
+
+### 4) Legalised Copy
+- definition: A copy that has been formally verified by an authority/notary as a true copy.
+- why: Some applications require legalised copies instead of originals.
+- store: Legalised PDF scan; supporting receipt.
+- pitfalls: Uploading a normal photocopy instead of legalised copy.
+
+### 5) Certified Copy
+- definition: A copy signed/stamped by an authorised person confirming it matches the original.
+- why: Often accepted where originals aren’t required.
+- store: Certified scan; certifier details.
+- pitfalls: Missing certifier details/date.
+
+### 6) OSS (Online Single Submission)
+- definition: Indonesia’s online portal used to register businesses and manage certain permits.
+- why: Many registrations and licences start here; it’s a central record.
+- store: Screenshots of submission confirmation; PDF outputs; registration numbers.
+- pitfalls: Losing login credentials; incomplete fields leading to rejections.
+
+### 7) NIB (Business Identification Number)
+- definition: A core business identification number issued through OSS.
+- why: Often required before other permits, tax registrations, and operational steps.
+- store: NIB certificate PDF; OSS confirmation.
+- pitfalls: Wrong business category data; mismatched company details.
+
+### 8) KBLI
+- definition: Indonesia’s business activity classification codes.
+- why: The selected KBLI affects what licences/permits apply.
+- store: KBLI selection record; consultant recommendation file (if any).
+- pitfalls: Selecting the wrong KBLI and needing rework.
+
+### 9) PBG
+- definition: Building approval/permit for construction or building status changes.
+- why: Needed for legal building approval and downstream certificates.
+- store: PBG approval documents; drawings; inspection notes.
+- pitfalls: Missing technical drawings; assuming old permits are still valid.
+
+### 10) SLF
+- definition: Certificate that confirms a building is fit for function/occupancy.
+- why: Often required for commercial operation and audits; may require renewal.
+- store: SLF certificate PDF; inspection reports; renewal reminders.
+- pitfalls: Letting it expire; missing inspection evidence.
+
+(You can add more later—build it so it’s easy to add/edit terms via an admin UI.)
+
+---
+
+## Admin Editing (simple)
+Add a simple internal admin page (protected route) to:
+- Create / edit / deactivate glossary terms
+- Edit tags
+- Update “last updated”
+
+---
+
+## Engineering Notes
+- Add text search across `term`, `plain_definition`, and `tags`
+- Add filter by tag chip (multi-select optional)
+- Add “Copy to clipboard” for each term card
+- Keep the component reusable so later we can embed term tooltips across other parts of the app.
+
+---
+
+## Deliverables
+1) New Guide nav item: “Compliance Terminology Decoder”
+2) Glossary UI as described
+3) Database table + seed terms
+4) Admin editor page
+5) Disclaimer included
+
+Build it clean, minimal, and aligned with DSCVR’s style. Do not add any legal-advice features.
