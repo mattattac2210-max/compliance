@@ -93,55 +93,91 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
     return dates.some(d => d >= now && d <= monthEnd);
   });
 
-  let complianceAlerts = 0;
-  const attentionItems: Array<{ label: string; color: string; link: string; linkLabel: string }> = [];
-
+  const missingByGate = new Map<number, number>();
   if (selectedProperty) {
-    if (selectedProperty.otaEntityName && selectedProperty.entityName &&
-        selectedProperty.otaEntityName.toLowerCase().trim() !== selectedProperty.entityName.toLowerCase().trim()) {
-      complianceAlerts++;
-      attentionItems.push({ label: t.dashboard.entityMismatch.replace("{{entity}}", selectedProperty.entityName).replace("{{ota}}", selectedProperty.otaEntityName), color: "#F59E0B", link: "/profile", linkLabel: t.dashboard.goToProfile });
-    }
-    if (selectedProperty.landTitleType === "hgb" && selectedProperty.landTitleExpiry) {
-      const diff = Math.ceil((new Date(selectedProperty.landTitleExpiry).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-      if (diff < 365 * 2) {
-        complianceAlerts++;
-        attentionItems.push({ label: t.dashboard.hgbExpiresInDays.replace("{{days}}", String(diff)), color: "#EF4444", link: "/profile", linkLabel: t.dashboard.goToProfile });
+    for (const tmpl of templates) {
+      const doc = documents.find(d => d.templateId === tmpl.id);
+      if (!doc || doc.status === "not_started") {
+        missingByGate.set(tmpl.gateNumber, (missingByGate.get(tmpl.gateNumber) || 0) + 1);
       }
     }
   }
+  const totalMissing = Array.from(missingByGate.values()).reduce((a, b) => a + b, 0);
+  const vaultComplete = totalMissing === 0 && totalTemplates > 0;
 
-  const activeStaff = staffMembers.filter(s => s.isActive);
-  const bpjsGaps = activeStaff.filter(s =>
-    s.bpjsKesehatanStatus === "not_registered" || s.bpjsKetenagakerjaanStatus === "not_registered"
-  );
-  if (bpjsGaps.length > 0) {
-    complianceAlerts++;
-    attentionItems.push({ label: t.dashboard.staffBpjsMissing.replace("{{count}}", String(bpjsGaps.length)), color: "#F59E0B", link: "/profile", linkLabel: t.dashboard.goToProfile });
+  let complianceAlerts = 0;
+  const attentionItems: Array<{ label: string; color: string; link: string; linkLabel: string }> = [];
+
+  if (!vaultComplete) {
+    attentionItems.push({
+      label: t.dashboard.missingDocsAlert.replace("{{count}}", String(totalMissing || totalTemplates)),
+      color: "#F59E0B",
+      link: "/vault",
+      linkLabel: t.dashboard.goToVault,
+    });
+    attentionItems.push({
+      label: t.dashboard.vaultIncompleteNotice,
+      color: "#94A3B8",
+      link: "/vault",
+      linkLabel: t.dashboard.goToVault,
+    });
+    for (const [gate, count] of Array.from(missingByGate.entries()).sort((a, b) => a[0] - b[0])) {
+      attentionItems.push({
+        label: t.dashboard.missingDocsGate.replace("{{gate}}", String(gate)).replace("{{count}}", String(count)),
+        color: "#94A3B8",
+        link: `/vault?gate=${gate}`,
+        linkLabel: t.dashboard.goToVault,
+      });
+    }
+    complianceAlerts = totalMissing || totalTemplates;
+  } else {
+    if (selectedProperty) {
+      if (selectedProperty.otaEntityName && selectedProperty.entityName &&
+          selectedProperty.otaEntityName.toLowerCase().trim() !== selectedProperty.entityName.toLowerCase().trim()) {
+        complianceAlerts++;
+        attentionItems.push({ label: t.dashboard.entityMismatch.replace("{{entity}}", selectedProperty.entityName).replace("{{ota}}", selectedProperty.otaEntityName), color: "#F59E0B", link: "/profile", linkLabel: t.dashboard.goToProfile });
+      }
+      if (selectedProperty.landTitleType === "hgb" && selectedProperty.landTitleExpiry) {
+        const diff = Math.ceil((new Date(selectedProperty.landTitleExpiry).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        if (diff < 365 * 2) {
+          complianceAlerts++;
+          attentionItems.push({ label: t.dashboard.hgbExpiresInDays.replace("{{days}}", String(diff)), color: "#EF4444", link: "/profile", linkLabel: t.dashboard.goToProfile });
+        }
+      }
+    }
+
+    const activeStaff = staffMembers.filter(s => s.isActive);
+    const bpjsGaps = activeStaff.filter(s =>
+      s.bpjsKesehatanStatus === "not_registered" || s.bpjsKetenagakerjaanStatus === "not_registered"
+    );
+    if (bpjsGaps.length > 0) {
+      complianceAlerts++;
+      attentionItems.push({ label: t.dashboard.staffBpjsMissing.replace("{{count}}", String(bpjsGaps.length)), color: "#F59E0B", link: "/profile", linkLabel: t.dashboard.goToProfile });
+    }
+
+    const kitasExpiring = activeStaff.filter(s => {
+      if (!s.kitasExpiry) return false;
+      const diff = Math.ceil((new Date(s.kitasExpiry).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      return diff < 90;
+    });
+    if (kitasExpiring.length > 0) {
+      complianceAlerts += kitasExpiring.length;
+      attentionItems.push({ label: t.dashboard.staffKitasExpiring.replace("{{count}}", String(kitasExpiring.length)), color: "#EF4444", link: "/profile", linkLabel: t.dashboard.goToProfile });
+    }
+
+    expiredDocs.forEach(d => {
+      const tmpl = templates.find(tp => tp.id === d.templateId);
+      const tmplName = tmpl?.translations?.[lang]?.name ?? tmpl?.translations?.en?.name ?? t.dashboard.document;
+      attentionItems.push({ label: `${t.dashboard.expiredLabel}: ${tmplName}`, color: "#EF4444", link: "/vault", linkLabel: t.dashboard.goToVault });
+    });
+
+    expiringDocs.slice(0, 3).forEach(d => {
+      const tmpl = templates.find(tp => tp.id === d.templateId);
+      const tmplName = tmpl?.translations?.[lang]?.name ?? tmpl?.translations?.en?.name ?? t.dashboard.document;
+      const daysLeft = Math.ceil((new Date(d.expiryDate!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      attentionItems.push({ label: `${tmplName} ${t.dashboard.expiresInDays.replace("{{days}}", String(daysLeft))}`, color: "#F59E0B", link: "/vault", linkLabel: t.dashboard.goToVault });
+    });
   }
-
-  const kitasExpiring = activeStaff.filter(s => {
-    if (!s.kitasExpiry) return false;
-    const diff = Math.ceil((new Date(s.kitasExpiry).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    return diff < 90;
-  });
-  if (kitasExpiring.length > 0) {
-    complianceAlerts += kitasExpiring.length;
-    attentionItems.push({ label: t.dashboard.staffKitasExpiring.replace("{{count}}", String(kitasExpiring.length)), color: "#EF4444", link: "/profile", linkLabel: t.dashboard.goToProfile });
-  }
-
-  expiredDocs.forEach(d => {
-    const tmpl = templates.find(tp => tp.id === d.templateId);
-    const tmplName = tmpl?.translations?.[lang]?.name ?? tmpl?.translations?.en?.name ?? t.dashboard.document;
-    attentionItems.push({ label: `${t.dashboard.expiredLabel}: ${tmplName}`, color: "#EF4444", link: "/vault", linkLabel: t.dashboard.goToVault });
-  });
-
-  expiringDocs.slice(0, 3).forEach(d => {
-    const tmpl = templates.find(tp => tp.id === d.templateId);
-    const tmplName = tmpl?.translations?.[lang]?.name ?? tmpl?.translations?.en?.name ?? t.dashboard.document;
-    const daysLeft = Math.ceil((new Date(d.expiryDate!).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
-    attentionItems.push({ label: `${tmplName} ${t.dashboard.expiresInDays.replace("{{days}}", String(daysLeft))}`, color: "#F59E0B", link: "/vault", linkLabel: t.dashboard.goToVault });
-  });
 
   const alertCount = expiringDocs.length + expiredDocs.length + complianceAlerts;
 
@@ -391,7 +427,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
             </div>
           ) : (
             <div className="space-y-2">
-              {attentionItems.slice(0, 5).map((item, i) => (
+              {attentionItems.slice(0, 8).map((item, i) => (
                 <div key={i} className="flex items-center gap-3 text-xs rounded-lg px-3 py-2" style={{ background: `${item.color}08`, border: `1px solid ${item.color}15` }}>
                   <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
                   <span className="flex-1 truncate" style={{ color: "var(--app-text)" }}>{item.label}</span>

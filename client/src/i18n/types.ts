@@ -425,6 +425,9 @@ export interface UITranslations {
     needsAttentionHeading: string;
     needsAttentionEmpty: string;
     needsAttentionEmptyDesc: string;
+    missingDocsAlert: string;
+    missingDocsGate: string;
+    vaultIncompleteNotice: string;
     upcomingHeading: string;
     upcomingEmpty: string;
     gateStatusHeading: string;
