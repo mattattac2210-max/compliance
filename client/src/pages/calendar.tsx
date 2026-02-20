@@ -317,7 +317,6 @@ export default function ComplianceCalendar() {
           </button>
         </div>
       </div>
-
       {/* Year strip */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: "4px", marginBottom: "14px" }} data-testid="year-strip">
         {t.months.map((mn, mi) => {
@@ -349,9 +348,11 @@ export default function ComplianceCalendar() {
           );
         })}
       </div>
-
       {/* Filters */}
-      <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginBottom: "14px", alignItems: "center" }} data-testid="calendar-filters">
+      <div
+        style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginBottom: "14px", alignItems: "center" }}
+        data-testid="calendar-filters"
+        className="bg-[#ff000000]">
         <span style={{ fontFamily: "var(--font-display)", fontSize: "9px", letterSpacing: "1.5px", color: "var(--t4)", textTransform: "uppercase", marginRight: "3px" }}>{t.filter}</span>
         {FILTER_TYPES.map(f => (
           <button
@@ -373,7 +374,6 @@ export default function ComplianceCalendar() {
           </button>
         ))}
       </div>
-
       {/* Calendar grid */}
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="calendar-grid">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", borderBottom: "1px solid var(--b)" }}>
@@ -448,7 +448,6 @@ export default function ComplianceCalendar() {
           })}
         </div>
       </div>
-
       {/* Detail panel */}
       <div id="cal-detail-panel" style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="detail-panel">
         {!selDate ? (
@@ -567,7 +566,6 @@ export default function ComplianceCalendar() {
           </>
         )}
       </div>
-
       {/* Legend */}
       <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", padding: "10px 14px", background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "8px" }} data-testid="calendar-legend">
         {legendItems.map(li => (
@@ -577,7 +575,6 @@ export default function ComplianceCalendar() {
           </div>
         ))}
       </div>
-
       {/* Add/Edit Modal */}
       {showModal && (
         <div
