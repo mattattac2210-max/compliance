@@ -350,17 +350,15 @@ export default function Home() {
     if (param === "audit" || param === "guide") setActiveTab(param);
     else if (!param) setActiveTab("flow");
 
-    if (param === "guide" && params.get("section") === "glossary") {
-      setTimeout(() => {
-        const el = document.getElementById("glossary-section");
-        const container = document.querySelector('[data-testid="app-content"]');
-        if (el && container) {
-          const top = el.offsetTop - container.getBoundingClientRect().top + container.scrollTop;
-          container.scrollTo({ top, behavior: "smooth" });
-        } else {
-          el?.scrollIntoView({ behavior: "smooth" });
-        }
-      }, 150);
+    if (param === "guide") {
+      const section = params.get("section");
+      if (section === "glossary" || section === "workflows") {
+        setTimeout(() => {
+          const targetId = section === "glossary" ? "glossary-section" : "workflows-section";
+          const el = document.getElementById(targetId);
+          if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }, 200);
+      }
     }
   }, [searchString]);
 
@@ -776,11 +774,11 @@ export default function Home() {
               ))}
             </div>
 
-            <div id="glossary-section">
+            <div id="glossary-section" style={{ scrollMarginTop: "16px" }}>
               <GlossarySection />
             </div>
 
-            <div className="mb-12">
+            <div id="workflows-section" className="mb-12" style={{ scrollMarginTop: "16px" }}>
               <ProcessNavigation />
             </div>
 

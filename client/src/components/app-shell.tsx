@@ -30,6 +30,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     if (location === "/profile") return "profile";
     if (location === "/app" || location === "/") {
       if (tabParam === "guide" && sectionParam === "glossary") return "glossary";
+      if (tabParam === "guide" && sectionParam === "workflows") return "workflows";
       if (tabParam === "audit") return "audit";
       if (tabParam === "guide") return "guide";
       return "compliance";
@@ -87,6 +88,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
       label: "REFERENCE",
       items: [
         { key: "glossary", icon: "\u2261", label: t.glossary.heading, href: "/app?tab=guide&section=glossary", pro: false },
+        { key: "workflows", icon: "\u21B3", label: t.processNav.heading, href: "/app?tab=guide&section=workflows", pro: false },
       ],
     },
     {
