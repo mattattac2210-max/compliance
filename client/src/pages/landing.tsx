@@ -451,7 +451,7 @@ export default function LandingPage() {
         </div>
       </section>
       {/* SECTION 5 — What DSCVR Does (features) */}
-      <section className="py-16 px-4 sm:px-6" data-testid="section-features">
+      <section className="py-16 px-4 sm:px-6 bg-[#e81a2d]" data-testid="section-features">
         <div className="max-w-7xl mx-auto text-[#e81a2d]">
           <h2 className="font-heading font-black text-3xl sm:text-4xl text-center mb-12" style={{ color: "var(--txt)" }} data-testid="text-features-heading">
             {l.featuresHeading}
