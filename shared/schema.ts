@@ -107,6 +107,8 @@ export const vaultDocuments = pgTable("vault_documents", {
   expiryDate: text("expiry_date"),
   uploadedAt: text("uploaded_at"),
   fileUrl: text("file_url"),
+  fileName: text("file_name"),
+  fileSize: integer("file_size"),
   notes: text("notes"),
   updatedAt: text("updated_at").notNull().default(sql`now()`),
 });

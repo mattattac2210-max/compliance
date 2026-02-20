@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useCallback } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/i18n/context";
@@ -13,7 +13,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import {
   ChevronDown, ChevronRight, FileText, AlertTriangle, CheckCircle2,
-  Building2, MapPin, Search, Download, Shield, Lock, XCircle, Clock
+  Building2, MapPin, Search, Download, Shield, Lock, XCircle, Clock,
+  Upload, Eye, Trash2, X, Paperclip, Loader2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -51,6 +52,10 @@ export default function VaultPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [docFilter, setDocFilter] = useState<DocFilter>("all");
   const [hoveredGate, setHoveredGate] = useState<number | null>(null);
+  const [uploadingTemplateId, setUploadingTemplateId] = useState<string | null>(null);
+  const [previewDoc, setPreviewDoc] = useState<VaultDocument | null>(null);
+  const [dragOver, setDragOver] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: properties = [] } = useQuery<Property[]>({
     queryKey: ["/api/properties"],
@@ -82,6 +87,73 @@ export default function VaultPage() {
       setEditingId(null);
     },
   });
+
+  const uploadMutation = useMutation({
+    mutationFn: async ({ propertyId, templateId, file }: { propertyId: string; templateId: string; file: File }) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      formData.append("propertyId", propertyId);
+      formData.append("templateId", templateId);
+      const res = await fetch("/api/vault/upload", { method: "POST", body: formData, credentials: "include" });
+      if (!res.ok) { const err = await res.json().catch(() => ({ message: "Upload failed" })); throw new Error(err.message); }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/vault?propertyId=${selectedPropertyId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/vault/summary?propertyId=${selectedPropertyId}`] });
+      setUploadingTemplateId(null);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (docId: string) => {
+      const res = await apiRequest("DELETE", `/api/vault/${docId}/file`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [`/api/vault?propertyId=${selectedPropertyId}`] });
+      queryClient.invalidateQueries({ queryKey: [`/api/vault/summary?propertyId=${selectedPropertyId}`] });
+    },
+  });
+
+  const handleFileUpload = useCallback((templateId: string, file: File) => {
+    if (!selectedPropertyId) return;
+    setUploadingTemplateId(templateId);
+    uploadMutation.mutate({ propertyId: selectedPropertyId, templateId, file });
+  }, [selectedPropertyId, uploadMutation]);
+
+  const handleDrop = useCallback((templateId: string, e: React.DragEvent) => {
+    e.preventDefault();
+    setDragOver(null);
+    const file = e.dataTransfer.files[0];
+    if (file) handleFileUpload(templateId, file);
+  }, [handleFileUpload]);
+
+  const handleDownload = useCallback(async (doc: VaultDocument) => {
+    if (!doc.fileUrl) return;
+    const res = await fetch(doc.fileUrl, { credentials: "include" });
+    if (!res.ok) return;
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = doc.fileName || "document";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, []);
+
+  const formatFileSize = (bytes: number | null): string => {
+    if (!bytes) return "";
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const isPreviewable = (fileName: string | null): boolean => {
+    if (!fileName) return false;
+    const ext = fileName.split(".").pop()?.toLowerCase();
+    return ["pdf", "jpg", "jpeg", "png"].includes(ext || "");
+  };
 
   useMemo(() => {
     if (properties.length === 1 && !selectedPropertyId) {
@@ -196,6 +268,89 @@ export default function VaultPage() {
       a.click();
       URL.revokeObjectURL(url);
     } catch { /* silently fail */ }
+  };
+
+  const renderFileSection = (tmpl: VaultDocumentTemplate, doc: VaultDocument | undefined) => {
+    const hasFile = !!doc?.fileUrl;
+    const isUploading = uploadingTemplateId === tmpl.id && uploadMutation.isPending;
+    const isDragTarget = dragOver === tmpl.id;
+
+    return (
+      <div className="space-y-2">
+        <Label className="text-slate-400 text-xs flex items-center gap-1.5">
+          <Paperclip className="h-3 w-3" />
+          {t.vault.uploadFile}
+        </Label>
+
+        {hasFile ? (
+          <div className="rounded-lg p-3 space-y-2" style={{ background: "var(--bg2)", border: "1px solid var(--accent-tint)" }}>
+            <div className="flex items-center gap-2">
+              <FileText className="h-4 w-4 text-[var(--accent)] shrink-0" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs text-slate-200 truncate">{doc?.fileName || "Document"}</p>
+                <div className="flex items-center gap-3 mt-0.5">
+                  {doc?.fileSize && <span className="text-[10px] text-slate-500">{t.vault.fileSizeLabel}: {formatFileSize(doc.fileSize)}</span>}
+                  {doc?.uploadedAt && <span className="text-[10px] text-slate-500">{t.vault.uploadedOnLabel}: {new Date(doc.uploadedAt).toLocaleDateString()}</span>}
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              {isPreviewable(doc?.fileName || null) && (
+                <Button size="sm" variant="ghost" className="text-[var(--accent)] text-xs h-7 px-2" onClick={() => doc && setPreviewDoc(doc)} data-testid={`button-preview-${tmpl.documentSlug}`}>
+                  <Eye className="h-3 w-3 mr-1" />{t.vault.previewFile}
+                </Button>
+              )}
+              <Button size="sm" variant="ghost" className="text-[var(--accent)] text-xs h-7 px-2" onClick={() => doc && handleDownload(doc)} data-testid={`button-download-${tmpl.documentSlug}`}>
+                <Download className="h-3 w-3 mr-1" />{t.vault.downloadFile}
+              </Button>
+              <Button size="sm" variant="ghost" className="text-red-400 hover:text-red-300 text-xs h-7 px-2"
+                onClick={() => { if (doc && confirm(t.vault.removeConfirm)) deleteMutation.mutate(doc.id); }}
+                data-testid={`button-remove-file-${tmpl.documentSlug}`}
+              >
+                <Trash2 className="h-3 w-3 mr-1" />{t.vault.removeFile}
+              </Button>
+              <label className="cursor-pointer">
+                <input type="file" className="hidden" accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+                  onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(tmpl.id, f); e.target.value = ""; }}
+                />
+                <span className="inline-flex items-center text-xs text-slate-400 hover:text-[var(--accent)] h-7 px-2 transition-colors">
+                  <Upload className="h-3 w-3 mr-1" />{t.vault.uploadReplace}
+                </span>
+              </label>
+            </div>
+          </div>
+        ) : (
+          <label
+            className={`rounded-lg border-2 border-dashed p-4 text-center transition-colors cursor-pointer block ${isDragTarget ? "border-[var(--accent)] bg-[var(--accent-tint)]" : "border-slate-700 hover:border-slate-500"}`}
+            onDragOver={e => { e.preventDefault(); setDragOver(tmpl.id); }}
+            onDragLeave={() => setDragOver(null)}
+            onDrop={e => handleDrop(tmpl.id, e)}
+            data-testid={`dropzone-${tmpl.documentSlug}`}
+          >
+            <input
+              type="file"
+              className="hidden"
+              accept=".pdf,.jpg,.jpeg,.png,.doc,.docx,.xls,.xlsx"
+              onChange={e => { const f = e.target.files?.[0]; if (f) handleFileUpload(tmpl.id, f); e.target.value = ""; }}
+              data-testid={`input-file-${tmpl.documentSlug}`}
+            />
+            {isUploading ? (
+              <div className="flex items-center justify-center gap-2">
+                <Loader2 className="h-4 w-4 animate-spin text-[var(--accent)]" />
+                <span className="text-xs text-slate-400">{t.vault.uploadingLabel}</span>
+              </div>
+            ) : (
+              <>
+                <Upload className="h-5 w-5 mx-auto text-slate-500 mb-1" />
+                <p className="text-xs text-slate-400">{t.vault.uploadFile}</p>
+                <p className="text-[10px] text-slate-600 mt-0.5">{t.vault.dragDropHint}</p>
+                <p className="text-[10px] text-slate-600">{t.vault.maxFileSize}</p>
+              </>
+            )}
+          </label>
+        )}
+      </div>
+    );
   };
 
   if (!user) return null;
@@ -500,6 +655,9 @@ export default function VaultPage() {
                                       data-testid={`input-notes-${tmpl.documentSlug}`}
                                     />
                                   </div>
+                                  <div className="md:col-span-full">
+                                    {renderFileSection(tmpl, doc)}
+                                  </div>
                                 </div>
                                 <div className="flex gap-2">
                                   <Button size="sm" onClick={() => handleSave(tmpl.id)} disabled={upsertMutation.isPending}
@@ -636,6 +794,9 @@ export default function VaultPage() {
                                                 className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs min-h-[60px]"
                                               />
                                             </div>
+                                            <div className="md:col-span-full">
+                                              {renderFileSection(tmpl, doc)}
+                                            </div>
                                           </div>
                                           <div className="flex gap-2">
                                             <Button size="sm" onClick={() => handleSave(tmpl.id)} disabled={upsertMutation.isPending}
@@ -706,6 +867,66 @@ export default function VaultPage() {
           </>
         )}
       </div>
+
+      {/* Preview Modal */}
+      <AnimatePresence>
+        {previewDoc && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: "rgba(0,0,0,0.8)" }}
+            onClick={() => setPreviewDoc(null)}
+            data-testid="modal-preview"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="relative w-full max-w-4xl max-h-[90vh] rounded-xl overflow-hidden"
+              style={{ background: "var(--bg2)", border: "1px solid var(--accent-tint)" }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ borderColor: "var(--accent-tint)" }}>
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-[var(--accent)]" />
+                  <span className="text-sm text-slate-200 truncate">{previewDoc.fileName || "Document"}</span>
+                  {previewDoc.fileSize && (
+                    <span className="text-[10px] text-slate-500">({formatFileSize(previewDoc.fileSize)})</span>
+                  )}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="ghost" className="text-[var(--accent)] text-xs h-7" onClick={() => handleDownload(previewDoc)} data-testid="button-preview-download">
+                    <Download className="h-3 w-3 mr-1" />{t.vault.downloadFile}
+                  </Button>
+                  <Button size="sm" variant="ghost" className="text-slate-400 h-7 w-7 p-0" onClick={() => setPreviewDoc(null)} data-testid="button-close-preview">
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+              <div className="overflow-auto" style={{ maxHeight: "calc(90vh - 56px)" }}>
+                {previewDoc.fileName?.toLowerCase().endsWith(".pdf") ? (
+                  <iframe
+                    src={previewDoc.fileUrl || ""}
+                    className="w-full"
+                    style={{ height: "80vh" }}
+                    title="Document Preview"
+                  />
+                ) : (
+                  <div className="flex items-center justify-center p-8">
+                    <img
+                      src={previewDoc.fileUrl || ""}
+                      alt={previewDoc.fileName || "Preview"}
+                      className="max-w-full max-h-[70vh] object-contain rounded"
+                    />
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -49,6 +49,8 @@ export interface IStorage {
   upsertVaultDocument(doc: InsertVaultDocument): Promise<VaultDocument>;
   updateVaultDocument(id: string, updates: Partial<InsertVaultDocument>): Promise<VaultDocument | undefined>;
   getVaultDocumentById(id: string): Promise<VaultDocument | undefined>;
+  getVaultDocumentByPropertyAndTemplate(propertyId: string, templateId: string): Promise<VaultDocument | undefined>;
+  getVaultDocumentByFileUrl(fileUrl: string): Promise<VaultDocument | undefined>;
 
   getAllUsers(): Promise<User[]>;
   updateUserAdmin(id: string, isAdmin: boolean): Promise<User | undefined>;
@@ -259,6 +261,21 @@ export class DatabaseStorage implements IStorage {
       .values({ ...doc, updatedAt: new Date().toISOString() })
       .returning();
     return created;
+  }
+
+  async getVaultDocumentByPropertyAndTemplate(propertyId: string, templateId: string): Promise<VaultDocument | undefined> {
+    const [doc] = await db.select().from(vaultDocuments)
+      .where(and(
+        eq(vaultDocuments.propertyId, propertyId),
+        eq(vaultDocuments.templateId, templateId),
+      ));
+    return doc;
+  }
+
+  async getVaultDocumentByFileUrl(fileUrl: string): Promise<VaultDocument | undefined> {
+    const [doc] = await db.select().from(vaultDocuments)
+      .where(eq(vaultDocuments.fileUrl, fileUrl));
+    return doc;
   }
 
   async updateVaultDocument(id: string, updates: Partial<InsertVaultDocument>): Promise<VaultDocument | undefined> {

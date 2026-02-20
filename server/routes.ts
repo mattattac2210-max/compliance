@@ -6,6 +6,30 @@ import { seedComplianceTerms } from "./seed";
 import { seedVaultTemplates } from "./seed-vault";
 import bcrypt from "bcrypt";
 import { z } from "zod";
+import multer from "multer";
+import path from "path";
+import fs from "fs";
+
+const UPLOADS_DIR = path.join(process.cwd(), "uploads");
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => cb(null, UPLOADS_DIR),
+    filename: (_req, file, cb) => {
+      const unique = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
+      const ext = path.extname(file.originalname);
+      cb(null, `${unique}${ext}`);
+    },
+  }),
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = [".pdf", ".jpg", ".jpeg", ".png", ".doc", ".docx", ".xls", ".xlsx"];
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (allowed.includes(ext)) cb(null, true);
+    else cb(new Error("File type not allowed"));
+  },
+});
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
@@ -346,6 +370,94 @@ export async function registerRoutes(
 
     const { propertyId, templateId, ...body } = req.body;
     const updated = await storage.updateVaultDocument(req.params.id, body);
+    res.json(updated);
+  });
+
+  app.post("/api/vault/upload", requireAuth, upload.single("file"), async (req, res) => {
+    try {
+      const { propertyId, templateId } = req.body;
+      if (!propertyId || !templateId) return res.status(400).json({ message: "propertyId and templateId required" });
+
+      const property = await storage.getPropertyById(propertyId);
+      if (!property || property.userId !== req.session.userId) {
+        return res.status(403).json({ message: "Forbidden" });
+      }
+
+      if (!req.file) return res.status(400).json({ message: "No file provided" });
+
+      let doc = await storage.getVaultDocumentByPropertyAndTemplate(propertyId, templateId);
+      if (!doc) {
+        doc = await storage.upsertVaultDocument({
+          propertyId,
+          templateId,
+          status: "missing",
+          uploadedAt: null,
+          fileUrl: null,
+          fileName: null,
+          fileSize: null,
+          notes: null,
+          updatedAt: new Date().toISOString(),
+        });
+      }
+
+      if (doc.fileUrl) {
+        const oldPath = path.join(UPLOADS_DIR, path.basename(doc.fileUrl));
+        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+      }
+
+      const updated = await storage.updateVaultDocument(doc.id, {
+        fileUrl: `/api/vault/files/${req.file.filename}`,
+        fileName: req.file.originalname,
+        fileSize: req.file.size,
+        status: "uploaded",
+        uploadedAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+      res.json(updated);
+    } catch (err: any) {
+      res.status(500).json({ message: err.message || "Upload failed" });
+    }
+  });
+
+  app.get("/api/vault/files/:filename", requireAuth, async (req, res) => {
+    const filename = path.basename(req.params.filename);
+    const filePath = path.join(UPLOADS_DIR, filename);
+    if (!fs.existsSync(filePath)) return res.status(404).json({ message: "File not found" });
+
+    const fileUrl = `/api/vault/files/${filename}`;
+    const doc = await storage.getVaultDocumentByFileUrl(fileUrl);
+    if (!doc) return res.status(404).json({ message: "File not found" });
+
+    const property = await storage.getPropertyById(doc.propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    res.sendFile(filePath);
+  });
+
+  app.delete("/api/vault/:id/file", requireAuth, async (req, res) => {
+    const doc = await storage.getVaultDocumentById(req.params.id);
+    if (!doc) return res.status(404).json({ message: "Document not found" });
+
+    const property = await storage.getPropertyById(doc.propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+
+    if (doc.fileUrl) {
+      const filePath = path.join(UPLOADS_DIR, path.basename(doc.fileUrl));
+      if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+    }
+
+    const updated = await storage.updateVaultDocument(doc.id, {
+      fileUrl: null,
+      fileName: null,
+      fileSize: null,
+      status: "missing",
+      uploadedAt: null,
+      updatedAt: new Date().toISOString(),
+    });
     res.json(updated);
   });
 

@@ -405,6 +405,21 @@ export interface UITranslations {
     savedLabel: string;
     allGatesLabel: string;
     noResults: string;
+    uploadFile: string;
+    uploadReplace: string;
+    downloading: string;
+    downloadFile: string;
+    previewFile: string;
+    removeFile: string;
+    fileAttached: string;
+    fileSizeLabel: string;
+    uploadedOnLabel: string;
+    noPreview: string;
+    closePreview: string;
+    dragDropHint: string;
+    maxFileSize: string;
+    uploadingLabel: string;
+    removeConfirm: string;
   };
   timeline: {
     eyebrow: string;
