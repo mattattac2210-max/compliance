@@ -10,7 +10,7 @@ import { SupportModeBanner } from "@/components/support-mode-banner";
 import {
   Hexagon, CheckCircle, BookOpen, Archive, Clock, AlertTriangle,
   List, GitBranch, User, Settings, Lock, Menu, LogOut, ChevronLeft, ChevronRight, LayoutDashboard,
-  Calendar, Scale
+  Calendar, Scale, Layers, Square, Target
 } from "lucide-react";
 
 type PageTitleKey = "dashboard" | "profile" | "vault" | "calendar" | "timeline" | "alerts" | "disclaimers" | "glossary" | "workflows";
@@ -21,7 +21,7 @@ interface AppShellProps {
   activeNav: string;
 }
 
-const EXPANDED_W = 220;
+const EXPANDED_W = 240;
 const COLLAPSED_W = 60;
 
 export default function AppShell({ children, pageTitle, activeNav }: AppShellProps) {
@@ -91,24 +91,27 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
   const vaultDocCount = vaultSummary ? (vaultSummary.uploaded + vaultSummary.expiring) : 0;
   const alertCount = vaultSummary?.expired ?? 0;
 
+  const calendarBadgeCount = vaultSummary?.expiring ?? 0;
+  const totalAlertCount = (vaultSummary?.expired ?? 0) + (vaultSummary?.expiring ?? 0);
+
   const iconSize = 16;
   const navSections = useMemo(() => [
     {
       label: t.shell.sectionOverview,
       items: [
-        { key: "dashboard", icon: <LayoutDashboard size={iconSize} />, label: t.shell.navDashboard, href: "/app", pro: false },
-        { key: "compliance", icon: <Hexagon size={iconSize} />, label: t.tabs.flow, href: "/app?tab=flow", pro: false },
-        { key: "audit", icon: <CheckCircle size={iconSize} />, label: t.tabs.audit, href: "/app?tab=audit", pro: false },
+        { key: "dashboard", icon: <Target size={iconSize} />, label: t.shell.navDashboard, href: "/app", pro: false },
+        { key: "compliance", icon: <CheckCircle size={iconSize} />, label: t.tabs.flow, href: "/app?tab=flow", pro: false },
+        { key: "audit", icon: <Square size={iconSize} />, label: t.tabs.audit, href: "/app?tab=audit", pro: false },
         { key: "guide", icon: <BookOpen size={iconSize} />, label: t.tabs.guide, href: "/app?tab=guide", pro: false },
       ],
     },
     {
       label: t.shell.sectionTracking,
       items: [
-        { key: "vault", icon: <Archive size={iconSize} />, label: t.nav.vault, href: "/vault", pro: true, badge: isPro ? vaultDocCount : undefined },
-        { key: "calendar", icon: <Calendar size={iconSize} />, label: t.nav.calendar, href: "/calendar", pro: true },
+        { key: "vault", icon: <Layers size={iconSize} />, label: t.nav.vault, href: "/vault", pro: true },
+        { key: "calendar", icon: <Calendar size={iconSize} />, label: t.nav.calendar, href: "/calendar", pro: true, roundBadge: isPro ? calendarBadgeCount : undefined },
         { key: "timeline", icon: <Clock size={iconSize} />, label: t.nav.timeline, href: "/timeline", pro: true },
-        { key: "alerts", icon: <AlertTriangle size={iconSize} />, label: t.nav.alerts, href: "/alerts", pro: true, alertBadge: isPro ? alertCount : undefined },
+        { key: "alerts", icon: <AlertTriangle size={iconSize} />, label: t.nav.alerts, href: "/alerts", pro: true, roundBadge: isPro ? totalAlertCount : undefined },
       ],
     },
     {
@@ -126,7 +129,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
         ...(user?.isAdmin ? [{ key: "admin-dashboard", icon: <Settings size={iconSize} />, label: t.adminDashboard.heading, href: "/admin-dashboard", pro: false }] : []),
       ],
     },
-  ], [t, isPro, vaultDocCount, alertCount, user?.isAdmin]);
+  ], [t, isPro, calendarBadgeCount, totalAlertCount, user?.isAdmin]);
 
   const handleNavClick = (item: any) => {
     const [path, qs] = item.href.split("?");
@@ -184,11 +187,23 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           borderBottom: "1px solid var(--b)",
           textAlign: collapsed ? "center" : "left",
         }}>
-          <div style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: collapsed ? "16px" : "22px", color: "var(--accent)", letterSpacing: "2px", transition: "font-size 0.2s" }}>
-            {collapsed ? "D" : "DSCVR"}
+          <div style={{ display: "flex", alignItems: "center", gap: collapsed ? "0" : "10px", justifyContent: collapsed ? "center" : "flex-start" }}>
+            <div style={{
+              width: collapsed ? 28 : 34, height: collapsed ? 28 : 34,
+              background: "var(--accent)", borderRadius: 8,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
+            }}>
+              <Layers size={collapsed ? 14 : 18} style={{ color: "#fff" }} />
+            </div>
+            {!collapsed && (
+              <div style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "22px", color: "var(--accent)", letterSpacing: "2px" }}>
+                DSCVR
+              </div>
+            )}
           </div>
           {!collapsed && (
-            <div style={{ fontFamily: "var(--font-body)", fontSize: "9px", letterSpacing: "3px", color: "var(--t3)", textTransform: "uppercase", marginTop: "2px" }}>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: "9px", letterSpacing: "3px", color: "var(--t3)", textTransform: "uppercase", marginTop: "6px" }}>
               {t.shell.complianceNavigator}
             </div>
           )}
@@ -220,7 +235,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                 onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--accent-tint2)")}
               >
                 <span style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 700, color: "var(--txt)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {activeProperty.propertyName}
+                  {activeProperty.propertyName}{activeProperty.regency ? `, ${activeProperty.regency}` : ""}
                 </span>
                 <span style={{ color: "var(--t3)", fontSize: "10px", flexShrink: 0, marginLeft: "4px" }}>&#9662;</span>
               </button>
@@ -237,31 +252,6 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                 {t.shell.addProperty}
               </button>
             )}
-          </div>
-        )}
-
-        {/* Vault progress - hidden when collapsed */}
-        {isPro && !collapsed && (
-          <div style={{
-            margin: "4px 14px 8px",
-            background: "var(--accent-tint)",
-            border: "1px solid var(--accent-tint)",
-            borderRadius: "7px",
-            padding: "10px 12px",
-          }}>
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-              <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--t2)" }}>{t.shell.vaultCompletion}</span>
-              <span style={{ fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 700, color: "var(--accent)" }}>{completionPct}%</span>
-            </div>
-            <div style={{ height: "4px", background: "var(--accent-tint2)", borderRadius: "2px", overflow: "hidden" }}>
-              <div style={{
-                height: "100%",
-                width: `${completionPct}%`,
-                background: "linear-gradient(90deg, var(--accent), #5EEAD4)",
-                borderRadius: "2px",
-                transition: "width 0.5s ease",
-              }} />
-            </div>
           </div>
         )}
 
@@ -301,6 +291,46 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
               })}
             </div>
           ))}
+
+          {/* INTELLIGENCE section with vault completion */}
+          {isPro && !collapsed && (
+            <div style={{ marginBottom: "16px" }}>
+              <div style={{
+                fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700,
+                letterSpacing: "2.5px", color: "var(--t3)", textTransform: "uppercase",
+                padding: "0 8px", marginBottom: "6px",
+              }}>
+                {t.shell.sectionIntelligence}
+              </div>
+              <div style={{
+                margin: "0 4px",
+                background: "var(--sidebar2)",
+                border: "1px solid var(--b)",
+                borderRadius: "7px",
+                padding: "12px 12px",
+              }} data-testid="sidebar-vault-completion">
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                  <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", fontWeight: 600, color: "var(--t2)" }}>{t.shell.vaultCompletion}</span>
+                  <span style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 800, color: "var(--accent)" }}>{completionPct}%</span>
+                </div>
+                <div style={{ height: "4px", background: "var(--b)", borderRadius: "2px", overflow: "hidden", marginBottom: "6px" }}>
+                  <div style={{
+                    height: "100%",
+                    width: `${completionPct}%`,
+                    background: "var(--accent)",
+                    borderRadius: "2px",
+                    transition: "width 0.5s ease",
+                  }} />
+                </div>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--t3)" }}>
+                  {vaultSummary ? `${vaultSummary.uploaded ?? 0} of ${vaultSummary.total ?? 0} documents uploaded` : ""}
+                </div>
+              </div>
+            </div>
+          )}
+          {isPro && collapsed && (
+            <div style={{ height: "1px", background: "var(--b2)", margin: "0 8px 8px" }} />
+          )}
         </nav>
 
         {/* OTA countdown */}
@@ -362,13 +392,15 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                   fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--txt)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>
-                  {displayName}
+                  {user?.email || displayName}
                 </div>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--t3)" }}>
-                  {isPro ? t.upgrade.proLabel : (
+                <div style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700 }}>
+                  {isPro ? (
+                    <span style={{ color: "var(--accent)" }}>{t.upgrade.proLabel}</span>
+                  ) : (
                     <button
                       onClick={openUpgradeModal}
-                      style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--accent)", fontFamily: "var(--font-body)", fontSize: "10px", padding: 0 }}
+                      style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--accent)", fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: 0 }}
                       data-testid="sidebar-upgrade-link"
                     >
                       {t.upgrade.freeLabel} &middot; {t.upgrade.tooltipCta}
@@ -534,11 +566,13 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
         width: "100%",
         padding: collapsed ? "9px 0" : "9px 12px",
         borderRadius: "7px",
-        border: isActive ? "1px solid var(--accent-tint2)" : "1px solid transparent",
+        border: "1px solid transparent",
         background: isActive ? "var(--sb-active-bg)" : "transparent",
+        borderLeft: isActive ? "3px solid var(--accent)" : "3px solid transparent",
         cursor: "pointer",
         transition: "background 0.15s",
         marginBottom: "2px",
+        position: "relative",
       }}
       onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "var(--b2)"; }}
       onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = isActive ? "var(--sb-active-bg)" : "transparent"; }}
@@ -549,29 +583,21 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
       {!collapsed && (
         <>
           <span style={{
-            fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 600,
+            fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: isActive ? 700 : 600,
             color: isActive ? "var(--txt)" : "var(--t2)",
             flex: 1, textAlign: "left",
           }}>
             {item.label}
           </span>
-          {item.badge !== undefined && item.badge > 0 && (
-            <span style={{
-              fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700,
-              background: "rgba(245,158,11,0.15)", color: "#F59E0B",
-              border: "1px solid rgba(245,158,11,0.3)",
-              borderRadius: "10px", padding: "1px 6px", minWidth: "18px", textAlign: "center",
-            }}>
-              {item.badge}
-            </span>
-          )}
-          {item.alertBadge !== undefined && item.alertBadge > 0 && (
+          {item.roundBadge !== undefined && item.roundBadge > 0 && (
             <span style={{
               fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700,
               background: "#EF4444", color: "#FFFFFF",
-              borderRadius: "10px", padding: "1px 6px", minWidth: "18px", textAlign: "center",
+              borderRadius: "50%", width: "20px", height: "20px",
+              display: "flex", alignItems: "center", justifyContent: "center",
+              flexShrink: 0,
             }}>
-              {item.alertBadge}
+              {item.roundBadge}
             </span>
           )}
         </>
@@ -609,7 +635,8 @@ function LockedNavItem({ icon, label, href, isActive, collapsed }: { icon: React
           cursor: "pointer",
           marginBottom: "2px",
           width: "100%",
-          border: "none",
+          border: "1px solid transparent",
+          borderLeft: isActive ? "3px solid var(--accent)" : "3px solid transparent",
           background: isActive ? "var(--sb-active-bg)" : hovered ? "var(--b2)" : "transparent",
           transition: "background 0.15s",
         }}

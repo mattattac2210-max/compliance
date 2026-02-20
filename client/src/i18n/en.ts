@@ -525,6 +525,7 @@ export const en: UITranslations = {
     complianceNavigator: "Compliance Navigator",
     sectionOverview: "Overview",
     sectionTracking: "Tracking",
+    sectionIntelligence: "Intelligence",
     sectionReference: "Reference",
     sectionAccount: "Account",
     navDashboard: "Dashboard",

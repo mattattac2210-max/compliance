@@ -525,6 +525,7 @@ export const id: UITranslations = {
     complianceNavigator: "Navigator Kepatuhan",
     sectionOverview: "Ikhtisar",
     sectionTracking: "Pelacakan",
+    sectionIntelligence: "Intelijen",
     sectionReference: "Referensi",
     sectionAccount: "Akun",
     navDashboard: "Dasbor",

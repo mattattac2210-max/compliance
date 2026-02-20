@@ -492,6 +492,7 @@ export interface UITranslations {
     complianceNavigator: string;
     sectionOverview: string;
     sectionTracking: string;
+    sectionIntelligence: string;
     sectionReference: string;
     sectionAccount: string;
     navDashboard: string;
