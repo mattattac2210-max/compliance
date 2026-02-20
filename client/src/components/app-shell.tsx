@@ -10,7 +10,7 @@ import { SupportModeBanner } from "@/components/support-mode-banner";
 import {
   Hexagon, CheckCircle, BookOpen, Archive, Clock, AlertTriangle,
   List, GitBranch, User, Settings, Lock, Menu, LogOut, ChevronLeft, ChevronRight, LayoutDashboard,
-  Calendar
+  Calendar, Scale
 } from "lucide-react";
 
 interface AppShellProps {
@@ -46,6 +46,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     if (location === "/calendar") return "calendar";
     if (location === "/timeline") return "timeline";
     if (location === "/alerts") return "alerts";
+    if (location === "/disclaimers") return "disclaimers";
     if (location === "/profile") return "profile";
     if (location === "/admin-dashboard") return "admin-dashboard";
     if (location === "/app" || location === "/") {
@@ -113,6 +114,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
       items: [
         { key: "glossary", icon: <List size={iconSize} />, label: t.glossary.heading, href: "/app?tab=guide&section=glossary", pro: false },
         { key: "workflows", icon: <GitBranch size={iconSize} />, label: t.processNav.heading, href: "/app?tab=guide&section=workflows", pro: false },
+        { key: "disclaimers", icon: <Scale size={iconSize} />, label: t.nav.disclaimers, href: "/disclaimers", pro: false },
       ],
     },
     {

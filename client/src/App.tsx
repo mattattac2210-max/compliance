@@ -21,6 +21,7 @@ import TimelinePage from "@/pages/timeline";
 import AlertsPage from "@/pages/alerts";
 import AdminDashboardPage from "@/pages/admin-dashboard";
 import CalendarPage from "@/pages/calendar";
+import DisclaimersPage from "@/pages/disclaimers";
 
 function Router() {
   return (
@@ -81,6 +82,13 @@ function Router() {
             <ProRoute>
               <AlertsPage />
             </ProRoute>
+          </AppShell>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/disclaimers">
+        <ProtectedRoute>
+          <AppShell pageTitle="Disclaimers" activeNav="disclaimers">
+            <DisclaimersPage />
           </AppShell>
         </ProtectedRoute>
       </Route>
