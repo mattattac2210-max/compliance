@@ -29,6 +29,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
   const [collapsed, setCollapsed] = useState(() => {
     try { return localStorage.getItem("dscvr-sidebar-collapsed") === "true"; } catch { return false; }
   });
+  const [isMobile, setIsMobile] = useState(() => typeof window !== "undefined" && window.innerWidth < 768);
   const { t } = useLanguage();
   const { user, logout } = useAuth();
   const { openUpgradeModal } = useUpgradeModal();
@@ -36,6 +37,14 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
   const searchString = useSearch();
   const tabParam = new URLSearchParams(searchString).get("tab");
   const sectionParam = new URLSearchParams(searchString).get("section");
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 767px)");
+    const handler = (e: MediaQueryListEvent | MediaQueryList) => setIsMobile(e.matches);
+    handler(mq);
+    mq.addEventListener("change", handler as (e: MediaQueryListEvent) => void);
+    return () => mq.removeEventListener("change", handler as (e: MediaQueryListEvent) => void);
+  }, []);
 
   useEffect(() => {
     try { localStorage.setItem("dscvr-sidebar-collapsed", String(collapsed)); } catch {}
@@ -153,8 +162,14 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     <div className="relative">
       {user?.isAdmin && <SupportModeBanner />}
       <div
-        style={{ display: "grid", gridTemplateColumns: `${sidebarW}px 1fr`, height: "100vh", overflow: "hidden", transition: "grid-template-columns 0.2s ease" }}
-        className="max-md:!grid-cols-[0px_1fr]"
+        style={{
+          display: isMobile ? "flex" : "grid",
+          flexDirection: isMobile ? "column" : undefined,
+          gridTemplateColumns: isMobile ? undefined : `${sidebarW}px 1fr`,
+          height: "100vh",
+          overflow: "hidden",
+          transition: "grid-template-columns 0.2s ease",
+        }}
       >
         {sidebarOpen && (
           <div
@@ -425,7 +440,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           </button>
         </aside>
 
-        <main style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+        <main style={{ display: "flex", flexDirection: "column", overflow: "hidden", flex: 1, minHeight: 0 }}>
           <div
             style={{
               height: "56px",
