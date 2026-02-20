@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useLanguage } from "@/i18n/context";
 import { useAuth } from "@/hooks/useAuth";
 import {
-  FileCheck, Clock, AlertTriangle, Calendar, Building2, ArrowRight, X,
+  FileCheck, Clock, AlertTriangle, Calendar, Building2, ArrowRight,
   Hexagon, CheckCircle, BookOpen, List, ChevronRight
 } from "lucide-react";
 import { FILING_SCHEDULE, getNextFilingDates } from "@/lib/filing-schedule";
@@ -34,9 +34,6 @@ function getGreeting(t: any): string {
 export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: ProDashboardProps) {
   const { t, lang } = useLanguage();
   const { user } = useAuth();
-  const [setupDismissed, setSetupDismissed] = useState(() => {
-    try { return sessionStorage.getItem("dscvr-setup-dismissed") === "true"; } catch { return false; }
-  });
 
   const { data: properties = [] } = useQuery<Property[]>({
     queryKey: ["/api/properties"],
@@ -199,12 +196,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
   }, [t, hasProperty, selectedProperty, documents]);
 
   const setupScore = setupSteps.filter(s => s.done).length;
-  const showSetup = setupScore < 4 && !setupDismissed;
-
-  const dismissSetup = () => {
-    setSetupDismissed(true);
-    try { sessionStorage.setItem("dscvr-setup-dismissed", "true"); } catch {}
-  };
+  const showSetup = setupScore < 4;
 
   if (!hasProperty) {
     return (
@@ -283,13 +275,6 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
           style={{ background: "rgba(20,184,166,0.05)", border: "1px solid rgba(20,184,166,0.15)" }}
           data-testid="setup-banner"
         >
-          <button
-            onClick={dismissSetup}
-            className="absolute top-3 right-3 p-1 rounded hover:bg-white/5"
-            data-testid="button-dismiss-setup"
-          >
-            <X className="w-3.5 h-3.5" style={{ color: "var(--app-text-muted)" }} />
-          </button>
           <div className="flex items-center gap-2 mb-3">
             <span className="font-heading font-bold text-xs tracking-wider uppercase" style={{ color: "#14B8A6" }}>
               {t.dashboard.setupHeading}
