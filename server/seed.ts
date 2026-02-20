@@ -1,5 +1,7 @@
 import { db } from "./db";
+import { eq } from "drizzle-orm";
 import { complianceTerms, processNavigationGuides } from "@shared/schema";
+import { termTranslationsMap, guideTranslationsMap } from "./seed-translations";
 
 const seedTerms = [
   {
@@ -31,6 +33,7 @@ const seedTerms = [
     tags: ["Signatures", "Documents"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["wet-signature"],
   },
   {
     term: "Company Stamp / Chop",
@@ -57,6 +60,7 @@ const seedTerms = [
     tags: ["Signatures", "Documents"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["company-stamp-chop"],
   },
   {
     term: "Notarised Document",
@@ -79,6 +83,7 @@ const seedTerms = [
     tags: ["Documents", "Legal"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["notarised-document"],
   },
   {
     term: "Legalised Copy",
@@ -100,6 +105,7 @@ const seedTerms = [
     tags: ["Documents", "Legal"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["legalised-copy"],
   },
   {
     term: "Certified Copy",
@@ -121,6 +127,7 @@ const seedTerms = [
     tags: ["Documents"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["certified-copy"],
   },
   {
     term: "OSS (Online Single Submission)",
@@ -144,6 +151,7 @@ const seedTerms = [
     tags: ["OSS", "Permits"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["oss-online-single-submission"],
   },
   {
     term: "NIB (Business Identification Number)",
@@ -166,6 +174,7 @@ const seedTerms = [
     tags: ["OSS", "Permits"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["nib-business-identification-number"],
   },
   {
     term: "KBLI",
@@ -187,6 +196,7 @@ const seedTerms = [
     tags: ["OSS", "Permits"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["kbli"],
   },
   {
     term: "PBG (Building Approval)",
@@ -210,6 +220,7 @@ const seedTerms = [
     tags: ["Permits", "Building"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["pbg-building-approval"],
   },
   {
     term: "SLF (Building Function Certificate)",
@@ -233,6 +244,7 @@ const seedTerms = [
     tags: ["Permits", "Building"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["slf-building-function-certificate"],
   },
   {
     term: "Zoning Certificate",
@@ -256,6 +268,7 @@ const seedTerms = [
     tags: ["Permits", "Zoning"],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: termTranslationsMap["zoning-certificate"],
   },
 ];
 
@@ -459,6 +472,7 @@ const seedWorkflows = [
     ],
     lastUpdated: "2025-02-19",
     isActive: true,
+    translations: guideTranslationsMap["slf-renewal-workflow"],
   }
 ];
 
@@ -479,5 +493,33 @@ export async function seedComplianceTerms() {
     console.log("Seeding process navigation guides...");
     await db.insert(processNavigationGuides).values(seedWorkflows);
     console.log(`Seeded ${seedWorkflows.length} process navigation guides.`);
+  }
+
+  await backfillTranslations();
+}
+
+async function backfillTranslations() {
+  const termsWithoutTranslations = await db.select({ id: complianceTerms.id, slug: complianceTerms.slug, translations: complianceTerms.translations }).from(complianceTerms);
+  let termCount = 0;
+  for (const term of termsWithoutTranslations) {
+    if (!term.translations && termTranslationsMap[term.slug]) {
+      await db.update(complianceTerms).set({ translations: termTranslationsMap[term.slug] }).where(eq(complianceTerms.id, term.id));
+      termCount++;
+    }
+  }
+  if (termCount > 0) {
+    console.log(`Backfilled translations for ${termCount} compliance terms.`);
+  }
+
+  const guidesWithoutTranslations = await db.select({ id: processNavigationGuides.id, title: processNavigationGuides.title, translations: processNavigationGuides.translations }).from(processNavigationGuides);
+  let guideCount = 0;
+  for (const guide of guidesWithoutTranslations) {
+    if (!guide.translations && guide.title === "SLF Renewal Workflow" && guideTranslationsMap["slf-renewal-workflow"]) {
+      await db.update(processNavigationGuides).set({ translations: guideTranslationsMap["slf-renewal-workflow"] }).where(eq(processNavigationGuides.id, guide.id));
+      guideCount++;
+    }
+  }
+  if (guideCount > 0) {
+    console.log(`Backfilled translations for ${guideCount} process guides.`);
   }
 }

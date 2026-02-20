@@ -62,7 +62,9 @@ export interface UITranslations {
     typicalProcessSteps: string;
     whatToStore: string;
     commonPitfalls: string;
+    copyLabel: string;
     copySuccess: string;
+    loadingText: string;
     noResults: string;
     disclaimer: string;
     lastUpdated: string;

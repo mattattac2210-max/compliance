@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ComplianceTerm } from "@shared/schema";
+import { useLanguage } from "@/i18n/context";
 
 interface GlossaryLinkProps {
   term: ComplianceTerm;
@@ -14,8 +15,31 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
   const ref = useRef<HTMLSpanElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  
+  const { lang, t } = useLanguage();
 
-  const whyItMatters = term.whyItMatters as string[];
+  // Get translated content with fallback to English
+  const getTranslatedContent = useCallback(() => {
+    if (lang === "en" || !term.translations || !term.translations[lang]) {
+      return {
+        plainDefinition: term.plainDefinition,
+        whyItMatters: term.whyItMatters as string[],
+        whatToStore: term.whatToStore as string[],
+        commonPitfalls: (term.commonPitfalls as string[] | null) || null,
+      };
+    }
+    
+    const translation = term.translations[lang];
+    return {
+      plainDefinition: translation.plainDefinition,
+      whyItMatters: translation.whyItMatters,
+      whatToStore: translation.whatToStore,
+      commonPitfalls: translation.commonPitfalls || null,
+    };
+  }, [lang, term]);
+
+  const content = getTranslatedContent();
+  const whyItMatters = content.whyItMatters;
 
   const handleMouseEnter = () => {
     clearTimeout(timeoutRef.current);
@@ -43,9 +67,6 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [showModal]);
-
-  const whatToStore = term.whatToStore as string[];
-  const pitfalls = term.commonPitfalls as string[] | null;
 
   return (
     <>
@@ -84,7 +105,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
                 {term.term}
               </div>
               <div className="text-[11px] font-light leading-[1.6] mb-[8px]" style={{ color: "var(--app-text-secondary)" }}>
-                {term.plainDefinition}
+                {content.plainDefinition}
               </div>
               {whyItMatters.length > 0 && (
                 <div className="flex items-start gap-[6px] text-[10px] text-[#F59E0B] leading-[1.5] mb-[10px]">
@@ -97,7 +118,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
                 className="font-heading text-[9px] font-bold tracking-[1.5px] uppercase py-[4px] px-[10px] rounded bg-[rgba(20,184,166,0.1)] border border-[rgba(20,184,166,0.2)] text-[#14B8A6] cursor-pointer hover-elevate"
                 data-testid={`glossary-view-full-${term.slug}`}
               >
-                View full guide
+                {t.glossary.readMore}
               </button>
               <div
                 className="absolute left-[20px] bottom-[-5px] w-[10px] h-[10px] rotate-45"
@@ -145,13 +166,13 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
             </div>
 
             <div className="text-[13px] font-light leading-[1.7] mb-5" style={{ color: "var(--app-text-secondary)" }}>
-              {term.plainDefinition}
+              {content.plainDefinition}
             </div>
 
             {whyItMatters.length > 0 && (
               <div className="mb-5">
                 <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#F59E0B] mb-[8px]">
-                  Why it matters
+                  {t.glossary.whyItMatters}
                 </div>
                 <ul className="space-y-[5px]">
                   {whyItMatters.map((item, i) => (
@@ -166,10 +187,10 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
 
             <div className="mb-5">
               <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#14B8A6] mb-[8px]">
-                What to store in DSCVR
+                {t.glossary.whatToStore}
               </div>
               <ul className="space-y-[5px]">
-                {whatToStore.map((item, i) => (
+                {content.whatToStore.map((item, i) => (
                   <li key={i} className="flex items-start gap-[8px] text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
                     <span className="w-[4px] h-[4px] rounded-full bg-[#14B8A6] shrink-0 mt-[7px]" />
                     {item}
@@ -178,13 +199,13 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
               </ul>
             </div>
 
-            {pitfalls && pitfalls.length > 0 && (
+            {content.commonPitfalls && content.commonPitfalls.length > 0 && (
               <div className="mb-4">
                 <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#EF4444] mb-[8px]">
-                  Common pitfalls
+                  {t.glossary.commonPitfalls}
                 </div>
                 <ul className="space-y-[5px]">
-                  {pitfalls.map((item, i) => (
+                  {content.commonPitfalls.map((item, i) => (
                     <li key={i} className="flex items-start gap-[8px] text-[12px] text-[#FCA5A5] leading-[1.6]">
                       <span className="w-[4px] h-[4px] rounded-full bg-[#EF4444] shrink-0 mt-[7px]" />
                       {item}
@@ -195,7 +216,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
             )}
 
             <div className="text-[10px] mt-4" style={{ color: "var(--app-text-dim)" }}>
-              Last updated: {term.lastUpdated}
+              {t.glossary.lastUpdated}: {term.lastUpdated}
             </div>
           </motion.div>
         </div>

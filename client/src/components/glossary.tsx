@@ -2,26 +2,68 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ComplianceTerm } from "@shared/schema";
+import { useLanguage } from "@/i18n/context";
+import type { Language } from "@/i18n/types";
 
-function copyTermToClipboard(term: ComplianceTerm) {
+interface TermContent {
+  plainDefinition: string;
+  whyItMatters: string[];
+  typicalProcessSteps: string[] | null;
+  whatToStore: string[];
+  commonPitfalls: string[] | null;
+}
+
+function getTermContent(term: ComplianceTerm, language: Language): TermContent {
+  if (language === "en" || !term.translations) {
+    return {
+      plainDefinition: term.plainDefinition,
+      whyItMatters: term.whyItMatters as string[],
+      typicalProcessSteps: term.typicalProcessSteps as string[] | null,
+      whatToStore: term.whatToStore as string[],
+      commonPitfalls: term.commonPitfalls as string[] | null,
+    };
+  }
+
+  const translation = term.translations[language];
+  if (!translation) {
+    return {
+      plainDefinition: term.plainDefinition,
+      whyItMatters: term.whyItMatters as string[],
+      typicalProcessSteps: term.typicalProcessSteps as string[] | null,
+      whatToStore: term.whatToStore as string[],
+      commonPitfalls: term.commonPitfalls as string[] | null,
+    };
+  }
+
+  return {
+    plainDefinition: translation.plainDefinition,
+    whyItMatters: translation.whyItMatters,
+    typicalProcessSteps: translation.typicalProcessSteps ?? null,
+    whatToStore: translation.whatToStore,
+    commonPitfalls: translation.commonPitfalls ?? null,
+  };
+}
+
+function copyTermToClipboard(term: ComplianceTerm, content: TermContent) {
   let text = `${term.term}\n\n`;
-  text += `Definition: ${term.plainDefinition}\n\n`;
-  if (term.whyItMatters && (term.whyItMatters as string[]).length > 0) {
-    text += `Why it matters:\n${(term.whyItMatters as string[]).map(w => `- ${w}`).join("\n")}\n\n`;
+  text += `Definition: ${content.plainDefinition}\n\n`;
+  if (content.whyItMatters && content.whyItMatters.length > 0) {
+    text += `Why it matters:\n${content.whyItMatters.map(w => `- ${w}`).join("\n")}\n\n`;
   }
-  if (term.typicalProcessSteps && (term.typicalProcessSteps as string[]).length > 0) {
-    text += `Typical process:\n${(term.typicalProcessSteps as string[]).map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\n`;
+  if (content.typicalProcessSteps && content.typicalProcessSteps.length > 0) {
+    text += `Typical process:\n${content.typicalProcessSteps.map((s, i) => `${i + 1}. ${s}`).join("\n")}\n\n`;
   }
-  if (term.whatToStore && (term.whatToStore as string[]).length > 0) {
-    text += `What to store:\n${(term.whatToStore as string[]).map(w => `- ${w}`).join("\n")}\n\n`;
+  if (content.whatToStore && content.whatToStore.length > 0) {
+    text += `What to store:\n${content.whatToStore.map(w => `- ${w}`).join("\n")}\n\n`;
   }
-  if (term.commonPitfalls && (term.commonPitfalls as string[]).length > 0) {
-    text += `Common pitfalls:\n${(term.commonPitfalls as string[]).map(p => `- ${p}`).join("\n")}\n`;
+  if (content.commonPitfalls && content.commonPitfalls.length > 0) {
+    text += `Common pitfalls:\n${content.commonPitfalls.map(p => `- ${p}`).join("\n")}\n`;
   }
   navigator.clipboard.writeText(text);
 }
 
 export default function GlossarySection() {
+  const { lang: language, t } = useLanguage();
   const [search, setSearch] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
   const [openTerms, setOpenTerms] = useState<Set<string>>(new Set());
@@ -75,7 +117,8 @@ export default function GlossarySection() {
 
   const handleCopy = (e: React.MouseEvent, term: ComplianceTerm) => {
     e.stopPropagation();
-    copyTermToClipboard(term);
+    const content = getTermContent(term, language);
+    copyTermToClipboard(term, content);
     setCopiedId(term.id);
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -87,7 +130,7 @@ export default function GlossarySection() {
         style={{ borderBottom: "1px solid var(--app-border-teal-subtle)" }}
         data-testid="glossary-heading"
       >
-        Compliance Terminology Decoder
+        {t.glossary.heading}
       </h3>
 
       <div
@@ -95,7 +138,7 @@ export default function GlossarySection() {
         style={{ color: "var(--app-text-secondary)" }}
         data-testid="glossary-disclaimer"
       >
-        This guide provides general operational guidance and document-handling tips. It is not legal or tax advice. Requirements can vary by regency and may change. Confirm with your licensed consultant or relevant authority.
+        {t.glossary.disclaimer}
       </div>
 
       <div className="mb-5">
@@ -104,7 +147,7 @@ export default function GlossarySection() {
           <input
             type="text"
             data-testid="glossary-search"
-            placeholder="Search terms, definitions, or tags..."
+            placeholder={t.glossary.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full rounded-[8px] py-[11px] pl-[38px] pr-[14px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] transition-colors border"
@@ -140,12 +183,12 @@ export default function GlossarySection() {
       </div>
 
       {isLoading && (
-        <div className="text-[13px] py-8 text-center" style={{ color: "var(--app-text-muted)" }}>Loading glossary terms...</div>
+        <div className="text-[13px] py-8 text-center" style={{ color: "var(--app-text-muted)" }}>{t.glossary.loadingText}</div>
       )}
 
       {!isLoading && filtered.length === 0 && (
         <div className="text-[13px] py-8 text-center" style={{ color: "var(--app-text-muted)" }} data-testid="glossary-empty">
-          No terms match your search.
+          {t.glossary.noResults}
         </div>
       )}
 
@@ -153,10 +196,11 @@ export default function GlossarySection() {
         {filtered.map(term => {
           const isOpen = openTerms.has(term.id);
           const tags = term.tags as string[];
-          const whyItMatters = term.whyItMatters as string[];
-          const steps = term.typicalProcessSteps as string[] | null;
-          const whatToStore = term.whatToStore as string[];
-          const pitfalls = term.commonPitfalls as string[] | null;
+          const content = getTermContent(term, language);
+          const whyItMatters = content.whyItMatters;
+          const steps = content.typicalProcessSteps;
+          const whatToStore = content.whatToStore;
+          const pitfalls = content.commonPitfalls;
 
           return (
             <div
@@ -207,7 +251,7 @@ export default function GlossarySection() {
                     }}
                     title="Copy term details"
                   >
-                    {copiedId === term.id ? "\u2713 Copied" : "Copy"}
+                    {copiedId === term.id ? t.glossary.copySuccess : t.glossary.copyLabel}
                   </button>
                 </div>
               </div>
@@ -224,13 +268,13 @@ export default function GlossarySection() {
                     <div className="px-[20px] pb-[20px] pt-0" style={{ borderTop: "1px solid var(--app-border)" }}>
                       <div className="pt-[16px]">
                         <div className="text-[13px] font-light leading-[1.7] mb-4" style={{ color: "var(--app-text-secondary)" }}>
-                          {term.plainDefinition}
+                          {content.plainDefinition}
                         </div>
 
                         {whyItMatters.length > 0 && (
                           <div className="mb-4">
                             <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#F59E0B] mb-[8px]">
-                              Why it matters
+                              {t.glossary.whyItMatters}
                             </div>
                             <ul className="space-y-[5px]">
                               {whyItMatters.map((item, i) => (
@@ -246,7 +290,7 @@ export default function GlossarySection() {
                         {steps && steps.length > 0 && (
                           <div className="mb-4">
                             <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#14B8A6] mb-[8px]">
-                              Typical process
+                              {t.glossary.typicalProcessSteps}
                             </div>
                             <ol className="space-y-[4px] list-none">
                               {steps.map((step, i) => (
@@ -263,7 +307,7 @@ export default function GlossarySection() {
 
                         <div className="mb-4">
                           <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#14B8A6] mb-[8px]">
-                            What to store in DSCVR
+                            {t.glossary.whatToStore}
                           </div>
                           <ul className="space-y-[5px]">
                             {whatToStore.map((item, i) => (
@@ -278,7 +322,7 @@ export default function GlossarySection() {
                         {pitfalls && pitfalls.length > 0 && (
                           <div className="mb-4">
                             <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#EF4444] mb-[8px]">
-                              Common pitfalls
+                              {t.glossary.commonPitfalls}
                             </div>
                             <ul className="space-y-[5px]">
                               {pitfalls.map((item, i) => (
@@ -292,7 +336,7 @@ export default function GlossarySection() {
                         )}
 
                         <div className="text-[10px] mt-3" style={{ color: "var(--app-text-dim)" }}>
-                          Last updated: {term.lastUpdated}
+                          {t.glossary.lastUpdated}: {term.lastUpdated}
                         </div>
                       </div>
                     </div>

@@ -2,14 +2,16 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, ChevronRight, MapPin, Clock, AlertTriangle, FolderOpen, FileText, Monitor, Building, Zap } from "lucide-react";
-import type { ProcessGuide, SequenceStep, ExpandDetails } from "@shared/schema";
+import type { ProcessGuide, SequenceStep, ExpandDetails, GuideTranslation } from "@shared/schema";
 import { GlossaryAwareText, useGlossaryTerms } from "./glossary-link";
+import { useLanguage } from "@/i18n/context";
+import type { Language, UITranslations } from "@/i18n/types";
 
-function SubmissionBadge({ type }: { type: string }) {
-  const config: Record<string, { icon: typeof Monitor; label: string; color: string }> = {
-    digital: { icon: Monitor, label: "Digital", color: "#14B8A6" },
-    physical: { icon: FileText, label: "Physical", color: "#F59E0B" },
-    hybrid: { icon: Zap, label: "Hybrid", color: "#A78BFA" },
+function SubmissionBadge({ type, t }: { type: string; t: UITranslations }) {
+  const config: Record<string, { icon: typeof Monitor; labelKey: "digitalLabel" | "physicalLabel" | "hybridLabel"; color: string }> = {
+    digital: { icon: Monitor, labelKey: "digitalLabel", color: "#14B8A6" },
+    physical: { icon: FileText, labelKey: "physicalLabel", color: "#F59E0B" },
+    hybrid: { icon: Zap, labelKey: "hybridLabel", color: "#A78BFA" },
   };
   const c = config[type] || config.hybrid;
   const Icon = c.icon;
@@ -20,12 +22,12 @@ function SubmissionBadge({ type }: { type: string }) {
       data-testid={`badge-${type}`}
     >
       <Icon size={10} />
-      {c.label}
+      {t.processNav[c.labelKey]}
     </span>
   );
 }
 
-function StepTimeline({ steps, terms }: { steps: SequenceStep[]; terms: ReturnType<typeof useGlossaryTerms> }) {
+function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: ReturnType<typeof useGlossaryTerms>; t: UITranslations }) {
   const [expandedStep, setExpandedStep] = useState<number | null>(null);
 
   return (
@@ -70,7 +72,7 @@ function StepTimeline({ steps, terms }: { steps: SequenceStep[]; terms: ReturnTy
                       <Building size={9} style={{ color: "var(--app-text-dim)" }} />
                       {step.whoHandlesIt}
                     </span>
-                    <SubmissionBadge type={step.digitalOrPhysical} />
+                    <SubmissionBadge type={step.digitalOrPhysical} t={t} />
                   </div>
 
                   {step.notes && (
@@ -104,7 +106,7 @@ function StepTimeline({ steps, terms }: { steps: SequenceStep[]; terms: ReturnTy
                       {details.whyThisMatters && (
                         <div>
                           <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[#F59E0B] mb-[5px]">
-                            Why this matters
+                            {t.processNav.whyThisMatters}
                           </div>
                           <div className="text-[11px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
                             <GlossaryAwareText text={details.whyThisMatters} terms={terms} />
@@ -115,7 +117,7 @@ function StepTimeline({ steps, terms }: { steps: SequenceStep[]; terms: ReturnTy
                       {details.commonIssues && details.commonIssues.length > 0 && (
                         <div>
                           <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[#EF4444] mb-[5px]">
-                            Common issues
+                            {t.processNav.commonIssues}
                           </div>
                           <ul className="space-y-[3px]">
                             {details.commonIssues.map((item, j) => (
@@ -131,7 +133,7 @@ function StepTimeline({ steps, terms }: { steps: SequenceStep[]; terms: ReturnTy
                       {details.preparationTips && details.preparationTips.length > 0 && (
                         <div>
                           <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[#14B8A6] mb-[5px]">
-                            Preparation tips
+                            {t.processNav.preparationTips}
                           </div>
                           <ul className="space-y-[3px]">
                             {details.preparationTips.map((item, j) => (
@@ -147,7 +149,7 @@ function StepTimeline({ steps, terms }: { steps: SequenceStep[]; terms: ReturnTy
                       {details.storageReminders && details.storageReminders.length > 0 && (
                         <div>
                           <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[#A78BFA] mb-[5px]">
-                            Storage reminders
+                            {t.processNav.storageReminders}
                           </div>
                           <ul className="space-y-[3px]">
                             {details.storageReminders.map((item, j) => (
@@ -171,24 +173,63 @@ function StepTimeline({ steps, terms }: { steps: SequenceStep[]; terms: ReturnTy
   );
 }
 
-function WorkflowCard({ guide, terms }: { guide: ProcessGuide; terms: ReturnType<typeof useGlossaryTerms> }) {
+function getTranslatedGuide(guide: ProcessGuide, lang: Language) {
+  if (lang === "en" || !guide.translations) {
+    return {
+      title: guide.title,
+      summary: guide.summary,
+      authorityHandledBy: guide.authorityHandledBy,
+      sequenceSteps: guide.sequenceSteps as SequenceStep[],
+      whatToExpect: guide.whatToExpect as string[],
+      typicalDelays: guide.typicalDelays as string[],
+      commonRejectionReasons: guide.commonRejectionReasons as string[],
+      dscvrRecommendedStorage: guide.dscvrRecommendedStorage as string[],
+    };
+  }
+  const tr = (guide.translations as Record<string, GuideTranslation>)[lang];
+  if (!tr) {
+    return {
+      title: guide.title,
+      summary: guide.summary,
+      authorityHandledBy: guide.authorityHandledBy,
+      sequenceSteps: guide.sequenceSteps as SequenceStep[],
+      whatToExpect: guide.whatToExpect as string[],
+      typicalDelays: guide.typicalDelays as string[],
+      commonRejectionReasons: guide.commonRejectionReasons as string[],
+      dscvrRecommendedStorage: guide.dscvrRecommendedStorage as string[],
+    };
+  }
+  return {
+    title: tr.title || guide.title,
+    summary: tr.summary || guide.summary,
+    authorityHandledBy: tr.authorityHandledBy || guide.authorityHandledBy,
+    sequenceSteps: tr.sequenceSteps?.length ? tr.sequenceSteps : (guide.sequenceSteps as SequenceStep[]),
+    whatToExpect: tr.whatToExpect?.length ? tr.whatToExpect : (guide.whatToExpect as string[]),
+    typicalDelays: tr.typicalDelays?.length ? tr.typicalDelays : (guide.typicalDelays as string[]),
+    commonRejectionReasons: tr.commonRejectionReasons?.length ? tr.commonRejectionReasons : (guide.commonRejectionReasons as string[]),
+    dscvrRecommendedStorage: tr.dscvrRecommendedStorage?.length ? tr.dscvrRecommendedStorage : (guide.dscvrRecommendedStorage as string[]),
+  };
+}
+
+function WorkflowCard({ guide, terms, lang, t }: { guide: ProcessGuide; terms: ReturnType<typeof useGlossaryTerms>; lang: Language; t: UITranslations }) {
   const [isOpen, setIsOpen] = useState(false);
   const [activeInfoTab, setActiveInfoTab] = useState<"expect" | "delays" | "rejections" | "storage">("expect");
 
-  const steps = guide.sequenceSteps as SequenceStep[];
-  const whatToExpect = guide.whatToExpect as string[];
-  const typicalDelays = guide.typicalDelays as string[];
-  const commonRejections = guide.commonRejectionReasons as string[];
-  const storage = guide.dscvrRecommendedStorage as string[];
+  const translated = getTranslatedGuide(guide, lang);
+  const steps = translated.sequenceSteps;
+  const whatToExpect = translated.whatToExpect;
+  const typicalDelays = translated.typicalDelays;
+  const commonRejections = translated.commonRejectionReasons;
+  const storage = translated.dscvrRecommendedStorage;
 
   const infoTabs = [
-    { key: "expect" as const, label: "What to Expect", icon: Clock, items: whatToExpect, color: "#14B8A6" },
-    { key: "delays" as const, label: "Typical Delays", icon: Clock, items: typicalDelays, color: "#F59E0B" },
-    { key: "rejections" as const, label: "Rejection Reasons", icon: AlertTriangle, items: commonRejections, color: "#EF4444" },
-    { key: "storage" as const, label: "Recommended Storage", icon: FolderOpen, items: storage, color: "#A78BFA" },
+    { key: "expect" as const, label: t.processNav.infoTabExpect, icon: Clock, items: whatToExpect, color: "#14B8A6" },
+    { key: "delays" as const, label: t.processNav.infoTabDelays, icon: Clock, items: typicalDelays, color: "#F59E0B" },
+    { key: "rejections" as const, label: t.processNav.infoTabRejections, icon: AlertTriangle, items: commonRejections, color: "#EF4444" },
+    { key: "storage" as const, label: t.processNav.infoTabStorage, icon: FolderOpen, items: storage, color: "#A78BFA" },
   ];
 
-  const activeTabData = infoTabs.find(t => t.key === activeInfoTab)!;
+  const activeTabData = infoTabs.find(tab => tab.key === activeInfoTab)!;
 
   return (
     <div
@@ -209,17 +250,17 @@ function WorkflowCard({ guide, terms }: { guide: ProcessGuide; terms: ReturnType
             <span className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#14B8A6] bg-[rgba(20,184,166,0.08)] px-[8px] py-[2px] rounded">
               Gate {guide.gateNumber}
             </span>
-            <SubmissionBadge type={guide.submissionType} />
+            <SubmissionBadge type={guide.submissionType} t={t} />
           </div>
           <h3 className="font-heading font-black text-[18px] tracking-[-0.3px] mb-[6px]" style={{ color: "var(--app-text)" }}>
-            {guide.title}
+            {translated.title}
           </h3>
           <p className="text-[12px] font-light leading-[1.7]" style={{ color: "var(--app-text-secondary)" }}>
-            <GlossaryAwareText text={guide.summary} terms={terms} />
+            <GlossaryAwareText text={translated.summary} terms={terms} />
           </p>
           <div className="flex items-center gap-[8px] mt-[8px] text-[10px]" style={{ color: "var(--app-text-muted)" }}>
             <Building size={10} style={{ color: "var(--app-text-dim)" }} />
-            <GlossaryAwareText text={guide.authorityHandledBy} terms={terms} />
+            <GlossaryAwareText text={translated.authorityHandledBy} terms={terms} />
           </div>
         </div>
         <div className="shrink-0 mt-[4px]">
@@ -241,9 +282,9 @@ function WorkflowCard({ guide, terms }: { guide: ProcessGuide; terms: ReturnType
             <div className="px-[24px] pb-[24px]">
               <div className="pt-[20px]" style={{ borderTop: "1px solid var(--app-border-teal-subtle)" }}>
                 <div className="font-heading text-[10px] font-bold tracking-[2px] uppercase mb-[16px]" style={{ color: "var(--app-text-muted)" }}>
-                  Process Steps ({steps.length} steps)
+                  {t.processNav.stepPrefix} ({steps.length})
                 </div>
-                <StepTimeline steps={steps} terms={terms} />
+                <StepTimeline steps={steps} terms={terms} t={t} />
               </div>
 
               <div className="mt-[20px] pt-[20px]" style={{ borderTop: "1px solid var(--app-border-teal-subtle)" }}>
@@ -294,7 +335,7 @@ function WorkflowCard({ guide, terms }: { guide: ProcessGuide; terms: ReturnType
               </div>
 
               <div className="mt-[14px] text-[9px]" style={{ color: "var(--app-text-dim)" }}>
-                Last updated: {guide.lastUpdated}
+                {t.processNav.lastUpdatedLabel}: {guide.lastUpdated}
               </div>
             </div>
           </motion.div>
@@ -306,6 +347,7 @@ function WorkflowCard({ guide, terms }: { guide: ProcessGuide; terms: ReturnType
 
 export function ProcessNavigation() {
   const terms = useGlossaryTerms();
+  const { lang, t } = useLanguage();
 
   const { data: guides = [], isLoading } = useQuery<ProcessGuide[]>({
     queryKey: ["/api/guides"],
@@ -347,9 +389,7 @@ export function ProcessNavigation() {
   if (guides.length === 0) {
     return (
       <div className="text-center py-[40px]" data-testid="no-workflows">
-        <div className="text-[32px] mb-3">🗺️</div>
-        <div className="font-heading text-[14px] font-bold" style={{ color: "var(--app-text-secondary)" }}>No workflows available yet</div>
-        <div className="text-[12px] mt-1" style={{ color: "var(--app-text-muted)" }}>Process navigation guides will appear here</div>
+        <div className="font-heading text-[14px] font-bold" style={{ color: "var(--app-text-secondary)" }}>{t.processNav.noGuides}</div>
       </div>
     );
   }
@@ -359,11 +399,8 @@ export function ProcessNavigation() {
       <div className="mb-[20px]">
         <div className="flex items-center justify-between mb-[10px]">
           <div>
-            <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase text-[#14B8A6] mb-[4px]">
-              Process Navigation
-            </div>
             <h2 className="font-heading font-black text-[22px] tracking-[-0.5px]" style={{ color: "var(--app-text)" }}>
-              Step-by-Step Workflows
+              {t.processNav.heading}
             </h2>
           </div>
           <div className="text-[10px]" style={{ color: "var(--app-text-muted)" }}>
@@ -372,9 +409,7 @@ export function ProcessNavigation() {
         </div>
 
         <p className="text-[12px] font-light leading-[1.7] mb-[14px]" style={{ color: "var(--app-text-secondary)" }}>
-          Detailed process walkthroughs showing exactly what happens at each step. Hover over
-          <span className="text-[#14B8A6] border-b border-dotted border-[rgba(20,184,166,0.4)] mx-[3px]">highlighted terms</span>
-          for instant definitions.
+          {t.processNav.headingDesc}
         </p>
 
         {gateNumbers.length > 1 && (
@@ -397,7 +432,7 @@ export function ProcessNavigation() {
               }
               data-testid="filter-all-gates"
             >
-              All Gates
+              {t.processNav.filterAll}
             </button>
             {gateNumbers.map(num => (
               <button
@@ -428,7 +463,7 @@ export function ProcessNavigation() {
 
       <div className="space-y-[16px]">
         {filteredGuides.map(guide => (
-          <WorkflowCard key={guide.id} guide={guide} terms={terms} />
+          <WorkflowCard key={guide.id} guide={guide} terms={terms} lang={lang} t={t} />
         ))}
       </div>
 
@@ -436,7 +471,7 @@ export function ProcessNavigation() {
         <div className="flex items-start gap-[8px]">
           <AlertTriangle size={12} className="text-[#F97316] shrink-0 mt-[2px]" />
           <div className="text-[10px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
-            <strong className="text-[#F97316]">Disclaimer:</strong> These workflows are general guides only. Actual processes may vary by regency and are subject to regulatory change. Always verify with your compliance consultant or the relevant authority.
+            <strong className="text-[#F97316]">Disclaimer:</strong> {t.processNav.disclaimer}
           </div>
         </div>
       </div>

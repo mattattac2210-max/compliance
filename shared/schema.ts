@@ -17,6 +17,16 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
+export interface TermTranslation {
+  plainDefinition: string;
+  whyItMatters: string[];
+  typicalProcessSteps?: string[] | null;
+  whatToStore: string[];
+  commonPitfalls?: string[] | null;
+}
+
+export type TermTranslations = Record<string, TermTranslation>;
+
 export const complianceTerms = pgTable("compliance_terms", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   term: text("term").notNull().unique(),
@@ -30,6 +40,7 @@ export const complianceTerms = pgTable("compliance_terms", {
   tags: json("tags").$type<string[]>().notNull(),
   lastUpdated: date("last_updated").notNull(),
   isActive: boolean("is_active").notNull().default(true),
+  translations: json("translations").$type<TermTranslations>(),
 });
 
 export const insertComplianceTermSchema = createInsertSchema(complianceTerms).omit({
@@ -56,6 +67,19 @@ export interface SequenceStep {
   expandDetails?: ExpandDetails;
 }
 
+export interface GuideTranslation {
+  title: string;
+  summary: string;
+  authorityHandledBy: string;
+  sequenceSteps: SequenceStep[];
+  whatToExpect: string[];
+  typicalDelays: string[];
+  commonRejectionReasons: string[];
+  dscvrRecommendedStorage: string[];
+}
+
+export type GuideTranslations = Record<string, GuideTranslation>;
+
 export const processNavigationGuides = pgTable("process_navigation_guides", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   gateNumber: integer("gate_number").notNull(),
@@ -70,6 +94,7 @@ export const processNavigationGuides = pgTable("process_navigation_guides", {
   dscvrRecommendedStorage: json("dscvr_recommended_storage").$type<string[]>().notNull(),
   lastUpdated: date("last_updated").notNull(),
   isActive: boolean("is_active").notNull().default(true),
+  translations: json("translations").$type<GuideTranslations>(),
 });
 
 export const insertProcessGuideSchema = createInsertSchema(processNavigationGuides).omit({

@@ -3,6 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { ComplianceTerm } from "@shared/schema";
 import { ThemeToggle } from "@/components/theme-provider";
+import { useLanguage, LanguageSelector } from "@/i18n/context";
 
 function slugify(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)/g, "");
@@ -67,6 +68,7 @@ function formToPayload(form: TermFormData) {
 }
 
 export default function AdminPage() {
+  const { t } = useLanguage();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<TermFormData>(emptyForm);
   const [showForm, setShowForm] = useState(false);
@@ -148,17 +150,18 @@ export default function AdminPage() {
         <div className="font-heading font-black text-[20px] tracking-[2px] text-[#14B8A6]">
           DSCVR
           <span className="font-normal text-[10px] tracking-[3px] block mt-[2px] uppercase" style={{ color: "var(--app-text-muted)" }}>
-            Term Admin
+            {t.admin.title}
           </span>
         </div>
         <div className="flex items-center gap-3">
+          <LanguageSelector />
           <ThemeToggle />
           <a
             href="/"
             className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase text-[#14B8A6] py-[8px] px-[16px] rounded border border-[rgba(20,184,166,0.22)] bg-[rgba(13,148,136,0.06)] hover-elevate no-underline"
             data-testid="back-to-app"
           >
-            {"\u2190"} Back to App
+            {t.admin.backToApp}
           </a>
         </div>
       </header>
@@ -166,7 +169,7 @@ export default function AdminPage() {
       <div className="max-w-[900px] mx-auto px-14 py-10 max-md:px-5">
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-heading font-black text-[28px] tracking-[-0.5px]" data-testid="admin-title">
-            Glossary <span className="text-[#14B8A6]">Admin</span>
+            Glossary <span className="text-[#14B8A6]">{t.admin.title}</span>
           </h1>
           {!showForm && (
             <button
@@ -174,7 +177,7 @@ export default function AdminPage() {
               onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm); setMessage(null); }}
               className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[18px] rounded-[8px] bg-[rgba(20,184,166,0.12)] border border-[rgba(20,184,166,0.25)] text-[#14B8A6] cursor-pointer hover-elevate"
             >
-              + Add Term
+              {t.admin.addTerm}
             </button>
           )}
         </div>
@@ -200,12 +203,12 @@ export default function AdminPage() {
             style={{ background: "var(--app-panel)", borderColor: "var(--app-border)" }}
           >
             <h2 className="font-heading font-extrabold text-[16px] text-[#14B8A6] mb-5 tracking-[-0.1px]">
-              {editingId ? "Edit Term" : "New Term"}
+              {editingId ? t.admin.editTerm : t.admin.createTerm}
             </h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Term *</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.termLabel} *</label>
                 <input
                   data-testid="input-term"
                   value={form.term}
@@ -217,7 +220,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Plain-English Definition *</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.plainDefLabel} *</label>
                 <textarea
                   data-testid="input-definition"
                   value={form.plainDefinition}
@@ -230,7 +233,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Why it Matters * (one per line)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.whyItMattersLabel} *</label>
                 <textarea
                   data-testid="input-why"
                   value={form.whyItMatters}
@@ -243,7 +246,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Typical Process Steps (one per line, optional)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.processStepsLabel}</label>
                 <textarea
                   data-testid="input-steps"
                   value={form.typicalProcessSteps}
@@ -255,7 +258,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>What to Store in DSCVR * (one per line)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.whatToStoreLabel} *</label>
                 <textarea
                   data-testid="input-store"
                   value={form.whatToStore}
@@ -268,7 +271,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Common Pitfalls (one per line, optional)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.commonPitfallsLabel}</label>
                 <textarea
                   data-testid="input-pitfalls"
                   value={form.commonPitfalls}
@@ -280,7 +283,7 @@ export default function AdminPage() {
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Synonyms (comma-separated, optional)</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.synonymsLabel}</label>
                 <input
                   data-testid="input-synonyms"
                   value={form.synonyms}
@@ -294,7 +297,7 @@ export default function AdminPage() {
 
               <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
                 <div>
-                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Tags * (comma-separated)</label>
+                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.tagsLabel}</label>
                   <input
                     data-testid="input-tags"
                     value={form.tags}
@@ -327,7 +330,7 @@ export default function AdminPage() {
                     onChange={(e) => updateField("isActive", e.target.checked)}
                     className="accent-[#14B8A6]"
                   />
-                  <span className="text-[12px]" style={{ color: "var(--app-text-secondary)" }}>Active (visible in glossary)</span>
+                  <span className="text-[12px]" style={{ color: "var(--app-text-secondary)" }}>{t.admin.activeLabel}</span>
                 </label>
               </div>
             </div>
@@ -340,7 +343,7 @@ export default function AdminPage() {
                 className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] bg-[#14B8A6] cursor-pointer disabled:opacity-50"
                 style={{ color: "var(--app-bg)" }}
               >
-                {isPending ? "Saving..." : editingId ? "Update Term" : "Create Term"}
+                {isPending ? `${t.admin.saveLabel}...` : editingId ? t.admin.editTerm : t.admin.createTerm}
               </button>
               <button
                 type="button"
@@ -349,7 +352,7 @@ export default function AdminPage() {
                 className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] border cursor-pointer hover:text-[#94A3B8]"
                 style={{ borderColor: "var(--app-border)", color: "var(--app-text-muted)" }}
               >
-                Cancel
+                {t.admin.cancelLabel}
               </button>
             </div>
           </form>
@@ -359,44 +362,44 @@ export default function AdminPage() {
           <div className="text-[13px] py-8 text-center" style={{ color: "var(--app-text-muted)" }}>Loading terms...</div>
         ) : (
           <div className="space-y-[4px]">
-            {terms.map(t => (
+            {terms.map(term => (
               <div
-                key={t.id}
-                data-testid={`admin-term-${t.slug}`}
+                key={term.id}
+                data-testid={`admin-term-${term.slug}`}
                 className={`flex items-center justify-between gap-4 p-[14px_18px] rounded-[8px] border ${
-                  !t.isActive ? "opacity-60" : ""
+                  !term.isActive ? "opacity-60" : ""
                 }`}
                 style={
-                  t.isActive
+                  term.isActive
                     ? { background: "var(--app-panel)", borderColor: "var(--app-border)" }
                     : { background: "var(--app-expand-bg)", borderColor: "var(--app-border)" }
                 }
               >
                 <div className="min-w-0">
                   <div className="font-heading font-extrabold text-[14px] tracking-[-0.1px] truncate" style={{ color: "var(--app-text)" }}>
-                    {t.term}
-                    {!t.isActive && <span className="ml-2 text-[10px] text-[#EF4444] font-normal">(inactive)</span>}
+                    {term.term}
+                    {!term.isActive && <span className="ml-2 text-[10px] text-[#EF4444] font-normal">{t.admin.inactiveStatus}</span>}
                   </div>
-                  <div className="text-[11px] truncate mt-[2px]" style={{ color: "var(--app-text-muted)" }}>{t.plainDefinition}</div>
+                  <div className="text-[11px] truncate mt-[2px]" style={{ color: "var(--app-text-muted)" }}>{term.plainDefinition}</div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
-                    data-testid={`btn-edit-${t.slug}`}
-                    onClick={() => startEdit(t)}
+                    data-testid={`btn-edit-${term.slug}`}
+                    onClick={() => startEdit(term)}
                     className="text-[10px] font-bold py-[5px] px-[12px] rounded bg-[rgba(20,184,166,0.08)] border border-[rgba(20,184,166,0.15)] text-[#14B8A6] cursor-pointer hover-elevate"
                   >
                     Edit
                   </button>
                   <button
-                    data-testid={`btn-toggle-${t.slug}`}
-                    onClick={() => toggleActiveMutation.mutate({ id: t.id, isActive: !t.isActive })}
+                    data-testid={`btn-toggle-${term.slug}`}
+                    onClick={() => toggleActiveMutation.mutate({ id: term.id, isActive: !term.isActive })}
                     className={`text-[10px] font-bold py-[5px] px-[12px] rounded border cursor-pointer ${
-                      t.isActive
+                      term.isActive
                         ? "bg-[rgba(239,68,68,0.08)] border-[rgba(239,68,68,0.15)] text-[#FCA5A5]"
                         : "bg-[rgba(34,197,94,0.08)] border-[rgba(34,197,94,0.15)] text-[#86EFAC]"
                     }`}
                   >
-                    {t.isActive ? "Deactivate" : "Activate"}
+                    {term.isActive ? t.admin.inactiveStatus : t.admin.activeStatus}
                   </button>
                 </div>
               </div>

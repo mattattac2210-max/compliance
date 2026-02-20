@@ -1,10 +1,29 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlossarySection from "@/components/glossary";
 import { ProcessNavigation } from "@/components/process-navigation";
 import { ThemeToggle } from "@/components/theme-provider";
+import { useLanguage, LanguageSelector } from "@/i18n/context";
 
 type TabId = "flow" | "audit" | "guide";
+
+interface GateStyle {
+  id: string;
+  num: string;
+  abbr: string;
+  color: string;
+  borderColor: string;
+  glowColor: string;
+  layerColor: string;
+  rolePillBg: string;
+  rolePillBorder: string;
+  rolePillColor: string;
+  alertTypes: Array<{ type: "amber" | "red" | "teal"; icon: string }>;
+  infoBlockBorders: string[];
+  portalUrls: string[];
+  zoneColors?: string[];
+  isDashed?: boolean;
+}
 
 interface GateData {
   id: string;
@@ -30,523 +49,82 @@ interface GateData {
   isDashed?: boolean;
 }
 
-const gates: GateData[] = [
-  {
-    id: "g0",
-    num: "PT",
-    abbr: "PMA",
-    color: "#94A3B8",
-    borderColor: "rgba(148,163,184,0.3)",
-    glowColor: "transparent",
-    layerLabel: "Prerequisite",
-    layerColor: "#94A3B8",
-    title: "Legal Entity — PT PMA",
-    subtitle: "Company formation must be complete before any licence application",
-    rolePillText: "Document storage only",
-    rolePillBg: "rgba(148,163,184,0.08)",
-    rolePillBorder: "rgba(148,163,184,0.15)",
-    rolePillColor: "#94A3B8",
-    dscvrRole: "DSCVR Role — Document Storage",
-    dscvrRoleDesc: "DSCVR stores the completed company deed, SK Kemenkumham approval, corporate NPWP, and bank confirmation. PT PMA formation requires a licensed Indonesian notary — DSCVR does not advise on structure or corporate law.",
-    alerts: [
-      {
-        type: "amber",
-        icon: "\u25B2",
-        content: "<strong>Regulatory exposure risk.</strong> Using Indonesian nationals to hold shares on behalf of a foreign owner carries significant regulatory exposure for both parties and has faced increased scrutiny since 2024. PT PMA with 100% foreign ownership is the documented, low-risk structure for KBLI 55193.",
-      },
-    ],
-    infoBlocks: [
-      {
-        title: "Steps Completed Externally",
-        borderColor: "#0D9488",
-        content: "",
-        items: [
-          "Company name reservation via AHU",
-          "Notarised Deed (Akta Pendirian)",
-          "Ministry approval — SK Kemenkumham",
-          "Corporate NPWP (national tax ID)",
-          "Bank account + IDR 2.5B paid-up capital",
-        ],
-      },
-      {
-        title: "Indicative Timeline & Costs",
-        borderColor: "#64748B",
-        content: "Estimated 4\u20138 weeks from deed to NIB + bank account. Professional fees: estimated IDR 30\u201380M. Costs vary by provider. Minimum paid-up capital: IDR 2.5B (BKPM Reg 5/2025).",
-      },
-    ],
-    portals: [
-      { label: "AHU Online — Company Name & Deed", url: "https://ahu.go.id" },
-      { label: "OSS RBA — Business Registration", url: "https://oss.go.id" },
-      { label: "DJP — Corporate NPWP", url: "https://pajak.go.id" },
-    ],
-    isDashed: true,
-  },
-  {
-    id: "g1",
-    num: "1",
-    abbr: "ZONE",
-    color: "#14B8A6",
-    borderColor: "#14B8A6",
-    glowColor: "rgba(20,184,166,0.14)",
-    layerLabel: "Layer One — Structural",
-    layerColor: "#14B8A6",
-    title: "Zoning Documentation — KKPR",
-    subtitle: "Missing or unverified zone documentation puts all downstream gates at risk",
-    rolePillText: "Document + map upload",
-    rolePillBg: "rgba(20,184,166,0.08)",
-    rolePillBorder: "rgba(20,184,166,0.18)",
-    rolePillColor: "#14B8A6",
-    dscvrRole: "DSCVR Role — Document Upload & Status Tracking",
-    dscvrRoleDesc: "DSCVR stores the KKPR certificate, records zone classification as operator-reported, and flags when a KBLI change may require a new KKPR. DSCVR does not determine legal zone status — that rests with a licensed consultant and the relevant DPMPTSP.",
-    alerts: [
-      {
-        type: "amber",
-        icon: "\u25B2",
-        content: "Markets including Canggu and Pererenan contain both pink (pariwisata) and yellow (residential) zones in close proximity. Zone status must be verified at the individual land parcel level, not at suburb or street level.",
-      },
-    ],
-    zones: [
-      { color: "#FF85B3", name: "Pink", status: "\u2191 Pariwisata — proceed" },
-      { color: "#FB923C", name: "Orange", status: "\u2191 Mixed-use — conditional" },
-      { color: "#EF4444", name: "Red", status: "\u2191 Commercial — viable" },
-      { color: "#EAB308", name: "Yellow", status: "\u2193 Residential — high risk" },
-      { color: "#22C55E", name: "Green", status: "\u2193 Agricultural — high risk" },
-      { color: "#166534", name: "Konservasi", status: "\u2193 Conservation — high risk" },
-    ],
-    infoBlocks: [
-      {
-        title: "KKPR — What It Is",
-        borderColor: "#14B8A6",
-        content: "Zoning conformity certificate via OSS \u2192 DPMPTSP. Confirms land use aligns with stated KBLI. Estimated timeline: 2\u20136 weeks. No government application fee. OSS cross-checks RDTR automatically on submission.",
-      },
-      {
-        title: "Zone Conversion Risk Note",
-        borderColor: "#F59E0B",
-        content: "Services promising to convert agricultural or residential zoning face significant regulatory hurdles and extended timelines with no guaranteed outcome. Independent legal advice recommended before proceeding on this basis.",
-      },
-    ],
-    portals: [
-      { label: "GISTARU Bali — Official Zone Map", url: "https://gistarubali.id" },
-      { label: "OSS RBA — KKPR Application", url: "https://oss.go.id" },
-      { label: "RDTR ATR/BPN — National Spatial Reference", url: "https://rdtr.atrbpn.go.id" },
-    ],
-  },
-  {
-    id: "g2",
-    num: "2",
-    abbr: "NIB",
-    color: "#60A5FA",
-    borderColor: "#3B82F6",
-    glowColor: "rgba(59,130,246,0.12)",
-    layerLabel: "Layer Two — Structural",
-    layerColor: "#60A5FA",
-    title: "Business Licensing — NIB + KBLI",
-    subtitle: "NIB must reach Verified status — Issued alone does not pass OTA verification",
-    rolePillText: "Licence expiry tracking",
-    rolePillBg: "rgba(59,130,246,0.08)",
-    rolePillBorder: "rgba(59,130,246,0.18)",
-    rolePillColor: "#60A5FA",
-    dscvrRole: "DSCVR Role — NIB Status Monitoring",
-    dscvrRoleDesc: "DSCVR stores the NIB certificate, tracks displayed status (Issued / Verified / Suspended), and alerts when documents supporting verification approach expiry. DSCVR does not submit to OSS or advise on KBLI selection — consult a licensed business registration specialist.",
-    alerts: [
-      {
-        type: "amber",
-        icon: "\u25B2",
-        content: "<strong>Identity consistency requirement.</strong> The legal entity name registered in OSS must match the account name on every OTA listing exactly. A mismatch — even minor formatting — triggers a verification failure regardless of underlying licence status.",
-      },
-    ],
-    infoBlocks: [
-      {
-        title: "Relevant KBLI Codes",
-        borderColor: "#3B82F6",
-        content: "",
-        items: [
-          "<strong>55193</strong> — Villa (commercial, staffed, 4+ beds)",
-          "<strong>55194</strong> — Pondok Wisata (smaller homestay scale)",
-          "<strong>55199</strong> — Catch-all: OSS increasingly flagging for large commercial villas. Review with registrar.",
-        ],
-      },
-      {
-        title: "KBLI 2025 — Transition Note",
-        borderColor: "#F59E0B",
-        content: "BPS published KBLI 2025 in December 2025, replacing KBLI 2020. A transition window applies to existing registrations. Operators should confirm status with their OSS consultant. DSCVR will flag this as a tracking event.",
-      },
-    ],
-    portals: [
-      { label: "OSS RBA — NIB Application & Status", url: "https://oss.go.id" },
-      { label: "BPS — KBLI 2025 Classification", url: "https://www.bps.go.id/id/business-register" },
-      { label: "BKPM — Investment Coordinating Board", url: "https://bkpm.go.id" },
-    ],
-  },
-  {
-    id: "g3",
-    num: "3",
-    abbr: "SLF",
-    color: "#A78BFA",
-    borderColor: "#8B5CF6",
-    glowColor: "rgba(139,92,246,0.12)",
-    layerLabel: "Layer Three — Structural",
-    layerColor: "#A78BFA",
-    title: "Building Compliance — PBG + SLF",
-    subtitle: "SLF expiry is the most common cause of sudden NIB status change — 5-year renewal cycle",
-    rolePillText: "Inspection reminders",
-    rolePillBg: "rgba(139,92,246,0.08)",
-    rolePillBorder: "rgba(139,92,246,0.18)",
-    rolePillColor: "#A78BFA",
-    dscvrRole: "DSCVR Role — Expiry Tracking + Renewal Reminders",
-    dscvrRoleDesc: "DSCVR stores the SLF certificate, tracks the expiry date, and issues alerts at 90 / 60 / 30 / 14 days before expiry. Renewal requires a licensed Pengkaji Teknis and DPMPTSP submission — DSCVR does not manage that process.",
-    alerts: [
-      {
-        type: "red",
-        icon: "\u25B2",
-        content: "A significant portion of pre-2021 Bali villa stock holds a PBG or IMB with <strong>Residential function</strong> — the most common structural licensing blocker. Amendment requires as-built drawings from a licensed engineer. Estimated cost: IDR 10\u201350M. Estimated timeline: 4\u201312 weeks.",
-      },
-    ],
-    infoBlocks: [
-      {
-        title: "PBG Function Requirement",
-        borderColor: "#8B5CF6",
-        content: "Must read: <strong>Commercial / Pariwisata / Non-Residential</strong>. Residential function blocks TDUP and NIB Verified status. Applied or amended via SIMBG. IMBs issued before 2021 must be reviewed.",
-      },
-      {
-        title: "SLF Renewal — Estimated Timeline",
-        borderColor: "#14B8A6",
-        content: "Commercial SLF valid <strong>5 years</strong>. Allow 8\u201312 weeks for the full renewal cycle: Pengkaji Teknis, pre-inspection prep, formal inspection, any remediation, DPMPTSP processing (est. 14\u201345 days).",
-      },
-    ],
-    portals: [
-      { label: "SIMBG — PBG & SLF Submission", url: "https://simbg.pu.go.id" },
-      { label: "OSS RBA — Building Compliance", url: "https://oss.go.id" },
-      { label: "DPMPTSP Badung — Permit Office", url: "https://dpmptsp.badungkab.go.id" },
-    ],
-  },
-  {
-    id: "g4",
-    num: "4",
-    abbr: "TAX",
-    color: "#F59E0B",
-    borderColor: "#F59E0B",
-    glowColor: "rgba(245,158,11,0.12)",
-    layerLabel: "Layer Four — Operational Stream",
-    layerColor: "#F59E0B",
-    title: "Tax — PB1 / NPWPD / PPh",
-    subtitle: "Begins concurrently with NIB issuance — not downstream of building compliance",
-    rolePillText: "Filing calendar + storage",
-    rolePillBg: "rgba(245,158,11,0.08)",
-    rolePillBorder: "rgba(245,158,11,0.18)",
-    rolePillColor: "#F59E0B",
-    dscvrRole: "DSCVR Role — Filing Calendar + Document Storage",
-    dscvrRoleDesc: "DSCVR maintains a tax obligation calendar, stores NPWPD registration and SPTPD filing confirmations. DSCVR does not prepare returns, advise on tax positions, or interpret tax law. Engage a licensed Indonesian tax consultant.",
-    alerts: [
-      {
-        type: "amber",
-        icon: "\u25B2",
-        content: "<strong>Data matching risk (CoreTax, live from Jan 2025).</strong> Indonesia's CoreTax system is reported to cross-reference OTA booking revenue against PB1 filings. Significant discrepancies may generate audit attention. Confirm the extent of OTA data sharing with your tax consultant.",
-      },
-    ],
-    infoBlocks: [
-      {
-        title: "Monthly PB1 — Badung",
-        borderColor: "#F59E0B",
-        content: "",
-        items: [
-          "Register NPWPD via e-Palapa (Badung)",
-          "Collect 10% PB1 from each guest — label as local government tax, not VAT",
-          "File SPTPD by 20th of following month",
-          "Remit via BPD Bali or Virtual Account",
-        ],
-      },
-      {
-        title: "Key Annual Deadlines",
-        borderColor: "#64748B",
-        content: "",
-        items: [
-          "<strong>April 30</strong> — SPT Tahunan (corporate)",
-          "<strong>15th monthly</strong> — PPh 25 instalment",
-          "<strong>20th monthly</strong> — PPh 21 / 23 / 26",
-          "<strong>10th monthly</strong> — BPJS contributions",
-        ],
-      },
-    ],
-    portals: [
-      { label: "e-Palapa Badung — NPWPD & SPTPD", url: "https://e-palapa.badungkab.go.id" },
-      { label: "DJP Online — PPh Filing", url: "https://djponline.pajak.go.id" },
-      { label: "CoreTax — Tax Administration", url: "https://pajak.go.id/reformasi-pajak/coretax" },
-      { label: "Bapenda Badung — Regional Revenue", url: "https://bapenda.badungkab.go.id" },
-    ],
-  },
-  {
-    id: "g5",
-    num: "5",
-    abbr: "STAFF",
-    color: "#22C55E",
-    borderColor: "#22C55E",
-    glowColor: "rgba(34,197,94,0.1)",
-    layerLabel: "Layer Five — Operational Stream",
-    layerColor: "#22C55E",
-    title: "Staff & Employment Compliance",
-    subtitle: "Runs concurrently — does not wait for building or tax gate completion",
-    rolePillText: "Permit + contract tracking",
-    rolePillBg: "rgba(34,197,94,0.08)",
-    rolePillBorder: "rgba(34,197,94,0.18)",
-    rolePillColor: "#22C55E",
-    dscvrRole: "DSCVR Role — Staff Profiles + Permit Expiry Tracking",
-    dscvrRoleDesc: "DSCVR maintains a staff profile per employee, stores BPJS registration, employment contracts, and KITAS documents with expiry alerts. DSCVR does not advise on employment law, immigration applications, or contribution calculations.",
-    alerts: [
-      {
-        type: "red",
-        icon: "\u25B2",
-        content: "<strong>KITAS exposure risk.</strong> Foreign nationals managing villa operations without a valid Investor KITAS carry significant immigration exposure — increased enforcement attention in Bali since 2024. Estimated cost: IDR 3\u20138M per year via BKPM or licensed agent.",
-      },
-    ],
-    infoBlocks: [
-      {
-        title: "BPJS Indicative Rates",
-        borderColor: "#22C55E",
-        content: "",
-        items: [
-          "Kesehatan: <strong>4%</strong> employer + 1% employee (cap applies)",
-          "Ketenagakerjaan: approx <strong>6.24\u20137.74%</strong> employer total (varies by risk class)",
-          "Payment deadline: 10th of each month",
-          "Enrol within 30 days of hiring",
-        ],
-      },
-      {
-        title: "THR — 2026 Lebaran",
-        borderColor: "#64748B",
-        content: "Mandatory one-month salary bonus for all employees. Indicative legal deadline: 7 days before Lebaran (estimated ~March 22, 2026). Applies to all staff regardless of role. Confirm exact date annually.",
-      },
-    ],
-    portals: [
-      { label: "eDabu — BPJS Kesehatan", url: "https://edabu.bpjs-kesehatan.go.id" },
-      { label: "SIPP Online — BPJamsostek", url: "https://sipp.bpjsketenagakerjaan.go.id" },
-      { label: "Ditjen Imigrasi — KITAS", url: "https://imigrasi.go.id" },
-      { label: "BKPM — Investor KITAS", url: "https://bkpm.go.id" },
-    ],
-  },
-  {
-    id: "g6",
-    num: "6",
-    abbr: "SAFE",
-    color: "#FCA5A5",
-    borderColor: "#EF4444",
-    glowColor: "rgba(239,68,68,0.1)",
-    layerLabel: "Layer Six — Operational Stream",
-    layerColor: "#FCA5A5",
-    title: "Operational Safety — Ongoing Standards",
-    subtitle: "Permenpar 6/2025 requires written SOPs — the task library with timestamps is the evidence",
-    rolePillText: "Task execution + logs",
-    rolePillBg: "rgba(239,68,68,0.08)",
-    rolePillBorder: "rgba(239,68,68,0.18)",
-    rolePillColor: "#FCA5A5",
-    dscvrRole: "DSCVR Role — Task Execution + Evidence Logs",
-    dscvrRoleDesc: "This is where DSCVR is most operationally native. Recurring tasks, completed checklists, and PoP-timestamped photos generate the evidence trail that functions as the SOP record required under Permenpar 6/2025.",
-    alerts: [
-      {
-        type: "teal",
-        icon: "\u25C6",
-        content: "Permenpar 6/2025 requires documented SOPs for check-in, check-out, housekeeping, maintenance, and emergency response. A task library with completion timestamps constitutes the documented SOP evidence during an inspection.",
-      },
-    ],
-    infoBlocks: [
-      {
-        title: "Recurring Safety Tasks",
-        borderColor: "#EF4444",
-        content: "",
-        items: [
-          "<strong>Monthly:</strong> Fire extinguisher seal and gauge check",
-          "<strong>Twice-weekly:</strong> Pool chemistry (Cl 1\u20133ppm, pH 7.2\u20137.8)",
-          "<strong>Quarterly:</strong> Emergency exit KELUAR signage photo",
-          "<strong>Annual:</strong> Fire extinguisher full service + certificate",
-        ],
-      },
-      {
-        title: "SLF Inspection Alignment",
-        borderColor: "#64748B",
-        content: "SLF renewal inspects structural, electrical, fire, plumbing, pool, and ventilation. Properties running active DSCVR safety task logs are better positioned for pre-inspection preparation, surfacing recurring issues before a formal inspection is triggered.",
-      },
-    ],
-    portals: [
-      { label: "JDIH Kemenparekraf — Permenpar 6/2025", url: "https://jdih.kemenparekraf.go.id" },
-      { label: "Dinas Damkar Badung — Fire Safety", url: "https://damkar.badungkab.go.id" },
-    ],
-  },
-  {
-    id: "g7",
-    num: "7",
-    abbr: "OTA",
-    color: "#14B8A6",
-    borderColor: "#14B8A6",
-    glowColor: "rgba(20,184,166,0.22)",
-    layerLabel: "Layer Seven — Verification Gate",
-    layerColor: "#14B8A6",
-    title: "OTA Verification — Platform Compliance",
-    subtitle: "Deadline 31 March 2026 — requires all upstream gates to be in order",
-    rolePillText: "Compliance check",
-    rolePillBg: "rgba(20,184,166,0.08)",
-    rolePillBorder: "rgba(20,184,166,0.18)",
-    rolePillColor: "#14B8A6",
-    dscvrRole: "DSCVR Role — Readiness Assessment",
-    dscvrRoleDesc: "DSCVR cross-references all uploaded documents against OTA verification requirements and generates a readiness report. DSCVR does not submit verification applications or guarantee OTA approval — the operator manages platform-side submissions directly.",
-    alerts: [
-      {
-        type: "red",
-        icon: "\u25B2",
-        content: "<strong>31 March 2026 deadline.</strong> OTA platforms (Airbnb, Booking.com, Agoda, Traveloka) are expected to begin enforcement of Permenparekraf verification requirements. Non-compliant listings risk suspension or delisting.",
-      },
-    ],
-    infoBlocks: [
-      {
-        title: "OTA Verification Requirements",
-        borderColor: "#14B8A6",
-        content: "",
-        items: [
-          "NIB in Verified status (not just Issued)",
-          "TDUP or Sertifikat Standar Usaha active",
-          "Legal entity name matches OTA account exactly",
-          "All supporting documents current (not expired)",
-          "Tax registrations active (NPWP, NPWPD)",
-        ],
-      },
-      {
-        title: "Enforcement Timeline",
-        borderColor: "#EF4444",
-        content: "Platform-side enforcement is expected to begin progressively after 31 March 2026. Initial actions may include warning notices, reduced visibility, booking restrictions, or full suspension. Timeline and severity vary by platform.",
-      },
-    ],
-    portals: [
-      { label: "Airbnb — Host Compliance", url: "https://airbnb.com" },
-      { label: "Booking.com — Partner Hub", url: "https://partner.booking.com" },
-      { label: "Kemenparekraf — Tourism Registry", url: "https://kemenparekraf.go.id" },
-    ],
-  },
+const gateStyles: GateStyle[] = [
+  { id: "g0", num: "PT", abbr: "PMA", color: "#94A3B8", borderColor: "rgba(148,163,184,0.3)", glowColor: "transparent", layerColor: "#94A3B8", rolePillBg: "rgba(148,163,184,0.08)", rolePillBorder: "rgba(148,163,184,0.15)", rolePillColor: "#94A3B8", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["#0D9488", "#64748B"], portalUrls: ["https://ahu.go.id", "https://oss.go.id", "https://pajak.go.id"], isDashed: true },
+  { id: "g1", num: "1", abbr: "ZONE", color: "#14B8A6", borderColor: "#14B8A6", glowColor: "rgba(20,184,166,0.14)", layerColor: "#14B8A6", rolePillBg: "rgba(20,184,166,0.08)", rolePillBorder: "rgba(20,184,166,0.18)", rolePillColor: "#14B8A6", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["#14B8A6", "#F59E0B"], portalUrls: ["https://gistarubali.id", "https://oss.go.id", "https://rdtr.atrbpn.go.id"], zoneColors: ["#FF85B3", "#FB923C", "#EF4444", "#EAB308", "#22C55E", "#166534"] },
+  { id: "g2", num: "2", abbr: "NIB", color: "#60A5FA", borderColor: "#3B82F6", glowColor: "rgba(59,130,246,0.12)", layerColor: "#60A5FA", rolePillBg: "rgba(59,130,246,0.08)", rolePillBorder: "rgba(59,130,246,0.18)", rolePillColor: "#60A5FA", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["#3B82F6", "#F59E0B"], portalUrls: ["https://oss.go.id", "https://www.bps.go.id/id/business-register", "https://bkpm.go.id"] },
+  { id: "g3", num: "3", abbr: "SLF", color: "#A78BFA", borderColor: "#8B5CF6", glowColor: "rgba(139,92,246,0.12)", layerColor: "#A78BFA", rolePillBg: "rgba(139,92,246,0.08)", rolePillBorder: "rgba(139,92,246,0.18)", rolePillColor: "#A78BFA", alertTypes: [{ type: "red", icon: "\u25B2" }], infoBlockBorders: ["#8B5CF6", "#14B8A6"], portalUrls: ["https://simbg.pu.go.id", "https://oss.go.id", "https://dpmptsp.badungkab.go.id"] },
+  { id: "g4", num: "4", abbr: "TAX", color: "#F59E0B", borderColor: "#F59E0B", glowColor: "rgba(245,158,11,0.12)", layerColor: "#F59E0B", rolePillBg: "rgba(245,158,11,0.08)", rolePillBorder: "rgba(245,158,11,0.18)", rolePillColor: "#F59E0B", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["#F59E0B", "#64748B"], portalUrls: ["https://e-palapa.badungkab.go.id", "https://djponline.pajak.go.id", "https://pajak.go.id/reformasi-pajak/coretax", "https://bapenda.badungkab.go.id"] },
+  { id: "g5", num: "5", abbr: "STAFF", color: "#22C55E", borderColor: "#22C55E", glowColor: "rgba(34,197,94,0.1)", layerColor: "#22C55E", rolePillBg: "rgba(34,197,94,0.08)", rolePillBorder: "rgba(34,197,94,0.18)", rolePillColor: "#22C55E", alertTypes: [{ type: "red", icon: "\u25B2" }], infoBlockBorders: ["#22C55E", "#64748B"], portalUrls: ["https://edabu.bpjs-kesehatan.go.id", "https://sipp.bpjsketenagakerjaan.go.id", "https://imigrasi.go.id", "https://bkpm.go.id"] },
+  { id: "g6", num: "6", abbr: "SAFE", color: "#FCA5A5", borderColor: "#EF4444", glowColor: "rgba(239,68,68,0.1)", layerColor: "#FCA5A5", rolePillBg: "rgba(239,68,68,0.08)", rolePillBorder: "rgba(239,68,68,0.18)", rolePillColor: "#FCA5A5", alertTypes: [{ type: "teal", icon: "\u25C6" }], infoBlockBorders: ["#EF4444", "#64748B"], portalUrls: ["https://jdih.kemenparekraf.go.id", "https://damkar.badungkab.go.id"] },
+  { id: "g7", num: "7", abbr: "OTA", color: "#14B8A6", borderColor: "#14B8A6", glowColor: "rgba(20,184,166,0.22)", layerColor: "#14B8A6", rolePillBg: "rgba(20,184,166,0.08)", rolePillBorder: "rgba(20,184,166,0.18)", rolePillColor: "#14B8A6", alertTypes: [{ type: "red", icon: "\u25B2" }], infoBlockBorders: ["#14B8A6", "#EF4444"], portalUrls: ["https://airbnb.com", "https://partner.booking.com", "https://kemenparekraf.go.id"] },
 ];
+
+const auditSeverities = [
+  ["critical", "critical", "high", "critical", "high"],
+  ["critical", "critical", "high", "medium", "medium"],
+  ["critical", "high", "high", "high", "critical", "medium"],
+] as const;
+
+const auditIds = [
+  ["a1", "a2", "a3", "a4", "a5"],
+  ["b1", "b2", "b3", "b4", "b5"],
+  ["c1", "c2", "c3", "c4", "c5", "c6"],
+];
+
+const auditNums = ["SEC-01", "SEC-02", "SEC-03"];
+
+const guideCardStyles = [
+  { num: "GUIDE-01", roleColor: "#14B8A6", roleBg: "rgba(20,184,166,0.08)", roleBorder: "rgba(20,184,166,0.18)", linkUrls: ["https://gistarubali.id"] },
+  { num: "GUIDE-02", roleColor: "#60A5FA", roleBg: "rgba(59,130,246,0.08)", roleBorder: "rgba(59,130,246,0.18)", linkUrls: ["https://oss.go.id"] },
+  { num: "GUIDE-03", roleColor: "#A78BFA", roleBg: "rgba(139,92,246,0.08)", roleBorder: "rgba(139,92,246,0.18)", linkUrls: ["https://simbg.pu.go.id"] },
+  { num: "GUIDE-04", roleColor: "#F59E0B", roleBg: "rgba(245,158,11,0.08)", roleBorder: "rgba(245,158,11,0.18)", linkUrls: ["https://e-palapa.badungkab.go.id", "https://djponline.pajak.go.id"] },
+  { num: "GUIDE-05", roleColor: "#22C55E", roleBg: "rgba(34,197,94,0.08)", roleBorder: "rgba(34,197,94,0.18)", linkUrls: ["https://edabu.bpjs-kesehatan.go.id", "https://sipp.bpjsketenagakerjaan.go.id"] },
+  { num: "GUIDE-06", roleColor: "#14B8A6", roleBg: "rgba(20,184,166,0.08)", roleBorder: "rgba(20,184,166,0.18)", linkUrls: ["https://kemenparekraf.go.id"] },
+];
+
+const statValues = ["7", "8\u201314wk", "5yr", "31 Mar"];
+
+function useTranslatedGates(): GateData[] {
+  const { content } = useLanguage();
+  return useMemo(() => gateStyles.map((s, i) => {
+    const tr = content.gates[i];
+    return {
+      id: s.id,
+      num: s.num,
+      abbr: s.abbr,
+      color: s.color,
+      borderColor: s.borderColor,
+      glowColor: s.glowColor,
+      layerLabel: tr.layerLabel,
+      layerColor: s.layerColor,
+      title: tr.title,
+      subtitle: tr.subtitle,
+      rolePillText: tr.rolePillText,
+      rolePillBg: s.rolePillBg,
+      rolePillBorder: s.rolePillBorder,
+      rolePillColor: s.rolePillColor,
+      dscvrRole: tr.dscvrRole,
+      dscvrRoleDesc: tr.dscvrRoleDesc,
+      alerts: s.alertTypes.map((at, ai) => ({ ...at, content: tr.alerts[ai]?.content || "" })),
+      infoBlocks: tr.infoBlocks.map((ib, ii) => ({ title: ib.title, borderColor: s.infoBlockBorders[ii] || "#64748B", content: ib.content, items: ib.items })),
+      portals: tr.portals.map((p, pi) => ({ label: p.label, url: s.portalUrls[pi] || "" })),
+      zones: tr.zones && s.zoneColors ? tr.zones.map((z, zi) => ({ color: s.zoneColors![zi] || "#999", name: z.name, status: z.status })) : undefined,
+      isDashed: s.isDashed,
+    };
+  }), [content]);
+}
 
 interface ChecklistItem {
   id: string;
   title: string;
   desc: string;
   severity: "critical" | "high" | "medium" | "low";
-  section: string;
 }
 
-const auditSections = [
-  {
-    num: "SEC-01",
-    title: "Entity & Licensing",
-    items: [
-      { id: "a1", title: "PT PMA deed registered and approved", desc: "SK Kemenkumham approval letter on file with matching company name", severity: "critical" as const },
-      { id: "a2", title: "NIB issued and in Verified status", desc: "Check OSS dashboard — 'Issued' alone does not satisfy OTA requirements", severity: "critical" as const },
-      { id: "a3", title: "KBLI code matches actual operations", desc: "55193 for commercial villas, 55194 for homestays — review with registrar", severity: "high" as const },
-      { id: "a4", title: "KKPR zoning certificate uploaded", desc: "Confirms land parcel is in a permitted tourism zone (pink, orange, or red)", severity: "critical" as const },
-      { id: "a5", title: "Legal entity name matches OTA accounts", desc: "Exact character-for-character match required on all platform listings", severity: "high" as const },
-    ],
-  },
-  {
-    num: "SEC-02",
-    title: "Building & Safety",
-    items: [
-      { id: "b1", title: "PBG shows Commercial / Pariwisata function", desc: "Residential function blocks TDUP — amendment required via SIMBG", severity: "critical" as const },
-      { id: "b2", title: "SLF current and not within 90 days of expiry", desc: "5-year renewal cycle — allow 8-12 weeks for full renewal process", severity: "critical" as const },
-      { id: "b3", title: "Fire extinguishers serviced and sealed", desc: "Monthly visual check + annual full service with certificate", severity: "high" as const },
-      { id: "b4", title: "Pool chemistry within safe range", desc: "Chlorine 1-3ppm, pH 7.2-7.8 — twice-weekly testing required", severity: "medium" as const },
-      { id: "b5", title: "Emergency exit signage (KELUAR) photographed", desc: "Quarterly photo evidence for SOP compliance record", severity: "medium" as const },
-    ],
-  },
-  {
-    num: "SEC-03",
-    title: "Tax & Employment",
-    items: [
-      { id: "c1", title: "NPWPD registered with Bapenda", desc: "Required for PB1 (local tourism tax) collection and filing", severity: "critical" as const },
-      { id: "c2", title: "PB1 filed by 20th of each month", desc: "10% collected from guests — file SPTPD via e-Palapa Badung", severity: "high" as const },
-      { id: "c3", title: "BPJS Kesehatan enrolled for all staff", desc: "4% employer + 1% employee — enrol within 30 days of hiring", severity: "high" as const },
-      { id: "c4", title: "BPJS Ketenagakerjaan enrolled for all staff", desc: "Approx 6.24-7.74% employer — payment deadline 10th monthly", severity: "high" as const },
-      { id: "c5", title: "Foreign owner KITAS current", desc: "Investor KITAS via BKPM — increased enforcement in Bali since 2024", severity: "critical" as const },
-      { id: "c6", title: "THR provisioned for Lebaran 2026", desc: "One month salary — estimated deadline ~March 22, 2026", severity: "medium" as const },
-    ],
-  },
-];
-
-const guideCards = [
-  {
-    num: "GUIDE-01",
-    title: "Zoning Verification",
-    role: "Licensed Consultant",
-    roleColor: "#14B8A6",
-    roleBg: "rgba(20,184,166,0.08)",
-    roleBorder: "rgba(20,184,166,0.18)",
-    desc: "Verify your land parcel's zone classification at the individual plot level using GISTARU Bali. Pink (pariwisata), orange (mixed-use), and red (commercial) zones are viable for tourism operations.",
-    links: [{ label: "GISTARU Bali", url: "https://gistarubali.id" }],
-  },
-  {
-    num: "GUIDE-02",
-    title: "NIB Application",
-    role: "Business Registrar",
-    roleColor: "#60A5FA",
-    roleBg: "rgba(59,130,246,0.08)",
-    roleBorder: "rgba(59,130,246,0.18)",
-    desc: "Apply for NIB through OSS RBA with the correct KBLI code. Ensure the NIB reaches 'Verified' status — 'Issued' alone is insufficient for OTA verification requirements.",
-    links: [{ label: "OSS RBA", url: "https://oss.go.id" }],
-  },
-  {
-    num: "GUIDE-03",
-    title: "Building Permit Review",
-    role: "Licensed Engineer",
-    roleColor: "#A78BFA",
-    roleBg: "rgba(139,92,246,0.08)",
-    roleBorder: "rgba(139,92,246,0.18)",
-    desc: "Review PBG function classification. Pre-2021 buildings may hold IMB with Residential function — amendment to Commercial/Pariwisata function required via SIMBG before TDUP application.",
-    links: [{ label: "SIMBG", url: "https://simbg.pu.go.id" }],
-  },
-  {
-    num: "GUIDE-04",
-    title: "Tax Registration",
-    role: "Tax Consultant",
-    roleColor: "#F59E0B",
-    roleBg: "rgba(245,158,11,0.08)",
-    roleBorder: "rgba(245,158,11,0.18)",
-    desc: "Register NPWPD with Bapenda for PB1 collection. Set up CoreTax access for national tax obligations. Monthly SPTPD filing and quarterly PPh instalments are ongoing requirements.",
-    links: [
-      { label: "e-Palapa Badung", url: "https://e-palapa.badungkab.go.id" },
-      { label: "DJP Online", url: "https://djponline.pajak.go.id" },
-    ],
-  },
-  {
-    num: "GUIDE-05",
-    title: "Staff Compliance",
-    role: "HR / Immigration",
-    roleColor: "#22C55E",
-    roleBg: "rgba(34,197,94,0.08)",
-    roleBorder: "rgba(34,197,94,0.18)",
-    desc: "Enrol all staff in BPJS Kesehatan and Ketenagakerjaan within 30 days of hiring. Foreign operators require Investor KITAS via BKPM. THR bonus must be provisioned before Lebaran.",
-    links: [
-      { label: "eDabu", url: "https://edabu.bpjs-kesehatan.go.id" },
-      { label: "SIPP Online", url: "https://sipp.bpjsketenagakerjaan.go.id" },
-    ],
-  },
-  {
-    num: "GUIDE-06",
-    title: "OTA Readiness",
-    role: "Operations",
-    roleColor: "#14B8A6",
-    roleBg: "rgba(20,184,166,0.08)",
-    roleBorder: "rgba(20,184,166,0.18)",
-    desc: "Cross-reference all compliance documents against OTA platform requirements. Ensure legal entity name matches across all listings. Target: all documents current and uploaded before 31 March 2026.",
-    links: [{ label: "Kemenparekraf", url: "https://kemenparekraf.go.id" }],
-  },
-];
-
-const timelineItems = [
-  { week: "Weeks 1\u20132", title: "Entity & Foundation", desc: "Complete PT PMA formation, secure corporate NPWP, open bank account with paid-up capital" },
-  { week: "Weeks 2\u20134", title: "Zoning & Licensing", desc: "Verify zone status, apply for KKPR, begin NIB application through OSS RBA" },
-  { week: "Weeks 3\u20136", title: "Building Compliance", desc: "Review PBG function, initiate amendment if needed, begin SLF process with Pengkaji Teknis" },
-  { week: "Weeks 4\u20138", title: "Tax & Employment Setup", desc: "Register NPWPD, set up CoreTax, enrol staff in BPJS, secure KITAS if applicable" },
-  { week: "Weeks 6\u201310", title: "Operational Standards", desc: "Establish recurring safety task library, begin SOP evidence collection via DSCVR" },
-  { week: "Weeks 8\u201312", title: "OTA Verification", desc: "Cross-reference all documents, submit platform verification, resolve any discrepancies" },
-  { week: "By 31 Mar 2026", title: "Full Compliance Target", desc: "All seven gates cleared, documents current, OTA listings verified and protected" },
-];
 
 function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean; onToggle: () => void }) {
+  const { t } = useLanguage();
   return (
     <div
       data-testid={`gate-card-${gate.id}`}
@@ -695,7 +273,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                 </div>
 
                 <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase mb-[9px] mt-[16px]" style={{ color: "var(--app-text-muted)" }}>
-                  Government Portals
+                  {t.flow.governmentPortals}
                 </div>
                 <div className="flex flex-wrap gap-[7px]">
                   {gate.portals.map((portal) => (
@@ -759,6 +337,29 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<TabId>("flow");
   const [openGates, setOpenGates] = useState<Set<string>>(new Set());
   const [checkedItems, setCheckedItems] = useState<Map<string, "checked" | "flagged" | "warn">>(new Map());
+  const { t, content } = useLanguage();
+  const gates = useTranslatedGates();
+
+  const translatedAuditSections = useMemo(() => content.auditSections.map((sec, si) => ({
+    num: auditNums[si],
+    title: sec.title,
+    items: sec.items.map((item, ii) => ({
+      id: auditIds[si][ii],
+      title: item.title,
+      desc: item.desc,
+      severity: auditSeverities[si][ii],
+    })),
+  })), [content]);
+
+  const translatedGuideCards = useMemo(() => content.guideCards.map((card, i) => ({
+    ...guideCardStyles[i],
+    title: card.title,
+    role: card.role,
+    desc: card.desc,
+    links: card.links.map((l, li) => ({ label: l.label, url: guideCardStyles[i].linkUrls[li] || "" })),
+  })), [content]);
+
+  const translatedTimeline = content.timelineItems;
 
   const toggleGate = (id: string) => {
     setOpenGates((prev) => {
@@ -789,28 +390,29 @@ export default function Home() {
     <div className="min-h-screen relative z-[1]">
       <header className="sticky top-0 z-[200] flex items-center justify-between px-14 py-4 backdrop-blur-[14px] border-b max-md:px-5" style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }} data-testid="header">
         <div className="font-heading font-black text-[20px] tracking-[2px] text-[#14B8A6]">
-          DSCVR
+          {t.header.brand}
           <span className="font-normal text-[10px] tracking-[3px] block mt-[2px] uppercase" style={{ color: "var(--app-text-muted)" }}>
-            Compliance Navigator
+            {t.header.subtitle}
           </span>
         </div>
         <div className="inline-flex items-center gap-[7px] bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.22)] rounded-full py-[6px] px-[14px] font-heading text-[10px] font-bold tracking-[1.5px] uppercase" style={{ color: "var(--app-red-alert-text)" }} data-testid="deadline-pill">
           <span className="w-[7px] h-[7px] rounded-full bg-[#EF4444] animate-blink shrink-0" />
-          OTA Deadline — 31 Mar 2026
+          {t.header.deadlinePill}
         </div>
         <div className="flex items-center gap-4">
           <div className="text-[11px] text-right leading-[1.8] max-md:hidden" style={{ color: "var(--app-text-muted)" }}>
-            Bali Villa Operations<br />Seven-Gate Compliance Journey
+            {t.header.rightLabel1}<br />{t.header.rightLabel2}
           </div>
+          <LanguageSelector />
           <ThemeToggle />
         </div>
       </header>
 
       <div className="sticky top-[57px] z-[150] backdrop-blur-[14px] border-b px-14 flex max-md:px-5" style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }} data-testid="tab-nav">
         {[
-          { id: "flow" as const, label: "\u21B3 Compliance Flow" },
-          { id: "audit" as const, label: "\u2299 Self-Audit Checklist" },
-          { id: "guide" as const, label: "\u25FB Guidebook" },
+          { id: "flow" as const, label: t.tabs.flow },
+          { id: "audit" as const, label: t.tabs.audit },
+          { id: "guide" as const, label: t.tabs.guide },
         ].map((tab) => (
           <button
             key={tab.id}
@@ -833,22 +435,22 @@ export default function Home() {
           <div className="relative z-[5] max-w-[1000px] mx-auto pt-14 pb-11 px-14 max-md:px-5">
             <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[#0D9488] mb-[18px] flex items-center gap-3">
               <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
-              Interactive compliance reference
+              {t.flow.tagline}
             </div>
             <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--app-text)" }}>
-              Seven Gates.<br />
-              <span className="text-[#14B8A6]">One Legal Path.</span>
+              {t.flow.heroTitle1}<br />
+              <span className="text-[#14B8A6]">{t.flow.heroTitle2}</span>
             </h1>
             <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--app-text-secondary)" }}>
-              Structural gates are sequential — each blocks the next. Operational streams run concurrently once the entity exists. Click any gate to expand the procedure and open the government portal where it is done.
+              {t.flow.heroDesc}
             </p>
 
             <div className="mt-9 grid grid-cols-2 border rounded-[10px] overflow-hidden max-md:grid-cols-1" style={{ borderColor: "var(--app-border)" }}>
               <div className="p-[22px_26px] border-r bg-[rgba(20,184,166,0.04)] max-md:border-r-0 max-md:border-b" style={{ borderColor: "var(--app-border)" }}>
                 <div className="font-heading text-[9px] font-extrabold tracking-[3px] uppercase text-[#14B8A6] mb-[14px]">
-                  DSCVR Tracks
+                  {t.flow.dscvrTracks}
                 </div>
-                {["Licence documents and expiry dates", "Permit inspection schedules", "Staff documentation and permit status", "Safety compliance task logs", "SOP execution evidence", "Filing calendar alerts"].map((item) => (
+                {t.flow.trackItems.map((item) => (
                   <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] leading-[1.5]" style={{ color: "var(--app-text-secondary)" }}>
                     <span className="w-[5px] h-[5px] rounded-full bg-[#14B8A6] shrink-0 mt-[6px]" />
                     {item}
@@ -857,9 +459,9 @@ export default function Home() {
               </div>
               <div className="p-[22px_26px] bg-[rgba(239,68,68,0.03)]">
                 <div className="font-heading text-[9px] font-extrabold tracking-[3px] uppercase mb-[14px]" style={{ color: "var(--app-red-alert-text)" }}>
-                  DSCVR Does Not
+                  {t.flow.dscvrDoesNot}
                 </div>
-                {["Interpret zoning or legal status", "Provide legal or tax advice", "Validate corporate structures", "File returns or submissions", "Certify compliance status", "Replace licensed professionals"].map((item) => (
+                {t.flow.doesNotItems.map((item) => (
                   <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] leading-[1.5]" style={{ color: "var(--app-text-secondary)" }}>
                     <span className="w-[5px] h-[5px] rounded-full shrink-0 mt-[6px]" style={{ background: "var(--app-red-alert-text)" }} />
                     {item}
@@ -869,12 +471,7 @@ export default function Home() {
             </div>
 
             <div className="flex mt-6 border rounded-[10px] overflow-hidden max-md:flex-col" style={{ borderColor: "var(--app-border)" }} data-testid="stats-row">
-              {[
-                { n: "7", l: "Compliance layers" },
-                { n: "8\u201314wk", l: "Estimated full timeline" },
-                { n: "5yr", l: "SLF renewal cycle" },
-                { n: "31 Mar", l: "OTA verification deadline" },
-              ].map((stat, i) => (
+              {statValues.map((n, i) => ({ n, l: t.flow.statsLabels[i] })).map((stat, i) => (
                 <div key={i} className={`flex-1 p-[18px_22px] ${i < 3 ? "border-r max-md:border-r-0 max-md:border-b" : ""}`} style={i < 3 ? { borderColor: "var(--app-border)" } : undefined}>
                   <div className="font-heading font-black text-[26px] text-[#14B8A6] leading-none mb-[5px] tracking-[-0.5px]">{stat.n}</div>
                   <div className="text-[11px]" style={{ color: "var(--app-text-muted)" }}>{stat.l}</div>
@@ -890,7 +487,7 @@ export default function Home() {
               <div />
               <div>
                 <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--app-text-muted)" }}>
-                  Foundation — required before all gates
+                  {t.flow.sectionFoundation}
                 </div>
                 <div className="h-[1px] bg-gradient-to-r from-[rgba(100,116,139,0.3)] to-transparent" />
               </div>
@@ -912,7 +509,7 @@ export default function Home() {
                       <div />
                       <div>
                         <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--app-text-muted)" }}>
-                          Structural gates — sequential, each blocks the next
+                          {t.flow.sectionStructural}
                         </div>
                         <div className="h-[1px] bg-gradient-to-r from-[rgba(100,116,139,0.3)] to-transparent" />
                       </div>
@@ -928,7 +525,7 @@ export default function Home() {
               <div />
               <div>
                 <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--app-text-muted)" }}>
-                  Operational streams — run concurrently once entity is established
+                  {t.flow.sectionOperational}
                 </div>
                 <div className="h-[1px] bg-gradient-to-r from-[rgba(100,116,139,0.3)] to-transparent" />
               </div>
@@ -945,7 +542,7 @@ export default function Home() {
                   <div key={gate.id}>
                     <div className="font-heading text-[9px] font-bold tracking-[2.5px] uppercase text-[#F59E0B] py-[4px_0_8px] flex items-center gap-2 mb-1">
                       <span className="block w-[20px] h-[1px] bg-[rgba(245,158,11,0.4)]" />
-                      {i === 0 ? "Tax compliance — concurrent stream" : "Staff compliance — concurrent stream"}
+                      {i === 0 ? t.flow.taxConcurrent : t.flow.staffConcurrent}
                     </div>
                     <div className={i === 0 ? "mb-[10px]" : ""}>
                       <GateCard gate={gate} isOpen={openGates.has(gate.id)} onToggle={() => toggleGate(gate.id)} />
@@ -974,17 +571,17 @@ export default function Home() {
                 <span className="text-[32px] shrink-0">{"\u2713"}</span>
                 <div>
                   <div className="font-heading font-black text-[17px] text-[#14B8A6] tracking-[-0.2px] mb-[5px]">
-                    Fully Compliant — OTA-Ready
+                    {t.flow.fullyCompliantTitle}
                   </div>
                   <div className="text-[13px] font-light leading-[1.7] italic" style={{ color: "var(--app-text-muted)" }}>
-                    When all seven gates are cleared and documents remain current, the property is positioned for OTA verification and ongoing operational compliance under Indonesian tourism regulations.
+                    {t.flow.fullyCompliantDesc}
                   </div>
                 </div>
               </div>
             </div>
 
             <div className="mt-9 ml-[92px] pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic max-md:ml-0" style={{ color: "var(--app-text-muted)" }}>
-              This compliance navigator is an operational reference tool. It does not constitute legal, tax, or regulatory advice. All regulatory interpretations, filings, and submissions should be managed by appropriately licensed Indonesian professionals. Timelines, costs, and requirements are indicative and subject to change.
+              {t.flow.disclaimer}
             </div>
           </div>
         </div>
@@ -995,14 +592,14 @@ export default function Home() {
           <div className="relative z-[5] max-w-[1000px] mx-auto pt-14 pb-11 px-14 max-md:px-5">
             <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[#0D9488] mb-[18px] flex items-center gap-3">
               <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
-              Pre-verification audit
+              {t.audit.tagline}
             </div>
             <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--app-text)" }}>
-              Self-Audit<br />
-              <span className="text-[#14B8A6]">Checklist.</span>
+              {t.audit.heroTitle1}<br />
+              <span className="text-[#14B8A6]">{t.audit.heroTitle2}</span>
             </h1>
             <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--app-text-secondary)" }}>
-              Click each item to cycle through status: unchecked {"\u2192"} compliant {"\u2192"} flagged {"\u2192"} needs attention {"\u2192"} unchecked. Use this to track your pre-verification readiness across all compliance layers.
+              {t.audit.heroDesc}
             </p>
           </div>
 
@@ -1011,20 +608,20 @@ export default function Home() {
               <span className="text-[28px] shrink-0">{"\u26A0"}</span>
               <div>
                 <h2 className="font-heading font-extrabold text-[18px] mb-[6px] tracking-[-0.2px]" style={{ color: "var(--app-text)" }}>
-                  OTA Verification Deadline: 31 March 2026
+                  {t.audit.deadlineTitle}
                 </h2>
                 <p className="text-[13px] font-light leading-[1.7]" style={{ color: "var(--app-text-secondary)" }}>
-                  All items marked as Critical must be resolved before platform verification submission. High-severity items should be addressed within the current compliance cycle. Non-compliance with critical items risks listing suspension.
+                  {t.audit.deadlineDesc}
                 </p>
               </div>
             </div>
 
             <div className="flex gap-4 mb-7 p-[14px_18px] border rounded-[8px] flex-wrap" style={{ background: "var(--app-expand-bg)", borderColor: "var(--app-border)" }} data-testid="audit-legend">
               {[
-                { color: "#22C55E", label: "Compliant" },
-                { color: "#EF4444", label: "Flagged" },
-                { color: "#F59E0B", label: "Needs attention" },
-                { color: "#64748B", label: "Not checked" },
+                { color: "#22C55E", label: t.audit.legendCompliant },
+                { color: "#EF4444", label: t.audit.legendFlagged },
+                { color: "#F59E0B", label: t.audit.legendNeedsAttention },
+                { color: "#64748B", label: t.audit.legendNotChecked },
               ].map((item) => (
                 <div key={item.label} className="flex items-center gap-[7px] text-[12px]" style={{ color: "var(--app-text-secondary)" }}>
                   <div className="w-[10px] h-[10px] rounded-[3px] shrink-0" style={{ background: item.color }} />
@@ -1033,7 +630,7 @@ export default function Home() {
               ))}
             </div>
 
-            {auditSections.map((section) => (
+            {translatedAuditSections.map((section) => (
               <div key={section.num}>
                 <div className="font-heading font-extrabold text-[13px] text-[#14B8A6] tracking-[0.3px] mb-[14px] pb-[10px] border-b flex items-center gap-[10px]" style={{ borderColor: "rgba(20,184,166,0.12)" }}>
                   <span className="font-heading text-[9px] font-bold tracking-[2px] bg-[rgba(13,148,136,0.12)] border border-[rgba(20,184,166,0.2)] text-[#0D9488] py-[3px] px-[9px] rounded uppercase">
@@ -1109,7 +706,7 @@ export default function Home() {
             ))}
 
             <div className="mt-8 pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic" style={{ color: "var(--app-text-muted)" }}>
-              This checklist is an operational self-assessment tool. Completion does not constitute legal certification of compliance. All regulatory assessments, submissions, and verifications should be conducted by appropriately licensed professionals.
+              {t.audit.disclaimer}
             </div>
           </div>
         </div>
@@ -1120,20 +717,20 @@ export default function Home() {
           <div className="relative z-[5] max-w-[1000px] mx-auto pt-14 pb-11 px-14 max-md:px-5">
             <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[#0D9488] mb-[18px] flex items-center gap-3">
               <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
-              Compliance reference library
+              {t.guide.tagline}
             </div>
             <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--app-text)" }}>
-              Operator<br />
-              <span className="text-[#14B8A6]">Guidebook.</span>
+              {t.guide.heroTitle1}<br />
+              <span className="text-[#14B8A6]">{t.guide.heroTitle2}</span>
             </h1>
             <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--app-text-secondary)" }}>
-              Quick-reference cards covering each compliance area with direct links to the relevant government portals and indicative timelines for the full compliance journey.
+              {t.guide.heroDesc}
             </p>
           </div>
 
           <div className="relative z-[5] max-w-[1000px] mx-auto px-14 pb-20 max-md:px-5">
             <div className="grid grid-cols-2 gap-[14px] mb-12 max-md:grid-cols-1">
-              {guideCards.map((card) => (
+              {translatedGuideCards.map((card) => (
                 <div
                   key={card.num}
                   data-testid={`guide-card-${card.num}`}
@@ -1182,11 +779,11 @@ export default function Home() {
 
             <div className="mb-12">
               <h3 className="font-heading font-extrabold text-[16px] text-[#14B8A6] mb-6 pb-[10px] border-b tracking-[-0.2px]" style={{ borderColor: "rgba(20,184,166,0.12)" }}>
-                Indicative Compliance Timeline
+                {t.guide.timelineTitle}
               </h3>
               <div className="relative pl-8">
                 <div className="absolute left-[8px] top-[8px] bottom-[8px] w-[1px] bg-gradient-to-b from-[#0D9488] to-[rgba(13,148,136,0.1)]" />
-                {timelineItems.map((item, i) => (
+                {translatedTimeline.map((item, i) => (
                   <div key={i} className="relative mb-[26px]">
                     <div className="absolute left-[-28px] top-[5px] w-[11px] h-[11px] rounded-full border-[1.5px] border-[#0D9488]" style={{ background: "var(--app-node-bg)" }} />
                     <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#0D9488] mb-1">
@@ -1202,7 +799,7 @@ export default function Home() {
             </div>
 
             <div className="mt-4 pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic" style={{ color: "var(--app-text-muted)" }}>
-              This guidebook is an operational reference tool for villa operators in Bali. It does not constitute legal, tax, immigration, or regulatory advice. All timelines and cost estimates are indicative and subject to change. Engage appropriately licensed Indonesian professionals for all regulatory matters.
+              {t.guide.disclaimer}
             </div>
           </div>
         </div>
