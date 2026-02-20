@@ -70,8 +70,8 @@ export const en: UITranslations = {
   },
   glossary: {
     eyebrow: "Reference Library",
-    heading: "Compliance",
-    headingAccent: "Terminology",
+    heading: "Terminology",
+    headingAccent: "Decoder",
     searchPlaceholder: "Search terms...",
     allTags: "All",
     whyItMatters: "Why It Matters",
