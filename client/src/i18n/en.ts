@@ -382,7 +382,7 @@ export const en: UITranslations = {
     heroHeadline1: "Seven barriers stand",
     heroHeadline2: "between your property",
     heroHeadline3: "and OTA delisting.",
-    heroSub: "The March 31, 2026 OTA verification deadline is not a bureaucratic formality. It\u2019s an automated system check against OSS. Account manager relationships cannot override a failed system check.",
+    heroSub: "Throughout Indonesia, the March 31, 2026 OTA verification deadline is not a bureaucratic formality. It\u2019s an automated system check against OSS. Account manager relationships cannot override a failed system check.",
     ctaPrimary: "Sign up for free",
     ctaSecondary: "See what\u2019s inside \u2193",
     trustLine: "No credit card required  \u00B7  EN \u00B7 UK \u00B7 ID  \u00B7  Purpose-built for Bali villa operators",
