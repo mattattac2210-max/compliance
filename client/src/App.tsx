@@ -9,6 +9,7 @@ import { ProtectedRoute, ProRoute } from "@/components/protected-route";
 import { UpgradeModalProvider } from "@/components/upgrade-modal";
 import AppShell from "@/components/app-shell";
 import NotFound from "@/pages/not-found";
+import Dashboard from "@/pages/dashboard";
 import Home from "@/pages/home";
 import LandingPage from "@/pages/landing";
 import AdminPage from "@/pages/admin";
@@ -26,8 +27,8 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/app">
         <ProtectedRoute>
-          <AppShell pageTitle="Compliance Flow" activeNav="compliance">
-            <Home />
+          <AppShell pageTitle="Dashboard" activeNav="compliance">
+            <Dashboard />
           </AppShell>
         </ProtectedRoute>
       </Route>

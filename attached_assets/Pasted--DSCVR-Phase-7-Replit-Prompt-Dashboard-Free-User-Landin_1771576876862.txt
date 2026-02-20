@@ -1,0 +1,667 @@
+# DSCVR — Phase 7 Replit Prompt
+## Dashboard: Free User Landing + Pro User Dashboard
+
+---
+
+## CONTEXT
+
+Phases 1–6b are complete. The current `/app` landing drops all users — free and Pro — onto the Compliance Flow tab with three 0% stat cards and no orientation. This phase replaces that with two distinct, purposeful landings.
+
+**The free/Pro split:**
+- **Free** = authenticated (`isAuthenticated: true`) but `isPro: false` and `isAdmin: false`
+- **Pro** = `isPro: true` OR `isAdmin: true`
+- **Unauthenticated** = not logged in — already handled by the marketing landing page, not this phase
+
+**Stack:** React 18 + TypeScript + Vite + Wouter + Express 5 + Drizzle ORM + PostgreSQL + shadcn/ui + Tailwind + Framer Motion. Three languages: `en`, `uk`, `id`. **Never hardcode English strings in JSX.**
+
+---
+
+## ARCHITECTURE
+
+The `/app` route renders the `AppShell` (sidebar + topbar) with a content area that shows either:
+- `<FreeDashboard />` — when `!isPro && !isAdmin`
+- `<ProDashboard />` — when `isPro || isAdmin`
+
+Both components live in `client/src/pages/dashboard/`:
+- `client/src/pages/dashboard/free.tsx`
+- `client/src/pages/dashboard/pro.tsx`
+- `client/src/pages/dashboard/index.tsx` — router that picks between them
+
+```typescript
+// client/src/pages/dashboard/index.tsx
+import { useAuth } from "@/hooks/useAuth";
+import FreeDashboard from "./free";
+import ProDashboard from "./pro";
+
+export default function Dashboard() {
+  const { user } = useAuth();
+  if (user?.isPro || user?.isAdmin) return <ProDashboard />;
+  return <FreeDashboard />;
+}
+```
+
+The existing Compliance Flow / Self-Audit / Guidebook tab content moves into sub-components:
+- `client/src/components/compliance-flow.tsx` — extracted from home.tsx
+- `client/src/components/self-audit.tsx` — extracted from home.tsx
+- `client/src/components/guidebook.tsx` — extracted from home.tsx
+
+Both dashboards can import and embed these components directly — no routing changes needed.
+
+---
+
+## PART A — FREE USER DASHBOARD (`client/src/pages/dashboard/free.tsx`)
+
+### What the free user has access to
+- Compliance Flow (seven gate reference)
+- Self-Audit Checklist
+- Guidebook
+- Glossary
+- Property profile (can add/edit their villa)
+
+### What is locked behind Pro
+- Document Vault
+- Compliance Timeline
+- Alert Centre
+- Filing schedule
+- Staff/BPJS tracker
+- Banjar tracker
+- OTA identity checker
+
+---
+
+### A1 — Layout
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Welcome back, matt@villa.com                                            │
+│  FREE PLAN · Villa Kerti                                                 │
+│                                                                          │
+│  [Upgrade to Pro — unlock tracking, vault & alerts →]                   │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│  OTA DEADLINE ALERT                                                      │
+│  Airbnb & Booking.com verification closes 31 March 2026 — 39 days       │
+│  Your listing may be suspended if documents are not submitted.           │
+│  [→ What you need to do]  (scrolls to Gate 7 in the compliance flow)    │
+└─────────────────────────────────────────────────────────────────────────┘
+
+YOUR FREE TOOLS
+┌──────────────────────────┐  ┌──────────────────────────┐  ┌──────────────────────────┐
+│  ⬡  COMPLIANCE FLOW      │  │  ✓  SELF-AUDIT           │  │  □  GUIDEBOOK            │
+│                          │  │                          │  │                          │
+│  The complete seven-gate │  │  Walk through your       │  │  Step-by-step guides     │
+│  reference. Understand   │  │  villa's current status  │  │  for each licence.       │
+│  what licences you need  │  │  and identify exactly    │  │  Government portal       │
+│  and in what order.      │  │  where you have gaps.    │  │  links included.         │
+│                          │  │                          │  │                          │
+│  [Open →]                │  │  [Start checklist →]     │  │  [Open →]                │
+└──────────────────────────┘  └──────────────────────────┘  └──────────────────────────┘
+
+UNLOCK WITH PRO
+┌──────────────────────────┐  ┌──────────────────────────┐  ┌──────────────────────────┐
+│  🔒 DOCUMENT VAULT       │  │  🔒 FILING TIMELINE      │  │  🔒 ALERT CENTRE         │
+│                          │  │                          │  │                          │
+│  Track all 23 required   │  │  PB1, BPJS, SPT, LKPM,  │  │  Expiry alerts at        │
+│  compliance documents    │  │  OTA deadline — every    │  │  90 / 60 / 30 / 14 days. │
+│  across 7 gates with     │  │  recurring filing and    │  │  Never miss a renewal    │
+│  expiry tracking.        │  │  document renewal in     │  │  or filing deadline.     │
+│                          │  │  one calendar view.      │  │                          │
+│  [Unlock →]              │  │  [Unlock →]              │  │  [Unlock →]              │
+└──────────────────────────┘  └──────────────────────────┘  └──────────────────────────┘
+
+─────────────────────────────────────────────────────────────────────────
+COMPLIANCE FLOW                                                    [tabs]
+  [full gate content here — same as current home.tsx tab content]
+─────────────────────────────────────────────────────────────────────────
+```
+
+The compliance flow content renders **below** the tiles — not in a separate tab. The free user sees everything in one scrolling page. The tiles at the top are navigation shortcuts (clicking "Open →" on Compliance Flow smooth-scrolls down to it). No tabs required for free users.
+
+---
+
+### A2 — Welcome header
+
+```typescript
+// Top of FreeDashboard
+<div style={{ borderBottom: "1px solid rgba(255,255,255,0.06)", paddingBottom: "20px", marginBottom: "28px" }}>
+  <p style={{ fontSize: "11px", letterSpacing: "2.5px", color: "#64748B", textTransform: "uppercase", marginBottom: "4px" }}>
+    {t.dashboard.freePlan} · {propertyName || t.shell.addProperty}
+  </p>
+  <h1 style={{ fontSize: "22px", fontFamily: "Montserrat", fontWeight: 800, color: "#F1F5F9" }}>
+    {t.dashboard.welcomeBack}
+  </h1>
+</div>
+```
+
+If no property added yet: show a soft prompt inline in the header area:
+```
+No villa added yet — [Add your property →] to personalise your compliance view.
+```
+Links to `/profile`. Don't block the content — just a nudge.
+
+---
+
+### A3 — OTA deadline banner
+
+Always visible for free users (this is a primary reason they're here):
+
+```
+● OTA DEADLINE — 31 MARCH 2026          39 days remaining
+
+Airbnb and Booking.com are requiring all villa listings to submit verified
+compliance documents by 31 March 2026. Listings without verification may
+be suspended. This affects every short-term rental in Bali.
+
+[→ See what Gate 7 requires]
+```
+
+Style: red-tinted card (`rgba(239,68,68,0.07)`), red left border (4px), blinking red dot.
+
+The CTA scrolls to the Gate 7 section in the compliance flow below and expands it.
+
+After March 31 2026: replace with "OTA deadline has passed — check your listing status on each platform."
+
+---
+
+### A4 — Free tools section
+
+Three tiles, full width row.
+
+**Tile design:**
+- Background: `var(--app-panel)` 
+- Border: `1px solid rgba(255,255,255,0.07)`
+- Hover: teal left border (`border-left: 3px solid #14B8A6`)
+- Icon: teal, 18px
+- Title: Montserrat 700, 13px, white
+- Description: Lato 13px, `#94A3B8`, 3–4 lines
+- CTA: small teal link, bottom of tile
+
+On click → smooth scroll to the relevant section below (compliance flow, self-audit, guidebook).
+
+---
+
+### A5 — Locked Pro tiles section
+
+Section heading: `UNLOCK WITH PRO` — same uppercase label style as sidebar section headers.
+
+Three locked tiles. Same size as the free tiles but visually distinct:
+
+- Background: `rgba(7,16,30,0.6)` (darker, more muted)
+- Border: `1px solid rgba(255,255,255,0.04)`
+- Overlay: `🔒` icon top-right of each tile in `#475569`
+- Title and description: opacity 0.5, greyscale
+- CTA: "Unlock →" in teal (not muted) — this is the call to action
+
+On click → opens the existing `UpgradeModal` component (built in Phase 4a).
+
+Add a fourth locked tile below the three, full width:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  🔒 BANJAR TRACKER · STAFF & BPJS · OTA IDENTITY CHECKER · HGB EXPIRY  │
+│  + 8 more compliance tools included in Pro                              │
+│                                [See everything in Pro →]                │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+### A6 — Compliance content (below tiles)
+
+The full Compliance Flow, Self-Audit, and Guidebook content renders below the tiles, separated by a subtle divider. No tab strip — use anchor sections instead:
+
+```
+<div id="compliance-flow">
+  <ComplianceFlow />     {/* existing home.tsx tab 1 content */}
+</div>
+
+<div id="self-audit" style={{ marginTop: "60px" }}>
+  <SelfAudit />          {/* existing home.tsx tab 2 content */}
+</div>
+
+<div id="guidebook" style={{ marginTop: "60px" }}>
+  <Guidebook />          {/* existing home.tsx tab 3 content */}
+</div>
+```
+
+The tile CTAs use `document.getElementById("compliance-flow")?.scrollIntoView({ behavior: "smooth" })`.
+
+---
+
+## PART B — PRO USER DASHBOARD (`client/src/pages/dashboard/pro.tsx`)
+
+### What the Pro dashboard shows
+
+This is a live operational view — not a reference document. It answers: "What do I need to do today?"
+
+---
+
+### B1 — Layout
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Good morning, matt@villa.com                          PRO MEMBER        │
+│  Villa Kerti · PT Kerti Bali Utama · Badung                              │
+└─────────────────────────────────────────────────────────────────────────┘
+
+[setup progress banner — shown only if setupScore < 4 steps complete]
+
+┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐
+│ VAULT        │  │ EXPIRING     │  │ FILINGS DUE  │  │ ACTIVE       │
+│ PROGRESS     │  │ DOCS         │  │ THIS MONTH   │  │ ALERTS       │
+│              │  │              │  │              │  │              │
+│    42%       │  │     2        │  │     3        │  │     1        │
+│ 10 of 23     │  │ within 90d   │  │ before       │  │ require      │
+│              │  │              │  │ month end    │  │ attention    │
+│ [Vault →]    │  │ [Timeline →] │  │ [Timeline →] │  │ [Alerts →]   │
+└──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘
+
+┌──────────────────────────────────┐  ┌──────────────────────────────────┐
+│  WHAT NEEDS ATTENTION            │  │  UPCOMING DEADLINES               │
+│  ─────────────────────────       │  │  ──────────────────────────────   │
+│  ⚠ SLF expiring in 23 days       │  │  ↻ BPJS Contributions  Feb 10    │
+│    Gate 3 · [Go to Vault →]      │  │    8 days · Gate 5               │
+│                                  │  │                                   │
+│  ⚠ OTA not verified on Airbnb    │  │  ↻ PB1 Filing (SPTPD)  Feb 20   │
+│    Gate 7 · [Go to Vault →]      │  │    18 days · Gate 4              │
+│                                  │  │                                   │
+│  ↻ BPJS due in 8 days            │  │  ⬡ OTA Deadline        Mar 31   │
+│    Gate 5 · [View Timeline →]    │  │    39 days · Gate 7              │
+│                                  │  │                                   │
+│  [View all alerts →]             │  │  □ SLF Renewal         Jun 2026  │
+│                                  │  │    126 days · Gate 3             │
+│                                  │  │                                   │
+│                                  │  │  [View full timeline →]          │
+└──────────────────────────────────┘  └──────────────────────────────────┘
+
+GATE STATUS OVERVIEW
+┌────────────────────────────────────────────────────────────────────────┐
+│  G0 Foundation  ████████████░░░  75%  │  G4 Tax         ░░░░░░░░░░░░  0%  │
+│  G1 Zoning      ████████████████ 100% │  G5 Staff       ████░░░░░░░░  33% │
+│  G2 NIB         ████████████████ 100% │  G6 Safety      ░░░░░░░░░░░░  0%  │
+│  G3 Building    ████████████░░░  75%  │  G7 OTA         ████░░░░░░░░  33% │
+└────────────────────────────────────────────────────────────────────────┘
+
+[Compliance Flow →]  [Self-Audit →]  [Guidebook →]  [Glossary →]
+(small link row, not full tiles — Pro users know what these are)
+```
+
+---
+
+### B2 — Welcome header
+
+```typescript
+// Greeting varies by time of day
+const hour = new Date().getHours();
+const greeting = hour < 12 ? t.dashboard.goodMorning 
+               : hour < 17 ? t.dashboard.goodAfternoon 
+               : t.dashboard.goodEvening;
+
+// Property subtitle shows entityName and regency if set
+// "Villa Kerti · PT Kerti Bali Utama · Badung"
+// Falls back to just property name if others not set
+```
+
+Pro badge: small teal pill "PRO MEMBER" top-right of the header block.
+
+---
+
+### B3 — Setup progress banner
+
+Show only when `setupScore < 4`. Same 4-step logic as Phase 6b spec, computed from:
+
+```typescript
+function getSetupScore(property: Property, vaultSummary: VaultSummary): number {
+  let score = 0;
+  if (property.propertyName?.length >= 4 && property.entityName?.length >= 4) score++;
+  if (vaultSummary.uploaded > 0) score++;
+  if (property.entityStructure && property.entityStructure !== "unknown") score++;
+  if (property.selfAuditStartedAt) score++; // set in localStorage or property field
+  return score;
+}
+```
+
+Banner:
+```
+GET SET UP — Step {n} of 4 complete
+
+[●●●○]  Step 1: Property profile ✓  Step 2: First vault document ✓
+         Step 3: Entity structure ✓  Step 4: Run self-audit ○
+
+[→ Complete Step 4: Run Self-Audit]
+```
+
+Dismiss button (×) stores dismissedSetupBanner in localStorage per userId. Even if dismissed, the banner reappears if score drops back (e.g. property deleted and recreated).
+
+i18n keys: `t.dashboard.setupHeading`, `t.dashboard.setupStep1..4`, `t.dashboard.setupStepComplete`, `t.dashboard.setupStepNext`, `t.dashboard.setupContinue`
+
+---
+
+### B4 — Four stat cards
+
+**Data sources:**
+- Vault progress: `GET /api/vault/summary?propertyId=:id` → `{ completionPct, uploaded, total }`
+- Expiring docs: same summary → `{ expiring }` (docs expiring within 90 days)
+- Filings due: `generateUpcomingFilings(1)` filtered to current month → count
+- Active alerts: `GET /api/vault?propertyId=:id` → count of `status === "expired"` + overdue filings
+
+**Card states:**
+
+| Metric | 0 / empty | > 0 (good) | > 0 (needs action) |
+|--------|-----------|------------|-------------------|
+| Vault % | neutral grey, "Start uploading" | teal progress | — |
+| Expiring | neutral grey, "Nothing expiring" | amber if > 0 | red if expired |
+| Filings | neutral grey, "None this month" | amber if ≤ 7 days | red if overdue |
+| Alerts | neutral grey `✓`, "All clear" | — | red if > 0 |
+
+Each card has a specific CTA linking to the right page. CTA text changes based on state:
+- Vault 0%: "Upload first doc →"
+- Vault > 0%: "Continue →"
+- Expiring > 0: "View expiring →"
+- Filings due: "View deadlines →"
+- Alerts > 0: "View alerts →"
+
+---
+
+### B5 — "What needs attention" panel (left)
+
+Pulls from:
+1. Vault docs with `status === "expired"` or `status === "expiring"` → sorted by urgency
+2. Overdue recurring filings (dueDate < today, not filed)
+3. OTA identity mismatch (`otaEntityName` set but `otaIdentityChecked === false`)
+4. HGB expiry within 365 days
+5. Staff with BPJS status not "active"
+
+Maximum 5 items. Each item shows:
+- Icon: ⚠ for document issues, ↻ for recurring filings
+- Label (with GlossaryAwareText)
+- Gate badge (coloured dot + gate number)
+- Link: "Go to Vault →" or "View Timeline →" or "Go to Profile →"
+
+Empty state:
+```
+✓  Nothing needs attention right now.
+   All documents are current and no filings are overdue.
+```
+
+---
+
+### B6 — Upcoming deadlines panel (right)
+
+Next 4–6 items combining:
+- Recurring filings from `generateUpcomingFilings(3)` — next 3 months
+- Vault document expiries — docs with `expiryDate` within 90 days, `status !== "expired"`
+
+Each item:
+```
+[icon] [label]                    [date]
+       [days until] · Gate [n]
+```
+
+Icons: ↻ for recurring filings, □ for document expiry, ⬡ for gate milestones
+
+"View full timeline →" link at bottom.
+
+Empty state:
+```
+✓  No deadlines in the next 90 days.
+```
+
+---
+
+### B7 — Gate status overview
+
+A compact 2×4 grid showing vault completion per gate. Data from `GET /api/vault/summary?propertyId=:id` which returns `gateCompletions: [{ gateNumber, pct }]`.
+
+```typescript
+// Gate label mapping
+const gateLabels = [
+  { number: 0, label: "Foundation", color: "#94A3B8" },
+  { number: 1, label: "Zoning",     color: "#14B8A6" },
+  { number: 2, label: "NIB",        color: "#60A5FA" },
+  { number: 3, label: "Building",   color: "#A78BFA" },
+  { number: 4, label: "Tax",        color: "#F59E0B" },
+  { number: 5, label: "Staff",      color: "#22C55E" },
+  { number: 6, label: "Safety",     color: "#FCA5A5" },
+  { number: 7, label: "OTA",        color: "#14B8A6" },
+];
+```
+
+Each row: gate colour dot + gate label + mini progress bar + percentage.
+
+Clicking a gate row → navigates to `/vault` with that gate pre-expanded (pass `?gate=3` query param, vault page reads it and auto-expands that accordion on mount).
+
+---
+
+### B8 — Reference links row
+
+Below the two panels, a compact link row for the reference tools:
+```
+[⬡ Compliance Flow]  [✓ Self-Audit]  [□ Guidebook]  [≡ Glossary]
+```
+
+Small outlined buttons / chips. These are secondary actions — Pro users are here for the live data, not the reference. They should be visible but not dominant.
+
+Clicking any of these navigates to `/app/flow`, `/app/audit`, `/app/guide`, or scrolls to the glossary section — however these are currently routed in the app.
+
+---
+
+## PART C — NAVIGATION UPDATES
+
+### C1 — Sidebar "Compliance Flow" nav item behaviour
+
+Currently the sidebar "Compliance Flow" item links to `/app`. After this change:
+
+- For **free users**: clicking "Compliance Flow" in the sidebar smooth-scrolls to `#compliance-flow` on the dashboard page (since the compliance content is embedded below the tiles)
+- For **Pro users**: clicking "Compliance Flow" navigates to `/app/flow` (or toggles a `showReference` state that renders the compliance flow in the content area, replacing the dashboard)
+
+Simplest implementation for Pro: add a `view` state to the dashboard:
+```typescript
+type DashboardView = "dashboard" | "flow" | "audit" | "guide";
+const [view, setView] = useState<DashboardView>("dashboard");
+```
+
+The sidebar passes `setView` down via context or a shared state atom. Or use Wouter sub-routes if cleaner.
+
+### C2 — Topbar breadcrumb
+
+Update the topbar breadcrumb (`pageTitle`) to reflect the current view:
+- Dashboard view: "Dashboard"
+- Flow view: "Compliance Flow"
+- Audit view: "Self-Audit Checklist"
+- Guide view: "Guidebook"
+
+Pass the current view's title as `pageTitle` to `AppShell`.
+
+### C3 — "Back to Dashboard" link
+
+When a Pro user is viewing Compliance Flow / Self-Audit / Guidebook (not the dashboard), show a small "← Dashboard" breadcrumb or back link at the top of the content area so they can return.
+
+---
+
+## PART D — i18n ADDITIONS
+
+Add all new keys to `types.ts`, `en.ts`, `uk.ts`, `id.ts`:
+
+```typescript
+dashboard: {
+  // Shared
+  welcomeBack: string;             // "Welcome back"
+  goodMorning: string;             // "Good morning"
+  goodAfternoon: string;           // "Good afternoon"
+  goodEvening: string;             // "Good evening"
+
+  // Free user
+  freePlan: string;                // "Free plan"
+  freeSubheading: string;          // "Upgrade to unlock document tracking, timeline & alerts"
+  upgradeNudge: string;            // "Upgrade to Pro — unlock tracking, vault & alerts →"
+  otaDeadlineBanner: string;       // "OTA DEADLINE — 31 MARCH 2026"
+  otaDeadlineBody: string;         // "Airbnb and Booking.com are requiring..."
+  otaDeadlineCta: string;          // "See what Gate 7 requires →"
+  otaDeadlinePassed: string;       // "OTA deadline has passed..."
+  freeToolsHeading: string;        // "Your free tools"
+  lockedHeading: string;           // "Unlock with Pro"
+  lockedMoreTools: string;         // "Banjar Tracker · Staff & BPJS · OTA Identity..."
+  lockedMoreCta: string;           // "See everything in Pro →"
+
+  // Free tiles
+  tileFlowTitle: string;           // "Compliance Flow"
+  tileFlowDesc: string;            // "The complete seven-gate reference..."
+  tileFlowCta: string;             // "Open →"
+  tileAuditTitle: string;          // "Self-Audit Checklist"
+  tileAuditDesc: string;
+  tileAuditCta: string;            // "Start checklist →"
+  tileGuideTitle: string;          // "Guidebook"
+  tileGuideDesc: string;
+  tileGuideCta: string;            // "Open →"
+
+  // Locked tiles
+  tileVaultTitle: string;          // "Document Vault"
+  tileVaultDesc: string;           // "Track all 23 required compliance documents..."
+  tileVaultCta: string;            // "Unlock →"
+  tileTimelineTitle: string;       // "Filing Timeline"
+  tileTimelineDesc: string;        // "PB1, BPJS, SPT, LKPM, OTA deadline..."
+  tileTimelineCta: string;         // "Unlock →"
+  tileAlertsTitle: string;         // "Alert Centre"
+  tileAlertsDesc: string;          // "Expiry alerts at 90 / 60 / 30 / 14 days..."
+  tileAlertsCta: string;           // "Unlock →"
+
+  // Pro user
+  proMember: string;               // "Pro Member"
+  setupHeading: string;            // "Get set up"
+  setupStep1: string;              // "Complete property profile"
+  setupStep2: string;              // "Upload first document to Vault"
+  setupStep3: string;              // "Confirm entity structure"
+  setupStep4: string;              // "Run Self-Audit Checklist"
+  setupStepComplete: string;       // "✓ Complete"
+  setupContinue: string;           // "Complete Step {n} →"
+
+  // Stat cards
+  vaultProgress: string;           // "Vault Progress"
+  vaultEmpty: string;              // "Start uploading"
+  vaultCta: string;                // "Upload first doc →"
+  vaultCtaContinue: string;        // "Continue →"
+  expiringDocs: string;            // "Expiring Docs"
+  expiringEmpty: string;           // "Nothing expiring"
+  filingsDue: string;              // "Filings Due"
+  filingsDueEmpty: string;         // "None this month"
+  activeAlerts: string;            // "Active Alerts"
+  alertsEmpty: string;             // "All clear"
+
+  // Panels
+  needsAttentionHeading: string;   // "What needs attention"
+  needsAttentionEmpty: string;     // "Nothing needs attention right now."
+  needsAttentionEmptyDesc: string; // "All documents are current and no filings are overdue."
+  upcomingHeading: string;         // "Upcoming deadlines"
+  upcomingEmpty: string;           // "No deadlines in the next 90 days."
+  gateStatusHeading: string;       // "Gate status overview"
+
+  // Reference links
+  openFlow: string;                // "Compliance Flow"
+  openAudit: string;               // "Self-Audit"
+  openGuide: string;               // "Guidebook"
+  openGlossary: string;            // "Glossary"
+  backToDashboard: string;         // "← Dashboard"
+}
+```
+
+Provide full UK and ID translations for all keys.
+
+---
+
+## PART E — DATA FETCHING
+
+### Queries needed in ProDashboard
+
+```typescript
+// 1. Active property (already in AppShell context — reuse)
+const { data: properties = [] } = useQuery({ queryKey: ["/api/properties"] });
+const activeProperty = properties[0]; // or from a selected property context
+
+// 2. Vault summary
+const { data: vaultSummary } = useQuery({
+  queryKey: ["/api/vault/summary", activeProperty?.id],
+  queryFn: () => fetch(`/api/vault/summary?propertyId=${activeProperty?.id}`).then(r => r.json()),
+  enabled: !!activeProperty?.id,
+});
+
+// 3. Vault documents (for "needs attention" panel)
+const { data: vaultDocs = [] } = useQuery({
+  queryKey: ["/api/vault", activeProperty?.id],
+  queryFn: () => fetch(`/api/vault?propertyId=${activeProperty?.id}`).then(r => r.json()),
+  enabled: !!activeProperty?.id,
+});
+
+// 4. Upcoming filings (client-side, no fetch needed)
+import { generateUpcomingFilings } from "@/lib/filing-schedule";
+const upcomingFilings = generateUpcomingFilings(3);
+
+// 5. Staff (for BPJS gap check)
+const { data: staff = [] } = useQuery({
+  queryKey: ["/api/staff", activeProperty?.id],
+  queryFn: () => fetch(`/api/staff?propertyId=${activeProperty?.id}`).then(r => r.json()),
+  enabled: !!activeProperty?.id,
+});
+```
+
+### No property state
+
+If `properties.length === 0` (user has no property yet):
+
+**Free dashboard:** Show a soft prompt in the header area only. All reference content still renders.
+
+**Pro dashboard:** Show a full-width empty state above the stat cards:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│  ⬡  Add your villa to get started                                        │
+│  Your dashboard will show live compliance data once you add a property.  │
+│  [→ Add property]                                                        │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+Stat cards render but show `—` in all values with no CTAs. Gate status overview is hidden.
+
+---
+
+## CONSTRAINTS
+
+1. **Never hardcode English in JSX** — all strings via translation keys
+2. **Free users always see the full compliance reference content** — it is never locked or hidden. Only the tracking tools (Vault, Timeline, Alerts) are Pro-gated.
+3. **Pro dashboard is data-first** — no large marketing copy. Users paid; show them what's happening with their villa.
+4. **Free dashboard is reference-first** — compliance flow content is the primary value, tiles are navigation aids.
+5. **Zero states are calm and actionable** — 0 in any stat card is normal for a new user. Never show warning colours for zero.
+6. **GlossaryAwareText** — wrap all compliance terms in panel content (SLF, BPJS, PB1, etc.) using the existing component.
+7. **Do not break Phases 1–6** — all existing vault, timeline, alerts, profile, admin functionality continues to work unchanged.
+8. **OTA deadline always visible** — it is the most urgent shared concern. Free users see it as a banner. Pro users see it in the upcoming deadlines panel.
+9. **`generateUpcomingFilings` is client-side only** — no database query for the filing schedule itself.
+10. **The compliance flow / self-audit / guidebook content is not duplicated** — extract existing components and import them into both dashboards. One source of truth.
+
+---
+
+## EXPECTED RESULT
+
+**Free user lands on `/app`:**
+- Sees their name and "Free plan" status
+- Sees OTA deadline banner immediately — can't miss it
+- Sees 3 free tool tiles (Compliance Flow, Self-Audit, Guidebook) with clear descriptions
+- Sees 3 locked Pro tiles with real descriptions of what they'd unlock
+- Scrolls down to the full compliance reference — all 7 gates, self-audit, guidebook
+- Upgrade CTA visible but not aggressive — present in header nudge + locked tiles only
+
+**Pro user lands on `/app`:**
+- Sees greeting + property name + entity name + regency
+- Sees setup progress banner if < 4 steps complete (dismissible)
+- Sees 4 live stat cards — vault %, expiring docs, filings due, alerts — all with real data
+- Sees "What needs attention" panel — actionable issues sorted by urgency
+- Sees "Upcoming deadlines" panel — next 4–6 items with dates and gate labels
+- Sees gate status grid — 8 gates with completion % at a glance
+- Can click any gate row to go directly to that gate in the Vault
+- Reference tools (Compliance Flow, Self-Audit etc.) accessible via small link row — one click away, not buried
+
+**Both users:**
+- Sidebar unchanged
+- Topbar breadcrumb reflects current view
+- All text in EN / UK / ID
+- GlossaryAwareText active on compliance terms throughout
