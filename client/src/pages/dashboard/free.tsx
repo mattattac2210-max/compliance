@@ -38,7 +38,10 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
     {
       key: "flow",
       icon: Hexagon,
-      color: "#14B8A6",
+      color: "var(--accent)",
+      tintBg: "var(--accent-tint)",
+      tintBorder: "var(--accent-tint)",
+      iconBg: "var(--accent-tint)",
       title: t.dashboard.tileFlowTitle,
       desc: t.dashboard.tileFlowDesc,
       cta: t.dashboard.tileFlowCta,
@@ -48,6 +51,9 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
       key: "audit",
       icon: CheckCircle,
       color: "#60A5FA",
+      tintBg: "#60A5FA08",
+      tintBorder: "#60A5FA22",
+      iconBg: "#60A5FA18",
       title: t.dashboard.tileAuditTitle,
       desc: t.dashboard.tileAuditDesc,
       cta: t.dashboard.tileAuditCta,
@@ -57,6 +63,9 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
       key: "guide",
       icon: BookOpen,
       color: "#A78BFA",
+      tintBg: "#A78BFA08",
+      tintBorder: "#A78BFA22",
+      iconBg: "#A78BFA18",
       title: t.dashboard.tileGuideTitle,
       desc: t.dashboard.tileGuideDesc,
       cta: t.dashboard.tileGuideCta,
@@ -68,7 +77,8 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
     {
       key: "vault",
       icon: Archive,
-      color: "#14B8A6",
+      color: "var(--accent)",
+      iconBg: "var(--accent-tint)",
       title: t.dashboard.tileVaultTitle,
       desc: t.dashboard.tileVaultDesc,
       cta: t.dashboard.tileVaultCta,
@@ -77,6 +87,7 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
       key: "timeline",
       icon: Clock,
       color: "#F59E0B",
+      iconBg: "#F59E0B18",
       title: t.dashboard.tileTimelineTitle,
       desc: t.dashboard.tileTimelineDesc,
       cta: t.dashboard.tileTimelineCta,
@@ -85,6 +96,7 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
       key: "alerts",
       icon: AlertTriangle,
       color: "#EF4444",
+      iconBg: "#EF444418",
       title: t.dashboard.tileAlertsTitle,
       desc: t.dashboard.tileAlertsDesc,
       cta: t.dashboard.tileAlertsCta,
@@ -95,26 +107,26 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
     <div className="px-6 md:px-14 py-6 space-y-8" data-testid="free-dashboard">
       <div>
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="font-heading font-extrabold text-2xl tracking-tight" style={{ color: "var(--app-text)" }} data-testid="text-welcome">
+          <h1 className="font-heading font-extrabold text-2xl tracking-tight" style={{ color: "var(--txt)" }} data-testid="text-welcome">
             {t.dashboard.welcomeBack}, {user?.firstName || user?.email?.split("@")[0] || ""}
           </h1>
           <span
             className="text-[10px] font-heading font-bold tracking-widest uppercase px-2.5 py-1 rounded-full"
-            style={{ background: "rgba(100,116,139,0.12)", border: "1px solid rgba(100,116,139,0.2)", color: "#94A3B8" }}
+            style={{ background: "rgba(100,116,139,0.12)", border: "1px solid rgba(100,116,139,0.2)", color: "var(--t2)" }}
             data-testid="badge-free-plan"
           >
             {t.dashboard.freePlan}
           </span>
         </div>
         {!hasProperty && (
-          <p className="text-sm mt-1" style={{ color: "var(--app-text-muted)" }}>
+          <p className="text-sm mt-1" style={{ color: "var(--t3)" }}>
             {t.dashboard.noPropertyNudge}{" "}
-            <Link href="/profile" className="underline" style={{ color: "#14B8A6" }} data-testid="link-add-property">
+            <Link href="/profile" className="underline" style={{ color: "var(--accent)" }} data-testid="link-add-property">
               {t.dashboard.noPropertyCta}
             </Link>
           </p>
         )}
-        <p className="text-sm mt-1" style={{ color: "var(--app-text-muted)" }} data-testid="text-free-subheading">
+        <p className="text-sm mt-1" style={{ color: "var(--t3)" }} data-testid="text-free-subheading">
           {t.dashboard.freeSubheading}
         </p>
       </div>
@@ -122,7 +134,7 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
       <button
         onClick={openUpgradeModal}
         className="w-full text-left text-xs font-heading font-bold tracking-wide px-4 py-2 rounded-lg transition-colors hover:opacity-90"
-        style={{ background: "rgba(20,184,166,0.08)", border: "1px solid rgba(20,184,166,0.18)", color: "#14B8A6" }}
+        style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)", color: "var(--accent)" }}
         data-testid="button-upgrade-nudge"
       >
         {t.dashboard.upgradeNudge}
@@ -151,7 +163,7 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
               {daysRemaining} {t.dashboard.daysRemaining}
             </span>
           </div>
-          <p className="text-sm leading-relaxed" style={{ color: "var(--app-text-muted)" }}>
+          <p className="text-sm leading-relaxed" style={{ color: "var(--t3)" }}>
             {t.dashboard.otaDeadlineBody}
           </p>
           <button
@@ -176,7 +188,7 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
       )}
 
       <div>
-        <h2 className="font-heading font-bold text-sm tracking-widest uppercase mb-4" style={{ color: "var(--app-text-muted)" }} data-testid="heading-free-tools">
+        <h2 className="font-heading font-bold text-sm tracking-widest uppercase mb-4" style={{ color: "var(--t3)" }} data-testid="heading-free-tools">
           {t.dashboard.freeToolsHeading}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -186,20 +198,20 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
               onClick={tile.onClick}
               className="text-left rounded-xl p-5 transition-all hover:scale-[1.01] group"
               style={{
-                background: `${tile.color}08`,
-                border: `1px solid ${tile.color}22`,
+                background: tile.tintBg,
+                border: `1px solid ${tile.tintBorder}`,
               }}
               data-testid={`tile-${tile.key}`}
             >
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${tile.color}18` }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: tile.iconBg }}>
                   <tile.icon className="w-4 h-4" style={{ color: tile.color }} />
                 </div>
-                <span className="font-heading font-extrabold text-sm" style={{ color: "var(--app-text)" }}>
+                <span className="font-heading font-extrabold text-sm" style={{ color: "var(--txt)" }}>
                   {tile.title}
                 </span>
               </div>
-              <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--app-text-muted)" }}>
+              <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--t3)" }}>
                 {tile.desc}
               </p>
               <span
@@ -214,7 +226,7 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
       </div>
 
       <div>
-        <h2 className="font-heading font-bold text-sm tracking-widest uppercase mb-4" style={{ color: "var(--app-text-muted)" }} data-testid="heading-locked">
+        <h2 className="font-heading font-bold text-sm tracking-widest uppercase mb-4" style={{ color: "var(--t3)" }} data-testid="heading-locked">
           {t.dashboard.lockedHeading}
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -224,21 +236,21 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
               onClick={openUpgradeModal}
               className="text-left rounded-xl p-5 opacity-60 hover:opacity-80 transition-all relative group"
               style={{
-                background: "var(--app-panel)",
-                border: "1px solid var(--app-border)",
+                background: "var(--surface)",
+                border: "1px solid var(--b)",
               }}
               data-testid={`tile-locked-${tile.key}`}
             >
-              <Lock className="absolute top-3 right-3 w-3.5 h-3.5" style={{ color: "var(--app-text-muted)" }} />
+              <Lock className="absolute top-3 right-3 w-3.5 h-3.5" style={{ color: "var(--t3)" }} />
               <div className="flex items-center gap-2 mb-2">
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${tile.color}18` }}>
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: tile.iconBg }}>
                   <tile.icon className="w-4 h-4" style={{ color: tile.color }} />
                 </div>
-                <span className="font-heading font-extrabold text-sm" style={{ color: "var(--app-text)" }}>
+                <span className="font-heading font-extrabold text-sm" style={{ color: "var(--txt)" }}>
                   {tile.title}
                 </span>
               </div>
-              <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--app-text-muted)" }}>
+              <p className="text-xs leading-relaxed mb-3" style={{ color: "var(--t3)" }}>
                 {tile.desc}
               </p>
               <span
@@ -251,13 +263,13 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
           ))}
         </div>
         <div className="mt-3 text-center">
-          <p className="text-[10px]" style={{ color: "var(--app-text-muted)" }}>
+          <p className="text-[10px]" style={{ color: "var(--t3)" }}>
             {t.dashboard.lockedMoreTools}
           </p>
           <button
             onClick={openUpgradeModal}
             className="text-xs font-heading font-bold tracking-wide mt-1 hover:underline"
-            style={{ color: "#14B8A6" }}
+            style={{ color: "var(--accent)" }}
             data-testid="button-see-pro"
           >
             {t.dashboard.lockedMoreCta}

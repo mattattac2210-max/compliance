@@ -130,7 +130,7 @@ export default function GlossarySection() {
   return (
     <div className="mb-12">
       <h3
-        className="font-heading font-extrabold text-[16px] text-[#14B8A6] mb-6 pb-[10px] tracking-[-0.2px]"
+        className="font-heading font-extrabold text-[16px] text-[var(--accent)] mb-6 pb-[10px] tracking-[-0.2px]"
         style={{ borderBottom: "1px solid var(--app-border-teal-subtle)" }}
         data-testid="glossary-heading"
       >
@@ -154,11 +154,11 @@ export default function GlossarySection() {
             placeholder={t.glossary.searchPlaceholder}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full rounded-[8px] py-[11px] pl-[38px] pr-[14px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] transition-colors border"
+            className="w-full rounded-[8px] py-[11px] pl-[38px] pr-[14px] text-[13px] outline-none focus:border-[var(--accent-tint2)] transition-colors border"
             style={{
               background: "var(--app-input-bg)",
               borderColor: "var(--app-border)",
-              color: "var(--app-text)",
+              color: "var(--txt)",
             }}
           />
         </div>
@@ -172,7 +172,7 @@ export default function GlossarySection() {
             onClick={() => toggleTag(tag)}
             className={`font-heading text-[9px] font-bold tracking-[1.5px] uppercase py-[5px] px-[11px] rounded-full cursor-pointer transition-all duration-150 border hover-elevate ${
               selectedTags.has(tag)
-                ? "bg-[rgba(20,184,166,0.18)] border-[#14B8A6] text-[#14B8A6]"
+                ? "bg-[var(--accent-tint2)] border-[var(--accent)] text-[var(--accent)]"
                 : ""
             }`}
             style={!selectedTags.has(tag) ? {
@@ -210,7 +210,7 @@ export default function GlossarySection() {
               data-testid={`glossary-term-${term.slug}`}
               className="rounded-[8px] transition-colors duration-150 border"
               style={{
-                background: "var(--app-panel)",
+                background: "var(--surface)",
                 borderColor: isOpen ? "var(--app-border-teal)" : "var(--app-border)",
               }}
             >
@@ -225,11 +225,11 @@ export default function GlossarySection() {
                 <div className="flex items-center gap-3 min-w-0">
                   <span
                     className={`text-[11px] transition-transform duration-200 shrink-0 ${isOpen ? "rotate-90" : ""}`}
-                    style={{ color: "#14B8A6" }}
+                    style={{ color: "var(--accent)" }}
                   >
                     {"\u25B6"}
                   </span>
-                  <span className="font-heading font-extrabold text-[14px] tracking-[-0.1px] truncate" style={{ color: "var(--app-text)" }}>
+                  <span className="font-heading font-extrabold text-[14px] tracking-[-0.1px] truncate" style={{ color: "var(--txt)" }}>
                     {content.termName}
                   </span>
                 </div>
@@ -237,7 +237,7 @@ export default function GlossarySection() {
                   {content.tags.map(tag => (
                     <span
                       key={tag}
-                      className="font-heading text-[8px] font-bold tracking-[1.5px] uppercase py-[2px] px-[7px] rounded bg-[rgba(13,148,136,0.08)] border border-[rgba(20,184,166,0.12)] text-[#0D9488] hidden sm:inline-block"
+                      className="font-heading text-[8px] font-bold tracking-[1.5px] uppercase py-[2px] px-[7px] rounded bg-[rgba(13,148,136,0.08)] border border-[var(--accent-tint)] text-[var(--accent2)] hidden sm:inline-block"
                     >
                       {tag}
                     </span>
@@ -275,13 +275,13 @@ export default function GlossarySection() {
 
                         {whyItMatters.length > 0 && (
                           <div className="mb-4">
-                            <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#F59E0B] mb-[8px]">
+                            <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[var(--gold)] mb-[8px]">
                               {t.glossary.whyItMatters}
                             </div>
                             <ul className="space-y-[5px]">
                               {whyItMatters.map((item, i) => (
                                 <li key={i} className="flex items-start gap-[8px] text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
-                                  <span className="w-[4px] h-[4px] rounded-full bg-[#F59E0B] shrink-0 mt-[7px]" />
+                                  <span className="w-[4px] h-[4px] rounded-full bg-[var(--gold)] shrink-0 mt-[7px]" />
                                   {item}
                                 </li>
                               ))}
@@ -291,13 +291,13 @@ export default function GlossarySection() {
 
                         {steps && steps.length > 0 && (
                           <div className="mb-4">
-                            <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#14B8A6] mb-[8px]">
+                            <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[var(--accent)] mb-[8px]">
                               {t.glossary.typicalProcessSteps}
                             </div>
                             <ol className="space-y-[4px] list-none">
                               {steps.map((step, i) => (
                                 <li key={i} className="flex items-start gap-[10px] text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
-                                  <span className="font-heading font-bold text-[10px] text-[#0D9488] bg-[rgba(13,148,136,0.1)] rounded w-[20px] h-[20px] flex items-center justify-center shrink-0 mt-[1px]">
+                                  <span className="font-heading font-bold text-[10px] text-[var(--accent2)] bg-[rgba(13,148,136,0.1)] rounded w-[20px] h-[20px] flex items-center justify-center shrink-0 mt-[1px]">
                                     {i + 1}
                                   </span>
                                   {step}
@@ -308,13 +308,13 @@ export default function GlossarySection() {
                         )}
 
                         <div className="mb-4">
-                          <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#14B8A6] mb-[8px]">
+                          <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[var(--accent)] mb-[8px]">
                             {t.glossary.whatToStore}
                           </div>
                           <ul className="space-y-[5px]">
                             {whatToStore.map((item, i) => (
                               <li key={i} className="flex items-start gap-[8px] text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
-                                <span className="w-[4px] h-[4px] rounded-full bg-[#14B8A6] shrink-0 mt-[7px]" />
+                                <span className="w-[4px] h-[4px] rounded-full bg-[var(--accent)] shrink-0 mt-[7px]" />
                                 {item}
                               </li>
                             ))}
@@ -323,13 +323,13 @@ export default function GlossarySection() {
 
                         {pitfalls && pitfalls.length > 0 && (
                           <div className="mb-4">
-                            <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#EF4444] mb-[8px]">
+                            <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[var(--danger)] mb-[8px]">
                               {t.glossary.commonPitfalls}
                             </div>
                             <ul className="space-y-[5px]">
                               {pitfalls.map((item, i) => (
                                 <li key={i} className="flex items-start gap-[8px] text-[12px] text-[#FCA5A5] leading-[1.6]">
-                                  <span className="w-[4px] h-[4px] rounded-full bg-[#EF4444] shrink-0 mt-[7px]" />
+                                  <span className="w-[4px] h-[4px] rounded-full bg-[var(--danger)] shrink-0 mt-[7px]" />
                                   {item}
                                 </li>
                               ))}

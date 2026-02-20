@@ -63,10 +63,10 @@ const langLabels: Record<Language, string> = {
   id: "ID",
 };
 
-const langFlags: Record<Language, string> = {
-  en: "\uD83C\uDDEC\uD83C\uDDE7",
-  uk: "\uD83C\uDDFA\uD83C\uDDE6",
-  id: "\uD83C\uDDEE\uD83C\uDDE9",
+const langCodes: Record<Language, string> = {
+  en: "GB",
+  uk: "UA",
+  id: "ID",
 };
 
 export function LanguageSelector() {
@@ -88,7 +88,7 @@ export function LanguageSelector() {
         }}
       >
         <Globe size={13} />
-        <span>{langFlags[lang]} {langLabels[lang]}</span>
+        <span>{langLabels[lang]}</span>
       </button>
       {open && (
         <>
@@ -130,7 +130,7 @@ export function LanguageSelector() {
                   setOpen(false);
                 }}
               >
-                <span className="text-[14px]">{langFlags[l]}</span>
+                <span className="text-[10px] font-bold opacity-60">{langCodes[l]}</span>
                 <span>
                   {l === "en" ? "English" : l === "uk" ? "\u0423\u043A\u0440\u0430\u0457\u043D\u0441\u044C\u043A\u0430" : "Bahasa Indonesia"}
                 </span>

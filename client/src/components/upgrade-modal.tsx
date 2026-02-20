@@ -56,8 +56,8 @@ function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => void })
             onClick={(e) => e.stopPropagation()}
             data-testid="upgrade-modal"
             style={{
-              background: "#0F2040",
-              border: "1px solid rgba(20,184,166,0.25)",
+              background: "var(--surface2)",
+              border: "1px solid var(--accent-tint2)",
               borderRadius: "14px",
               padding: "36px 32px",
               maxWidth: "440px",
@@ -67,28 +67,28 @@ function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => void })
           >
             <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "8px" }}>
               <span style={{ fontSize: "18px" }}>&#10022;</span>
-              <span style={{ fontFamily: "Montserrat", fontSize: "18px", fontWeight: 900, color: "#14B8A6", letterSpacing: "2px" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: "18px", fontWeight: 900, color: "var(--accent)", letterSpacing: "2px" }}>
                 {t.upgrade.modalTitle}
               </span>
             </div>
 
-            <p style={{ fontFamily: "Lato", fontSize: "14px", color: "#94A3B8", marginBottom: "28px", lineHeight: 1.6 }}>
+            <p style={{ fontFamily: "var(--font-body)", fontSize: "14px", color: "var(--t2)", marginBottom: "28px", lineHeight: 1.6 }}>
               {t.upgrade.modalSubtitle}
             </p>
 
             <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "28px" }}>
               {features.map((f, i) => (
                 <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start" }}>
-                  <span style={{ color: "#14B8A6", fontSize: "14px", marginTop: "2px", flexShrink: 0 }}>&#10003;</span>
+                  <span style={{ color: "var(--accent)", fontSize: "14px", marginTop: "2px", flexShrink: 0 }}>&#10003;</span>
                   <div>
                     <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                      <span style={{ fontFamily: "Montserrat", fontSize: "13px", fontWeight: 700, color: "#F1F5F9" }}>
+                      <span style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 700, color: "var(--txt)" }}>
                         {f.title}
                       </span>
                       {f.soon && (
                         <span style={{
-                          fontFamily: "Montserrat", fontSize: "8px", fontWeight: 700,
-                          color: "#F59E0B", background: "rgba(245,158,11,0.12)",
+                          fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700,
+                          color: "var(--gold)", background: "rgba(245,158,11,0.12)",
                           border: "1px solid rgba(245,158,11,0.2)",
                           borderRadius: "4px", padding: "2px 6px",
                           letterSpacing: "0.5px", textTransform: "uppercase",
@@ -97,7 +97,7 @@ function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => void })
                         </span>
                       )}
                     </div>
-                    <span style={{ fontFamily: "Lato", fontSize: "12px", color: "#64748B", lineHeight: 1.5 }}>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: "12px", color: "var(--t3)", lineHeight: 1.5 }}>
                       {f.sub}
                     </span>
                   </div>
@@ -114,9 +114,9 @@ function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => void })
               style={{
                 width: "100%",
                 padding: "14px",
-                background: "#14B8A6",
+                background: "var(--accent)",
                 color: "#FFFFFF",
-                fontFamily: "Montserrat",
+                fontFamily: "var(--font-display)",
                 fontSize: "13px",
                 fontWeight: 700,
                 letterSpacing: "0.5px",
@@ -126,14 +126,14 @@ function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => void })
                 marginBottom: "14px",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#0D9488")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "#14B8A6")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent2)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "var(--accent)")}
             >
               {t.upgrade.upgradeButton}
             </button>
 
             <div style={{ textAlign: "center", marginBottom: "16px" }}>
-              <span style={{ fontFamily: "Lato", fontSize: "10px", color: "#64748B" }}>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--t3)" }}>
                 {t.upgrade.stripeNote}
               </span>
             </div>
@@ -144,18 +144,18 @@ function UpgradeModal({ open, onClose }: { open: boolean; onClose: () => void })
               style={{
                 display: "block", width: "100%",
                 background: "transparent",
-                border: "1px solid rgba(255,255,255,0.07)",
+                border: "1px solid var(--b)",
                 borderRadius: "8px",
                 padding: "10px",
-                color: "#64748B",
-                fontFamily: "Montserrat",
+                color: "var(--t3)",
+                fontFamily: "var(--font-display)",
                 fontSize: "11px",
                 fontWeight: 600,
                 cursor: "pointer",
                 transition: "border-color 0.2s",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.15)")}
-              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)")}
+              onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--b)")}
+              onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--b)")}
             >
               &times; Close
             </button>

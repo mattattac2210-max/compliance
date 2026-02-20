@@ -463,7 +463,7 @@ export const uk: UITranslations = {
     banjarContribution: "Внесок до банджару",
     hgbExpiry: "Закінчення права на землю HGB",
     kitasExpiry: "Закінчення дозволу KITAS",
-    recurringIcon: "↻",
+    recurringIcon: "cycle",
   },
   alerts: {
     heading: "\u0421\u043F\u043E\u0432\u0456\u0449\u0435\u043D\u043D\u044F",

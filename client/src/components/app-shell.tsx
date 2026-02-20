@@ -170,8 +170,8 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
         style={{
           width: sidebarOpen ? `${EXPANDED_W}px` : `${sidebarW}px`,
           height: "100vh",
-          background: "#0A1628",
-          borderRight: "1px solid rgba(255,255,255,0.07)",
+          background: "var(--sidebar)",
+          borderRight: "1px solid var(--b)",
           display: "flex",
           flexDirection: "column",
           overflow: "hidden",
@@ -181,14 +181,14 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
         {/* Logo */}
         <div style={{
           padding: collapsed ? "20px 0 14px" : "20px 18px 14px",
-          borderBottom: "1px solid rgba(255,255,255,0.07)",
+          borderBottom: "1px solid var(--b)",
           textAlign: collapsed ? "center" : "left",
         }}>
-          <div style={{ fontFamily: "Montserrat", fontWeight: 900, fontSize: collapsed ? "16px" : "22px", color: "#14B8A6", letterSpacing: "2px", transition: "font-size 0.2s" }}>
+          <div style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: collapsed ? "16px" : "22px", color: "var(--accent)", letterSpacing: "2px", transition: "font-size 0.2s" }}>
             {collapsed ? "D" : "DSCVR"}
           </div>
           {!collapsed && (
-            <div style={{ fontFamily: "Lato", fontSize: "9px", letterSpacing: "3px", color: "#64748B", textTransform: "uppercase", marginTop: "2px" }}>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: "9px", letterSpacing: "3px", color: "var(--t3)", textTransform: "uppercase", marginTop: "2px" }}>
               {t.shell.complianceNavigator}
             </div>
           )}
@@ -197,7 +197,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
         {/* Property selector - hidden when collapsed */}
         {!collapsed && (
           <div style={{ padding: "12px 14px 8px" }}>
-            <div style={{ fontFamily: "Montserrat", fontSize: "8px", fontWeight: 700, letterSpacing: "2px", color: "#14B8A6", textTransform: "uppercase", marginBottom: "6px" }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700, letterSpacing: "2px", color: "var(--accent)", textTransform: "uppercase", marginBottom: "6px" }}>
               {t.shell.activeProperty}
             </div>
             {activeProperty ? (
@@ -206,8 +206,8 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                 data-testid="sidebar-property-selector"
                 style={{
                   width: "100%",
-                  background: "rgba(12,26,46,0.8)",
-                  border: "1px solid rgba(20,184,166,0.2)",
+                  background: "var(--sidebar2)",
+                  border: "1px solid var(--accent-tint2)",
                   borderRadius: "7px",
                   padding: "8px 10px",
                   display: "flex",
@@ -216,13 +216,13 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                   cursor: "pointer",
                   transition: "border-color 0.2s",
                 }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#14B8A6")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "rgba(20,184,166,0.2)")}
+                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--accent-tint2)")}
               >
-                <span style={{ fontFamily: "Montserrat", fontSize: "13px", fontWeight: 700, color: "#F1F5F9", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                <span style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 700, color: "var(--txt)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {activeProperty.propertyName}
                 </span>
-                <span style={{ color: "#64748B", fontSize: "10px", flexShrink: 0, marginLeft: "4px" }}>&#9662;</span>
+                <span style={{ color: "var(--t3)", fontSize: "10px", flexShrink: 0, marginLeft: "4px" }}>&#9662;</span>
               </button>
             ) : (
               <button
@@ -230,8 +230,8 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                 data-testid="sidebar-add-property"
                 style={{
                   background: "transparent", border: "none", cursor: "pointer",
-                  fontFamily: "Montserrat", fontSize: "12px", fontWeight: 600,
-                  color: "#14B8A6", padding: "4px 0",
+                  fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 600,
+                  color: "var(--accent)", padding: "4px 0",
                 }}
               >
                 {t.shell.addProperty}
@@ -244,20 +244,20 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
         {isPro && !collapsed && (
           <div style={{
             margin: "4px 14px 8px",
-            background: "rgba(20,184,166,0.04)",
-            border: "1px solid rgba(20,184,166,0.1)",
+            background: "var(--accent-tint)",
+            border: "1px solid var(--accent-tint)",
             borderRadius: "7px",
             padding: "10px 12px",
           }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-              <span style={{ fontFamily: "Lato", fontSize: "11px", color: "#94A3B8" }}>{t.shell.vaultCompletion}</span>
-              <span style={{ fontFamily: "Montserrat", fontSize: "12px", fontWeight: 700, color: "#14B8A6" }}>{completionPct}%</span>
+              <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--t2)" }}>{t.shell.vaultCompletion}</span>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 700, color: "var(--accent)" }}>{completionPct}%</span>
             </div>
-            <div style={{ height: "4px", background: "rgba(20,184,166,0.15)", borderRadius: "2px", overflow: "hidden" }}>
+            <div style={{ height: "4px", background: "var(--accent-tint2)", borderRadius: "2px", overflow: "hidden" }}>
               <div style={{
                 height: "100%",
                 width: `${completionPct}%`,
-                background: "linear-gradient(90deg, #14B8A6, #5EEAD4)",
+                background: "linear-gradient(90deg, var(--accent), #5EEAD4)",
                 borderRadius: "2px",
                 transition: "width 0.5s ease",
               }} />
@@ -271,15 +271,15 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
             <div key={section.label} style={{ marginBottom: collapsed ? "12px" : "16px" }}>
               {!collapsed && (
                 <div style={{
-                  fontFamily: "Montserrat", fontSize: "8px", fontWeight: 700,
-                  letterSpacing: "2.5px", color: "#64748B", textTransform: "uppercase",
+                  fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700,
+                  letterSpacing: "2.5px", color: "var(--t3)", textTransform: "uppercase",
                   padding: "0 8px", marginBottom: "6px",
                 }}>
                   {section.label}
                 </div>
               )}
               {collapsed && (
-                <div style={{ height: "1px", background: "rgba(255,255,255,0.05)", margin: "0 8px 8px" }} />
+                <div style={{ height: "1px", background: "var(--b2)", margin: "0 8px 8px" }} />
               )}
               {section.items.map((item) => {
                 const isLocked = item.pro && !isPro;
@@ -314,14 +314,14 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           }} data-testid="ota-countdown">
             <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
               <span className="animate-blink" style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#EF4444", display: "inline-block" }} />
-              <span style={{ fontFamily: "Montserrat", fontSize: "8px", fontWeight: 700, letterSpacing: "2px", color: "#FCA5A5", textTransform: "uppercase" }}>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700, letterSpacing: "2px", color: "#FCA5A5", textTransform: "uppercase" }}>
                 {t.shell.otaDeadlineLabel}
               </span>
             </div>
-            <div style={{ fontFamily: "Montserrat", fontSize: "11px", fontWeight: 700, color: "#FCA5A5" }}>
+            <div style={{ fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, color: "#FCA5A5" }}>
               {t.shell.otaDeadlineDate}
             </div>
-            <div style={{ fontFamily: "Lato", fontSize: "10px", color: "#64748B" }}>
+            <div style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--t3)" }}>
               {deadlinePassed ? t.shell.deadlinePassed : `${daysRemaining} ${t.shell.daysRemaining}`}
             </div>
           </div>
@@ -336,7 +336,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
         {/* User footer */}
         <div style={{
           padding: collapsed ? "12px 0" : "12px 14px",
-          borderTop: "1px solid rgba(255,255,255,0.07)",
+          borderTop: "1px solid var(--b)",
           display: "flex",
           alignItems: collapsed ? "center" : "center",
           justifyContent: collapsed ? "center" : "flex-start",
@@ -346,10 +346,10 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           <NavTooltip label={collapsed ? (user?.email ?? "") : ""}>
             <div style={{
               width: "32px", height: "32px", borderRadius: "50%",
-              border: "1.5px solid #14B8A6",
+              border: "1.5px solid var(--accent)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700,
-              color: "#14B8A6", background: "rgba(20,184,166,0.08)", flexShrink: 0,
+              fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700,
+              color: "var(--accent)", background: "var(--accent-tint)", flexShrink: 0,
               cursor: collapsed ? "pointer" : "default",
             }}>
               {userInitials}
@@ -359,16 +359,16 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
             <>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
-                  fontFamily: "Lato", fontSize: "11px", color: "#F1F5F9",
+                  fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--txt)",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>
                   {displayName}
                 </div>
-                <div style={{ fontFamily: "Lato", fontSize: "10px", color: "#64748B" }}>
+                <div style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--t3)" }}>
                   {isPro ? t.upgrade.proLabel : (
                     <button
                       onClick={openUpgradeModal}
-                      style={{ background: "transparent", border: "none", cursor: "pointer", color: "#14B8A6", fontFamily: "Lato", fontSize: "10px", padding: 0 }}
+                      style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--accent)", fontFamily: "var(--font-body)", fontSize: "10px", padding: 0 }}
                       data-testid="sidebar-upgrade-link"
                     >
                       {t.upgrade.freeLabel} &middot; {t.upgrade.tooltipCta}
@@ -382,13 +382,13 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                 data-testid="sidebar-signout"
                 style={{
                   background: "transparent", border: "none", cursor: "pointer",
-                  color: "#64748B", padding: "4px",
+                  color: "var(--t3)", padding: "4px",
                   transition: "color 0.2s",
                   flexShrink: 0,
                   display: "flex", alignItems: "center",
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "#64748B")}
+                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t3)")}
               >
                 <LogOut size={16} />
               </button>
@@ -405,17 +405,17 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
             padding: "10px 0",
             background: "transparent",
             border: "none",
-            borderTop: "1px solid rgba(255,255,255,0.07)",
+            borderTop: "1px solid var(--b)",
             cursor: "pointer",
-            color: "#64748B",
+            color: "var(--t3)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             transition: "color 0.2s",
             width: "100%",
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "#14B8A6")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "#64748B")}
+          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t3)")}
           title={collapsed ? t.shell.expandSidebar : t.shell.collapseSidebar}
         >
           {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
@@ -426,9 +426,9 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
         <div
           style={{
             height: "56px",
-            background: "rgba(7,16,30,0.9)",
+            background: "var(--tp-bg)",
             backdropFilter: "blur(12px)",
-            borderBottom: "1px solid rgba(255,255,255,0.07)",
+            borderBottom: "1px solid var(--tp-b)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -445,15 +445,15 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
               className="md:hidden"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               data-testid="sidebar-toggle"
-              style={{ background: "transparent", border: "none", color: "#94A3B8", cursor: "pointer", padding: "4px", marginRight: "8px", display: "flex", alignItems: "center" }}
+              style={{ background: "transparent", border: "none", color: "var(--t2)", cursor: "pointer", padding: "4px", marginRight: "8px", display: "flex", alignItems: "center" }}
             >
               <Menu size={20} />
             </button>
-            <span style={{ fontFamily: "Montserrat", fontSize: "11px", fontWeight: 700, color: "#14B8A6", letterSpacing: "1px" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, color: "var(--accent)", letterSpacing: "1px" }}>
               DSCVR
             </span>
-            <span style={{ color: "#334155", fontSize: "12px" }}>/</span>
-            <span style={{ fontFamily: "Montserrat", fontSize: "11px", fontWeight: 600, color: "#94A3B8" }}>
+            <span style={{ color: "var(--charcoal)", fontSize: "12px" }}>/</span>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 600, color: "var(--t2)" }}>
               {t.shell[`pageTitle${pageTitle.charAt(0).toUpperCase()}${pageTitle.slice(1)}` as keyof typeof t.shell] || pageTitle}
             </span>
           </div>
@@ -495,15 +495,15 @@ function NavTooltip({ label, children }: { label: string; children: React.ReactN
               top: "50%",
               transform: "translateY(-50%)",
               zIndex: 600,
-              background: "#0F2040",
-              border: "1px solid rgba(20,184,166,0.25)",
+              background: "var(--sidebar3)",
+              border: "1px solid var(--accent-tint2)",
               borderRadius: "6px",
               padding: "5px 10px",
               whiteSpace: "nowrap",
-              fontFamily: "Montserrat",
+              fontFamily: "var(--font-display)",
               fontSize: "11px",
               fontWeight: 600,
-              color: "#F1F5F9",
+              color: "var(--txt)",
               boxShadow: "0 4px 16px rgba(0,0,0,0.4)",
               pointerEvents: "none",
             }}
@@ -511,8 +511,8 @@ function NavTooltip({ label, children }: { label: string; children: React.ReactN
             {label}
             <div style={{
               position: "absolute", left: "-4px", top: "50%", transform: "translateY(-50%) rotate(45deg)",
-              width: "7px", height: "7px", background: "#0F2040",
-              borderLeft: "1px solid rgba(20,184,166,0.25)", borderBottom: "1px solid rgba(20,184,166,0.25)",
+              width: "7px", height: "7px", background: "var(--sidebar3)",
+              borderLeft: "1px solid var(--accent-tint2)", borderBottom: "1px solid var(--accent-tint2)",
             }} />
           </motion.div>
         )}
@@ -534,30 +534,30 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
         width: "100%",
         padding: collapsed ? "9px 0" : "9px 12px",
         borderRadius: "7px",
-        border: isActive ? "1px solid rgba(20,184,166,0.18)" : "1px solid transparent",
-        background: isActive ? "rgba(20,184,166,0.1)" : "transparent",
+        border: isActive ? "1px solid var(--accent-tint2)" : "1px solid transparent",
+        background: isActive ? "var(--sb-active-bg)" : "transparent",
         cursor: "pointer",
         transition: "background 0.15s",
         marginBottom: "2px",
       }}
-      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
-      onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = isActive ? "rgba(20,184,166,0.1)" : "transparent"; }}
+      onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "var(--b2)"; }}
+      onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = isActive ? "var(--sb-active-bg)" : "transparent"; }}
     >
-      <span style={{ color: isActive ? "#14B8A6" : "#94A3B8", width: "16px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+      <span style={{ color: isActive ? "var(--accent)" : "var(--t2)", width: "16px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         {item.icon}
       </span>
       {!collapsed && (
         <>
           <span style={{
-            fontFamily: "Montserrat", fontSize: "12px", fontWeight: 600,
-            color: isActive ? "#F1F5F9" : "#94A3B8",
+            fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 600,
+            color: isActive ? "var(--txt)" : "var(--t2)",
             flex: 1, textAlign: "left",
           }}>
             {item.label}
           </span>
           {item.badge !== undefined && item.badge > 0 && (
             <span style={{
-              fontFamily: "Montserrat", fontSize: "9px", fontWeight: 700,
+              fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700,
               background: "rgba(245,158,11,0.15)", color: "#F59E0B",
               border: "1px solid rgba(245,158,11,0.3)",
               borderRadius: "10px", padding: "1px 6px", minWidth: "18px", textAlign: "center",
@@ -567,7 +567,7 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
           )}
           {item.alertBadge !== undefined && item.alertBadge > 0 && (
             <span style={{
-              fontFamily: "Montserrat", fontSize: "9px", fontWeight: 700,
+              fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700,
               background: "#EF4444", color: "#FFFFFF",
               borderRadius: "10px", padding: "1px 6px", minWidth: "18px", textAlign: "center",
             }}>
@@ -610,18 +610,18 @@ function LockedNavItem({ icon, label, href, isActive, collapsed }: { icon: React
           marginBottom: "2px",
           width: "100%",
           border: "none",
-          background: isActive ? "rgba(20,184,166,0.08)" : hovered ? "rgba(255,255,255,0.03)" : "transparent",
+          background: isActive ? "var(--sb-active-bg)" : hovered ? "var(--b2)" : "transparent",
           transition: "background 0.15s",
         }}
         data-testid={`nav-locked-btn-${label.toLowerCase().replace(/\s+/g, "-")}`}
       >
-        <span style={{ color: isActive ? "#14B8A6" : "#64748B", width: "16px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</span>
+        <span style={{ color: isActive ? "var(--accent)" : "var(--t3)", width: "16px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</span>
         {!collapsed && (
           <>
-            <span style={{ fontFamily: "Montserrat", fontSize: "12px", fontWeight: 600, color: isActive ? "#F1F5F9" : "#94A3B8", flex: 1, textAlign: "left" }}>
+            <span style={{ fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 600, color: isActive ? "var(--txt)" : "var(--t2)", flex: 1, textAlign: "left" }}>
               {label}
             </span>
-            <Lock size={11} style={{ color: "#64748B", flexShrink: 0 }} />
+            <Lock size={11} style={{ color: "var(--t3)", flexShrink: 0 }} />
           </>
         )}
       </button>
@@ -636,25 +636,25 @@ function LockedNavItem({ icon, label, href, isActive, collapsed }: { icon: React
               style={{
                 position: "absolute", left: "calc(100% + 12px)", top: "50%",
                 transform: "translateY(-50%)", zIndex: 500,
-                background: "#0F2040", border: "1px solid rgba(20,184,166,0.3)",
+                background: "var(--sidebar3)", border: "1px solid var(--accent-tint2)",
                 borderRadius: "8px", padding: "10px 14px", width: "180px",
                 boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
               }}
               data-testid={`nav-locked-tooltip-${label.toLowerCase().replace(/\s+/g, "-")}`}
             >
-              <div style={{ fontFamily: "Montserrat", fontSize: "11px", fontWeight: 700, color: "#14B8A6", marginBottom: "4px" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, color: "var(--accent)", marginBottom: "4px" }}>
                 {t.upgrade.proFeature}
               </div>
-              <div style={{ fontFamily: "Lato", fontSize: "11px", color: "#94A3B8", lineHeight: 1.5, marginBottom: "8px" }}>
+              <div style={{ fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--t2)", lineHeight: 1.5, marginBottom: "8px" }}>
                 {t.upgrade.tooltipBody}
               </div>
-              <div style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, color: "#14B8A6", letterSpacing: "0.5px" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, color: "var(--accent)", letterSpacing: "0.5px" }}>
                 {t.upgrade.tooltipCta} &rarr;
               </div>
               <div style={{
                 position: "absolute", left: "-5px", top: "50%", transform: "translateY(-50%) rotate(45deg)",
-                width: "9px", height: "9px", background: "#0F2040",
-                borderLeft: "1px solid rgba(20,184,166,0.3)", borderBottom: "1px solid rgba(20,184,166,0.3)",
+                width: "9px", height: "9px", background: "var(--sidebar3)",
+                borderLeft: "1px solid var(--accent-tint2)", borderBottom: "1px solid var(--accent-tint2)",
               }} />
             </motion.div>
           )}

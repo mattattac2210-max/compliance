@@ -249,7 +249,7 @@ export default function AlertsPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--app-bg)" }}>
+    <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--bg)" }}>
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-alerts-heading">{t.alerts.heading}</h1>
@@ -257,8 +257,8 @@ export default function AlertsPage() {
         </div>
 
         {alerts.length === 0 ? (
-          <div className="text-center py-16 rounded-lg border border-[#14B8A6]/20 bg-[#14B8A6]/5">
-            <CheckCircle2 className="h-12 w-12 text-[#14B8A6] mx-auto mb-3" />
+          <div className="text-center py-16 rounded-lg border border-[var(--accent-tint)] bg-[var(--accent-tint)]">
+            <CheckCircle2 className="h-12 w-12 text-[var(--accent)] mx-auto mb-3" />
             <p className="text-white font-heading text-lg" data-testid="text-all-clear">{t.alerts.allClear}</p>
             <p className="text-slate-400 text-sm mt-1">{t.alerts.allClearDesc}</p>
           </div>
@@ -266,27 +266,27 @@ export default function AlertsPage() {
           <div className="space-y-8">
             {overdueAlerts.length > 0 && (
               <div>
-                <h2 className="text-sm font-heading font-bold text-[#EF4444] uppercase tracking-wider mb-3 flex items-center gap-2" data-testid="text-overdue-section">
+                <h2 className="text-sm font-heading font-bold text-[var(--danger)] uppercase tracking-wider mb-3 flex items-center gap-2" data-testid="text-overdue-section">
                   <AlertTriangle className="h-4 w-4" /> {t.alerts.overdueSection}
                 </h2>
                 <div className="space-y-2">
                   {overdueAlerts.map(alert => (
                     <div key={alert.id} className="flex items-center gap-3 p-4 rounded-lg bg-[#EF4444]/5 border border-[#EF4444]/15" data-testid={`alert-card-${alert.id}`}>
-                      <AlertTriangle className="h-5 w-5 text-[#EF4444] shrink-0" />
+                      <AlertTriangle className="h-5 w-5 text-[var(--danger)] shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm text-slate-200">{alert.label}</p>
                         {alert.description && <p className="text-xs text-slate-500 mt-0.5" data-testid={`text-desc-${alert.id}`}>{alert.description}</p>}
                         {alert.propertyName && <p className="text-xs text-slate-500 mt-0.5">{alert.propertyName}</p>}
                       </div>
                       <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${alert.color}15`, color: alert.color }}>{GATE_ABBRS[alert.gateNumber]}</span>
-                      <span className="text-[10px] font-heading font-bold text-[#EF4444]">{Math.abs(alert.daysUntil)} {t.timeline.daysOverdue}</span>
+                      <span className="text-[10px] font-heading font-bold text-[var(--danger)]">{Math.abs(alert.daysUntil)} {t.timeline.daysOverdue}</span>
                       <div className="flex items-center gap-1">
                         {alert.source === "compliance" ? (
-                          <Link to="/profile" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]" data-testid={`link-profile-${alert.id}`}>Profile</Link>
+                          <Link to="/profile" className="text-[10px] text-[var(--accent)] hover:text-[#5EEAD4]" data-testid={`link-profile-${alert.id}`}>Profile</Link>
                         ) : alert.source === "vault" ? (
-                          <Link to="/vault" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]" data-testid={`link-vault-${alert.id}`}>{t.alerts.viewVault}</Link>
+                          <Link to="/vault" className="text-[10px] text-[var(--accent)] hover:text-[#5EEAD4]" data-testid={`link-vault-${alert.id}`}>{t.alerts.viewVault}</Link>
                         ) : (
-                          <Link to="/timeline" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]" data-testid={`link-timeline-${alert.id}`}>{t.alerts.viewTimeline}</Link>
+                          <Link to="/timeline" className="text-[10px] text-[var(--accent)] hover:text-[#5EEAD4]" data-testid={`link-timeline-${alert.id}`}>{t.alerts.viewTimeline}</Link>
                         )}
                         <button onClick={() => dismiss(alert.id)} className="text-slate-600 hover:text-slate-400 ml-2" data-testid={`button-dismiss-${alert.id}`}>
                           <X className="h-3.5 w-3.5" />
@@ -300,13 +300,13 @@ export default function AlertsPage() {
 
             {upcomingAlerts.length > 0 && (
               <div>
-                <h2 className="text-sm font-heading font-bold text-[#F59E0B] uppercase tracking-wider mb-3 flex items-center gap-2" data-testid="text-upcoming-section">
+                <h2 className="text-sm font-heading font-bold text-[var(--gold)] uppercase tracking-wider mb-3 flex items-center gap-2" data-testid="text-upcoming-section">
                   <Clock className="h-4 w-4" /> {t.alerts.upcomingSection}
                 </h2>
                 <div className="space-y-2">
                   {upcomingAlerts.map(alert => (
                     <div key={alert.id} className="flex items-center gap-3 p-4 rounded-lg bg-[#F59E0B]/5 border border-[#F59E0B]/15" data-testid={`alert-card-${alert.id}`}>
-                      <Clock className="h-5 w-5 text-[#F59E0B] shrink-0" />
+                      <Clock className="h-5 w-5 text-[var(--gold)] shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm text-slate-200">{alert.label}</p>
                         {alert.description && <p className="text-xs text-slate-500 mt-0.5" data-testid={`text-desc-${alert.id}`}>{alert.description}</p>}
@@ -317,11 +317,11 @@ export default function AlertsPage() {
                       <span className="text-[10px] font-heading text-slate-500">{alert.daysUntil} {t.alerts.daysLabel}</span>
                       <div className="flex items-center gap-1">
                         {alert.source === "compliance" ? (
-                          <Link to="/profile" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]" data-testid={`link-profile-${alert.id}`}>Profile</Link>
+                          <Link to="/profile" className="text-[10px] text-[var(--accent)] hover:text-[#5EEAD4]" data-testid={`link-profile-${alert.id}`}>Profile</Link>
                         ) : alert.source === "vault" ? (
-                          <Link to="/vault" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]">{t.alerts.viewVault}</Link>
+                          <Link to="/vault" className="text-[10px] text-[var(--accent)] hover:text-[#5EEAD4]">{t.alerts.viewVault}</Link>
                         ) : (
-                          <Link to="/timeline" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]">{t.alerts.viewTimeline}</Link>
+                          <Link to="/timeline" className="text-[10px] text-[var(--accent)] hover:text-[#5EEAD4]">{t.alerts.viewTimeline}</Link>
                         )}
                         <button onClick={() => dismiss(alert.id)} className="text-slate-600 hover:text-slate-400 ml-2" data-testid={`button-dismiss-${alert.id}`}>
                           <X className="h-3.5 w-3.5" />

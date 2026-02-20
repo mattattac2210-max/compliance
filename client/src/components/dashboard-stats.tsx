@@ -92,7 +92,10 @@ export default function DashboardStats() {
   const cards = [
     {
       icon: FileCheck,
-      color: "#14B8A6",
+      color: "var(--accent)",
+      tintBg: "var(--accent-tint)",
+      tintBorder: "var(--accent-tint)",
+      iconBg: "var(--accent-tint)",
       title: t.dashboard.vaultProgress,
       sub: t.dashboard.vaultProgressSub,
       value: isPro ? `${vaultPercent}%` : "—",
@@ -100,6 +103,9 @@ export default function DashboardStats() {
     {
       icon: Clock,
       color: "#F59E0B",
+      tintBg: "#F59E0B08",
+      tintBorder: "#F59E0B22",
+      iconBg: "#F59E0B18",
       title: t.dashboard.expiringDocs,
       sub: t.dashboard.expiringDocsSub,
       value: isPro ? String(expiringCount) : "—",
@@ -107,6 +113,9 @@ export default function DashboardStats() {
     {
       icon: AlertTriangle,
       color: "#EF4444",
+      tintBg: "#EF444408",
+      tintBorder: "#EF444422",
+      iconBg: "#EF444418",
       title: t.dashboard.activeAlerts,
       sub: t.dashboard.activeAlertsSub,
       value: isPro ? String(alertCount) : "—",
@@ -120,33 +129,33 @@ export default function DashboardStats() {
           key={card.title}
           className="rounded-xl border p-4 flex items-center gap-4 transition-colors"
           style={{
-            borderColor: `${card.color}22`,
-            background: `${card.color}08`,
+            borderColor: card.tintBorder,
+            background: card.tintBg,
           }}
           data-testid={`stat-card-${card.title.toLowerCase().replace(/\s+/g, "-")}`}
         >
           <div
             className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center"
-            style={{ background: `${card.color}18` }}
+            style={{ background: card.iconBg }}
           >
             <card.icon className="w-5 h-5" style={{ color: card.color }} />
           </div>
           <div className="flex-1 min-w-0">
-            <div className="text-[11px] font-heading font-bold tracking-wider uppercase" style={{ color: "var(--app-text-muted)" }}>
+            <div className="text-[11px] font-heading font-bold tracking-wider uppercase" style={{ color: "var(--t3)" }}>
               {card.title}
             </div>
             <div className="text-xl font-heading font-black text-white leading-tight">
               {card.value}
             </div>
-            <div className="text-[10px]" style={{ color: "var(--app-text-muted)" }}>
+            <div className="text-[10px]" style={{ color: "var(--t3)" }}>
               {card.sub}
             </div>
           </div>
           {!isPro && (
             <button
               onClick={openUpgradeModal}
-              className="flex-shrink-0 flex items-center gap-1 text-[9px] font-heading font-bold tracking-wider uppercase px-2 py-1 rounded-full border transition-colors hover:bg-[#14B8A6]/10"
-              style={{ borderColor: "#14B8A622", color: "#14B8A6" }}
+              className="flex-shrink-0 flex items-center gap-1 text-[9px] font-heading font-bold tracking-wider uppercase px-2 py-1 rounded-full border transition-colors hover:bg-[var(--accent-tint)]"
+              style={{ borderColor: "var(--accent-tint)", color: "var(--accent)" }}
               data-testid={`button-unlock-${card.title.toLowerCase().replace(/\s+/g, "-")}`}
             >
               <Lock className="w-3 h-3" />

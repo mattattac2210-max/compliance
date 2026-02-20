@@ -45,14 +45,14 @@ interface GateData {
 }
 
 const gateStyles: GateStyle[] = [
-  { id: "g0", num: "PT", abbr: "PMA", color: "#94A3B8", borderColor: "rgba(148,163,184,0.3)", glowColor: "transparent", layerColor: "#94A3B8", rolePillBg: "rgba(148,163,184,0.08)", rolePillBorder: "rgba(148,163,184,0.15)", rolePillColor: "#94A3B8", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["#0D9488", "#64748B"], portalUrls: ["https://ahu.go.id", "https://oss.go.id", "https://pajak.go.id"], isDashed: true },
-  { id: "g1", num: "1", abbr: "ZONE", color: "#14B8A6", borderColor: "#14B8A6", glowColor: "rgba(20,184,166,0.14)", layerColor: "#14B8A6", rolePillBg: "rgba(20,184,166,0.08)", rolePillBorder: "rgba(20,184,166,0.18)", rolePillColor: "#14B8A6", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["#14B8A6", "#F59E0B"], portalUrls: ["https://gistarubali.id", "https://oss.go.id", "https://rdtr.atrbpn.go.id"], zoneColors: ["#FF85B3", "#FB923C", "#EF4444", "#EAB308", "#22C55E", "#166534"] },
+  { id: "g0", num: "PT", abbr: "PMA", color: "var(--t2)", borderColor: "rgba(148,163,184,0.3)", glowColor: "transparent", layerColor: "var(--t2)", rolePillBg: "rgba(148,163,184,0.08)", rolePillBorder: "rgba(148,163,184,0.15)", rolePillColor: "var(--t2)", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["var(--accent2)", "var(--t3)"], portalUrls: ["https://ahu.go.id", "https://oss.go.id", "https://pajak.go.id"], isDashed: true },
+  { id: "g1", num: "1", abbr: "ZONE", color: "var(--accent)", borderColor: "var(--accent)", glowColor: "var(--accent-tint)", layerColor: "var(--accent)", rolePillBg: "var(--accent-tint)", rolePillBorder: "var(--accent-tint2)", rolePillColor: "var(--accent)", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["var(--accent)", "#F59E0B"], portalUrls: ["https://gistarubali.id", "https://oss.go.id", "https://rdtr.atrbpn.go.id"], zoneColors: ["#FF85B3", "#FB923C", "#EF4444", "#EAB308", "#22C55E", "#166534"] },
   { id: "g2", num: "2", abbr: "NIB", color: "#60A5FA", borderColor: "#3B82F6", glowColor: "rgba(59,130,246,0.12)", layerColor: "#60A5FA", rolePillBg: "rgba(59,130,246,0.08)", rolePillBorder: "rgba(59,130,246,0.18)", rolePillColor: "#60A5FA", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["#3B82F6", "#F59E0B"], portalUrls: ["https://oss.go.id", "https://www.bps.go.id/id/business-register", "https://bkpm.go.id"] },
-  { id: "g3", num: "3", abbr: "SLF", color: "#A78BFA", borderColor: "#8B5CF6", glowColor: "rgba(139,92,246,0.12)", layerColor: "#A78BFA", rolePillBg: "rgba(139,92,246,0.08)", rolePillBorder: "rgba(139,92,246,0.18)", rolePillColor: "#A78BFA", alertTypes: [{ type: "red", icon: "\u25B2" }], infoBlockBorders: ["#8B5CF6", "#14B8A6"], portalUrls: ["https://simbg.pu.go.id", "https://oss.go.id", "https://dpmptsp.badungkab.go.id"] },
-  { id: "g4", num: "4", abbr: "TAX", color: "#F59E0B", borderColor: "#F59E0B", glowColor: "rgba(245,158,11,0.12)", layerColor: "#F59E0B", rolePillBg: "rgba(245,158,11,0.08)", rolePillBorder: "rgba(245,158,11,0.18)", rolePillColor: "#F59E0B", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["#F59E0B", "#64748B"], portalUrls: ["https://e-palapa.badungkab.go.id", "https://djponline.pajak.go.id", "https://pajak.go.id/reformasi-pajak/coretax", "https://bapenda.badungkab.go.id"] },
-  { id: "g5", num: "5", abbr: "STAFF", color: "#22C55E", borderColor: "#22C55E", glowColor: "rgba(34,197,94,0.1)", layerColor: "#22C55E", rolePillBg: "rgba(34,197,94,0.08)", rolePillBorder: "rgba(34,197,94,0.18)", rolePillColor: "#22C55E", alertTypes: [{ type: "red", icon: "\u25B2" }], infoBlockBorders: ["#22C55E", "#64748B"], portalUrls: ["https://edabu.bpjs-kesehatan.go.id", "https://sipp.bpjsketenagakerjaan.go.id", "https://imigrasi.go.id", "https://bkpm.go.id"] },
-  { id: "g6", num: "6", abbr: "SAFE", color: "#FCA5A5", borderColor: "#EF4444", glowColor: "rgba(239,68,68,0.1)", layerColor: "#FCA5A5", rolePillBg: "rgba(239,68,68,0.08)", rolePillBorder: "rgba(239,68,68,0.18)", rolePillColor: "#FCA5A5", alertTypes: [{ type: "teal", icon: "\u25C6" }], infoBlockBorders: ["#EF4444", "#64748B"], portalUrls: ["https://jdih.kemenparekraf.go.id", "https://damkar.badungkab.go.id"] },
-  { id: "g7", num: "7", abbr: "OTA", color: "#14B8A6", borderColor: "#14B8A6", glowColor: "rgba(20,184,166,0.22)", layerColor: "#14B8A6", rolePillBg: "rgba(20,184,166,0.08)", rolePillBorder: "rgba(20,184,166,0.18)", rolePillColor: "#14B8A6", alertTypes: [{ type: "red", icon: "\u25B2" }], infoBlockBorders: ["#14B8A6", "#EF4444"], portalUrls: ["https://airbnb.com", "https://partner.booking.com", "https://kemenparekraf.go.id"] },
+  { id: "g3", num: "3", abbr: "SLF", color: "#A78BFA", borderColor: "#8B5CF6", glowColor: "rgba(139,92,246,0.12)", layerColor: "#A78BFA", rolePillBg: "rgba(139,92,246,0.08)", rolePillBorder: "rgba(139,92,246,0.18)", rolePillColor: "#A78BFA", alertTypes: [{ type: "red", icon: "\u25B2" }], infoBlockBorders: ["#8B5CF6", "var(--accent)"], portalUrls: ["https://simbg.pu.go.id", "https://oss.go.id", "https://dpmptsp.badungkab.go.id"] },
+  { id: "g4", num: "4", abbr: "TAX", color: "#F59E0B", borderColor: "#F59E0B", glowColor: "rgba(245,158,11,0.12)", layerColor: "#F59E0B", rolePillBg: "rgba(245,158,11,0.08)", rolePillBorder: "rgba(245,158,11,0.18)", rolePillColor: "#F59E0B", alertTypes: [{ type: "amber", icon: "\u25B2" }], infoBlockBorders: ["#F59E0B", "var(--t3)"], portalUrls: ["https://e-palapa.badungkab.go.id", "https://djponline.pajak.go.id", "https://pajak.go.id/reformasi-pajak/coretax", "https://bapenda.badungkab.go.id"] },
+  { id: "g5", num: "5", abbr: "STAFF", color: "#22C55E", borderColor: "#22C55E", glowColor: "rgba(34,197,94,0.1)", layerColor: "#22C55E", rolePillBg: "rgba(34,197,94,0.08)", rolePillBorder: "rgba(34,197,94,0.18)", rolePillColor: "#22C55E", alertTypes: [{ type: "red", icon: "\u25B2" }], infoBlockBorders: ["#22C55E", "var(--t3)"], portalUrls: ["https://edabu.bpjs-kesehatan.go.id", "https://sipp.bpjsketenagakerjaan.go.id", "https://imigrasi.go.id", "https://bkpm.go.id"] },
+  { id: "g6", num: "6", abbr: "SAFE", color: "#FCA5A5", borderColor: "#EF4444", glowColor: "rgba(239,68,68,0.1)", layerColor: "#FCA5A5", rolePillBg: "rgba(239,68,68,0.08)", rolePillBorder: "rgba(239,68,68,0.18)", rolePillColor: "#FCA5A5", alertTypes: [{ type: "teal", icon: "\u25C6" }], infoBlockBorders: ["#EF4444", "var(--t3)"], portalUrls: ["https://jdih.kemenparekraf.go.id", "https://damkar.badungkab.go.id"] },
+  { id: "g7", num: "7", abbr: "OTA", color: "var(--accent)", borderColor: "var(--accent)", glowColor: "var(--accent-tint2)", layerColor: "var(--accent)", rolePillBg: "var(--accent-tint)", rolePillBorder: "var(--accent-tint2)", rolePillColor: "var(--accent)", alertTypes: [{ type: "red", icon: "\u25B2" }], infoBlockBorders: ["var(--accent)", "#EF4444"], portalUrls: ["https://airbnb.com", "https://partner.booking.com", "https://kemenparekraf.go.id"] },
 ];
 
 const statValues = ["7", "8\u201314wk", "5yr", "31 Mar"];
@@ -79,7 +79,7 @@ function useTranslatedGates(): GateData[] {
       dscvrRole: tr.dscvrRole,
       dscvrRoleDesc: tr.dscvrRoleDesc,
       alerts: s.alertTypes.map((at, ai) => ({ ...at, content: tr.alerts[ai]?.content || "" })),
-      infoBlocks: tr.infoBlocks.map((ib, ii) => ({ title: ib.title, borderColor: s.infoBlockBorders[ii] || "#64748B", content: ib.content, items: ib.items })),
+      infoBlocks: tr.infoBlocks.map((ib, ii) => ({ title: ib.title, borderColor: s.infoBlockBorders[ii] || "var(--t3)", content: ib.content, items: ib.items })),
       portals: tr.portals.map((p, pi) => ({ label: p.label, url: s.portalUrls[pi] || "" })),
       zones: tr.zones && s.zoneColors ? tr.zones.map((z, zi) => ({ color: s.zoneColors![zi] || "#999", name: z.name, status: z.status })) : undefined,
       isDashed: s.isDashed,
@@ -94,12 +94,12 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
       data-testid={`gate-card-${gate.id}`}
       className={`rounded-[10px] border transition-all duration-200 cursor-pointer ${
         isOpen
-          ? "bg-[rgba(13,148,136,0.04)]"
+          ? "bg-[var(--accent-tint)]"
           : ""
       }`}
       style={{
-        borderColor: isOpen ? "var(--app-border-teal)" : "var(--app-border)",
-        ...(!isOpen ? { background: "var(--app-panel)" } : {}),
+        borderColor: isOpen ? "var(--app-border-teal)" : "var(--b)",
+        ...(!isOpen ? { background: "var(--surface)" } : {}),
       }}
       onClick={onToggle}
     >
@@ -111,10 +111,10 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
           >
             {gate.layerLabel}
           </div>
-          <div className="font-heading font-extrabold text-[15px] mb-[3px] tracking-[-0.2px]" style={{ color: "var(--app-text)" }}>
+          <div className="font-heading font-extrabold text-[15px] mb-[3px] tracking-[-0.2px]" style={{ color: "var(--txt)" }}>
             {gate.title}
           </div>
-          <div className="text-[12px] font-light italic" style={{ color: "var(--app-text-muted)" }}>{gate.subtitle}</div>
+          <div className="text-[12px] font-light italic" style={{ color: "var(--t3)" }}>{gate.subtitle}</div>
         </div>
         <div className="flex items-center gap-[10px] shrink-0">
           <span
@@ -129,11 +129,11 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
           </span>
           <div
             className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[18px] font-light transition-all duration-200 ${
-              isOpen ? "rotate-45 text-[#14B8A6]" : ""
+              isOpen ? "rotate-45 text-[var(--accent)]" : ""
             }`}
             style={{
               background: "var(--app-expand-bg)",
-              ...(!isOpen ? { color: "var(--app-text-muted)" } : {}),
+              ...(!isOpen ? { color: "var(--t3)" } : {}),
             }}
           >
             +
@@ -151,12 +151,12 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
             className="overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="border-t px-[22px] pb-[22px]" style={{ borderColor: "var(--app-border)" }}>
+            <div className="border-t px-[22px] pb-[22px]" style={{ borderColor: "var(--b)" }}>
               <div className="pt-[18px]">
-                <div className="flex items-start gap-3 p-[12px_16px] rounded-[7px] mb-4 bg-[rgba(20,184,166,0.06)] border border-[rgba(20,184,166,0.15)]">
-                  <span className="text-[13px] shrink-0 mt-[1px] text-[#14B8A6]">{"\u25C8"}</span>
-                  <div className="text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
-                    <strong className="font-heading font-bold text-[#14B8A6] text-[11px] tracking-[0.5px] block mb-[3px]">
+                <div className="flex items-start gap-3 p-[12px_16px] rounded-[7px] mb-4 bg-[var(--accent-tint)] border border-[var(--accent-tint2)]">
+                  <span className="text-[13px] shrink-0 mt-[1px] text-[var(--accent)]">{"\u25C8"}</span>
+                  <div className="text-[12px] leading-[1.6]" style={{ color: "var(--t2)" }}>
+                    <strong className="font-heading font-bold text-[var(--accent)] text-[11px] tracking-[0.5px] block mb-[3px]">
                       {gate.dscvrRole}
                     </strong>
                     {gate.dscvrRoleDesc}
@@ -171,7 +171,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                         ? "bg-[rgba(245,158,11,0.06)] border border-[rgba(245,158,11,0.18)]"
                         : alert.type === "red"
                           ? "bg-[rgba(239,68,68,0.06)] border border-[rgba(239,68,68,0.18)]"
-                          : "bg-[rgba(13,148,136,0.06)] border border-[rgba(20,184,166,0.18)] text-[#14B8A6]"
+                          : "bg-[var(--accent-tint)] border border-[var(--accent-tint2)] text-[var(--accent)]"
                     }`}
                     style={{
                       color: alert.type === "amber"
@@ -192,12 +192,12 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                       <div
                         key={zone.name}
                         className="flex items-center gap-2 p-[8px_10px] rounded-[6px] border"
-                        style={{ background: "var(--app-zone-bg)", borderColor: "var(--app-border)" }}
+                        style={{ background: "var(--app-zone-bg)", borderColor: "var(--b)" }}
                       >
                         <div className="w-[10px] h-[10px] rounded-full shrink-0" style={{ background: zone.color }} />
                         <div>
                           <span className="font-heading text-[11px] font-bold block" style={{ color: "var(--app-text-bright)" }}>{zone.name}</span>
-                          <span className="text-[10px] block" style={{ color: "var(--app-text-muted)" }}>{zone.status}</span>
+                          <span className="text-[10px] block" style={{ color: "var(--t3)" }}>{zone.status}</span>
                         </div>
                       </div>
                     ))}
@@ -211,7 +211,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                       className="rounded-[7px] p-[14px_16px] border-l-2"
                       style={{ background: "var(--app-info-block-bg)", borderLeftColor: block.borderColor }}
                     >
-                      <h4 className="font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[9px]" style={{ color: "var(--app-text-muted)" }}>
+                      <h4 className="font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[9px]" style={{ color: "var(--t3)" }}>
                         {block.title}
                       </h4>
                       {block.items ? (
@@ -220,7 +220,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                             <li
                               key={j}
                               className="text-[13px] leading-[1.65] ml-[14px] mb-[3px] [&_strong]:font-bold"
-                              style={{ color: "var(--app-text-secondary)" }}
+                              style={{ color: "var(--t2)" }}
                               dangerouslySetInnerHTML={{ __html: item }}
                             />
                           ))}
@@ -228,7 +228,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                       ) : (
                         <p
                           className="text-[13px] leading-[1.65] [&_strong]:font-bold"
-                          style={{ color: "var(--app-text-secondary)" }}
+                          style={{ color: "var(--t2)" }}
                           dangerouslySetInnerHTML={{ __html: block.content }}
                         />
                       )}
@@ -236,7 +236,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                   ))}
                 </div>
 
-                <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase mb-[9px] mt-[16px]" style={{ color: "var(--app-text-muted)" }}>
+                <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase mb-[9px] mt-[16px]" style={{ color: "var(--t3)" }}>
                   {t.flow.governmentPortals}
                 </div>
                 <div className="flex flex-wrap gap-[7px]">
@@ -247,7 +247,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                       target="_blank"
                       rel="noopener noreferrer"
                       data-testid={`portal-link-${gate.id}`}
-                      className="inline-flex items-center gap-[6px] text-[12px] font-bold py-[7px] px-[13px] rounded-[5px] no-underline border border-[rgba(20,184,166,0.18)] bg-[rgba(13,148,136,0.06)] text-[#14B8A6] hover-elevate"
+                      className="inline-flex items-center gap-[6px] text-[12px] font-bold py-[7px] px-[13px] rounded-[5px] no-underline border border-[var(--accent-tint2)] bg-[var(--accent-tint)] text-[var(--accent)] hover-elevate"
                       onClick={(e) => e.stopPropagation()}
                     >
                       {"\u2197"} {portal.label}
@@ -332,26 +332,26 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
   return (
     <div>
       <div className="relative z-[5] max-w-5xl mx-auto pt-10 pb-8 px-6 md:px-10">
-        <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[#0D9488] mb-[18px] flex items-center gap-3">
-          <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
+        <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[var(--accent2)] mb-[18px] flex items-center gap-3">
+          <span className="block w-[28px] h-[1px] bg-[var(--accent2)] shrink-0" />
           {t.flow.tagline}
         </div>
-        <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--app-text)" }}>
+        <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--txt)" }}>
           {t.flow.heroTitle1}<br />
-          <span className="text-[#14B8A6]">{t.flow.heroTitle2}</span>
+          <span className="text-[var(--accent)]">{t.flow.heroTitle2}</span>
         </h1>
-        <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--app-text-secondary)" }}>
+        <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--t2)" }}>
           {t.flow.heroDesc}
         </p>
 
-        <div className="mt-9 grid grid-cols-2 border rounded-[10px] overflow-hidden max-md:grid-cols-1" style={{ borderColor: "var(--app-border)" }}>
-          <div className="p-[22px_26px] border-r bg-[rgba(20,184,166,0.04)] max-md:border-r-0 max-md:border-b" style={{ borderColor: "var(--app-border)" }}>
-            <div className="font-heading text-[9px] font-extrabold tracking-[3px] uppercase text-[#14B8A6] mb-[14px]">
+        <div className="mt-9 grid grid-cols-2 border rounded-[10px] overflow-hidden max-md:grid-cols-1" style={{ borderColor: "var(--b)" }}>
+          <div className="p-[22px_26px] border-r bg-[var(--accent-tint)] max-md:border-r-0 max-md:border-b" style={{ borderColor: "var(--b)" }}>
+            <div className="font-heading text-[9px] font-extrabold tracking-[3px] uppercase text-[var(--accent)] mb-[14px]">
               {t.flow.dscvrTracks}
             </div>
             {t.flow.trackItems.map((item) => (
-              <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] leading-[1.5]" style={{ color: "var(--app-text-secondary)" }}>
-                <span className="w-[5px] h-[5px] rounded-full bg-[#14B8A6] shrink-0 mt-[6px]" />
+              <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] leading-[1.5]" style={{ color: "var(--t2)" }}>
+                <span className="w-[5px] h-[5px] rounded-full bg-[var(--accent)] shrink-0 mt-[6px]" />
                 {item}
               </div>
             ))}
@@ -361,7 +361,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
               {t.flow.dscvrDoesNot}
             </div>
             {t.flow.doesNotItems.map((item) => (
-              <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] leading-[1.5]" style={{ color: "var(--app-text-secondary)" }}>
+              <div key={item} className="flex items-start gap-[10px] mb-2 text-[13px] leading-[1.5]" style={{ color: "var(--t2)" }}>
                 <span className="w-[5px] h-[5px] rounded-full shrink-0 mt-[6px]" style={{ background: "var(--app-red-alert-text)" }} />
                 {item}
               </div>
@@ -369,23 +369,23 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
           </div>
         </div>
 
-        <div className="flex mt-6 border rounded-[10px] overflow-hidden max-md:flex-col" style={{ borderColor: "var(--app-border)" }} data-testid="stats-row">
+        <div className="flex mt-6 border rounded-[10px] overflow-hidden max-md:flex-col" style={{ borderColor: "var(--b)" }} data-testid="stats-row">
           {statValues.map((n, i) => ({ n, l: t.flow.statsLabels[i] })).map((stat, i) => (
-            <div key={i} className={`flex-1 p-[18px_22px] ${i < 3 ? "border-r max-md:border-r-0 max-md:border-b" : ""}`} style={i < 3 ? { borderColor: "var(--app-border)" } : undefined}>
-              <div className="font-heading font-black text-[26px] text-[#14B8A6] leading-none mb-[5px] tracking-[-0.5px]">{stat.n}</div>
-              <div className="text-[11px]" style={{ color: "var(--app-text-muted)" }}>{stat.l}</div>
+            <div key={i} className={`flex-1 p-[18px_22px] ${i < 3 ? "border-r max-md:border-r-0 max-md:border-b" : ""}`} style={i < 3 ? { borderColor: "var(--b)" } : undefined}>
+              <div className="font-heading font-black text-[26px] text-[var(--accent)] leading-none mb-[5px] tracking-[-0.5px]">{stat.n}</div>
+              <div className="text-[11px]" style={{ color: "var(--t3)" }}>{stat.l}</div>
             </div>
           ))}
         </div>
       </div>
 
       <div className="relative z-[5] max-w-5xl mx-auto px-6 md:px-10 pb-16">
-        <div className="absolute left-[calc(3.5rem+36px)] top-0 bottom-20 w-[1px] bg-gradient-to-b from-[rgba(20,184,166,0.5)] via-[rgba(20,184,166,0.2)] to-transparent z-0 max-md:left-[calc(1.25rem+36px)]" />
+        <div className="absolute left-[calc(3.5rem+36px)] top-0 bottom-20 w-[1px] bg-gradient-to-b from-[var(--accent-tint2)] via-[var(--accent-tint2)] to-transparent z-0 max-md:left-[calc(1.25rem+36px)]" />
 
         <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] mt-2 relative z-[2]">
           <div />
           <div>
-            <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--app-text-muted)" }}>
+            <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--t3)" }}>
               {t.flow.sectionFoundation}
             </div>
             <div className="h-[1px] bg-gradient-to-r from-[rgba(100,116,139,0.3)] to-transparent" />
@@ -407,7 +407,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
                 <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] relative z-[2]">
                   <div />
                   <div>
-                    <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--app-text-muted)" }}>
+                    <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--t3)" }}>
                       {t.flow.sectionStructural}
                     </div>
                     <div className="h-[1px] bg-gradient-to-r from-[rgba(100,116,139,0.3)] to-transparent" />
@@ -423,7 +423,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
         <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] relative z-[2]">
           <div />
           <div>
-            <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--app-text-muted)" }}>
+            <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--t3)" }}>
               {t.flow.sectionOperational}
             </div>
             <div className="h-[1px] bg-gradient-to-r from-[rgba(100,116,139,0.3)] to-transparent" />
@@ -466,20 +466,20 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
         ))}
 
         <div className="mt-[10px] ml-[92px] max-md:ml-0">
-          <div className="bg-gradient-to-br from-[rgba(13,148,136,0.09)] to-[rgba(34,197,94,0.05)] border rounded-[10px] p-[26px_30px] flex items-center gap-[22px]" style={{ borderColor: "var(--app-border-teal)" }}>
+          <div className="bg-gradient-to-br from-[var(--accent-tint)] to-[rgba(34,197,94,0.05)] border rounded-[10px] p-[26px_30px] flex items-center gap-[22px]" style={{ borderColor: "var(--app-border-teal)" }}>
             <span className="text-[32px] shrink-0">{"\u2713"}</span>
             <div>
-              <div className="font-heading font-black text-[17px] text-[#14B8A6] tracking-[-0.2px] mb-[5px]">
+              <div className="font-heading font-black text-[17px] text-[var(--accent)] tracking-[-0.2px] mb-[5px]">
                 {t.flow.fullyCompliantTitle}
               </div>
-              <div className="text-[13px] font-light leading-[1.7] italic" style={{ color: "var(--app-text-muted)" }}>
+              <div className="text-[13px] font-light leading-[1.7] italic" style={{ color: "var(--t3)" }}>
                 {t.flow.fullyCompliantDesc}
               </div>
             </div>
           </div>
         </div>
 
-        <div className="mt-9 ml-[92px] pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic max-md:ml-0" style={{ color: "var(--app-text-muted)" }}>
+        <div className="mt-9 ml-[92px] pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic max-md:ml-0" style={{ color: "var(--t3)" }}>
           {t.flow.disclaimer}
         </div>
       </div>

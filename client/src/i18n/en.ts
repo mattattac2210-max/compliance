@@ -463,7 +463,7 @@ export const en: UITranslations = {
     banjarContribution: "Banjar contribution due",
     hgbExpiry: "HGB land title expiry",
     kitasExpiry: "KITAS permit expiry",
-    recurringIcon: "↻",
+    recurringIcon: "cycle",
   },
   alerts: {
     heading: "Alerts",

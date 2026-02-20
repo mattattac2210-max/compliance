@@ -32,7 +32,7 @@ function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: Retur
 
   return (
     <div className="relative" data-testid="step-timeline">
-      <div className="absolute left-[15px] top-[24px] bottom-[24px] w-[2px] bg-gradient-to-b from-[#14B8A6] via-[rgba(20,184,166,0.3)] to-[rgba(20,184,166,0.08)]" />
+      <div className="absolute left-[15px] top-[24px] bottom-[24px] w-[2px] bg-gradient-to-b from-[var(--accent)] via-[var(--accent-tint2)] to-[var(--accent-tint)]" />
 
       {steps.map((step, i) => {
         const isExpanded = expandedStep === step.stepNumber;
@@ -42,10 +42,10 @@ function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: Retur
         return (
           <div key={step.stepNumber} className="relative pl-[44px] mb-[4px]" data-testid={`step-${step.stepNumber}`}>
             <div
-              className="absolute left-[8px] top-[14px] w-[16px] h-[16px] rounded-full border-[2px] border-[#14B8A6] flex items-center justify-center z-10"
+              className="absolute left-[8px] top-[14px] w-[16px] h-[16px] rounded-full border-[2px] border-[var(--accent)] flex items-center justify-center z-10"
               style={{ background: "var(--app-circle-bg)" }}
             >
-              <span className="text-[8px] font-heading font-bold text-[#14B8A6]">{step.stepNumber}</span>
+              <span className="text-[8px] font-heading font-bold text-[var(--accent)]">{step.stepNumber}</span>
             </div>
 
             <div
@@ -59,7 +59,7 @@ function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: Retur
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className="text-[12px] font-semibold leading-[1.5] mb-[6px]" style={{ color: "var(--app-text)" }}>
+                  <div className="text-[12px] font-semibold leading-[1.5] mb-[6px]" style={{ color: "var(--txt)" }}>
                     <GlossaryAwareText text={step.actionDescription} terms={terms} />
                   </div>
 
@@ -85,7 +85,7 @@ function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: Retur
                 {hasDetails && (
                   <div className="shrink-0 mt-[2px]">
                     {isExpanded ? (
-                      <ChevronDown size={14} className="text-[#14B8A6]" />
+                      <ChevronDown size={14} className="text-[var(--accent)]" />
                     ) : (
                       <ChevronRight size={14} style={{ color: "var(--app-text-dim)" }} />
                     )}
@@ -105,7 +105,7 @@ function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: Retur
                     <div className="mt-[14px] pt-[14px] space-y-[12px]" style={{ borderTop: "1px solid var(--app-border-teal-subtle)" }}>
                       {details.whyThisMatters && (
                         <div>
-                          <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[#F59E0B] mb-[5px]">
+                          <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[var(--gold)] mb-[5px]">
                             {t.processNav.whyThisMatters}
                           </div>
                           <div className="text-[11px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
@@ -116,13 +116,13 @@ function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: Retur
 
                       {details.commonIssues && details.commonIssues.length > 0 && (
                         <div>
-                          <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[#EF4444] mb-[5px]">
+                          <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[var(--danger)] mb-[5px]">
                             {t.processNav.commonIssues}
                           </div>
                           <ul className="space-y-[3px]">
                             {details.commonIssues.map((item, j) => (
                               <li key={j} className="flex items-start gap-[6px] text-[11px] text-[#FCA5A5] leading-[1.5]">
-                                <span className="w-[3px] h-[3px] rounded-full bg-[#EF4444] shrink-0 mt-[6px]" />
+                                <span className="w-[3px] h-[3px] rounded-full bg-[var(--danger)] shrink-0 mt-[6px]" />
                                 <GlossaryAwareText text={item} terms={terms} />
                               </li>
                             ))}
@@ -132,13 +132,13 @@ function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: Retur
 
                       {details.preparationTips && details.preparationTips.length > 0 && (
                         <div>
-                          <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[#14B8A6] mb-[5px]">
+                          <div className="font-heading text-[8px] font-bold tracking-[2px] uppercase text-[var(--accent)] mb-[5px]">
                             {t.processNav.preparationTips}
                           </div>
                           <ul className="space-y-[3px]">
                             {details.preparationTips.map((item, j) => (
                               <li key={j} className="flex items-start gap-[6px] text-[11px] leading-[1.5]" style={{ color: "var(--app-text-secondary)" }}>
-                                <span className="w-[3px] h-[3px] rounded-full bg-[#14B8A6] shrink-0 mt-[6px]" />
+                                <span className="w-[3px] h-[3px] rounded-full bg-[var(--accent)] shrink-0 mt-[6px]" />
                                 <GlossaryAwareText text={item} terms={terms} />
                               </li>
                             ))}
@@ -223,9 +223,9 @@ function WorkflowCard({ guide, terms, lang, t }: { guide: ProcessGuide; terms: R
   const storage = translated.dscvrRecommendedStorage;
 
   const infoTabs = [
-    { key: "expect" as const, label: t.processNav.infoTabExpect, icon: Clock, items: whatToExpect, color: "#14B8A6" },
-    { key: "delays" as const, label: t.processNav.infoTabDelays, icon: Clock, items: typicalDelays, color: "#F59E0B" },
-    { key: "rejections" as const, label: t.processNav.infoTabRejections, icon: AlertTriangle, items: commonRejections, color: "#EF4444" },
+    { key: "expect" as const, label: t.processNav.infoTabExpect, icon: Clock, items: whatToExpect, color: "var(--accent)" },
+    { key: "delays" as const, label: t.processNav.infoTabDelays, icon: Clock, items: typicalDelays, color: "var(--gold)" },
+    { key: "rejections" as const, label: t.processNav.infoTabRejections, icon: AlertTriangle, items: commonRejections, color: "var(--danger)" },
     { key: "storage" as const, label: t.processNav.infoTabStorage, icon: FolderOpen, items: storage, color: "#A78BFA" },
   ];
 
@@ -247,12 +247,12 @@ function WorkflowCard({ guide, terms, lang, t }: { guide: ProcessGuide; terms: R
       >
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-[10px] mb-[8px]">
-            <span className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#14B8A6] bg-[rgba(20,184,166,0.08)] px-[8px] py-[2px] rounded">
+            <span className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[var(--accent)] bg-[var(--accent-tint)] px-[8px] py-[2px] rounded">
               Gate {guide.gateNumber}
             </span>
             <SubmissionBadge type={guide.submissionType} t={t} />
           </div>
-          <h3 className="font-heading font-black text-[18px] tracking-[-0.3px] mb-[6px]" style={{ color: "var(--app-text)" }}>
+          <h3 className="font-heading font-black text-[18px] tracking-[-0.3px] mb-[6px]" style={{ color: "var(--txt)" }}>
             {translated.title}
           </h3>
           <p className="text-[12px] font-light leading-[1.7]" style={{ color: "var(--app-text-secondary)" }}>
@@ -297,9 +297,9 @@ function WorkflowCard({ guide, terms, lang, t }: { guide: ProcessGuide; terms: R
                       style={
                         activeInfoTab === tab.key
                           ? {
-                              color: "var(--app-text)",
+                              color: "var(--txt)",
                               borderColor: "var(--app-border-teal)",
-                              background: "rgba(20,184,166,0.1)",
+                              background: "var(--accent-tint)",
                             }
                           : {
                               color: "var(--app-text-muted)",
@@ -324,7 +324,7 @@ function WorkflowCard({ guide, terms, lang, t }: { guide: ProcessGuide; terms: R
                   >
                     <ul className="space-y-[6px]">
                       {activeTabData.items.map((item, i) => (
-                        <li key={i} className="flex items-start gap-[8px] text-[11px] leading-[1.6]" style={{ color: activeTabData.color === "#EF4444" ? "#FCA5A5" : "var(--app-text-secondary)" }}>
+                        <li key={i} className="flex items-start gap-[8px] text-[11px] leading-[1.6]" style={{ color: activeTabData.color === "var(--danger)" ? "#FCA5A5" : "var(--app-text-secondary)" }}>
                           <span className="w-[4px] h-[4px] rounded-full shrink-0 mt-[6px]" style={{ background: activeTabData.color }} />
                           <GlossaryAwareText text={item} terms={terms} />
                         </li>
@@ -377,9 +377,9 @@ export function ProcessNavigation() {
               borderColor: "var(--app-border-teal-subtle)",
             }}
           >
-            <div className="h-3 bg-[rgba(20,184,166,0.08)] rounded w-[60px] mb-3" />
-            <div className="h-5 bg-[rgba(20,184,166,0.08)] rounded w-[200px] mb-3" />
-            <div className="h-3 bg-[rgba(20,184,166,0.08)] rounded w-full" />
+            <div className="h-3 bg-[var(--accent-tint)] rounded w-[60px] mb-3" />
+            <div className="h-5 bg-[var(--accent-tint)] rounded w-[200px] mb-3" />
+            <div className="h-3 bg-[var(--accent-tint)] rounded w-full" />
           </div>
         ))}
       </div>
@@ -399,7 +399,7 @@ export function ProcessNavigation() {
       <div className="mb-[20px]">
         <div className="flex items-center justify-between mb-[10px]">
           <div>
-            <h2 className="font-heading font-black text-[22px] tracking-[-0.5px]" style={{ color: "var(--app-text)" }}>
+            <h2 className="font-heading font-black text-[22px] tracking-[-0.5px]" style={{ color: "var(--txt)" }}>
               {t.processNav.heading}
             </h2>
           </div>
@@ -420,9 +420,9 @@ export function ProcessNavigation() {
               style={
                 gateFilter === null
                   ? {
-                      color: "var(--app-text)",
+                      color: "var(--txt)",
                       borderColor: "var(--app-border-teal)",
-                      background: "rgba(20,184,166,0.1)",
+                      background: "var(--accent-tint)",
                     }
                   : {
                       color: "var(--app-text-muted)",
@@ -442,9 +442,9 @@ export function ProcessNavigation() {
                 style={
                   gateFilter === num
                     ? {
-                        color: "var(--app-text)",
+                        color: "var(--txt)",
                         borderColor: "var(--app-border-teal)",
-                        background: "rgba(20,184,166,0.1)",
+                        background: "var(--accent-tint)",
                       }
                     : {
                         color: "var(--app-text-muted)",

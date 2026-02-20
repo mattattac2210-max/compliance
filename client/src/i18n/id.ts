@@ -463,7 +463,7 @@ export const id: UITranslations = {
     banjarContribution: "Kontribusi banjar jatuh tempo",
     hgbExpiry: "Masa berlaku HGB berakhir",
     kitasExpiry: "Masa berlaku KITAS berakhir",
-    recurringIcon: "↻",
+    recurringIcon: "cycle",
   },
   alerts: {
     heading: "Peringatan",

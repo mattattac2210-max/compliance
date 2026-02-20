@@ -226,7 +226,7 @@ const HOLIDAY_I18N: Record<string, Record<string, { title: string; short: string
     uk: { title: "Kuningan", short: "Kuningan" },
     id: { title: "Kuningan", short: "Kuningan" },
   },
-  "Nyepi — Day of Silence ⚠️": {
+  "Nyepi — Day of Silence": {
     uk: { title: "Nyepi — День тиші", short: "Nyepi" },
     id: { title: "Nyepi — Hari Raya Nyepi", short: "Nyepi" },
   },
@@ -356,37 +356,37 @@ export function generateEvents(yr: number, lang: string = "en"): CalendarEvent[]
     const c = curMonthLabel(yr, m, lang);
     const periodWord = trPeriod("period", lang, "period");
 
-    add({ id: `pb1-${yr}-${m}`, date: new Date(yr, m, 20), type: "tax", gate: 4, icon: "↻",
+    add({ id: `pb1-${yr}-${m}`, date: new Date(yr, m, 20), type: "tax", gate: 4, icon: "cycle",
       short: trShort("pb1", lang, "PB1 Tax"),
       title: trTitle("pb1", lang, "PB1 Hotel Tax (SPTPD)"),
       period: `${p} ${periodWord}`, recurring: true,
       desc: "File and pay 10% hotel tax on prior month room revenue via e-Palapa / local Bapenda portal. Late filing = penalties from day 1." });
-    add({ id: `pph21-${yr}-${m}`, date: new Date(yr, m, 20), type: "tax", gate: 4, icon: "↻",
+    add({ id: `pph21-${yr}-${m}`, date: new Date(yr, m, 20), type: "tax", gate: 4, icon: "cycle",
       short: trShort("pph21", lang, "PPh 21"),
       title: trTitle("pph21", lang, "PPh 21 Payroll Tax Filing"),
       period: `${p} ${periodWord}`, recurring: true,
       desc: "File employee income tax withholding for prior month via CoreTax. Calculate per employee salary bracket." });
-    add({ id: `pph25-${yr}-${m}`, date: new Date(yr, m, 15), type: "tax", gate: 4, icon: "↻",
+    add({ id: `pph25-${yr}-${m}`, date: new Date(yr, m, 15), type: "tax", gate: 4, icon: "cycle",
       short: trShort("pph25", lang, "PPh 25"),
       title: trTitle("pph25", lang, "PPh 25 Corporate Tax Instalment"),
       period: c, recurring: true,
       desc: "Monthly corporate income tax instalment. Amount = prior year SPT Tahunan ÷ 12. File and pay via CoreTax by 15th." });
-    add({ id: `bpjsk-${yr}-${m}`, date: new Date(yr, m, 10), type: "bpjs", gate: 5, icon: "●",
+    add({ id: `bpjsk-${yr}-${m}`, date: new Date(yr, m, 10), type: "bpjs", gate: 5, icon: "dot",
       short: trShort("bpjsk", lang, "BPJS-K"),
       title: trTitle("bpjsk", lang, "BPJS Kesehatan Contributions"),
       period: c, recurring: true,
       desc: "Pay health insurance contributions for all enrolled staff. Employer: 4%, Employee: 1% of capped salary. Via eDabu by the 10th." });
-    add({ id: `bpjstk-${yr}-${m}`, date: new Date(yr, m, 10), type: "bpjs", gate: 5, icon: "●",
+    add({ id: `bpjstk-${yr}-${m}`, date: new Date(yr, m, 10), type: "bpjs", gate: 5, icon: "dot",
       short: trShort("bpjstk", lang, "BPJamsostek"),
       title: trTitle("bpjstk", lang, "BPJamsostek Contributions"),
       period: c, recurring: true,
       desc: "Employment insurance (JHT, JKK, JKM, JP) for all staff. Employer: 6.24–7.74%. Via SIPP Online by the 10th." });
-    add({ id: `banjar-${yr}-${m}`, date: new Date(yr, m, 1), type: "banjar", gate: 5, icon: "🏘",
+    add({ id: `banjar-${yr}-${m}`, date: new Date(yr, m, 1), type: "banjar", gate: 5, icon: "banjar",
       short: trShort("banjar", lang, "Iuran Banjar"),
       title: trTitle("banjar", lang, "Banjar Monthly Donation (Iuran)"),
       period: c, recurring: true,
       desc: "Monthly iuran to local Banjar. Commercial villas: IDR 100,000–1,000,000 depending on location. Keep receipt." });
-    add({ id: `apar-${yr}-${m}`, date: new Date(yr, m, 1), type: "safety", gate: 6, icon: "🧯",
+    add({ id: `apar-${yr}-${m}`, date: new Date(yr, m, 1), type: "safety", gate: 6, icon: "fire-ext",
       short: trShort("apar", lang, "APAR Check"),
       title: trTitle("apar", lang, "APAR Fire Extinguisher Monthly Inspection"),
       period: c, recurring: true,
@@ -394,7 +394,7 @@ export function generateEvents(yr: number, lang: string = "en"): CalendarEvent[]
   }
 
   [[3, "Q1", `Q1 ${yr} (Jan–Mar)`], [6, "Q2", `Q2 ${yr} (Apr–Jun)`], [9, "Q3", `Q3 ${yr} (Jul–Sep)`]].forEach(([m, q, pr]) => {
-    add({ id: `lkpm-${q}-${yr}`, date: new Date(yr, m as number, 10), type: "tax", gate: 0, icon: "↻",
+    add({ id: `lkpm-${q}-${yr}`, date: new Date(yr, m as number, 10), type: "tax", gate: 0, icon: "cycle",
       short: trShort("lkpm", lang, `LKPM ${q}`, { q: q as string }),
       title: trTitle("lkpm", lang, `LKPM ${q} Investment Report`, { q: q as string }),
       period: pr as string, recurring: true,
@@ -402,7 +402,7 @@ export function generateEvents(yr: number, lang: string = "en"): CalendarEvent[]
   });
 
   const fullYearLabel = `${trPeriod("Full year", lang, "Full year")} ${yr}`;
-  add({ id: `lkpm-ann-${yr}`, date: new Date(yr + 1, 0, 10), type: "tax", gate: 0, icon: "↻",
+  add({ id: `lkpm-ann-${yr}`, date: new Date(yr + 1, 0, 10), type: "tax", gate: 0, icon: "cycle",
     short: trShort("lkpm-ann", lang, "LKPM Annual"),
     title: trTitle("lkpm-ann", lang, "LKPM Annual Investment Report"),
     period: fullYearLabel, recurring: false,
@@ -410,12 +410,12 @@ export function generateEvents(yr: number, lang: string = "en"): CalendarEvent[]
 
   [[1, 1], [4, 2], [7, 3], [10, 4]].forEach(([m, q]) => {
     const qLabel = `Q${q}`;
-    add({ id: `pool-q${q}-${yr}`, date: new Date(yr, m, 15), type: "safety", gate: 6, icon: "🏊",
+    add({ id: `pool-q${q}-${yr}`, date: new Date(yr, m, 15), type: "safety", gate: 6, icon: "pool",
       short: trShort("pool", lang, "Pool Check"),
       title: trTitle("pool", lang, `Pool Chemical & Safety — Q${q}`, { q: qLabel }),
       period: `Q${q} ${yr}`, recurring: true,
       desc: "Quarterly pool maintenance: pH 7.2–7.8, free chlorine 1–3 ppm. Safety: pool fence/gate latch, depth markers, life ring." });
-    add({ id: `gr-q${q}-${yr}`, date: new Date(yr, m, 8), type: "banjar", gate: 5, icon: "🤝",
+    add({ id: `gr-q${q}-${yr}`, date: new Date(yr, m, 8), type: "banjar", gate: 5, icon: "handshake",
       short: trShort("gr", lang, "Gotong Royong"),
       title: trTitle("gr", lang, `Gotong Royong Community Day — Q${q}`, { q: qLabel }),
       period: `Q${q} ${yr}`, recurring: true,
@@ -426,107 +426,107 @@ export function generateEvents(yr: number, lang: string = "en"): CalendarEvent[]
   const fiscalLabel = trPeriod("Fiscal", lang, "Fiscal");
 
   const annuals: Array<Omit<CalendarEvent, "daysUntil">> = [
-    { id: `spt-${yr}`, date: new Date(yr, 3, 30), type: "tax", gate: 4, icon: "⬡",
+    { id: `spt-${yr}`, date: new Date(yr, 3, 30), type: "tax", gate: 4, icon: "hex",
       short: trShort("spt", lang, "SPT Tahunan"),
       title: trTitle("spt", lang, "SPT Tahunan — Annual Corporate Tax"),
       period: `${fiscalLabel} ${yr - 1}/${yr}`, recurring: false,
       desc: "Annual PPh Badan return via CoreTax by April 30. Penalty: 2% per month of underpaid tax." },
-    { id: `pbb-${yr}`, date: new Date(yr, 8, 30), type: "tax", gate: 4, icon: "⬡",
+    { id: `pbb-${yr}`, date: new Date(yr, 8, 30), type: "tax", gate: 4, icon: "hex",
       short: trShort("pbb", lang, "PBB Tax"),
       title: trTitle("pbb", lang, "PBB — Land & Building Tax"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Annual PBB P2 due September 30. CRITICAL: must be assessed at COMMERCIAL rates, not residential." },
-    { id: `skd-${yr}`, date: new Date(yr, 0, 15), type: "docs", gate: 0, icon: "□",
+    { id: `skd-${yr}`, date: new Date(yr, 0, 15), type: "docs", gate: 0, icon: "doc",
       short: trShort("skd", lang, "SKD Renewal"),
       title: trTitle("skd", lang, "Surat Keterangan Domisili (SKD) Renewal"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Annual renewal from Banjar Dinas/Kelurahan. Required for OSS, KITAS, NPWP address consistency." },
-    { id: `nib-${yr}`, date: new Date(yr, 0, 5), type: "docs", gate: 2, icon: "✓",
+    { id: `nib-${yr}`, date: new Date(yr, 0, 5), type: "docs", gate: 2, icon: "check",
       short: trShort("nib", lang, "NIB Status"),
       title: trTitle("nib", lang, "NIB Status Verification (OSS)"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Annual check that NIB remains 'Verified/Effective' on oss.go.id. OTAs cross-reference NIB." },
-    { id: `damkar-${yr}`, date: new Date(yr, 1, 15), type: "safety", gate: 6, icon: "🔥",
+    { id: `damkar-${yr}`, date: new Date(yr, 1, 15), type: "safety", gate: 6, icon: "fire",
       short: trShort("damkar", lang, "DAMKAR Renewal"),
       title: trTitle("damkar", lang, "Fire Safety Certificate Renewal (DAMKAR)"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Annual fire cert renewal. Schedule DAMKAR inspection 30+ days early. Expired cert = TDUP renewal blocked." },
-    { id: `apar-svc-${yr}`, date: new Date(yr, 5, 1), type: "safety", gate: 6, icon: "🧯",
+    { id: `apar-svc-${yr}`, date: new Date(yr, 5, 1), type: "safety", gate: 6, icon: "fire-ext",
       short: trShort("apar-svc", lang, "APAR Annual Service"),
       title: trTitle("apar-svc", lang, "APAR Annual Professional Servicing"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Annual APAR service by certified provider: weigh + refill if <80%, internal inspection, new tamper seal." },
-    { id: `elec-${yr}`, date: new Date(yr, 3, 1), type: "safety", gate: 6, icon: "⚡",
+    { id: `elec-${yr}`, date: new Date(yr, 3, 1), type: "safety", gate: 6, icon: "elec",
       short: trShort("elec", lang, "Electrical Inspection"),
       title: trTitle("elec", lang, "Annual Electrical Safety Inspection"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "PLN-certified electrician: earthing/grounding, RCD/ELCB trip function, switchboard condition." },
-    { id: `water-${yr}`, date: new Date(yr, 1, 1), type: "safety", gate: 6, icon: "💧",
+    { id: `water-${yr}`, date: new Date(yr, 1, 1), type: "safety", gate: 6, icon: "water",
       short: trShort("water", lang, "Water Quality Test"),
       title: trTitle("water", lang, "Pool & Drinking Water Quality Test"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Lab test: pool water (pH, chlorine, turbidity, coliforms) + drinking water supply. IDR 300,000–600,000." },
-    { id: `ipal-${yr}`, date: new Date(yr, 7, 1), type: "safety", gate: 6, icon: "♻️",
+    { id: `ipal-${yr}`, date: new Date(yr, 7, 1), type: "safety", gate: 6, icon: "recycle",
       short: trShort("ipal", lang, "IPAL Inspection"),
       title: trTitle("ipal", lang, "Wastewater Treatment (IPAL) Annual Check"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Inspect IPAL: biodigester/septic tank function, soakpit condition, confirm zero discharge." },
-    { id: `waste-${yr}`, date: new Date(yr, 0, 5), type: "safety", gate: 6, icon: "🗑️",
+    { id: `waste-${yr}`, date: new Date(yr, 0, 5), type: "safety", gate: 6, icon: "waste",
       short: trShort("waste", lang, "Waste Contract"),
       title: trTitle("waste", lang, "Commercial Waste Management Contract"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Renew licensed waste collection contract. Commercial properties cannot use residential pickup." },
-    { id: `insure-${yr}`, date: new Date(yr, 0, 30), type: "docs", gate: 0, icon: "🛡️",
+    { id: `insure-${yr}`, date: new Date(yr, 0, 30), type: "docs", gate: 0, icon: "shield",
       short: trShort("insure", lang, "Insurance Renewal"),
       title: trTitle("insure", lang, "Commercial Property Insurance Renewal"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Renew commercial property insurance. Residential policies void if used for commercial rental." },
-    { id: `passport-${yr}`, date: new Date(yr, 2, 1), type: "docs", gate: 0, icon: "🛂",
+    { id: `passport-${yr}`, date: new Date(yr, 2, 1), type: "docs", gate: 0, icon: "passport",
       short: trShort("passport", lang, "Passport Check"),
       title: trTitle("passport", lang, "Director Passport Validity Review"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Ensure all director/shareholder passports valid 12+ months. Expired = OSS access issues." },
-    { id: `kitas-${yr}`, date: new Date(yr, 2, 1), type: "docs", gate: 5, icon: "🪪",
+    { id: `kitas-${yr}`, date: new Date(yr, 2, 1), type: "docs", gate: 5, icon: "id-card",
       short: trShort("kitas", lang, "KITAS Renewal"),
       title: trTitle("kitas", lang, "KITAS Investor Renewal (if applicable)"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Begin 60 days before expiry. Fee approx IDR 1.25M. Working without valid KITAS = deportation risk." },
-    { id: `pbg-${yr}`, date: new Date(yr, 0, 20), type: "docs", gate: 3, icon: "⬡",
+    { id: `pbg-${yr}`, date: new Date(yr, 0, 20), type: "docs", gate: 3, icon: "hex",
       short: trShort("pbg", lang, "PBG Review"),
       title: trTitle("pbg", lang, "PBG Building Permit Annual Review"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Any physical changes made without updating PBG? Unauthorised changes = SLF invalidity risk." },
-    { id: `slf-${yr}`, date: new Date(yr, 5, 15), type: "docs", gate: 3, icon: "□",
+    { id: `slf-${yr}`, date: new Date(yr, 5, 15), type: "docs", gate: 3, icon: "doc",
       short: trShort("slf", lang, "SLF Renewal"),
       title: trTitle("slf", lang, "SLF Certificate — Begin Renewal (90-day lead)"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Begin SLF renewal 90 days before expiry. Expired SLF = TDUP not renewable = OTA listing at risk." },
-    { id: `satpol-${yr}`, date: new Date(yr, 5, 1), type: "ops", gate: 7, icon: "👮",
+    { id: `satpol-${yr}`, date: new Date(yr, 5, 1), type: "ops", gate: 7, icon: "officer",
       short: trShort("satpol", lang, "Satpol PP Season"),
       title: trTitle("satpol", lang, "Satpol PP Inspection Season (June–Aug)"),
       period: yr.toString(), recurring: false,
       desc: "Peak enforcement season. Complete pre-inspection checklist by May." },
-    { id: `apoa-${yr}`, date: new Date(yr, 0, 10), type: "ops", gate: 7, icon: "📋",
+    { id: `apoa-${yr}`, date: new Date(yr, 0, 10), type: "ops", gate: 7, icon: "clipboard",
       short: trShort("apoa", lang, "APOA Review"),
       title: trTitle("apoa", lang, "APOA Guest Registration System Review"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Annual review of APOA compliance. Foreign guests staying 24h+ must be registered." },
-    { id: `banjar-od-${yr}`, date: new Date(yr, 3, 15), type: "banjar", gate: 5, icon: "🛕",
+    { id: `banjar-od-${yr}`, date: new Date(yr, 3, 15), type: "banjar", gate: 5, icon: "temple",
       short: trShort("banjar-od", lang, "Banjar Ceremony"),
       title: trTitle("banjar-od", lang, "Banjar Annual Ceremony Contribution"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "Annual contribution to major Banjar ceremony (Odalan/Melaspas). IDR 500,000–5,000,000+." },
-    { id: `event-${yr}`, date: new Date(yr, 0, 20), type: "banjar", gate: 5, icon: "🎉",
+    { id: `event-${yr}`, date: new Date(yr, 0, 20), type: "banjar", gate: 5, icon: "event",
       short: trShort("event", lang, "Event Permits"),
       title: trTitle("event", lang, "Villa Events — Banjar Permit Process"),
       period: `${annualLabel} ${yr}`, recurring: false,
       desc: "For any villa events: prior Banjar + Kepala Desa approval required." },
-    { id: `peak1-${yr}`, date: new Date(yr, 0, 1), type: "ops", gate: 7, icon: "📈",
+    { id: `peak1-${yr}`, date: new Date(yr, 0, 1), type: "ops", gate: 7, icon: "chart",
       short: trShort("peak1", lang, "Peak Jan–Feb"),
       title: trTitle("peak1", lang, "Peak Season Compliance Check (Jan–Feb)"),
       period: yr.toString(), recurring: false,
       desc: "Pre-peak checklist: all licences valid, APOA current, fire equipment checked, pool safety confirmed." },
-    { id: `peak2-${yr}`, date: new Date(yr, 6, 1), type: "ops", gate: 7, icon: "📈",
+    { id: `peak2-${yr}`, date: new Date(yr, 6, 1), type: "ops", gate: 7, icon: "chart",
       short: trShort("peak2", lang, "Peak Jul–Aug"),
       title: trTitle("peak2", lang, "Peak + Inspection Season (Jul–Aug)"),
       period: yr.toString(), recurring: false,
@@ -535,22 +535,22 @@ export function generateEvents(yr: number, lang: string = "en"): CalendarEvent[]
   annuals.forEach(a => add(a));
 
   if (yr === 2026) {
-    add({ id: "ota-2026", date: new Date(2026, 2, 31), type: "ota", gate: 7, icon: "⬡",
+    add({ id: "ota-2026", date: new Date(2026, 2, 31), type: "ota", gate: 7, icon: "hex",
       short: trShort("ota", lang, "OTA Deadline"),
       title: trTitle("ota", lang, "OTA Verification Deadline — Airbnb & Booking.com"),
       period: trPeriod("One-time 2026", lang, "One-time 2026"), recurring: false,
       desc: "All Bali villa OTA listings must submit verified compliance docs by March 31, 2026. Required: NIB Verified, TDUP cert, KBLI 55193." });
-    add({ id: "thr-nf", date: new Date(2026, 2, 21), type: "bpjs", gate: 5, icon: "💰",
+    add({ id: "thr-nf", date: new Date(2026, 2, 21), type: "bpjs", gate: 5, icon: "money",
       short: trShort("thr-nf", lang, "THR Nyepi"),
       title: trTitle("thr-nf", lang, "THR Due — Hindu Staff (Nyepi)"),
       period: trPeriod("7 days before Nyepi Mar 28", lang, "7 days before Nyepi Mar 28"), recurring: false,
       desc: "One full month gross salary. ≥ 7 days before Nyepi. Staff <12 months: pro-rated." });
-    add({ id: "thr-eid", date: new Date(2026, 2, 23), type: "bpjs", gate: 5, icon: "💰",
+    add({ id: "thr-eid", date: new Date(2026, 2, 23), type: "bpjs", gate: 5, icon: "money",
       short: trShort("thr-eid", lang, "THR Eid"),
       title: trTitle("thr-eid", lang, "THR Due — Muslim Staff (Eid al-Fitr)"),
       period: trPeriod("7 days before Eid ~Mar 30–31", lang, "7 days before Eid ~Mar 30–31"), recurring: false,
       desc: "One full month gross salary. Eid 2026 est. March 30–31. Pay by March 23." });
-    add({ id: "thr-xm", date: new Date(2026, 11, 18), type: "bpjs", gate: 5, icon: "💰",
+    add({ id: "thr-xm", date: new Date(2026, 11, 18), type: "bpjs", gate: 5, icon: "money",
       short: trShort("thr-xm", lang, "THR Christmas"),
       title: trTitle("thr-xm", lang, "THR Due — Christian Staff (Christmas)"),
       period: trPeriod("7 days before Dec 25", lang, "7 days before Dec 25"), recurring: false,
@@ -560,19 +560,19 @@ export function generateEvents(yr: number, lang: string = "en"): CalendarEvent[]
   const holidays2026 = [
     { d: [2026, 0, 1], s: "New Year's Day", t: "New Year's Day", desc: "National holiday. Peak season arrival day." },
     { d: [2026, 0, 29], s: "Imlek", t: "Imlek — Chinese New Year", desc: "National holiday." },
-    { d: [2026, 1, 11], s: "Galungan 🎋", t: "Galungan", desc: "Major Balinese Hindu ceremony. Most Balinese staff take 3–5 days." },
+    { d: [2026, 1, 11], s: "Galungan", t: "Galungan", desc: "Major Balinese Hindu ceremony. Most Balinese staff take 3–5 days." },
     { d: [2026, 1, 21], s: "Kuningan", t: "Kuningan", desc: "10 days after Galungan." },
-    { d: [2026, 2, 28], s: "Nyepi 🔇", t: "Nyepi — Day of Silence ⚠️", desc: "⚠️ TOTAL ISLAND SHUTDOWN. No movement, light, noise. Airport closes 6am–6am." },
+    { d: [2026, 2, 28], s: "Nyepi", t: "Nyepi — Day of Silence", desc: "TOTAL ISLAND SHUTDOWN. No movement, light, noise. Airport closes 6am–6am." },
     { d: [2026, 2, 30], s: "Eid al-Fitr", t: "Eid al-Fitr", desc: "Muslim staff holiday. Ensure THR paid by March 23." },
     { d: [2026, 3, 3], s: "Good Friday", t: "Good Friday", desc: "National holiday." },
-    { d: [2026, 4, 1], s: "Labour Day 🔧", t: "Labour Day", desc: "National holiday. Staff entitled to day off or overtime pay." },
+    { d: [2026, 4, 1], s: "Labour Day", t: "Labour Day", desc: "National holiday. Staff entitled to day off or overtime pay." },
     { d: [2026, 4, 14], s: "Ascension", t: "Ascension Day", desc: "National holiday." },
     { d: [2026, 5, 5], s: "Waisak", t: "Waisak — Buddha Day", desc: "National holiday." },
     { d: [2026, 5, 6], s: "Idul Adha", t: "Idul Adha", desc: "Muslim staff holiday." },
-    { d: [2026, 7, 17], s: "Independence 🇮🇩", t: "Indonesian Independence Day", desc: "National holiday. Display Indonesian flag at gate." },
-    { d: [2026, 8, 2], s: "Galungan ② 🎋", t: "Galungan — Cycle 2", desc: "Second Galungan of 2026." },
-    { d: [2026, 8, 12], s: "Kuningan ②", t: "Kuningan — Cycle 2", desc: "10 days after second Galungan." },
-    { d: [2026, 11, 25], s: "Christmas 🎄", t: "Christmas Day", desc: "National holiday. Peak season." },
+    { d: [2026, 7, 17], s: "Independence", t: "Indonesian Independence Day", desc: "National holiday. Display Indonesian flag at gate." },
+    { d: [2026, 8, 2], s: "Galungan (2)", t: "Galungan — Cycle 2", desc: "Second Galungan of 2026." },
+    { d: [2026, 8, 12], s: "Kuningan (2)", t: "Kuningan — Cycle 2", desc: "10 days after second Galungan." },
+    { d: [2026, 11, 25], s: "Christmas Day", t: "Christmas Day", desc: "National holiday. Peak season." },
   ];
 
   holidays2026
@@ -580,7 +580,7 @@ export function generateEvents(yr: number, lang: string = "en"): CalendarEvent[]
     .forEach(h => {
       const dt = new Date(h.d[0], h.d[1], h.d[2]);
       add({
-        id: `hol-${dt.toISOString().slice(0, 10)}`, date: dt, type: "ops", gate: 5, icon: "🌺",
+        id: `hol-${dt.toISOString().slice(0, 10)}`, date: dt, type: "ops", gate: 5, icon: "flower",
         short: trHolidayShort(h.t, h.s, lang),
         title: trHolidayTitle(h.t, lang),
         desc: h.desc, period: "", recurring: false,
@@ -594,7 +594,7 @@ export function expandCustomEvent(ce: CustomEvent, maxYear: number): CalendarEve
   if (ce.recurring === "none") {
     const d = new Date(ce.date);
     return [{
-      id: ce.id, date: d, type: ce.type, gate: ce.gate, icon: "★",
+      id: ce.id, date: d, type: ce.type, gate: ce.gate, icon: "star",
       short: ce.title.slice(0, 16), title: ce.title, period: "",
       desc: ce.desc, recurring: false, isCustom: true,
       customColor: ce.customColor, daysUntil: 0,
@@ -608,7 +608,7 @@ export function expandCustomEvent(ce: CustomEvent, maxYear: number): CalendarEve
     const d = new Date(cur);
     out.push({
       id: `${ce.id}-${d.toISOString().slice(0, 7)}`, date: d, type: ce.type, gate: ce.gate,
-      icon: "★", short: ce.title.slice(0, 16), title: ce.title, period: "",
+      icon: "star", short: ce.title.slice(0, 16), title: ce.title, period: "",
       desc: ce.desc, recurring: true, isCustom: true, customColor: ce.customColor,
       daysUntil: Math.floor((d.getTime() - new Date().setHours(0, 0, 0, 0)) / 86400000),
     });
@@ -665,7 +665,7 @@ export function mapVaultDocs(docs: VaultDocInput[], templates: VaultTemplateInpu
     const du = daysUntil(d);
     results.push({
       id: `vault-${doc.id}`, date: d, type: "docs", gate: tmpl.gateNumber,
-      icon: "□", short: name.slice(0, 16), title: name, period: expiryLabel,
+      icon: "doc", short: name.slice(0, 16), title: name, period: expiryLabel,
       desc: desc || `${docExpiresPrefix} ${d.toLocaleDateString()}`,
       recurring: false, daysUntil: du,
     });
@@ -687,7 +687,7 @@ export function mapStaffKitas(staff: StaffInput[], lang: string = "en"): Calenda
         : `KITAS/work permit for ${s.name} expires ${d.toLocaleDateString()}. Begin renewal 60 days early.`;
     results.push({
       id: `kitas-${s.id}`, date: d, type: "docs", gate: 5,
-      icon: "🪪", short: `KITAS ${s.name}`, title: titleStr,
+      icon: "id-card", short: `KITAS ${s.name}`, title: titleStr,
       period: expiryLabel,
       desc: descStr,
       recurring: false, daysUntil: daysUntil(d),
@@ -711,7 +711,7 @@ export function mapPropertyHgb(properties: PropertyInput[], lang: string = "en")
         : `HGB land title for ${p.propertyName} expires ${d.toLocaleDateString()}. Begin renewal 2 years early.`;
     results.push({
       id: `hgb-${p.id}`, date: d, type: "docs", gate: 0,
-      icon: "⬡", short: shortLabel, title: titleStr,
+      icon: "hex", short: shortLabel, title: titleStr,
       period: expiryLabel,
       desc: descStr,
       recurring: false, daysUntil: daysUntil(d),

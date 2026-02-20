@@ -72,33 +72,70 @@
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 
-  --app-bg: #F8FAFC;
+  --bg: #F7F8FA;
+  --bg2: #EDF2F7;
+  --surface: #FFFFFF;
+  --surface2: #F7F8FA;
+  --sidebar: #0F1923;
+  --sidebar2: #162030;
+  --sidebar3: #1C2A3A;
+  --accent: #E8192C;
+  --accent2: #C8121F;
+  --accent-tint: rgba(232,25,44,0.08);
+  --accent-tint2: rgba(232,25,44,0.13);
+  --txt: #0F1923;
+  --t2: #4A5568;
+  --t3: #94A3B8;
+  --t4: #CBD5E1;
+  --charcoal: #2D3748;
+  --grey: #718096;
+  --grey-light: #EDF2F7;
+  --b: rgba(0,0,0,0.07);
+  --b2: rgba(0,0,0,0.04);
+  --grn: #16A34A;
+  --grn-tint: rgba(22,163,74,0.10);
+  --gold: #D97706;
+  --gold-tint: rgba(217,119,6,0.10);
+  --blue: #2563EB;
+  --blue-tint: rgba(37,99,235,0.10);
+  --purple: #7C3AED;
+  --danger: #E8192C;
+  --font-display: 'IBM Plex Serif', Georgia, serif;
+  --font-body: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', 'Courier New', monospace;
+  --tp-bg: #FFFFFF;
+  --tp-b: rgba(0,0,0,0.07);
+  --sb-active-bg: rgba(232,25,44,0.13);
+  --qa-bg: #2D3748;
+  --qa-hover: #364156;
+
+  --app-bg: #F7F8FA;
   --app-panel: #FFFFFF;
   --app-panel-translucent: rgba(255,255,255,0.8);
   --app-card-translucent: rgba(241,245,249,0.7);
-  --app-text: #1E293B;
-  --app-text-secondary: #475569;
-  --app-text-muted: #64748B;
+  --app-text: #0F1923;
+  --app-text-secondary: #4A5568;
+  --app-text-muted: #718096;
   --app-text-dim: #94A3B8;
-  --app-text-bright: #334155;
-  --app-border: rgba(0,0,0,0.1);
-  --app-border-hover: rgba(0,0,0,0.18);
-  --app-border-teal: rgba(20,184,166,0.3);
-  --app-border-teal-subtle: rgba(20,184,166,0.15);
-  --app-input-bg: #F1F5F9;
-  --app-header-bg: rgba(248,250,252,0.95);
+  --app-text-bright: #2D3748;
+  --app-border: rgba(0,0,0,0.07);
+  --app-border-hover: rgba(0,0,0,0.12);
+  --app-border-teal: rgba(232,25,44,0.3);
+  --app-border-teal-subtle: rgba(232,25,44,0.15);
+  --app-input-bg: #EDF2F7;
+  --app-header-bg: rgba(247,248,250,0.95);
   --app-shadow-popover: rgba(0,0,0,0.12);
-  --app-grid-line: rgba(20,184,166,0.04);
-  --app-circle-bg: #F1F5F9;
+  --app-grid-line: rgba(0,0,0,0.02);
+  --app-circle-bg: #EDF2F7;
   --app-overlay: rgba(0,0,0,0.4);
-  --app-node-bg: #F8FAFC;
-  --app-expand-bg: rgba(255,255,255,0.05);
+  --app-node-bg: #F7F8FA;
+  --app-expand-bg: rgba(0,0,0,0.03);
   --app-zone-bg: rgba(241,245,249,0.8);
   --app-info-block-bg: rgba(241,245,249,0.8);
-  --app-teal-text: #0F766E;
+  --app-teal-text: #E8192C;
   --app-amber-alert-text: #92400E;
   --app-red-alert-text: #991B1B;
-  --app-teal-alert-text: #115E59;
+  --app-teal-alert-text: #C8121F;
 }
 
 .dark {
@@ -165,6 +202,43 @@
   --destructive-border: hsl(var(--destructive));
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
 
+  --bg: #07101E;
+  --bg2: #0A1628;
+  --surface: #0C1A2E;
+  --surface2: #0F2040;
+  --sidebar: #0A1628;
+  --sidebar2: #0C1A2E;
+  --sidebar3: #0F2040;
+  --accent: #14B8A6;
+  --accent2: #0D9488;
+  --accent-tint: rgba(20,184,166,0.12);
+  --accent-tint2: rgba(20,184,166,0.20);
+  --txt: #F1F5F9;
+  --t2: #94A3B8;
+  --t3: #64748B;
+  --t4: #475569;
+  --charcoal: #334155;
+  --grey: #64748B;
+  --grey-light: rgba(255,255,255,0.06);
+  --b: rgba(255,255,255,0.07);
+  --b2: rgba(255,255,255,0.04);
+  --grn: #22C55E;
+  --grn-tint: rgba(34,197,94,0.12);
+  --gold: #F59E0B;
+  --gold-tint: rgba(245,158,11,0.12);
+  --blue: #3B82F6;
+  --blue-tint: rgba(59,130,246,0.12);
+  --purple: #8B5CF6;
+  --danger: #EF4444;
+  --font-display: 'Montserrat', sans-serif;
+  --font-body: 'Lato', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  --tp-bg: #0C1A2E;
+  --tp-b: rgba(255,255,255,0.07);
+  --sb-active-bg: rgba(20,184,166,0.15);
+  --qa-bg: #0F2040;
+  --qa-hover: #162540;
+
   --app-bg: #07101E;
   --app-panel: #0F2040;
   --app-panel-translucent: rgba(15,32,64,0.6);
@@ -200,9 +274,11 @@
   }
 
   body {
-    @apply font-sans antialiased;
-    background: var(--app-bg);
-    color: var(--app-text);
+    @apply antialiased;
+    background: var(--bg);
+    color: var(--txt);
+    font-family: var(--font-body);
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   body::before {

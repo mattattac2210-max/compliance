@@ -63,7 +63,7 @@ export default function Dashboard() {
         <button
           onClick={handleBack}
           className="px-6 md:px-14 pt-4 text-sm font-heading font-bold tracking-wide hover:underline"
-          style={{ color: "#14B8A6" }}
+          style={{ color: "var(--accent)" }}
           data-testid="button-back-dashboard"
         >
           {t.dashboard.backToDashboard}
@@ -79,7 +79,7 @@ export default function Dashboard() {
         <button
           onClick={handleBack}
           className="px-6 md:px-14 pt-4 text-sm font-heading font-bold tracking-wide hover:underline"
-          style={{ color: "#14B8A6" }}
+          style={{ color: "var(--accent)" }}
           data-testid="button-back-dashboard"
         >
           {t.dashboard.backToDashboard}
@@ -95,7 +95,7 @@ export default function Dashboard() {
         <button
           onClick={handleBack}
           className="px-6 md:px-14 pt-4 text-sm font-heading font-bold tracking-wide hover:underline"
-          style={{ color: "#14B8A6" }}
+          style={{ color: "var(--accent)" }}
           data-testid="button-back-dashboard"
         >
           {t.dashboard.backToDashboard}

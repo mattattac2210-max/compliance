@@ -7,14 +7,14 @@ import { useQuery } from "@tanstack/react-query";
 import { Lock, FileText, Clock, BookOpen, ArrowRight, AlertTriangle, Globe, Check, X } from "lucide-react";
 
 const GATE_STATIC = [
-  { num: "PT", abbr: "PMA", color: "#94A3B8", isDashed: true },
-  { num: "1", abbr: "ZONE", color: "#14B8A6" },
-  { num: "2", abbr: "NIB", color: "#60A5FA" },
-  { num: "3", abbr: "SLF", color: "#A78BFA" },
-  { num: "4", abbr: "TAX", color: "#F59E0B" },
-  { num: "5", abbr: "STAFF", color: "#22C55E" },
+  { num: "PT", abbr: "PMA", color: "var(--t2)", isDashed: true },
+  { num: "1", abbr: "ZONE", color: "var(--accent)" },
+  { num: "2", abbr: "NIB", color: "var(--blue)" },
+  { num: "3", abbr: "SLF", color: "var(--purple)" },
+  { num: "4", abbr: "TAX", color: "var(--gold)" },
+  { num: "5", abbr: "STAFF", color: "var(--grn)" },
   { num: "6", abbr: "SAFE", color: "#FCA5A5" },
-  { num: "7", abbr: "OTA", color: "#14B8A6", isGlowing: true },
+  { num: "7", abbr: "OTA", color: "var(--accent)", isGlowing: true },
 ];
 
 function StaggeredHeadline({ lines, highlightFirst }: { lines: string[]; highlightFirst?: boolean }) {
@@ -24,7 +24,7 @@ function StaggeredHeadline({ lines, highlightFirst }: { lines: string[]; highlig
 
   let wordIndex = 0;
   return (
-    <h1 className="font-heading font-black text-[clamp(36px,6vw,64px)] leading-[1.05] tracking-tight text-white">
+    <h1 className="font-heading font-black text-[clamp(36px,6vw,64px)] leading-[1.05] tracking-tight" style={{ color: "var(--txt)" }}>
       {lines.map((line, li) => (
         <span key={li} className="block">
           {line.split(" ").map((word, wi) => {
@@ -37,7 +37,7 @@ function StaggeredHeadline({ lines, highlightFirst }: { lines: string[]; highlig
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: idx * 0.08, duration: 0.4, ease: "easeOut" }}
                 className="inline-block mr-[0.3em]"
-                style={isHighlight ? { color: "#14B8A6" } : undefined}
+                style={isHighlight ? { color: "var(--accent)" } : undefined}
               >
                 {word}
               </motion.span>
@@ -66,15 +66,14 @@ function GatePreviewCard({ gate, index, tooltip, title, role }: { gate: typeof G
       <div
         className="rounded-xl p-4 min-w-[200px] transition-transform duration-200 group-hover:-translate-y-1"
         style={{
-          background: "rgba(15,26,46,0.9)",
-          border: `1px ${gate.isDashed ? "dashed" : "solid"} ${gate.color}30`,
-          boxShadow: gate.isGlowing ? `0 0 20px ${gate.color}22` : undefined,
+          background: "var(--surface)",
+          border: `1px ${gate.isDashed ? "dashed" : "solid"} var(--b)`,
         }}
       >
         <div className="flex items-center gap-3 mb-3">
           <div
-            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-heading font-bold text-white shrink-0"
-            style={{ background: `${gate.color}20`, border: `2px solid ${gate.color}` }}
+            className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-heading font-bold shrink-0"
+            style={{ background: "var(--accent-tint)", border: `2px solid ${gate.color}`, color: "var(--txt)" }}
           >
             {gate.num}
           </div>
@@ -82,15 +81,15 @@ function GatePreviewCard({ gate, index, tooltip, title, role }: { gate: typeof G
             {gate.abbr}
           </span>
         </div>
-        <p className="text-sm text-slate-300 font-heading font-semibold mb-2 leading-snug">{title}</p>
+        <p className="text-sm font-heading font-semibold mb-2 leading-snug" style={{ color: "var(--t2)" }}>{title}</p>
         <span
           className="text-[10px] font-heading font-bold tracking-wider uppercase px-2 py-0.5 rounded-full"
-          style={{ background: `${gate.color}10`, border: `1px solid ${gate.color}25`, color: gate.color }}
+          style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)", color: gate.color }}
         >
           {role}
         </span>
         <div className="absolute bottom-3 right-3 opacity-40 group-hover:opacity-70 transition-opacity">
-          <Lock className="h-3.5 w-3.5 text-slate-400" />
+          <Lock className="h-3.5 w-3.5" style={{ color: "var(--t2)" }} />
         </div>
       </div>
       <AnimatePresence>
@@ -99,7 +98,8 @@ function GatePreviewCard({ gate, index, tooltip, title, role }: { gate: typeof G
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
-            className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] text-slate-300 bg-[#0A1628] border border-[#14B8A6]/20 rounded px-3 py-1 z-10"
+            className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap text-[11px] rounded px-3 py-1 z-10"
+            style={{ color: "var(--t2)", background: "var(--bg2)", border: "1px solid var(--accent-tint2)" }}
           >
             {tooltip}
           </motion.div>
@@ -120,22 +120,22 @@ function FeatureCard({ icon, title, body, index, comingSoon }: {
       transition={{ delay: index * 0.1, duration: 0.4 }}
       className={`rounded-xl p-6 ${comingSoon ? "opacity-70" : ""}`}
       style={{
-        background: "rgba(15,26,46,0.6)",
-        borderTop: "2px solid #14B8A6",
-        border: "1px solid rgba(20,184,166,0.1)",
+        background: "var(--surface)",
+        borderTop: "2px solid var(--accent)",
+        border: "1px solid var(--accent-tint)",
       }}
       data-testid={`card-feature-${index}`}
     >
       <div className="flex items-center gap-3 mb-3">
-        <div className="text-[#14B8A6]">{icon}</div>
-        <h3 className="font-heading font-bold text-white text-lg">{title}</h3>
+        <div style={{ color: "var(--accent)" }}>{icon}</div>
+        <h3 className="font-heading font-bold text-lg" style={{ color: "var(--txt)" }}>{title}</h3>
         {comingSoon && (
-          <span className="text-[10px] font-heading font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20">
+          <span className="text-[10px] font-heading font-bold tracking-wider uppercase px-2 py-0.5 rounded-full" style={{ background: "var(--gold-tint)", color: "var(--gold)", border: "1px solid var(--gold-tint)" }}>
             {comingSoon}
           </span>
         )}
       </div>
-      <p className="text-slate-400 text-sm leading-relaxed">{body}</p>
+      <p className="text-sm leading-relaxed" style={{ color: "var(--t2)" }}>{body}</p>
     </motion.div>
   );
 }
@@ -164,11 +164,11 @@ export default function LandingPage() {
   const l = t.landing;
 
   return (
-    <div className="min-h-screen" style={{ background: "#07101E", color: "#E2E8F0" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg)", color: "var(--txt)" }}>
       <style>{`
         @keyframes tealPulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(20,184,166,0.4); }
-          50% { box-shadow: 0 0 0 4px rgba(20,184,166,0); }
+          0%, 100% { box-shadow: 0 0 0 0 var(--accent-tint2); }
+          50% { box-shadow: 0 0 0 4px transparent; }
         }
         .teal-pulse { animation: tealPulse 2s ease-in-out infinite; }
       `}</style>
@@ -177,28 +177,29 @@ export default function LandingPage() {
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "py-2" : "py-3"}`}
         style={{
-          background: "rgba(7,16,30,0.95)",
+          background: "var(--bg)",
           backdropFilter: "blur(12px)",
-          borderBottom: "1px solid rgba(20,184,166,0.15)",
+          borderBottom: "1px solid var(--accent-tint)",
         }}
         data-testid="landing-header"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="font-heading font-black text-xl tracking-[3px] text-[#14B8A6]">DSCVR</span>
-            <span className="text-slate-500 text-xs font-heading hidden sm:inline">{t.header.subtitle}</span>
+            <span className="font-heading font-black text-xl tracking-[3px]" style={{ color: "var(--accent)" }}>DSCVR</span>
+            <span className="text-xs font-heading hidden sm:inline" style={{ color: "var(--t3)" }}>{t.header.subtitle}</span>
           </div>
           <div className="flex items-center gap-3">
             <LanguageSelector />
             {isAuthenticated ? (
               <>
-                <Link to="/vault" className="text-[10px] font-heading font-bold tracking-wider uppercase text-slate-400 hover:text-[#14B8A6] transition-colors hidden sm:inline" data-testid="link-vault">{t.nav.vault}</Link>
-                <Link to="/timeline" className="text-[10px] font-heading font-bold tracking-wider uppercase text-slate-400 hover:text-[#14B8A6] transition-colors hidden sm:inline" data-testid="link-timeline">{t.nav.timeline}</Link>
-                <Link to="/alerts" className="text-[10px] font-heading font-bold tracking-wider uppercase text-slate-400 hover:text-[#14B8A6] transition-colors hidden sm:inline" data-testid="link-alerts">{t.nav.alerts}</Link>
-                <Link to="/profile" className="text-[10px] font-heading font-bold tracking-wider uppercase text-slate-400 hover:text-[#14B8A6] transition-colors hidden sm:inline" data-testid="link-profile">{t.nav.profile}</Link>
+                <Link to="/vault" className="text-[10px] font-heading font-bold tracking-wider uppercase transition-colors hidden sm:inline" style={{ color: "var(--t2)" }} data-testid="link-vault">{t.nav.vault}</Link>
+                <Link to="/timeline" className="text-[10px] font-heading font-bold tracking-wider uppercase transition-colors hidden sm:inline" style={{ color: "var(--t2)" }} data-testid="link-timeline">{t.nav.timeline}</Link>
+                <Link to="/alerts" className="text-[10px] font-heading font-bold tracking-wider uppercase transition-colors hidden sm:inline" style={{ color: "var(--t2)" }} data-testid="link-alerts">{t.nav.alerts}</Link>
+                <Link to="/profile" className="text-[10px] font-heading font-bold tracking-wider uppercase transition-colors hidden sm:inline" style={{ color: "var(--t2)" }} data-testid="link-profile">{t.nav.profile}</Link>
                 <Link
                   to="/app"
-                  className={`font-heading font-bold text-[11px] tracking-wider uppercase px-4 py-2 rounded-md bg-[#14B8A6] text-[#07101E] hover:bg-[#0D9488] transition-colors ${scrolled ? "teal-pulse" : ""}`}
+                  className={`font-heading font-bold text-[11px] tracking-wider uppercase px-4 py-2 rounded-md transition-colors ${scrolled ? "teal-pulse" : ""}`}
+                  style={{ background: "var(--accent)", color: "var(--bg)" }}
                   data-testid="link-go-to-app"
                 >
                   {l.goToApp}
@@ -206,12 +207,13 @@ export default function LandingPage() {
               </>
             ) : (
               <>
-                <Link to="/login" className="font-heading font-bold text-[11px] tracking-wider uppercase text-slate-300 hover:text-white border border-slate-600 hover:border-slate-400 px-4 py-2 rounded-md transition-colors" data-testid="link-signin">
+                <Link to="/login" className="font-heading font-bold text-[11px] tracking-wider uppercase px-4 py-2 rounded-md transition-colors" style={{ color: "var(--t2)", border: "1px solid var(--charcoal)" }} data-testid="link-signin">
                   {t.nav.login}
                 </Link>
                 <Link
                   to="/register"
-                  className={`font-heading font-bold text-[11px] tracking-wider uppercase px-4 py-2 rounded-md bg-[#14B8A6] text-[#07101E] hover:bg-[#0D9488] transition-colors ${scrolled ? "teal-pulse" : ""}`}
+                  className={`font-heading font-bold text-[11px] tracking-wider uppercase px-4 py-2 rounded-md transition-colors ${scrolled ? "teal-pulse" : ""}`}
+                  style={{ background: "var(--accent)", color: "var(--bg)" }}
                   data-testid="link-get-access"
                 >
                   {l.getAccess}
@@ -225,7 +227,7 @@ export default function LandingPage() {
       {/* SECTION 2 — Hero */}
       <section className="min-h-[90vh] flex items-center pt-20 relative overflow-hidden" data-testid="section-hero">
         <div className="absolute inset-0 opacity-[0.03]" style={{
-          backgroundImage: "linear-gradient(rgba(20,184,166,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(20,184,166,0.3) 1px, transparent 1px)",
+          backgroundImage: "linear-gradient(var(--accent-tint) 1px, transparent 1px), linear-gradient(90deg, var(--accent-tint) 1px, transparent 1px)",
           backgroundSize: "60px 60px",
         }} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 w-full relative z-10">
@@ -235,7 +237,8 @@ export default function LandingPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
-                className="font-heading text-[11px] font-bold tracking-[3px] uppercase text-[#14B8A6]"
+                className="font-heading text-[11px] font-bold tracking-[3px] uppercase"
+                style={{ color: "var(--accent)" }}
               >
                 {l.heroKicker}
               </motion.p>
@@ -244,7 +247,8 @@ export default function LandingPage() {
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.8, duration: 0.5 }}
-                className="text-slate-400 text-lg font-light leading-relaxed max-w-xl"
+                className="text-lg font-light leading-relaxed max-w-xl"
+                style={{ color: "var(--t2)" }}
               >
                 {l.heroSub}
               </motion.p>
@@ -257,7 +261,8 @@ export default function LandingPage() {
                 {isAuthenticated ? (
                   <Link
                     to="/app"
-                    className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-6 py-3 rounded-lg bg-[#14B8A6] text-[#07101E] hover:bg-[#0D9488] transition-colors"
+                    className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-6 py-3 rounded-lg transition-colors"
+                    style={{ background: "var(--accent)", color: "var(--bg)" }}
                     data-testid="link-hero-go-to-app"
                   >
                     {l.goToApp} <ArrowRight className="h-4 w-4" />
@@ -266,14 +271,16 @@ export default function LandingPage() {
                   <>
                     <Link
                       to="/register"
-                      className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-6 py-3 rounded-lg bg-[#14B8A6] text-[#07101E] hover:bg-[#0D9488] transition-colors"
+                      className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-6 py-3 rounded-lg transition-colors"
+                      style={{ background: "var(--accent)", color: "var(--bg)" }}
                       data-testid="link-hero-register"
                     >
                       {l.ctaPrimary}
                     </Link>
                     <button
                       onClick={scrollToGates}
-                      className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-6 py-3 rounded-lg border border-slate-600 text-slate-300 hover:border-[#14B8A6] hover:text-[#14B8A6] transition-colors"
+                      className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-6 py-3 rounded-lg transition-colors"
+                      style={{ border: "1px solid var(--charcoal)", color: "var(--t2)" }}
                       data-testid="button-see-inside"
                     >
                       {l.ctaSecondary}
@@ -285,7 +292,8 @@ export default function LandingPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1.2 }}
-                className="text-slate-600 text-xs"
+                className="text-xs"
+                style={{ color: "var(--t4)" }}
               >
                 {l.trustLine}
               </motion.p>
@@ -300,20 +308,20 @@ export default function LandingPage() {
                       key={i}
                       className="rounded-lg p-4"
                       style={{
-                        background: "rgba(15,26,46,0.9)",
-                        border: `1px ${g.isDashed ? "dashed" : "solid"} ${g.color}30`,
+                        background: "var(--surface)",
+                        border: `1px ${g.isDashed ? "dashed" : "solid"} var(--b)`,
                       }}
                     >
                       <div className="flex items-center gap-3">
                         <div
-                          className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-heading font-bold text-white"
-                          style={{ background: `${g.color}20`, border: `2px solid ${g.color}` }}
+                          className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-heading font-bold"
+                          style={{ background: "var(--accent-tint)", border: `2px solid ${g.color}`, color: "var(--txt)" }}
                         >
                           {g.num}
                         </div>
                         <div>
-                          <p className="text-sm text-slate-300 font-heading font-semibold">{l.gatePreviewTitles[i]}</p>
-                          <p className="text-[10px] text-slate-500">{l.gatePreviewRoles[i]}</p>
+                          <p className="text-sm font-heading font-semibold" style={{ color: "var(--t2)" }}>{l.gatePreviewTitles[i]}</p>
+                          <p className="text-[10px]" style={{ color: "var(--t3)" }}>{l.gatePreviewRoles[i]}</p>
                         </div>
                       </div>
                     </div>
@@ -322,14 +330,15 @@ export default function LandingPage() {
                 {isAuthenticated ? (
                   <div
                     className="absolute inset-0 flex flex-col items-center justify-center rounded-xl"
-                    style={{ background: "rgba(7,16,30,0.5)", backdropFilter: "blur(1px)" }}
+                    style={{ background: "var(--bg)", opacity: 0.85, backdropFilter: "blur(1px)" }}
                   >
-                    <p className="text-slate-400 text-sm font-heading text-center px-4">
+                    <p className="text-sm font-heading text-center px-4" style={{ color: "var(--t2)" }}>
                       {vaultSummary ? `${Math.round((vaultSummary.completed / Math.max(vaultSummary.total, 1)) * 100)}% ${t.vault.completionLabel}` : ""}
                     </p>
                     <Link
                       to="/app"
-                      className="mt-3 inline-flex items-center gap-2 font-heading font-bold text-xs tracking-wider px-4 py-2 rounded-md bg-[#14B8A6] text-[#07101E]"
+                      className="mt-3 inline-flex items-center gap-2 font-heading font-bold text-xs tracking-wider px-4 py-2 rounded-md"
+                      style={{ background: "var(--accent)", color: "var(--bg)" }}
                       data-testid="link-overlay-go-to-app"
                     >
                       {l.goToApp}
@@ -338,20 +347,21 @@ export default function LandingPage() {
                 ) : (
                   <div
                     className="absolute inset-0 flex flex-col items-center justify-center rounded-xl"
-                    style={{ background: "rgba(7,16,30,0.7)", backdropFilter: "blur(2px)" }}
+                    style={{ background: "var(--bg)", opacity: 0.9, backdropFilter: "blur(2px)" }}
                   >
-                    <Lock className="h-8 w-8 text-[#14B8A6] mb-3" />
-                    <p className="font-heading font-bold text-[13px] tracking-[1px] text-slate-300">
+                    <Lock className="h-8 w-8 mb-3" style={{ color: "var(--accent)" }} />
+                    <p className="font-heading font-bold text-[13px] tracking-[1px]" style={{ color: "var(--t2)" }}>
                       {l.previewLockLabel}
                     </p>
                     <Link
                       to="/register"
-                      className="mt-4 inline-flex items-center font-heading font-bold text-xs tracking-wider px-5 py-2 rounded-md bg-[#14B8A6] text-[#07101E]"
+                      className="mt-4 inline-flex items-center font-heading font-bold text-xs tracking-wider px-5 py-2 rounded-md"
+                      style={{ background: "var(--accent)", color: "var(--bg)" }}
                       data-testid="link-preview-register"
                     >
                       {l.previewLockCta}
                     </Link>
-                    <Link to="/login" className="mt-2 text-[#14B8A6] text-xs hover:underline" data-testid="link-overlay-signin">
+                    <Link to="/login" className="mt-2 text-xs hover:underline" style={{ color: "var(--accent)" }} data-testid="link-overlay-signin">
                       {l.lockedOverlaySignIn}
                     </Link>
                   </div>
@@ -367,18 +377,18 @@ export default function LandingPage() {
         <div
           className="max-w-5xl mx-auto rounded-xl p-6 sm:p-8"
           style={{
-            background: "rgba(245,158,11,0.04)",
-            border: "1px solid rgba(245,158,11,0.15)",
-            borderLeft: "4px solid #F59E0B",
+            background: "var(--gold-tint)",
+            border: "1px solid var(--gold-tint)",
+            borderLeft: "4px solid var(--gold)",
           }}
         >
           <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-[#F59E0B] shrink-0 mt-0.5" />
+            <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "var(--gold)" }} />
             <div>
-              <h2 className="font-heading font-bold text-[#F59E0B] text-sm tracking-wider uppercase mb-4" data-testid="text-urgency-heading">
+              <h2 className="font-heading font-bold text-sm tracking-wider uppercase mb-4" style={{ color: "var(--gold)" }} data-testid="text-urgency-heading">
                 {l.urgencyHeading}
               </h2>
-              <p className="text-slate-300 text-[15px] leading-relaxed">
+              <p className="text-[15px] leading-relaxed" style={{ color: "var(--t2)" }}>
                 {l.urgencyBody}
               </p>
             </div>
@@ -390,10 +400,10 @@ export default function LandingPage() {
       <section ref={gatesRef} className="py-16 px-4 sm:px-6" id="gates" data-testid="section-gates">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
-            <h2 className="font-heading font-black text-3xl sm:text-4xl text-white mb-4" data-testid="text-gates-heading">
+            <h2 className="font-heading font-black text-3xl sm:text-4xl mb-4" style={{ color: "var(--txt)" }} data-testid="text-gates-heading">
               {l.gatesHeading}
             </h2>
-            <p className="text-slate-400 text-base max-w-2xl mx-auto italic">
+            <p className="text-base max-w-2xl mx-auto italic" style={{ color: "var(--t2)" }}>
               {l.gatesSub}
             </p>
           </div>
@@ -404,17 +414,18 @@ export default function LandingPage() {
           </div>
           <div
             className="rounded-xl p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-4"
-            style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(20,184,166,0.1)" }}
+            style={{ background: "var(--surface)", border: "1px solid var(--accent-tint)" }}
           >
-            <Lock className="h-5 w-5 text-slate-500 shrink-0" />
-            <p className="text-slate-400 text-sm leading-relaxed flex-1">
+            <Lock className="h-5 w-5 shrink-0" style={{ color: "var(--t3)" }} />
+            <p className="text-sm leading-relaxed flex-1" style={{ color: "var(--t2)" }}>
               {l.gatesCta}
             </p>
             <div className="flex gap-3 shrink-0">
               {isAuthenticated ? (
                 <Link
                   to="/app"
-                  className="font-heading font-bold text-xs tracking-wider px-5 py-2.5 rounded-md bg-[#14B8A6] text-[#07101E] hover:bg-[#0D9488] transition-colors"
+                  className="font-heading font-bold text-xs tracking-wider px-5 py-2.5 rounded-md transition-colors"
+                  style={{ background: "var(--accent)", color: "var(--bg)" }}
                   data-testid="link-gates-go-to-app"
                 >
                   {l.goToApp}
@@ -423,14 +434,16 @@ export default function LandingPage() {
                 <>
                   <Link
                     to="/register"
-                    className="font-heading font-bold text-xs tracking-wider px-5 py-2.5 rounded-md bg-[#14B8A6] text-[#07101E] hover:bg-[#0D9488] transition-colors"
+                    className="font-heading font-bold text-xs tracking-wider px-5 py-2.5 rounded-md transition-colors"
+                    style={{ background: "var(--accent)", color: "var(--bg)" }}
                     data-testid="link-gates-register"
                   >
                     {l.previewLockCta}
                   </Link>
                   <Link
                     to="/login"
-                    className="font-heading font-bold text-xs tracking-wider px-5 py-2.5 rounded-md border border-slate-600 text-slate-300 hover:border-[#14B8A6] hover:text-[#14B8A6] transition-colors"
+                    className="font-heading font-bold text-xs tracking-wider px-5 py-2.5 rounded-md transition-colors"
+                    style={{ border: "1px solid var(--charcoal)", color: "var(--t2)" }}
                     data-testid="link-gates-signin"
                   >
                     {t.nav.login}
@@ -445,7 +458,7 @@ export default function LandingPage() {
       {/* SECTION 5 — What DSCVR Does (features) */}
       <section className="py-16 px-4 sm:px-6" data-testid="section-features">
         <div className="max-w-7xl mx-auto">
-          <h2 className="font-heading font-black text-3xl sm:text-4xl text-white text-center mb-12" data-testid="text-features-heading">
+          <h2 className="font-heading font-black text-3xl sm:text-4xl text-center mb-12" style={{ color: "var(--txt)" }} data-testid="text-features-heading">
             {l.featuresHeading}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
@@ -460,21 +473,21 @@ export default function LandingPage() {
       {/* SECTION 6 — What DSCVR Does NOT (credibility/trust) */}
       <section className="py-16 px-4 sm:px-6" data-testid="section-scope">
         <div className="max-w-5xl mx-auto">
-          <h2 className="font-heading font-bold text-xl sm:text-2xl text-white text-center mb-10">
+          <h2 className="font-heading font-bold text-xl sm:text-2xl text-center mb-10" style={{ color: "var(--txt)" }}>
             {l.scopeHeading}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div
               className="rounded-xl p-6"
-              style={{ background: "rgba(20,184,166,0.04)", border: "1px solid rgba(20,184,166,0.12)" }}
+              style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)" }}
             >
-              <h3 className="font-heading font-bold text-[#14B8A6] text-sm tracking-wider uppercase mb-4">
+              <h3 className="font-heading font-bold text-sm tracking-wider uppercase mb-4" style={{ color: "var(--accent)" }}>
                 {l.scopeTracks}
               </h3>
               <ul className="space-y-2.5">
                 {l.scopeTrackItems.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-slate-300 text-sm">
-                    <Check className="h-4 w-4 text-[#14B8A6] shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: "var(--t2)" }}>
+                    <Check className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--accent)" }} />
                     {item}
                   </li>
                 ))}
@@ -484,20 +497,20 @@ export default function LandingPage() {
               className="rounded-xl p-6"
               style={{ background: "rgba(239,68,68,0.03)", border: "1px solid rgba(239,68,68,0.1)" }}
             >
-              <h3 className="font-heading font-bold text-[#FCA5A5] text-sm tracking-wider uppercase mb-4">
+              <h3 className="font-heading font-bold text-sm tracking-wider uppercase mb-4" style={{ color: "#FCA5A5" }}>
                 {l.scopeNot}
               </h3>
               <ul className="space-y-2.5">
                 {l.scopeNotItems.map((item, i) => (
-                  <li key={i} className="flex items-start gap-2.5 text-slate-400 text-sm">
-                    <X className="h-4 w-4 text-[#EF4444] shrink-0 mt-0.5" />
+                  <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: "var(--t2)" }}>
+                    <X className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--danger)" }} />
                     {item}
                   </li>
                 ))}
               </ul>
             </div>
           </div>
-          <p className="text-slate-500 text-xs text-center mt-6 max-w-2xl mx-auto italic">
+          <p className="text-xs text-center mt-6 max-w-2xl mx-auto italic" style={{ color: "var(--t3)" }}>
             {l.scopeDisclaimer}
           </p>
         </div>
@@ -507,27 +520,28 @@ export default function LandingPage() {
       <section className="py-8 px-4 sm:px-6" data-testid="section-language">
         <div
           className="max-w-5xl mx-auto rounded-xl py-6 px-8 text-center"
-          style={{ background: "rgba(20,184,166,0.04)", border: "1px solid rgba(20,184,166,0.1)" }}
+          style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)" }}
         >
-          <p className="flex items-center justify-center gap-2 text-slate-300 text-sm font-heading">
-            <Globe className="h-4 w-4 text-[#14B8A6]" />
+          <p className="flex items-center justify-center gap-2 text-sm font-heading" style={{ color: "var(--t2)" }}>
+            <Globe className="h-4 w-4" style={{ color: "var(--accent)" }} />
             {l.langBanner}
           </p>
-          <p className="text-slate-500 text-xs mt-1">{l.langSub}</p>
+          <p className="text-xs mt-1" style={{ color: "var(--t3)" }}>{l.langSub}</p>
         </div>
       </section>
 
       {/* SECTION 8 — Final CTA */}
       <section className="py-20 px-4 sm:px-6" data-testid="section-final-cta">
         <div className="max-w-2xl mx-auto text-center space-y-6">
-          <h2 className="font-heading font-black text-3xl sm:text-4xl text-white" data-testid="text-final-heading">
+          <h2 className="font-heading font-black text-3xl sm:text-4xl" style={{ color: "var(--txt)" }} data-testid="text-final-heading">
             {l.finalHeading}
           </h2>
-          <p className="text-slate-400 text-lg">{l.finalSub}</p>
+          <p className="text-lg" style={{ color: "var(--t2)" }}>{l.finalSub}</p>
           {isAuthenticated ? (
             <Link
               to="/app"
-              className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-8 py-4 rounded-lg bg-[#14B8A6] text-[#07101E] hover:bg-[#0D9488] transition-colors"
+              className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-8 py-4 rounded-lg transition-colors"
+              style={{ background: "var(--accent)", color: "var(--bg)" }}
               data-testid="link-final-go-to-app"
             >
               {l.goToApp}
@@ -537,30 +551,31 @@ export default function LandingPage() {
               <div>
                 <Link
                   to="/register"
-                  className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-8 py-4 rounded-lg bg-[#14B8A6] text-[#07101E] hover:bg-[#0D9488] transition-colors"
+                  className="inline-flex items-center gap-2 font-heading font-bold text-sm tracking-wider px-8 py-4 rounded-lg transition-colors"
+                  style={{ background: "var(--accent)", color: "var(--bg)" }}
                   data-testid="link-final-register"
                 >
                   {l.finalCta}
                 </Link>
               </div>
-              <Link to="/login" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-final-signin">
+              <Link to="/login" className="text-sm transition-colors" style={{ color: "var(--accent)" }} data-testid="link-final-signin">
                 {l.finalSignIn}
               </Link>
             </>
           )}
-          <p className="text-slate-600 text-xs">{l.trustLine}</p>
+          <p className="text-xs" style={{ color: "var(--t4)" }}>{l.trustLine}</p>
         </div>
       </section>
 
       {/* SECTION 9 — Footer */}
-      <footer className="py-12 px-4 sm:px-6 border-t border-slate-800/50" data-testid="section-footer">
+      <footer className="py-12 px-4 sm:px-6" style={{ borderTop: "1px solid var(--b)" }} data-testid="section-footer">
         <div className="max-w-5xl mx-auto text-center space-y-4">
-          <div className="font-heading font-black text-lg tracking-[3px] text-[#14B8A6]">DSCVR</div>
-          <p className="text-slate-500 text-xs font-heading">{t.header.subtitle} — {t.header.rightLabel1}</p>
-          <p className="text-slate-600 text-xs max-w-lg mx-auto leading-relaxed">
+          <div className="font-heading font-black text-lg tracking-[3px]" style={{ color: "var(--accent)" }}>DSCVR</div>
+          <p className="text-xs font-heading" style={{ color: "var(--t3)" }}>{t.header.subtitle} — {t.header.rightLabel1}</p>
+          <p className="text-xs max-w-lg mx-auto leading-relaxed" style={{ color: "var(--t4)" }}>
             {l.footerDisclaimer}
           </p>
-          <div className="flex items-center justify-between text-slate-600 text-xs pt-4">
+          <div className="flex items-center justify-between text-xs pt-4" style={{ color: "var(--t4)" }}>
             <span>EN · UK · ID</span>
             <span>© 2026 DSCVR</span>
           </div>

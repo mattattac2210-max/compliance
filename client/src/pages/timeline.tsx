@@ -105,7 +105,7 @@ export default function TimelinePage() {
   const getGateLabel = (ev: CalendarEvent) => GATE_ABBRS[ev.gate] || "—";
 
   return (
-    <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--app-bg)" }}>
+    <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--bg)" }}>
       <div className="max-w-3xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-timeline-heading">{t.timeline.heading}</h1>
@@ -115,7 +115,7 @@ export default function TimelinePage() {
         <div className="flex gap-2 flex-wrap">
           {filterOptions.map(f => (
             <button key={f.key} onClick={() => setFilter(f.key)}
-              className={`px-3 py-1.5 rounded-full text-xs font-heading font-bold tracking-wider transition-colors ${filter === f.key ? "bg-[#14B8A6] text-white" : "bg-[#14B8A6]/10 text-[#14B8A6] hover:bg-[#14B8A6]/20"}`}
+              className={`px-3 py-1.5 rounded-full text-xs font-heading font-bold tracking-wider transition-colors ${filter === f.key ? "bg-[var(--accent)] text-white" : "bg-[var(--accent-tint)] text-[var(--accent)] hover:bg-[var(--accent-tint2)]"}`}
               data-testid={`button-filter-${f.key}`}
             >
               {f.label}
@@ -133,7 +133,7 @@ export default function TimelinePage() {
           <div className="space-y-6">
             {overdueItems.length > 0 && (
               <div>
-                <h2 className="text-sm font-heading font-bold text-[#EF4444] uppercase tracking-wider mb-3 flex items-center gap-2" data-testid="text-overdue-section">
+                <h2 className="text-sm font-heading font-bold text-[var(--danger)] uppercase tracking-wider mb-3 flex items-center gap-2" data-testid="text-overdue-section">
                   <AlertTriangle className="h-4 w-4" /> {t.timeline.overdueLabel}
                 </h2>
                 <div className="space-y-2 border-l-2 border-[#EF4444]/30 pl-4 ml-2">
@@ -146,7 +146,7 @@ export default function TimelinePage() {
                         <span className="text-sm text-slate-200 flex-1">{item.title}</span>
                         <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${color}15`, color }}>{getGateLabel(item)}</span>
                         <span className="text-xs text-slate-500">{item.date.toLocaleDateString()}</span>
-                        <span className="text-[10px] font-heading font-bold text-[#EF4444] bg-[#EF4444]/10 px-2 py-0.5 rounded-full">{Math.abs(item.daysUntil)} {t.timeline.daysOverdue}</span>
+                        <span className="text-[10px] font-heading font-bold text-[var(--danger)] bg-[#EF4444]/10 px-2 py-0.5 rounded-full">{Math.abs(item.daysUntil)} {t.timeline.daysOverdue}</span>
                       </div>
                     );
                   })}
@@ -159,10 +159,10 @@ export default function TimelinePage() {
               const monthLabel = monthDate.toLocaleDateString(language === "uk" ? "uk-UA" : language === "id" ? "id-ID" : "en-US", { month: "long", year: "numeric" });
               return (
                 <div key={monthKey}>
-                  <h2 className="text-sm font-heading font-bold text-[#14B8A6] uppercase tracking-wider mb-3 border-l-2 border-[#14B8A6]/50 pl-3" data-testid={`text-month-${monthKey}`}>
+                  <h2 className="text-sm font-heading font-bold text-[var(--accent)] uppercase tracking-wider mb-3 border-l-2 border-[var(--accent-tint)]0 pl-3" data-testid={`text-month-${monthKey}`}>
                     {monthLabel}
                   </h2>
-                  <div className="space-y-2 border-l-2 border-[#14B8A6]/15 pl-4 ml-2">
+                  <div className="space-y-2 border-l-2 border-[var(--accent-tint)] pl-4 ml-2">
                     {groupItems.map(item => {
                       const color = getColor(item);
                       return (

@@ -21,8 +21,17 @@ interface ProDashboardProps {
   onOpenGuide: () => void;
 }
 
-const GATE_COLORS = ["#94A3B8", "#14B8A6", "#60A5FA", "#A78BFA", "#F59E0B", "#22C55E", "#FCA5A5", "#14B8A6"];
+const GATE_COLORS_HEX = ["#94A3B8", "#14B8A6", "#60A5FA", "#A78BFA", "#F59E0B", "#22C55E", "#FCA5A5", "#14B8A6"];
+const GATE_COLORS = ["var(--t2)", "var(--accent)", "#60A5FA", "#A78BFA", "#F59E0B", "#22C55E", "#FCA5A5", "var(--accent)"];
 const GATE_ABBRS = ["PMA", "ZONE", "NIB", "SLF", "TAX", "STAFF", "SAFE", "OTA"];
+
+function colorTint(c: string, alpha: string): string {
+  if (!c.startsWith("#")) {
+    if (c.includes("accent")) return "var(--accent-tint)";
+    return "var(--b)";
+  }
+  return `${c}${alpha}`;
+}
 
 function getGreeting(t: any): string {
   const h = new Date().getHours();
@@ -117,14 +126,14 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
     });
     attentionItems.push({
       label: t.dashboard.vaultIncompleteNotice,
-      color: "#94A3B8",
+      color: "var(--t2)",
       link: "/vault",
       linkLabel: t.dashboard.goToVault,
     });
     for (const [gate, count] of Array.from(missingByGate.entries()).sort((a, b) => a[0] - b[0])) {
       attentionItems.push({
         label: t.dashboard.missingDocsGate.replace("{{gate}}", String(gate)).replace("{{count}}", String(count)),
-        color: "#94A3B8",
+        color: "var(--t2)",
         link: `/vault?gate=${gate}`,
         linkLabel: t.dashboard.goToVault,
       });
@@ -237,17 +246,17 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
   if (!hasProperty) {
     return (
       <div className="px-6 md:px-14 py-12 flex flex-col items-center justify-center text-center space-y-4" data-testid="pro-no-property">
-        <Building2 className="w-12 h-12" style={{ color: "#14B8A6" }} />
-        <h2 className="font-heading font-extrabold text-xl" style={{ color: "var(--app-text)" }}>
+        <Building2 className="w-12 h-12" style={{ color: "var(--accent)" }} />
+        <h2 className="font-heading font-extrabold text-xl" style={{ color: "var(--txt)" }}>
           {t.dashboard.noPropertyHeading}
         </h2>
-        <p className="text-sm max-w-md" style={{ color: "var(--app-text-muted)" }}>
+        <p className="text-sm max-w-md" style={{ color: "var(--t3)" }}>
           {t.dashboard.noPropertyDesc}
         </p>
         <Link
           href="/profile"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg font-heading font-bold text-sm text-white transition-colors hover:opacity-90"
-          style={{ background: "#14B8A6" }}
+          style={{ background: "var(--accent)" }}
           data-testid="button-add-property"
         >
           {t.dashboard.noPropertyCta}
@@ -255,23 +264,23 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
 
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 w-full max-w-3xl mt-8">
           {[
-            { icon: FileCheck, color: "#14B8A6", title: t.dashboard.vaultProgress, sub: t.dashboard.vaultProgressSub, value: "\u2014" },
-            { icon: Clock, color: "#F59E0B", title: t.dashboard.expiringDocs, sub: t.dashboard.expiringDocsSub, value: "\u2014" },
-            { icon: Calendar, color: "#60A5FA", title: t.dashboard.filingsDue, sub: t.dashboard.filingsDueSub, value: "\u2014" },
-            { icon: AlertTriangle, color: "#EF4444", title: t.dashboard.activeAlerts, sub: t.dashboard.activeAlertsSub, value: "\u2014" },
+            { icon: FileCheck, color: "var(--accent)", tintBg: "var(--accent-tint)", tintBorder: "var(--accent-tint)", iconBg: "var(--accent-tint)", title: t.dashboard.vaultProgress, sub: t.dashboard.vaultProgressSub, value: "\u2014" },
+            { icon: Clock, color: "#F59E0B", tintBg: "#F59E0B06", tintBorder: "#F59E0B22", iconBg: "#F59E0B18", title: t.dashboard.expiringDocs, sub: t.dashboard.expiringDocsSub, value: "\u2014" },
+            { icon: Calendar, color: "#60A5FA", tintBg: "#60A5FA06", tintBorder: "#60A5FA22", iconBg: "#60A5FA18", title: t.dashboard.filingsDue, sub: t.dashboard.filingsDueSub, value: "\u2014" },
+            { icon: AlertTriangle, color: "#EF4444", tintBg: "#EF444406", tintBorder: "#EF444422", iconBg: "#EF444418", title: t.dashboard.activeAlerts, sub: t.dashboard.activeAlertsSub, value: "\u2014" },
           ].map(card => (
             <div
               key={card.title}
               className="rounded-xl border p-4 flex items-center gap-3"
-              style={{ borderColor: `${card.color}22`, background: `${card.color}06` }}
+              style={{ borderColor: card.tintBorder, background: card.tintBg }}
             >
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: `${card.color}18` }}>
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: card.iconBg }}>
                 <card.icon className="w-4 h-4" style={{ color: card.color }} />
               </div>
               <div>
-                <div className="text-[10px] font-heading font-bold tracking-wider uppercase" style={{ color: "var(--app-text-muted)" }}>{card.title}</div>
-                <div className="text-lg font-heading font-black" style={{ color: "var(--app-text)" }}>{card.value}</div>
-                <div className="text-[9px]" style={{ color: "var(--app-text-muted)" }}>{card.sub}</div>
+                <div className="text-[10px] font-heading font-bold tracking-wider uppercase" style={{ color: "var(--t3)" }}>{card.title}</div>
+                <div className="text-lg font-heading font-black" style={{ color: "var(--txt)" }}>{card.value}</div>
+                <div className="text-[9px]" style={{ color: "var(--t3)" }}>{card.sub}</div>
               </div>
             </div>
           ))}
@@ -284,19 +293,19 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
     <div className="px-6 md:px-14 py-6 space-y-6" data-testid="pro-dashboard">
       <div>
         <div className="flex items-center gap-3 flex-wrap">
-          <h1 className="font-heading font-extrabold text-2xl tracking-tight" style={{ color: "var(--app-text)" }} data-testid="text-greeting">
+          <h1 className="font-heading font-extrabold text-2xl tracking-tight" style={{ color: "var(--txt)" }} data-testid="text-greeting">
             {getGreeting(t)}, {user?.firstName || user?.email?.split("@")[0] || ""}
           </h1>
           <span
             className="text-[10px] font-heading font-bold tracking-widest uppercase px-2.5 py-1 rounded-full"
-            style={{ background: "rgba(20,184,166,0.12)", border: "1px solid rgba(20,184,166,0.2)", color: "#14B8A6" }}
+            style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)", color: "var(--accent)" }}
             data-testid="badge-pro"
           >
             {t.dashboard.proMember}
           </span>
         </div>
         {selectedProperty && (
-          <p className="text-sm mt-0.5" style={{ color: "var(--app-text-muted)" }} data-testid="text-property-subtitle">
+          <p className="text-sm mt-0.5" style={{ color: "var(--t3)" }} data-testid="text-property-subtitle">
             {selectedProperty.entityName ?? selectedProperty.propertyName}
             {selectedProperty.regency ? ` \u00b7 ${selectedProperty.regency}` : ""}
           </p>
@@ -308,19 +317,19 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           className="rounded-xl p-4 relative"
-          style={{ background: "rgba(20,184,166,0.05)", border: "1px solid rgba(20,184,166,0.15)" }}
+          style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)" }}
           data-testid="setup-banner"
         >
           <div className="flex items-center gap-2 mb-3">
-            <span className="font-heading font-bold text-xs tracking-wider uppercase" style={{ color: "#14B8A6" }}>
+            <span className="font-heading font-bold text-xs tracking-wider uppercase" style={{ color: "var(--accent)" }}>
               {t.dashboard.setupHeading}
             </span>
-            <span className="text-xs" style={{ color: "var(--app-text-muted)" }}>
+            <span className="text-xs" style={{ color: "var(--t3)" }}>
               {setupScore} {t.dashboard.stepOf}
             </span>
           </div>
-          <div className="w-full h-1.5 rounded-full mb-3" style={{ background: "rgba(20,184,166,0.1)" }}>
-            <div className="h-full rounded-full transition-all" style={{ width: `${(setupScore / 4) * 100}%`, background: "#14B8A6" }} />
+          <div className="w-full h-1.5 rounded-full mb-3" style={{ background: "var(--accent-tint)" }}>
+            <div className="h-full rounded-full transition-all" style={{ width: `${(setupScore / 4) * 100}%`, background: "var(--accent)" }} />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
             {setupSteps.map((step, i) => (
@@ -328,15 +337,15 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
                 key={i}
                 className="flex items-center gap-2 text-xs rounded-lg px-3 py-2"
                 style={{
-                  background: step.done ? "rgba(20,184,166,0.08)" : "transparent",
-                  border: `1px solid ${step.done ? "rgba(20,184,166,0.15)" : "var(--app-border)"}`,
+                  background: step.done ? "var(--accent-tint)" : "transparent",
+                  border: `1px solid ${step.done ? "var(--accent-tint2)" : "var(--b)"}`,
                 }}
               >
-                <span className="flex-1" style={{ color: step.done ? "#14B8A6" : "var(--app-text-muted)" }}>
+                <span className="flex-1" style={{ color: step.done ? "var(--accent)" : "var(--t3)" }}>
                   {step.done ? t.dashboard.setupStepComplete : step.label}
                 </span>
                 {!step.done && step.link && (
-                  <Link href={step.link} className="text-[10px] font-bold hover:underline" style={{ color: "#14B8A6" }}>
+                  <Link href={step.link} className="text-[10px] font-bold hover:underline" style={{ color: "var(--accent)" }}>
                     {t.dashboard.setupContinue}
                   </Link>
                 )}
@@ -349,28 +358,28 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4" data-testid="stat-cards">
         {[
           {
-            icon: FileCheck, color: "#14B8A6",
+            icon: FileCheck, color: "var(--accent)", tintBg: "var(--accent-tint)", tintBorder: "var(--accent-tint)", iconBg: "var(--accent-tint)",
             title: t.dashboard.vaultProgress, sub: `${uploadedCount} ${t.dashboard.ofTotal} ${totalTemplates}`,
             value: uploadedCount > 0 ? `${vaultPercent}%` : t.dashboard.vaultEmpty,
             ctaLabel: uploadedCount > 0 ? t.dashboard.vaultCtaContinue : t.dashboard.vaultCta,
             ctaLink: "/vault",
           },
           {
-            icon: Clock, color: "#F59E0B",
+            icon: Clock, color: "#F59E0B", tintBg: "#F59E0B06", tintBorder: "#F59E0B22", iconBg: "#F59E0B18",
             title: t.dashboard.expiringDocs, sub: `${t.dashboard.withinDays}`,
             value: expiringDocs.length > 0 ? String(expiringDocs.length) : t.dashboard.expiringEmpty,
             ctaLabel: expiringDocs.length > 0 ? t.dashboard.viewExpiring : undefined,
             ctaLink: "/vault",
           },
           {
-            icon: Calendar, color: "#60A5FA",
+            icon: Calendar, color: "#60A5FA", tintBg: "#60A5FA06", tintBorder: "#60A5FA22", iconBg: "#60A5FA18",
             title: t.dashboard.filingsDue, sub: `${t.dashboard.beforeMonthEnd}`,
             value: filingsDueThisMonth.length > 0 ? String(filingsDueThisMonth.length) : t.dashboard.filingsDueEmpty,
             ctaLabel: filingsDueThisMonth.length > 0 ? t.dashboard.viewDeadlines : undefined,
             ctaLink: "/timeline",
           },
           {
-            icon: AlertTriangle, color: "#EF4444",
+            icon: AlertTriangle, color: "#EF4444", tintBg: "#EF444406", tintBorder: "#EF444422", iconBg: "#EF444418",
             title: t.dashboard.activeAlerts, sub: `${t.dashboard.requireAttention}`,
             value: alertCount > 0 ? String(alertCount) : t.dashboard.alertsEmpty,
             ctaLabel: alertCount > 0 ? t.dashboard.viewAlerts : undefined,
@@ -380,21 +389,21 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
           <div
             key={card.title}
             className="rounded-xl border p-4 space-y-1"
-            style={{ borderColor: `${card.color}22`, background: `${card.color}06` }}
+            style={{ borderColor: card.tintBorder, background: card.tintBg }}
             data-testid={`stat-card-${card.title.toLowerCase().replace(/\s+/g, "-")}`}
           >
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: `${card.color}18` }}>
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: card.iconBg }}>
                 <card.icon className="w-4 h-4" style={{ color: card.color }} />
               </div>
-              <span className="text-[10px] font-heading font-bold tracking-wider uppercase" style={{ color: "var(--app-text-muted)" }}>
+              <span className="text-[10px] font-heading font-bold tracking-wider uppercase" style={{ color: "var(--t3)" }}>
                 {card.title}
               </span>
             </div>
-            <div className="text-2xl font-heading font-black leading-tight" style={{ color: "var(--app-text)" }}>
+            <div className="text-2xl font-heading font-black leading-tight" style={{ color: "var(--txt)" }}>
               {card.value}
             </div>
-            <div className="text-[10px]" style={{ color: "var(--app-text-muted)" }}>{card.sub}</div>
+            <div className="text-[10px]" style={{ color: "var(--t3)" }}>{card.sub}</div>
             {card.ctaLabel && (
               <Link href={card.ctaLink} className="text-[10px] font-heading font-bold tracking-wide hover:underline block pt-1" style={{ color: card.color }}>
                 {card.ctaLabel}
@@ -407,30 +416,30 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div
           className="rounded-xl border p-5 space-y-3"
-          style={{ background: "var(--app-panel)", borderColor: "var(--app-border)" }}
+          style={{ background: "var(--surface)", borderColor: "var(--b)" }}
           data-testid="panel-attention"
         >
           <div className="flex items-center justify-between">
-            <h3 className="font-heading font-bold text-sm" style={{ color: "var(--app-text)" }}>
+            <h3 className="font-heading font-bold text-sm" style={{ color: "var(--txt)" }}>
               {t.dashboard.needsAttentionHeading}
             </h3>
             {attentionItems.length > 0 && (
-              <Link href="/alerts" className="text-[10px] font-heading font-bold tracking-wide hover:underline" style={{ color: "#14B8A6" }}>
+              <Link href="/alerts" className="text-[10px] font-heading font-bold tracking-wide hover:underline" style={{ color: "var(--accent)" }}>
                 {t.dashboard.viewAllAlerts}
               </Link>
             )}
           </div>
           {attentionItems.length === 0 ? (
             <div className="py-4 text-center">
-              <p className="text-sm" style={{ color: "var(--app-text-muted)" }}>{t.dashboard.needsAttentionEmpty}</p>
-              <p className="text-[10px] mt-1" style={{ color: "var(--app-text-muted)" }}>{t.dashboard.needsAttentionEmptyDesc}</p>
+              <p className="text-sm" style={{ color: "var(--t3)" }}>{t.dashboard.needsAttentionEmpty}</p>
+              <p className="text-[10px] mt-1" style={{ color: "var(--t3)" }}>{t.dashboard.needsAttentionEmptyDesc}</p>
             </div>
           ) : (
             <div className="space-y-2">
               {attentionItems.slice(0, 8).map((item, i) => (
-                <div key={i} className="flex items-center gap-3 text-xs rounded-lg px-3 py-2" style={{ background: `${item.color}08`, border: `1px solid ${item.color}15` }}>
+                <div key={i} className="flex items-center gap-3 text-xs rounded-lg px-3 py-2" style={{ background: colorTint(item.color, "08"), border: `1px solid ${colorTint(item.color, "15")}` }}>
                   <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
-                  <span className="flex-1 truncate" style={{ color: "var(--app-text)" }}>{item.label}</span>
+                  <span className="flex-1 truncate" style={{ color: "var(--txt)" }}>{item.label}</span>
                   <Link href={item.link} className="text-[10px] font-bold whitespace-nowrap hover:underline" style={{ color: item.color }}>
                     {item.linkLabel}
                   </Link>
@@ -442,35 +451,35 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
 
         <div
           className="rounded-xl border p-5 space-y-3"
-          style={{ background: "var(--app-panel)", borderColor: "var(--app-border)" }}
+          style={{ background: "var(--surface)", borderColor: "var(--b)" }}
           data-testid="panel-upcoming"
         >
           <div className="flex items-center justify-between">
-            <h3 className="font-heading font-bold text-sm" style={{ color: "var(--app-text)" }}>
+            <h3 className="font-heading font-bold text-sm" style={{ color: "var(--txt)" }}>
               {t.dashboard.upcomingHeading}
             </h3>
             {upcomingDeadlines.length > 0 && (
-              <Link href="/timeline" className="text-[10px] font-heading font-bold tracking-wide hover:underline" style={{ color: "#14B8A6" }}>
+              <Link href="/timeline" className="text-[10px] font-heading font-bold tracking-wide hover:underline" style={{ color: "var(--accent)" }}>
                 {t.dashboard.viewFullTimeline}
               </Link>
             )}
           </div>
           {upcomingDeadlines.length === 0 ? (
             <div className="py-4 text-center">
-              <p className="text-sm" style={{ color: "var(--app-text-muted)" }}>{t.dashboard.upcomingEmpty}</p>
+              <p className="text-sm" style={{ color: "var(--t3)" }}>{t.dashboard.upcomingEmpty}</p>
             </div>
           ) : (
             <div className="space-y-2">
               {upcomingDeadlines.map((item, i) => {
                 const daysLeft = Math.ceil((item.date.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
                 return (
-                  <div key={i} className="flex items-center gap-3 text-xs rounded-lg px-3 py-2" style={{ background: `${item.color}08`, border: `1px solid ${item.color}15` }}>
+                  <div key={i} className="flex items-center gap-3 text-xs rounded-lg px-3 py-2" style={{ background: colorTint(item.color, "08"), border: `1px solid ${colorTint(item.color, "15")}` }}>
                     <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
-                    <span className="flex-1 truncate" style={{ color: "var(--app-text)" }}>{item.label}</span>
+                    <span className="flex-1 truncate" style={{ color: "var(--txt)" }}>{item.label}</span>
                     <span className="text-[10px] font-heading font-bold whitespace-nowrap" style={{ color: item.color }}>
                       {daysLeft}{t.dashboard.daysShort}
                     </span>
-                    <span className="text-[10px]" style={{ color: "var(--app-text-muted)" }}>
+                    <span className="text-[10px]" style={{ color: "var(--t3)" }}>
                       {item.date.toLocaleDateString(lang === "uk" ? "uk" : lang === "id" ? "id" : "en-GB", { day: "numeric", month: "short" })}
                     </span>
                   </div>
@@ -482,7 +491,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
       </div>
 
       <div data-testid="gate-status-grid">
-        <h3 className="font-heading font-bold text-sm mb-4" style={{ color: "var(--app-text)" }}>
+        <h3 className="font-heading font-bold text-sm mb-4" style={{ color: "var(--txt)" }}>
           {t.dashboard.gateStatusHeading}
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -491,7 +500,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
               key={i}
               href={`/vault?gate=${i}`}
               className="rounded-xl border p-3 transition-all hover:scale-[1.02] group"
-              style={{ borderColor: `${GATE_COLORS[i]}22`, background: `${GATE_COLORS[i]}06` }}
+              style={{ borderColor: colorTint(GATE_COLORS_HEX[i], "22"), background: colorTint(GATE_COLORS_HEX[i], "06") }}
               data-testid={`gate-status-${i}`}
             >
               <div className="flex items-center justify-between mb-2">
@@ -500,13 +509,13 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
                 </span>
                 <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: GATE_COLORS[i] }} />
               </div>
-              <div className="text-sm font-heading font-extrabold mb-1" style={{ color: "var(--app-text)" }}>
+              <div className="text-sm font-heading font-extrabold mb-1" style={{ color: "var(--txt)" }}>
                 {abbr}
               </div>
-              <div className="w-full h-1 rounded-full mb-1" style={{ background: `${GATE_COLORS[i]}15` }}>
+              <div className="w-full h-1 rounded-full mb-1" style={{ background: colorTint(GATE_COLORS_HEX[i], "15") }}>
                 <div className="h-full rounded-full transition-all" style={{ width: `${gateDocCounts[i].pct}%`, background: GATE_COLORS[i] }} />
               </div>
-              <div className="text-[10px]" style={{ color: "var(--app-text-muted)" }}>
+              <div className="text-[10px]" style={{ color: "var(--t3)" }}>
                 {gateDocCounts[i].uploaded}/{gateDocCounts[i].total} ({gateDocCounts[i].pct}%)
               </div>
             </Link>
@@ -516,16 +525,16 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
 
       <div className="flex flex-wrap gap-3 pb-4" data-testid="reference-links">
         {[
-          { icon: Hexagon, label: t.dashboard.openFlow, onClick: onOpenFlow, color: "#14B8A6" },
-          { icon: CheckCircle, label: t.dashboard.openAudit, onClick: onOpenAudit, color: "#60A5FA" },
-          { icon: BookOpen, label: t.dashboard.openGuide, onClick: onOpenGuide, color: "#A78BFA" },
-          { icon: List, label: t.dashboard.openGlossary, onClick: onOpenGuide, color: "#F59E0B" },
+          { icon: Hexagon, label: t.dashboard.openFlow, onClick: onOpenFlow, color: "var(--accent)", tintBg: "var(--accent-tint)", tintBorder: "var(--accent-tint)" },
+          { icon: CheckCircle, label: t.dashboard.openAudit, onClick: onOpenAudit, color: "#60A5FA", tintBg: "#60A5FA08", tintBorder: "#60A5FA22" },
+          { icon: BookOpen, label: t.dashboard.openGuide, onClick: onOpenGuide, color: "#A78BFA", tintBg: "#A78BFA08", tintBorder: "#A78BFA22" },
+          { icon: List, label: t.dashboard.openGlossary, onClick: onOpenGuide, color: "#F59E0B", tintBg: "#F59E0B08", tintBorder: "#F59E0B22" },
         ].map((link) => (
           <button
             key={link.label}
             onClick={link.onClick}
             className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-heading font-bold tracking-wide transition-colors hover:opacity-90"
-            style={{ background: `${link.color}08`, border: `1px solid ${link.color}22`, color: link.color }}
+            style={{ background: link.tintBg, border: `1px solid ${link.tintBorder}`, color: link.color }}
             data-testid={`link-ref-${link.label.toLowerCase().replace(/\s+/g, "-")}`}
           >
             <link.icon className="w-3.5 h-3.5" />

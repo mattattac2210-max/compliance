@@ -142,14 +142,14 @@ export default function AdminPage() {
   };
 
   return (
-    <div className="min-h-screen" style={{ background: "var(--app-bg)", color: "var(--app-text)" }}>
+    <div className="min-h-screen" style={{ background: "var(--bg)", color: "var(--txt)" }}>
       <header
         className="sticky top-0 z-[200] flex items-center justify-between px-14 py-4 backdrop-blur-[14px] border-b max-md:px-5"
-        style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }}
+        style={{ background: "var(--bg2)", borderColor: "var(--b)" }}
       >
-        <div className="font-heading font-black text-[20px] tracking-[2px] text-[#14B8A6]">
+        <div className="font-heading font-black text-[20px] tracking-[2px]" style={{ color: "var(--accent)" }}>
           DSCVR
-          <span className="font-normal text-[10px] tracking-[3px] block mt-[2px] uppercase" style={{ color: "var(--app-text-muted)" }}>
+          <span className="font-normal text-[10px] tracking-[3px] block mt-[2px] uppercase" style={{ color: "var(--t3)" }}>
             {t.admin.title}
           </span>
         </div>
@@ -158,7 +158,8 @@ export default function AdminPage() {
           <ThemeToggle />
           <a
             href="/app"
-            className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase text-[#14B8A6] py-[8px] px-[16px] rounded border border-[rgba(20,184,166,0.22)] bg-[rgba(13,148,136,0.06)] hover-elevate no-underline"
+            className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[8px] px-[16px] rounded hover-elevate no-underline"
+            style={{ color: "var(--accent)", border: "1px solid var(--accent-tint2)", background: "var(--accent-tint)" }}
             data-testid="back-to-app"
           >
             {t.admin.backToApp}
@@ -169,13 +170,14 @@ export default function AdminPage() {
       <div className="max-w-[900px] mx-auto px-14 py-10 max-md:px-5">
         <div className="flex items-center justify-between mb-8">
           <h1 className="font-heading font-black text-[28px] tracking-[-0.5px]" data-testid="admin-title">
-            Glossary <span className="text-[#14B8A6]">{t.admin.title}</span>
+            Glossary <span style={{ color: "var(--accent)" }}>{t.admin.title}</span>
           </h1>
           {!showForm && (
             <button
               data-testid="btn-add-term"
               onClick={() => { setShowForm(true); setEditingId(null); setForm(emptyForm); setMessage(null); }}
-              className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[18px] rounded-[8px] bg-[rgba(20,184,166,0.12)] border border-[rgba(20,184,166,0.25)] text-[#14B8A6] cursor-pointer hover-elevate"
+              className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[18px] rounded-[8px] cursor-pointer hover-elevate"
+              style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)", color: "var(--accent)" }}
             >
               {t.admin.addTerm}
             </button>
@@ -200,123 +202,123 @@ export default function AdminPage() {
             onSubmit={handleSubmit}
             data-testid="term-form"
             className="border rounded-[10px] p-[24px] mb-8"
-            style={{ background: "var(--app-panel)", borderColor: "var(--app-border)" }}
+            style={{ background: "var(--surface)", borderColor: "var(--b)" }}
           >
-            <h2 className="font-heading font-extrabold text-[16px] text-[#14B8A6] mb-5 tracking-[-0.1px]">
+            <h2 className="font-heading font-extrabold text-[16px] mb-5 tracking-[-0.1px]" style={{ color: "var(--accent)" }}>
               {editingId ? t.admin.editTerm : t.admin.createTerm}
             </h2>
 
             <div className="space-y-4">
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.termLabel} *</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--t3)" }}>{t.admin.termLabel} *</label>
                 <input
                   data-testid="input-term"
                   value={form.term}
                   onChange={(e) => updateField("term", e.target.value)}
                   required
-                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)]"
-                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none"
+                  style={{ background: "var(--surface2)", borderColor: "var(--b)", color: "var(--txt)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.plainDefLabel} *</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--t3)" }}>{t.admin.plainDefLabel} *</label>
                 <textarea
                   data-testid="input-definition"
                   value={form.plainDefinition}
                   onChange={(e) => updateField("plainDefinition", e.target.value)}
                   required
                   rows={3}
-                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
-                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none resize-y"
+                  style={{ background: "var(--surface2)", borderColor: "var(--b)", color: "var(--txt)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.whyItMattersLabel} *</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--t3)" }}>{t.admin.whyItMattersLabel} *</label>
                 <textarea
                   data-testid="input-why"
                   value={form.whyItMatters}
                   onChange={(e) => updateField("whyItMatters", e.target.value)}
                   required
                   rows={3}
-                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
-                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none resize-y"
+                  style={{ background: "var(--surface2)", borderColor: "var(--b)", color: "var(--txt)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.processStepsLabel}</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--t3)" }}>{t.admin.processStepsLabel}</label>
                 <textarea
                   data-testid="input-steps"
                   value={form.typicalProcessSteps}
                   onChange={(e) => updateField("typicalProcessSteps", e.target.value)}
                   rows={4}
-                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
-                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none resize-y"
+                  style={{ background: "var(--surface2)", borderColor: "var(--b)", color: "var(--txt)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.whatToStoreLabel} *</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--t3)" }}>{t.admin.whatToStoreLabel} *</label>
                 <textarea
                   data-testid="input-store"
                   value={form.whatToStore}
                   onChange={(e) => updateField("whatToStore", e.target.value)}
                   required
                   rows={2}
-                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
-                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none resize-y"
+                  style={{ background: "var(--surface2)", borderColor: "var(--b)", color: "var(--txt)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.commonPitfallsLabel}</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--t3)" }}>{t.admin.commonPitfallsLabel}</label>
                 <textarea
                   data-testid="input-pitfalls"
                   value={form.commonPitfalls}
                   onChange={(e) => updateField("commonPitfalls", e.target.value)}
                   rows={2}
-                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)] resize-y"
-                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none resize-y"
+                  style={{ background: "var(--surface2)", borderColor: "var(--b)", color: "var(--txt)" }}
                 />
               </div>
 
               <div>
-                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.synonymsLabel}</label>
+                <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--t3)" }}>{t.admin.synonymsLabel}</label>
                 <input
                   data-testid="input-synonyms"
                   value={form.synonyms}
                   onChange={(e) => updateField("synonyms", e.target.value)}
                   placeholder="e.g. physical signature, ink signature"
-                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)]"
-                  style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
+                  className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none"
+                  style={{ background: "var(--surface2)", borderColor: "var(--b)", color: "var(--txt)" }}
                 />
-                <div className="text-[10px] mt-[4px]" style={{ color: "var(--app-text-dim)" }}>Alternative names that will auto-link to this term in Process Navigation guides</div>
+                <div className="text-[10px] mt-[4px]" style={{ color: "var(--t4)" }}>Alternative names that will auto-link to this term in Process Navigation guides</div>
               </div>
 
               <div className="grid grid-cols-2 gap-4 max-md:grid-cols-1">
                 <div>
-                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>{t.admin.tagsLabel}</label>
+                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--t3)" }}>{t.admin.tagsLabel}</label>
                   <input
                     data-testid="input-tags"
                     value={form.tags}
                     onChange={(e) => updateField("tags", e.target.value)}
                     required
                     placeholder="e.g. Documents, Legal, OSS"
-                    className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)]"
-                    style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
+                    className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none"
+                    style={{ background: "var(--surface2)", borderColor: "var(--b)", color: "var(--txt)" }}
                   />
                 </div>
                 <div>
-                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--app-text-muted)" }}>Last Updated</label>
+                  <label className="block font-heading text-[9px] font-bold tracking-[2px] uppercase mb-[6px]" style={{ color: "var(--t3)" }}>Last Updated</label>
                   <input
                     data-testid="input-date"
                     type="date"
                     value={form.lastUpdated}
                     onChange={(e) => updateField("lastUpdated", e.target.value)}
-                    className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none focus:border-[rgba(20,184,166,0.35)]"
-                    style={{ background: "var(--app-input-bg)", borderColor: "var(--app-border)", color: "var(--app-text)" }}
+                    className="w-full border rounded-[6px] py-[9px] px-[12px] text-[13px] outline-none"
+                    style={{ background: "var(--surface2)", borderColor: "var(--b)", color: "var(--txt)" }}
                   />
                 </div>
               </div>
@@ -328,9 +330,9 @@ export default function AdminPage() {
                     data-testid="input-active"
                     checked={form.isActive}
                     onChange={(e) => updateField("isActive", e.target.checked)}
-                    className="accent-[#14B8A6]"
+                    style={{ accentColor: "var(--accent)" }}
                   />
-                  <span className="text-[12px]" style={{ color: "var(--app-text-secondary)" }}>{t.admin.activeLabel}</span>
+                  <span className="text-[12px]" style={{ color: "var(--t2)" }}>{t.admin.activeLabel}</span>
                 </label>
               </div>
             </div>
@@ -340,8 +342,8 @@ export default function AdminPage() {
                 type="submit"
                 data-testid="btn-save-term"
                 disabled={isPending}
-                className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] bg-[#14B8A6] cursor-pointer disabled:opacity-50"
-                style={{ color: "var(--app-bg)" }}
+                className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] cursor-pointer disabled:opacity-50"
+                style={{ background: "var(--accent)", color: "var(--bg)" }}
               >
                 {isPending ? `${t.admin.saveLabel}...` : editingId ? t.admin.editTerm : t.admin.createTerm}
               </button>
@@ -349,8 +351,8 @@ export default function AdminPage() {
                 type="button"
                 data-testid="btn-cancel"
                 onClick={resetForm}
-                className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] border cursor-pointer hover:text-[#94A3B8]"
-                style={{ borderColor: "var(--app-border)", color: "var(--app-text-muted)" }}
+                className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase py-[10px] px-[20px] rounded-[8px] border cursor-pointer"
+                style={{ borderColor: "var(--b)", color: "var(--t3)" }}
               >
                 {t.admin.cancelLabel}
               </button>
@@ -359,7 +361,7 @@ export default function AdminPage() {
         )}
 
         {isLoading ? (
-          <div className="text-[13px] py-8 text-center" style={{ color: "var(--app-text-muted)" }}>Loading terms...</div>
+          <div className="text-[13px] py-8 text-center" style={{ color: "var(--t3)" }}>Loading terms...</div>
         ) : (
           <div className="space-y-[4px]">
             {terms.map(term => (
@@ -371,22 +373,23 @@ export default function AdminPage() {
                 }`}
                 style={
                   term.isActive
-                    ? { background: "var(--app-panel)", borderColor: "var(--app-border)" }
-                    : { background: "var(--app-expand-bg)", borderColor: "var(--app-border)" }
+                    ? { background: "var(--surface)", borderColor: "var(--b)" }
+                    : { background: "var(--bg2)", borderColor: "var(--b)" }
                 }
               >
                 <div className="min-w-0">
-                  <div className="font-heading font-extrabold text-[14px] tracking-[-0.1px] truncate" style={{ color: "var(--app-text)" }}>
+                  <div className="font-heading font-extrabold text-[14px] tracking-[-0.1px] truncate" style={{ color: "var(--txt)" }}>
                     {term.term}
                     {!term.isActive && <span className="ml-2 text-[10px] text-[#EF4444] font-normal">{t.admin.inactiveStatus}</span>}
                   </div>
-                  <div className="text-[11px] truncate mt-[2px]" style={{ color: "var(--app-text-muted)" }}>{term.plainDefinition}</div>
+                  <div className="text-[11px] truncate mt-[2px]" style={{ color: "var(--t3)" }}>{term.plainDefinition}</div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <button
                     data-testid={`btn-edit-${term.slug}`}
                     onClick={() => startEdit(term)}
-                    className="text-[10px] font-bold py-[5px] px-[12px] rounded bg-[rgba(20,184,166,0.08)] border border-[rgba(20,184,166,0.15)] text-[#14B8A6] cursor-pointer hover-elevate"
+                    className="text-[10px] font-bold py-[5px] px-[12px] rounded cursor-pointer hover-elevate"
+                    style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)", color: "var(--accent)" }}
                   >
                     Edit
                   </button>

@@ -11,8 +11,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, Plus, Pencil, Trash2, X, ShieldCheck, ShieldOff, Users, HeartHandshake, Globe, MapPin, ChevronDown, ChevronUp, Check, AlertTriangle, User as UserIcon } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, X, ShieldCheck, ShieldOff, Users, HeartHandshake, Globe, MapPin, ChevronDown, ChevronUp, Check, AlertTriangle, User as UserIcon, Palette } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { ThemeSwitcher } from "@/components/theme-provider";
 
 const REGENCIES = [
   "Badung", "Bangli", "Buleleng", "Denpasar", "Gianyar",
@@ -156,7 +157,7 @@ export default function ProfilePage() {
           <Input
             value={form.propertyName} onChange={e => setForm(f => ({ ...f, propertyName: e.target.value }))}
             placeholder={t.profile.propertyNamePlaceholder} required
-            className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white placeholder:text-slate-500"
             data-testid="input-property-name"
           />
         </div>
@@ -165,7 +166,7 @@ export default function ProfilePage() {
           <Input
             value={form.entityName} onChange={e => setForm(f => ({ ...f, entityName: e.target.value }))}
             placeholder={t.profile.entityNamePlaceholder} required
-            className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white placeholder:text-slate-500"
             data-testid="input-entity-name"
           />
         </div>
@@ -174,7 +175,7 @@ export default function ProfilePage() {
           <Input
             value={form.nib} onChange={e => setForm(f => ({ ...f, nib: e.target.value }))}
             placeholder={t.profile.nibPlaceholder}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white placeholder:text-slate-500"
             data-testid="input-nib"
           />
         </div>
@@ -183,7 +184,7 @@ export default function ProfilePage() {
           <Input
             value={form.kbli} onChange={e => setForm(f => ({ ...f, kbli: e.target.value }))}
             placeholder="e.g. 55101"
-            className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white placeholder:text-slate-500"
             data-testid="input-kbli"
           />
         </div>
@@ -192,38 +193,38 @@ export default function ProfilePage() {
           <Input
             value={form.address} onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
             placeholder={t.profile.addressPlaceholder}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white placeholder:text-slate-500"
             data-testid="input-address"
           />
         </div>
         <div className="space-y-2">
           <Label className="text-slate-300 text-sm">{t.profile.regencyLabel}</Label>
           <Select value={form.regency} onValueChange={v => setForm(f => ({ ...f, regency: v }))}>
-            <SelectTrigger className="bg-[#162036] border-[#14B8A6]/20 text-white" data-testid="select-regency">
+            <SelectTrigger className="bg-[var(--surface2)] border-[var(--b)] text-white" data-testid="select-regency">
               <SelectValue placeholder={t.profile.regencyLabel} />
             </SelectTrigger>
-            <SelectContent className="bg-[#162036] border-[#14B8A6]/20">
-              {REGENCIES.map(r => <SelectItem key={r} value={r} className="text-white hover:bg-[#14B8A6]/10">{r}</SelectItem>)}
+            <SelectContent className="bg-[var(--surface2)] border-[var(--b)]">
+              {REGENCIES.map(r => <SelectItem key={r} value={r} className="text-white hover:bg-[var(--accent-tint)]">{r}</SelectItem>)}
             </SelectContent>
           </Select>
         </div>
         <div className="space-y-2">
           <Label className="text-slate-300 text-sm">{t.profile.entityStructureLabel}</Label>
           <Select value={form.entityStructure} onValueChange={v => setForm(f => ({ ...f, entityStructure: v }))}>
-            <SelectTrigger className="bg-[#162036] border-[#14B8A6]/20 text-white" data-testid="select-entity-structure">
+            <SelectTrigger className="bg-[var(--surface2)] border-[var(--b)] text-white" data-testid="select-entity-structure">
               <SelectValue placeholder={t.profile.entityStructureLabel} />
             </SelectTrigger>
-            <SelectContent className="bg-[#162036] border-[#14B8A6]/20">
+            <SelectContent className="bg-[var(--surface2)] border-[var(--b)]">
               {Object.entries(t.profile.entityStructureOptions).map(([k, v]) => (
-                <SelectItem key={k} value={k} className="text-white hover:bg-[#14B8A6]/10">{v}</SelectItem>
+                <SelectItem key={k} value={k} className="text-white hover:bg-[var(--accent-tint)]">{v}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        <div className="space-y-2 md:col-span-2 border-t border-[#14B8A6]/10 pt-4 mt-2">
+        <div className="space-y-2 md:col-span-2 border-t border-[var(--b)] pt-4 mt-2">
           <Label className="text-slate-200 text-sm font-heading flex items-center gap-2">
-            <Globe className="h-4 w-4 text-[#14B8A6]" />
+            <Globe className="h-4 w-4 text-[var(--accent)]" />
             {t.profile.otaIdentityHeading}
           </Label>
           <p className="text-xs text-slate-500">{t.profile.otaIdentityDesc}</p>
@@ -233,7 +234,7 @@ export default function ProfilePage() {
           <Input
             value={form.otaEntityName} onChange={e => setForm(f => ({ ...f, otaEntityName: e.target.value }))}
             placeholder={t.profile.otaEntityNamePlaceholder}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white placeholder:text-slate-500"
             data-testid="input-ota-entity-name"
           />
         </div>
@@ -258,21 +259,21 @@ export default function ProfilePage() {
           )}
         </div>
 
-        <div className="space-y-2 md:col-span-2 border-t border-[#14B8A6]/10 pt-4 mt-2">
+        <div className="space-y-2 md:col-span-2 border-t border-[var(--b)] pt-4 mt-2">
           <Label className="text-slate-200 text-sm font-heading flex items-center gap-2">
-            <MapPin className="h-4 w-4 text-[#14B8A6]" />
+            <MapPin className="h-4 w-4 text-[var(--accent)]" />
             {t.profile.landTitleHeading}
           </Label>
         </div>
         <div className="space-y-2">
           <Label className="text-slate-300 text-sm">{t.profile.landTitleTypeLabel}</Label>
           <Select value={form.landTitleType} onValueChange={v => setForm(f => ({ ...f, landTitleType: v }))}>
-            <SelectTrigger className="bg-[#162036] border-[#14B8A6]/20 text-white" data-testid="select-land-title-type">
+            <SelectTrigger className="bg-[var(--surface2)] border-[var(--b)] text-white" data-testid="select-land-title-type">
               <SelectValue placeholder={t.profile.landTitleTypeLabel} />
             </SelectTrigger>
-            <SelectContent className="bg-[#162036] border-[#14B8A6]/20">
+            <SelectContent className="bg-[var(--surface2)] border-[var(--b)]">
               {Object.entries(t.profile.landTitleTypeOptions).map(([k, v]) => (
-                <SelectItem key={k} value={k} className="text-white hover:bg-[#14B8A6]/10">{v}</SelectItem>
+                <SelectItem key={k} value={k} className="text-white hover:bg-[var(--accent-tint)]">{v}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -284,7 +285,7 @@ export default function ProfilePage() {
               type="date"
               value={form.landTitleExpiry}
               onChange={e => setForm(f => ({ ...f, landTitleExpiry: e.target.value }))}
-              className="bg-[#162036] border-[#14B8A6]/20 text-white"
+              className="bg-[var(--surface2)] border-[var(--b)] text-white"
               data-testid="input-land-title-expiry"
             />
             <p className="text-xs text-amber-400 flex items-center gap-1">
@@ -293,9 +294,9 @@ export default function ProfilePage() {
           </div>
         )}
 
-        <div className="space-y-2 md:col-span-2 border-t border-[#14B8A6]/10 pt-4 mt-2">
+        <div className="space-y-2 md:col-span-2 border-t border-[var(--b)] pt-4 mt-2">
           <Label className="text-slate-200 text-sm font-heading flex items-center gap-2">
-            <HeartHandshake className="h-4 w-4 text-[#14B8A6]" />
+            <HeartHandshake className="h-4 w-4 text-[var(--accent)]" />
             {t.profile.banjarHeading}
           </Label>
           <p className="text-xs text-slate-500">{t.profile.banjarDesc}</p>
@@ -305,7 +306,7 @@ export default function ProfilePage() {
           <Input
             value={form.banjars} onChange={e => setForm(f => ({ ...f, banjars: e.target.value }))}
             placeholder={t.profile.banjarNamePlaceholder}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white placeholder:text-slate-500"
             data-testid="input-banjar-name"
           />
         </div>
@@ -315,7 +316,7 @@ export default function ProfilePage() {
             type="date"
             value={form.banjarIntroDate}
             onChange={e => setForm(f => ({ ...f, banjarIntroDate: e.target.value }))}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white"
             data-testid="input-banjar-intro-date"
           />
         </div>
@@ -325,7 +326,7 @@ export default function ProfilePage() {
             value={form.banjarNotes}
             onChange={e => setForm(f => ({ ...f, banjarNotes: e.target.value }))}
             placeholder={t.profile.banjarNotesPlaceholder}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500 min-h-[60px]"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white placeholder:text-slate-500 min-h-[60px]"
             data-testid="input-banjar-notes"
           />
         </div>
@@ -333,7 +334,7 @@ export default function ProfilePage() {
       <div className="flex gap-3 pt-2">
         <Button
           type="submit" disabled={createMutation.isPending || updateMutation.isPending}
-          className="bg-[#14B8A6] hover:bg-[#0D9488] text-white font-heading"
+          className="bg-[var(--accent)] hover:bg-[var(--accent2)] text-white font-heading"
           data-testid="button-save-property"
         >
           {t.profile.saveProperty}
@@ -349,19 +350,19 @@ export default function ProfilePage() {
   );
 
   return (
-    <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--app-bg)" }}>
+    <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--bg)" }}>
       <div className="max-w-4xl mx-auto space-y-6">
         <div>
           <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-profile-heading">{t.profile.heading}</h1>
           <p className="text-slate-400 text-sm mt-1">{t.profile.subheading}</p>
         </div>
 
-        <Card className="border-[#14B8A6]/10 bg-[#0F1A2E]/80 backdrop-blur-sm" data-testid="card-user-name">
+        <Card className="border-[var(--b)] bg-[var(--surface)] backdrop-blur-sm" data-testid="card-user-name">
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-[#14B8A6]/10">
-                  <UserIcon className="h-5 w-5 text-[#14B8A6]" />
+                <div className="p-2 rounded-lg bg-[var(--accent-tint)]">
+                  <UserIcon className="h-5 w-5 text-[var(--accent)]" />
                 </div>
                 <div>
                   <CardTitle className="text-white font-heading text-lg">{t.profile.yourName}</CardTitle>
@@ -370,7 +371,7 @@ export default function ProfilePage() {
               </div>
               {!editingName && (
                 <Button size="sm" variant="ghost" onClick={() => { setNameValue(user?.firstName ?? ""); setEditingName(true); }}
-                  className="text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10"
+                  className="text-slate-400 hover:text-[var(--accent)] hover:bg-[var(--accent-tint)]"
                   data-testid="button-edit-name"
                 >
                   <Pencil className="h-4 w-4 mr-1" /> {t.profile.editProperty}
@@ -385,13 +386,13 @@ export default function ProfilePage() {
                   value={nameValue}
                   onChange={e => setNameValue(e.target.value)}
                   placeholder={t.auth.firstNamePlaceholder}
-                  className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500 max-w-xs"
+                  className="bg-[var(--surface2)] border-[var(--b)] text-white placeholder:text-slate-500 max-w-xs"
                   data-testid="input-profile-name"
                   autoFocus
                   onKeyDown={e => { if (e.key === "Enter") nameMutation.mutate(); }}
                 />
                 <Button size="sm" onClick={() => nameMutation.mutate()} disabled={nameMutation.isPending}
-                  className="bg-[#14B8A6] hover:bg-[#0D9488] text-white"
+                  className="bg-[var(--accent)] hover:bg-[var(--accent2)] text-white"
                   data-testid="button-save-name"
                 >
                   <Check className="h-4 w-4" />
@@ -413,15 +414,15 @@ export default function ProfilePage() {
 
         {properties.map(prop => (
           <div key={prop.id} className="space-y-4">
-            <Card className="border-[#14B8A6]/10 bg-[#0F1A2E]/80 backdrop-blur-sm" data-testid={`card-property-${prop.id}`}>
+            <Card className="border-[var(--b)] bg-[var(--surface)] backdrop-blur-sm" data-testid={`card-property-${prop.id}`}>
               {editing === prop.id ? (
                 <CardContent className="pt-6">{renderForm()}</CardContent>
               ) : (
                 <>
                   <CardHeader className="flex flex-row items-start justify-between pb-2">
                     <div className="flex items-center gap-3">
-                      <div className="p-2 rounded-lg bg-[#14B8A6]/10">
-                        <Building2 className="h-5 w-5 text-[#14B8A6]" />
+                      <div className="p-2 rounded-lg bg-[var(--accent-tint)]">
+                        <Building2 className="h-5 w-5 text-[var(--accent)]" />
                       </div>
                       <div>
                         <CardTitle className="text-white font-heading text-lg" data-testid={`text-property-name-${prop.id}`}>{prop.propertyName}</CardTitle>
@@ -430,7 +431,7 @@ export default function ProfilePage() {
                     </div>
                     <div className="flex gap-2">
                       <Button size="sm" variant="ghost" onClick={() => startEdit(prop)}
-                        className="text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10"
+                        className="text-slate-400 hover:text-[var(--accent)] hover:bg-[var(--accent-tint)]"
                         data-testid={`button-edit-property-${prop.id}`}
                       >
                         <Pencil className="h-4 w-4 mr-1" /> {t.profile.editProperty}
@@ -463,13 +464,13 @@ export default function ProfilePage() {
         ))}
 
         {showForm ? (
-          <Card className="border-[#14B8A6]/20 bg-[#0F1A2E]/80 backdrop-blur-sm">
+          <Card className="border-[var(--b)] bg-[var(--surface)] backdrop-blur-sm">
             <CardContent className="pt-6">{renderForm()}</CardContent>
           </Card>
         ) : (
           <Button
             onClick={() => { setShowForm(true); setEditing(null); setForm(emptyForm); }}
-            className="w-full bg-[#14B8A6]/10 hover:bg-[#14B8A6]/20 border border-dashed border-[#14B8A6]/30 text-[#14B8A6] font-heading"
+            className="w-full bg-[var(--accent-tint)] hover:bg-[var(--accent-tint)] border border-dashed border-[var(--b)] text-[var(--accent)] font-heading"
             variant="ghost"
             data-testid="button-add-property"
           >
@@ -484,6 +485,23 @@ export default function ProfilePage() {
             <p className="text-slate-500 text-sm mt-1">{t.profile.noPropertiesDesc}</p>
           </div>
         )}
+
+        <Card className="border-[var(--b)] bg-[var(--surface)] backdrop-blur-sm" data-testid="card-appearance">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-[var(--accent-tint)]">
+                <Palette className="h-5 w-5 text-[var(--accent)]" />
+              </div>
+              <div>
+                <CardTitle className="text-white font-heading text-lg">Appearance</CardTitle>
+                <p className="text-slate-400 text-xs mt-0.5">Choose your preferred colour theme</p>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <ThemeSwitcher />
+          </CardContent>
+        </Card>
 
         <SupportAccessSection />
       </div>
@@ -508,12 +526,12 @@ function PropertyExtendedInfo({ prop }: { prop: Property }) {
   })();
 
   return (
-    <div className="mt-4 pt-4 border-t border-[#14B8A6]/10 space-y-3 text-sm">
+    <div className="mt-4 pt-4 border-t border-[var(--b)] space-y-3 text-sm">
       {prop.entityStructure && (
         <div className="flex items-center gap-2" data-testid={`text-entity-structure-${prop.id}`}>
           <Building2 className="h-4 w-4 text-slate-500" />
           <span className="text-slate-500">{t.profile.entityStructureLabel}:</span>
-          <span className="px-2 py-0.5 rounded-md bg-[#14B8A6]/10 text-[#14B8A6] text-xs font-heading">
+          <span className="px-2 py-0.5 rounded-md bg-[var(--accent-tint)] text-[var(--accent)] text-xs font-heading">
             {t.profile.entityStructureOptions[prop.entityStructure] || prop.entityStructure}
           </span>
         </div>
@@ -683,13 +701,13 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
   };
 
   const renderStaffForm = () => (
-    <form onSubmit={handleStaffSave} className="space-y-3 p-4 border border-[#14B8A6]/10 rounded-lg bg-[#0F1A2E]/60">
+    <form onSubmit={handleStaffSave} className="space-y-3 p-4 border border-[var(--b)] rounded-lg bg-[var(--surface)]">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div className="space-y-1">
           <Label className="text-slate-300 text-xs">{t.profile.staffNameLabel}</Label>
           <Input
             value={staffForm.name} onChange={e => setStaffForm(f => ({ ...f, name: e.target.value }))}
-            required className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+            required className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
             data-testid="input-staff-name"
           />
         </div>
@@ -697,7 +715,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
           <Label className="text-slate-300 text-xs">{t.profile.staffRoleLabel}</Label>
           <Input
             value={staffForm.role} onChange={e => setStaffForm(f => ({ ...f, role: e.target.value }))}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
             data-testid="input-staff-role"
           />
         </div>
@@ -706,7 +724,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
           <Input
             type="date" value={staffForm.startDate}
             onChange={e => setStaffForm(f => ({ ...f, startDate: e.target.value }))}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
             data-testid="input-staff-start-date"
           />
         </div>
@@ -714,12 +732,12 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
         <div className="space-y-1">
           <Label className="text-slate-300 text-xs">{t.profile.staffBpjsKesehatanLabel}</Label>
           <Select value={staffForm.bpjsKesehatanStatus} onValueChange={v => setStaffForm(f => ({ ...f, bpjsKesehatanStatus: v }))}>
-            <SelectTrigger className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm" data-testid="select-bpjs-kesehatan">
+            <SelectTrigger className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm" data-testid="select-bpjs-kesehatan">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-[#162036] border-[#14B8A6]/20">
+            <SelectContent className="bg-[var(--surface2)] border-[var(--b)]">
               {Object.entries(t.profile.staffBpjsStatusOptions).map(([k, v]) => (
-                <SelectItem key={k} value={k} className="text-white hover:bg-[#14B8A6]/10">{v}</SelectItem>
+                <SelectItem key={k} value={k} className="text-white hover:bg-[var(--accent-tint)]">{v}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -729,7 +747,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
           <Input
             value={staffForm.bpjsKesehatanMemberId}
             onChange={e => setStaffForm(f => ({ ...f, bpjsKesehatanMemberId: e.target.value }))}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
             data-testid="input-bpjs-kesehatan-id"
           />
         </div>
@@ -737,12 +755,12 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
         <div className="space-y-1">
           <Label className="text-slate-300 text-xs">{t.profile.staffBpjsKetenagakerjaanLabel}</Label>
           <Select value={staffForm.bpjsKetenagakerjaanStatus} onValueChange={v => setStaffForm(f => ({ ...f, bpjsKetenagakerjaanStatus: v }))}>
-            <SelectTrigger className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm" data-testid="select-bpjs-ketenagakerjaan">
+            <SelectTrigger className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm" data-testid="select-bpjs-ketenagakerjaan">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-[#162036] border-[#14B8A6]/20">
+            <SelectContent className="bg-[var(--surface2)] border-[var(--b)]">
               {Object.entries(t.profile.staffBpjsStatusOptions).map(([k, v]) => (
-                <SelectItem key={k} value={k} className="text-white hover:bg-[#14B8A6]/10">{v}</SelectItem>
+                <SelectItem key={k} value={k} className="text-white hover:bg-[var(--accent-tint)]">{v}</SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -752,7 +770,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
           <Input
             value={staffForm.bpjsKetenagakerjaanMemberId}
             onChange={e => setStaffForm(f => ({ ...f, bpjsKetenagakerjaanMemberId: e.target.value }))}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
             data-testid="input-bpjs-ketenagakerjaan-id"
           />
         </div>
@@ -761,7 +779,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
           <Label className="text-slate-300 text-xs">{t.profile.staffKitasLabel}</Label>
           <Input
             value={staffForm.kitas} onChange={e => setStaffForm(f => ({ ...f, kitas: e.target.value }))}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
             data-testid="input-staff-kitas"
           />
         </div>
@@ -770,7 +788,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
           <Input
             type="date" value={staffForm.kitasExpiry}
             onChange={e => setStaffForm(f => ({ ...f, kitasExpiry: e.target.value }))}
-            className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+            className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
             data-testid="input-staff-kitas-expiry"
           />
         </div>
@@ -797,7 +815,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
       <div className="flex gap-2 pt-1">
         <Button type="submit" size="sm"
           disabled={createStaffMutation.isPending || updateStaffMutation.isPending}
-          className="bg-[#14B8A6] hover:bg-[#0D9488] text-white font-heading"
+          className="bg-[var(--accent)] hover:bg-[var(--accent2)] text-white font-heading"
           data-testid="button-save-staff"
         >
           {editingStaff ? t.profile.saveProperty : t.profile.staffAddButton}
@@ -814,14 +832,14 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
   );
 
   return (
-    <div className="border border-[#14B8A6]/10 rounded-lg bg-[#0F1A2E]/60 overflow-visible" data-testid={`section-staff-${propertyId}`}>
+    <div className="border border-[var(--b)] rounded-lg bg-[var(--surface)] overflow-visible" data-testid={`section-staff-${propertyId}`}>
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between gap-3 p-4 text-left"
         data-testid={`button-toggle-staff-${propertyId}`}
       >
         <div className="flex items-center gap-3">
-          <Users className="h-5 w-5 text-[#14B8A6]" />
+          <Users className="h-5 w-5 text-[var(--accent)]" />
           <div>
             <span className="text-slate-100 font-heading text-sm">{t.profile.staffHeading}</span>
             <span className="text-slate-500 text-xs ml-2">({staff.length})</span>
@@ -846,7 +864,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
             editingStaff === s.id ? (
               <div key={s.id}>{renderStaffForm()}</div>
             ) : (
-              <div key={s.id} className="flex items-center justify-between gap-3 p-3 border border-[#14B8A6]/5 rounded-md bg-[#162036]/50" data-testid={`staff-row-${s.id}`}>
+              <div key={s.id} className="flex items-center justify-between gap-3 p-3 border border-[var(--b)] rounded-md bg-[var(--surface2)]" data-testid={`staff-row-${s.id}`}>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <span className="text-slate-200 text-sm font-heading" data-testid={`text-staff-name-${s.id}`}>{s.name}</span>
@@ -880,7 +898,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
                 </div>
                 <div className="flex gap-1">
                   <Button size="icon" variant="ghost" onClick={() => startEditStaff(s)}
-                    className="text-slate-400 hover:text-[#14B8A6]"
+                    className="text-slate-400 hover:text-[var(--accent)]"
                     data-testid={`button-edit-staff-${s.id}`}
                   >
                     <Pencil className="h-3 w-3" />
@@ -903,7 +921,7 @@ function StaffRosterSection({ propertyId }: { propertyId: string }) {
             <Button
               size="sm" variant="ghost"
               onClick={() => { setShowAddForm(true); setStaffForm(emptyStaffForm); }}
-              className="text-[#14B8A6] hover:bg-[#14B8A6]/10"
+              className="text-[var(--accent)] hover:bg-[var(--accent-tint)]"
               data-testid={`button-add-staff-${propertyId}`}
             >
               <Plus className="h-3 w-3 mr-1" /> {t.profile.staffAddButton}
@@ -959,14 +977,14 @@ function BanjarContributionsSection({ propertyId }: { propertyId: string }) {
   });
 
   return (
-    <div className="border border-[#14B8A6]/10 rounded-lg bg-[#0F1A2E]/60 overflow-visible" data-testid={`section-banjar-contributions-${propertyId}`}>
+    <div className="border border-[var(--b)] rounded-lg bg-[var(--surface)] overflow-visible" data-testid={`section-banjar-contributions-${propertyId}`}>
       <button
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center justify-between gap-3 p-4 text-left"
         data-testid={`button-toggle-banjar-${propertyId}`}
       >
         <div className="flex items-center gap-3">
-          <HeartHandshake className="h-5 w-5 text-[#14B8A6]" />
+          <HeartHandshake className="h-5 w-5 text-[var(--accent)]" />
           <div>
             <span className="text-slate-100 font-heading text-sm">{t.profile.banjarContributionsHeading}</span>
             <span className="text-slate-500 text-xs ml-2">({contributions.length})</span>
@@ -982,11 +1000,11 @@ function BanjarContributionsSection({ propertyId }: { propertyId: string }) {
           )}
 
           {contributions.map(c => (
-            <div key={c.id} className="flex items-center justify-between gap-3 p-3 border border-[#14B8A6]/5 rounded-md bg-[#162036]/50" data-testid={`contrib-row-${c.id}`}>
+            <div key={c.id} className="flex items-center justify-between gap-3 p-3 border border-[var(--b)] rounded-md bg-[var(--surface2)]" data-testid={`contrib-row-${c.id}`}>
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-slate-200 text-sm">{new Date(c.contributionDate).toLocaleDateString()}</span>
-                  <span className="px-1.5 py-0.5 rounded-md bg-[#14B8A6]/10 text-[#14B8A6] text-xs">
+                  <span className="px-1.5 py-0.5 rounded-md bg-[var(--accent-tint)] text-[var(--accent)] text-xs">
                     {t.profile.banjarContribTypes[c.contributionType] || c.contributionType}
                   </span>
                   {c.amount && <span className="text-slate-300 text-sm">IDR {c.amount.toLocaleString()}</span>}
@@ -1004,26 +1022,26 @@ function BanjarContributionsSection({ propertyId }: { propertyId: string }) {
           ))}
 
           {showAddForm && (
-            <form onSubmit={(e) => { e.preventDefault(); createContribMutation.mutate(); }} className="space-y-3 p-4 border border-[#14B8A6]/10 rounded-lg bg-[#0F1A2E]/60">
+            <form onSubmit={(e) => { e.preventDefault(); createContribMutation.mutate(); }} className="space-y-3 p-4 border border-[var(--b)] rounded-lg bg-[var(--surface)]">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="space-y-1">
                   <Label className="text-slate-300 text-xs">{t.profile.banjarContribDateLabel}</Label>
                   <Input
                     type="date" value={contribForm.contributionDate}
                     onChange={e => setContribForm(f => ({ ...f, contributionDate: e.target.value }))}
-                    required className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+                    required className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
                     data-testid="input-contrib-date"
                   />
                 </div>
                 <div className="space-y-1">
                   <Label className="text-slate-300 text-xs">{t.profile.banjarContribTypeLabel}</Label>
                   <Select value={contribForm.contributionType} onValueChange={v => setContribForm(f => ({ ...f, contributionType: v }))}>
-                    <SelectTrigger className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm" data-testid="select-contrib-type">
+                    <SelectTrigger className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm" data-testid="select-contrib-type">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-[#162036] border-[#14B8A6]/20">
+                    <SelectContent className="bg-[var(--surface2)] border-[var(--b)]">
                       {Object.entries(t.profile.banjarContribTypes).map(([k, v]) => (
-                        <SelectItem key={k} value={k} className="text-white hover:bg-[#14B8A6]/10">{v}</SelectItem>
+                        <SelectItem key={k} value={k} className="text-white hover:bg-[var(--accent-tint)]">{v}</SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
@@ -1033,7 +1051,7 @@ function BanjarContributionsSection({ propertyId }: { propertyId: string }) {
                   <Input
                     type="number" value={contribForm.amount}
                     onChange={e => setContribForm(f => ({ ...f, amount: e.target.value }))}
-                    className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+                    className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
                     data-testid="input-contrib-amount"
                   />
                 </div>
@@ -1042,7 +1060,7 @@ function BanjarContributionsSection({ propertyId }: { propertyId: string }) {
                   <Input
                     value={contribForm.description}
                     onChange={e => setContribForm(f => ({ ...f, description: e.target.value }))}
-                    className="bg-[#162036] border-[#14B8A6]/20 text-white text-sm"
+                    className="bg-[var(--surface2)] border-[var(--b)] text-white text-sm"
                     data-testid="input-contrib-desc"
                   />
                 </div>
@@ -1050,7 +1068,7 @@ function BanjarContributionsSection({ propertyId }: { propertyId: string }) {
               <div className="flex gap-2 pt-1">
                 <Button type="submit" size="sm"
                   disabled={createContribMutation.isPending}
-                  className="bg-[#14B8A6] hover:bg-[#0D9488] text-white font-heading"
+                  className="bg-[var(--accent)] hover:bg-[var(--accent2)] text-white font-heading"
                   data-testid="button-save-contrib"
                 >
                   {t.profile.banjarAddContribution}
@@ -1070,7 +1088,7 @@ function BanjarContributionsSection({ propertyId }: { propertyId: string }) {
             <Button
               size="sm" variant="ghost"
               onClick={() => { setShowAddForm(true); setContribForm(emptyContribForm); }}
-              className="text-[#14B8A6] hover:bg-[#14B8A6]/10"
+              className="text-[var(--accent)] hover:bg-[var(--accent-tint)]"
               data-testid={`button-add-contrib-${propertyId}`}
             >
               <Plus className="h-3 w-3 mr-1" /> {t.profile.banjarAddContribution}
@@ -1111,7 +1129,7 @@ function SupportAccessSection() {
   if (isLoading) return null;
 
   return (
-    <Card className="border-[#14B8A6]/20 bg-[#0F1A2E]/80 backdrop-blur-sm mt-8" data-testid="card-support-access">
+    <Card className="border-[var(--b)] bg-[var(--surface)] backdrop-blur-sm mt-8" data-testid="card-support-access">
       <CardHeader>
         <CardTitle className="font-heading text-lg text-slate-100 flex items-center gap-2">
           {grant?.isActive ? <ShieldCheck className="h-5 w-5 text-green-400" /> : <ShieldOff className="h-5 w-5 text-slate-500" />}
@@ -1155,7 +1173,7 @@ function SupportAccessSection() {
             size="sm"
             onClick={() => enableMutation.mutate()}
             disabled={enableMutation.isPending}
-            className="border-[#14B8A6]/30 text-[#14B8A6] hover:bg-[#14B8A6]/10"
+            className="border-[var(--b)] text-[var(--accent)] hover:bg-[var(--accent-tint)]"
             data-testid="button-enable-support"
           >
             <ShieldCheck className="h-4 w-4 mr-2" />

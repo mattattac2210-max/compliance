@@ -21,10 +21,10 @@ const GATE_COLORS: Record<number, string> = { 0: "#94A3B8", 1: "#14B8A6", 2: "#6
 const GATE_ABBRS: Record<number, string> = { 0: "PT", 1: "ZONE", 2: "NIB", 3: "SLF", 4: "TAX", 5: "STAFF", 6: "SAFE", 7: "OTA" };
 
 const STATUS_DOT: Record<string, { color: string; pulse?: boolean; icon?: boolean }> = {
-  missing: { color: "#EF4444" },
-  uploaded: { color: "#22C55E" },
-  expiring: { color: "#F59E0B", pulse: true },
-  expired: { color: "#EF4444", icon: true },
+  missing: { color: "var(--danger)" },
+  uploaded: { color: "var(--grn)" },
+  expiring: { color: "var(--gold)", pulse: true },
+  expired: { color: "var(--danger)", icon: true },
 };
 
 function getTemplateName(tmpl: VaultDocumentTemplate, lang: string): string {
@@ -201,11 +201,11 @@ export default function VaultPage() {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--app-bg)" }}>
+    <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--bg)" }}>
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center gap-3">
           <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-vault-heading">{t.vault.heading}</h1>
-          <span className="text-[9px] font-heading font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20" data-testid="badge-paid">
+          <span className="text-[9px] font-heading font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#F59E0B]/10 text-[var(--gold)] border border-[#F59E0B]/20" data-testid="badge-paid">
             {t.vault.paidBadge}
           </span>
         </div>
@@ -215,25 +215,25 @@ export default function VaultPage() {
           <div className="text-center py-16">
             <FileText className="h-12 w-12 text-slate-600 mx-auto mb-3" />
             <p className="text-slate-400 font-heading">{t.vault.noPropertySelected}</p>
-            <Link to="/profile" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm mt-2 inline-block" data-testid="link-add-property-prompt">
+            <Link to="/profile" className="text-[var(--accent)] hover:text-[#5EEAD4] text-sm mt-2 inline-block" data-testid="link-add-property-prompt">
               {t.profile.addProperty}
             </Link>
           </div>
         ) : (
           <>
             {/* Property Selector + Summary Card */}
-            <div className="rounded-xl border overflow-hidden" style={{ borderColor: "rgba(20,184,166,0.15)", background: "rgba(15,26,46,0.8)" }}>
+            <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--accent-tint)", background: "rgba(15,26,46,0.8)" }}>
               <div className="p-5">
                 <div className="flex items-start gap-4 flex-wrap">
                   {/* Property selector */}
                   <div className="flex-1 min-w-[200px]">
                     <Label className="text-slate-500 text-[10px] font-heading font-bold tracking-wider uppercase mb-1.5 block">{t.vault.propertyLabel}</Label>
                     <Select value={selectedPropertyId} onValueChange={setSelectedPropertyId}>
-                      <SelectTrigger className="bg-[#162036] border-[#14B8A6]/20 text-white" data-testid="select-vault-property">
+                      <SelectTrigger className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white" data-testid="select-vault-property">
                         <SelectValue placeholder={t.vault.selectPropertyPrompt} />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#162036] border-[#14B8A6]/20">
-                        {properties.map(p => <SelectItem key={p.id} value={p.id} className="text-white hover:bg-[#14B8A6]/10">{p.propertyName}</SelectItem>)}
+                      <SelectContent className="bg-[var(--surface2)] border-[var(--accent-tint)]">
+                        {properties.map(p => <SelectItem key={p.id} value={p.id} className="text-white hover:bg-[var(--accent-tint)]">{p.propertyName}</SelectItem>)}
                       </SelectContent>
                     </Select>
                   </div>
@@ -261,18 +261,18 @@ export default function VaultPage() {
                     <div className="flex items-center gap-3">
                       <div className="relative w-14 h-14">
                         <svg className="w-14 h-14 -rotate-90" viewBox="0 0 36 36">
-                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="rgba(20,184,166,0.15)" strokeWidth="3" />
-                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="#14B8A6" strokeWidth="3" strokeDasharray={`${summary.completionPct}, 100`} strokeLinecap="round" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--accent-tint)" strokeWidth="3" />
+                          <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" fill="none" stroke="var(--accent)" strokeWidth="3" strokeDasharray={`${summary.completionPct}, 100`} strokeLinecap="round" />
                         </svg>
-                        <span className="absolute inset-0 flex items-center justify-center text-xs font-heading font-bold text-[#14B8A6]" data-testid="text-completion-pct">{summary.completionPct}%</span>
+                        <span className="absolute inset-0 flex items-center justify-center text-xs font-heading font-bold text-[var(--accent)]" data-testid="text-completion-pct">{summary.completionPct}%</span>
                       </div>
                       <div className="text-xs space-y-0.5">
                         <span className="text-slate-400 block">{t.vault.completionLabel}</span>
                         <div className="flex gap-2 text-[10px]">
-                          <span className="text-[#22C55E]">{summary.uploaded} {t.vault.gateStatusUploaded}</span>
-                          <span className="text-[#EF4444]">{summary.missing} {t.vault.gateStatusMissing}</span>
-                          {summary.expiring > 0 && <span className="text-[#F59E0B]">{summary.expiring} {t.vault.gateStatusExpiring}</span>}
-                          {summary.expired > 0 && <span className="text-[#EF4444]">{summary.expired} {t.vault.gateStatusExpired}</span>}
+                          <span className="text-[var(--grn)]">{summary.uploaded} {t.vault.gateStatusUploaded}</span>
+                          <span className="text-[var(--danger)]">{summary.missing} {t.vault.gateStatusMissing}</span>
+                          {summary.expiring > 0 && <span className="text-[var(--gold)]">{summary.expiring} {t.vault.gateStatusExpiring}</span>}
+                          {summary.expired > 0 && <span className="text-[var(--danger)]">{summary.expired} {t.vault.gateStatusExpired}</span>}
                         </div>
                       </div>
                     </div>
@@ -323,9 +323,9 @@ export default function VaultPage() {
                             {gateNum === 0 ? "PT" : gateNum}
                           </span>
                           {allDone ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-[#22C55E]" />
+                            <CheckCircle2 className="h-3.5 w-3.5 text-[var(--grn)]" />
                           ) : hasIssues ? (
-                            <AlertTriangle className="h-3.5 w-3.5 text-[#F59E0B]" />
+                            <AlertTriangle className="h-3.5 w-3.5 text-[var(--gold)]" />
                           ) : (
                             <span className="w-2 h-2 rounded-full bg-[#EF4444]/60" />
                           )}
@@ -346,7 +346,7 @@ export default function VaultPage() {
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0 }}
                             className="absolute top-full mt-1 left-1/2 -translate-x-1/2 z-20 rounded-lg p-3 min-w-[140px]"
-                            style={{ background: "#0A1628", border: "1px solid rgba(20,184,166,0.2)", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}
+                            style={{ background: "var(--bg2)", border: "1px solid var(--accent-tint2)", boxShadow: "0 4px 20px rgba(0,0,0,0.4)" }}
                             data-testid={`tooltip-gate-${gateNum}`}
                           >
                             <p className="text-[10px] font-heading font-bold text-slate-300 mb-2">
@@ -355,25 +355,25 @@ export default function VaultPage() {
                             <div className="space-y-1 text-[10px]">
                               {counts.uploaded > 0 && (
                                 <div className="flex items-center gap-1.5">
-                                  <CheckCircle2 className="h-3 w-3 text-[#22C55E]" />
+                                  <CheckCircle2 className="h-3 w-3 text-[var(--grn)]" />
                                   <span className="text-slate-400">{counts.uploaded} {t.vault.gateStatusUploaded}</span>
                                 </div>
                               )}
                               {counts.missing > 0 && (
                                 <div className="flex items-center gap-1.5">
-                                  <XCircle className="h-3 w-3 text-[#EF4444]" />
+                                  <XCircle className="h-3 w-3 text-[var(--danger)]" />
                                   <span className="text-slate-400">{counts.missing} {t.vault.gateStatusMissing}</span>
                                 </div>
                               )}
                               {counts.expiring > 0 && (
                                 <div className="flex items-center gap-1.5">
-                                  <Clock className="h-3 w-3 text-[#F59E0B]" />
+                                  <Clock className="h-3 w-3 text-[var(--gold)]" />
                                   <span className="text-slate-400">{counts.expiring} {t.vault.gateStatusExpiring}</span>
                                 </div>
                               )}
                               {counts.expired > 0 && (
                                 <div className="flex items-center gap-1.5">
-                                  <AlertTriangle className="h-3 w-3 text-[#EF4444]" />
+                                  <AlertTriangle className="h-3 w-3 text-[var(--danger)]" />
                                   <span className="text-slate-400">{counts.expired} {t.vault.gateStatusExpired}</span>
                                 </div>
                               )}
@@ -389,8 +389,8 @@ export default function VaultPage() {
 
             {/* Quick Access Panel */}
             {selectedPropertyId && (
-              <div className="rounded-xl border overflow-hidden" style={{ borderColor: "rgba(20,184,166,0.1)", background: "rgba(15,26,46,0.6)" }}>
-                <div className="px-5 py-4 border-b" style={{ borderColor: "rgba(20,184,166,0.08)" }}>
+              <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--accent-tint)", background: "rgba(15,26,46,0.6)" }}>
+                <div className="px-5 py-4 border-b" style={{ borderColor: "var(--accent-tint)" }}>
                   <div className="flex items-center justify-between flex-wrap gap-3">
                     <div>
                       <h2 className="font-heading font-bold text-white text-sm" data-testid="text-quick-access-heading">{t.vault.quickAccessHeading}</h2>
@@ -403,7 +403,7 @@ export default function VaultPage() {
                           value={searchQuery}
                           onChange={e => setSearchQuery(e.target.value)}
                           placeholder={t.vault.searchPlaceholder}
-                          className="bg-[#162036] border-[#14B8A6]/20 text-white text-xs h-8 pl-8 w-48"
+                          className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs h-8 pl-8 w-48"
                           data-testid="input-search-docs"
                         />
                       </div>
@@ -414,7 +414,7 @@ export default function VaultPage() {
                       <button
                         key={f}
                         onClick={() => setDocFilter(f)}
-                        className={`text-[10px] font-heading font-bold tracking-wider uppercase px-3 py-1 rounded-full transition-colors ${docFilter === f ? "bg-[#14B8A6]/15 text-[#14B8A6] border border-[#14B8A6]/30" : "text-slate-500 border border-transparent hover:text-slate-300"}`}
+                        className={`text-[10px] font-heading font-bold tracking-wider uppercase px-3 py-1 rounded-full transition-colors ${docFilter === f ? "bg-[var(--accent-tint)] text-[var(--accent)] border border-[var(--accent-tint2)]" : "text-slate-500 border border-transparent hover:text-slate-300"}`}
                         data-testid={`button-filter-${f}`}
                       >
                         {f === "all" ? t.vault.filterAll : f === "required" ? t.vault.filterRequired : f === "expiring" ? t.vault.filterExpiring : t.vault.filterExpired}
@@ -428,7 +428,7 @@ export default function VaultPage() {
                     <p className="text-slate-500 text-sm">{t.vault.noResults}</p>
                   </div>
                 ) : (
-                  <div className="divide-y" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                  <div className="divide-y" style={{ borderColor: "var(--b)" }}>
                     {filteredDocs.map(tmpl => {
                       const status = getDocStatus(tmpl);
                       const dot = STATUS_DOT[status] || STATUS_DOT.missing;
@@ -436,10 +436,10 @@ export default function VaultPage() {
                       const isEditing = editingId === tmpl.id;
 
                       return (
-                        <div key={tmpl.id} className="px-5 py-3" style={{ borderColor: "rgba(255,255,255,0.04)" }} data-testid={`row-doc-${tmpl.documentSlug}`}>
+                        <div key={tmpl.id} className="px-5 py-3" style={{ borderColor: "var(--b)" }} data-testid={`row-doc-${tmpl.documentSlug}`}>
                           <div className="flex items-center gap-3">
                             <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${dot.pulse ? "animate-pulse" : ""}`} style={{ background: dot.color }} />
-                            {dot.icon && <AlertTriangle className="h-3.5 w-3.5 text-[#EF4444] shrink-0 -ml-2" />}
+                            {dot.icon && <AlertTriangle className="h-3.5 w-3.5 text-[var(--danger)] shrink-0 -ml-2" />}
                             <span className="text-[9px] font-heading font-bold tracking-wider uppercase px-1.5 py-0.5 rounded" style={{ background: `${GATE_COLORS[tmpl.gateNumber]}10`, color: GATE_COLORS[tmpl.gateNumber] }}>
                               {GATE_ABBRS[tmpl.gateNumber]}
                             </span>
@@ -448,7 +448,7 @@ export default function VaultPage() {
                             </span>
                             <span className="text-[9px] font-heading font-bold tracking-wider uppercase px-2 py-0.5 rounded-full" style={{
                               background: tmpl.isRequired ? "rgba(239,68,68,0.08)" : "rgba(148,163,184,0.08)",
-                              color: tmpl.isRequired ? "#FCA5A5" : "#94A3B8",
+                              color: tmpl.isRequired ? "#FCA5A5" : "var(--t2)",
                               border: `1px solid ${tmpl.isRequired ? "rgba(239,68,68,0.15)" : "rgba(148,163,184,0.15)"}`,
                             }}>
                               {tmpl.isRequired ? t.vault.requiredLabel : t.vault.optionalLabel}
@@ -457,7 +457,7 @@ export default function VaultPage() {
                               <span className="text-[10px] text-slate-500 hidden sm:inline">{t.vault.expiryLabel}: {new Date(doc.expiryDate).toLocaleDateString()}</span>
                             )}
                             <Button size="sm" variant="ghost" onClick={() => isEditing ? setEditingId(null) : startEdit(tmpl.id)}
-                              className="text-slate-400 hover:text-[#14B8A6] text-xs"
+                              className="text-slate-400 hover:text-[var(--accent)] text-xs"
                               data-testid={`button-edit-doc-${tmpl.documentSlug}`}
                             >
                               {isEditing ? t.vault.cancelButton : t.vault.editButton}
@@ -472,10 +472,10 @@ export default function VaultPage() {
                                   <div className="space-y-1">
                                     <Label className="text-slate-400 text-xs">{t.timeline.statusLabel}</Label>
                                     <Select value={editForm.status} onValueChange={v => setEditForm(f => ({ ...f, status: v }))}>
-                                      <SelectTrigger className="bg-[#162036] border-[#14B8A6]/20 text-white text-xs h-8" data-testid={`select-status-${tmpl.documentSlug}`}>
+                                      <SelectTrigger className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs h-8" data-testid={`select-status-${tmpl.documentSlug}`}>
                                         <SelectValue />
                                       </SelectTrigger>
-                                      <SelectContent className="bg-[#162036] border-[#14B8A6]/20">
+                                      <SelectContent className="bg-[var(--surface2)] border-[var(--accent-tint)]">
                                         <SelectItem value="missing" className="text-white text-xs">{t.vault.statusMissing}</SelectItem>
                                         <SelectItem value="uploaded" className="text-white text-xs">{t.vault.statusUploaded}</SelectItem>
                                         <SelectItem value="expiring" className="text-white text-xs">{t.vault.statusExpiring}</SelectItem>
@@ -487,7 +487,7 @@ export default function VaultPage() {
                                     <div className="space-y-1">
                                       <Label className="text-slate-400 text-xs">{t.vault.expiryDateLabel}</Label>
                                       <Input type="date" value={editForm.expiryDate} onChange={e => setEditForm(f => ({ ...f, expiryDate: e.target.value }))}
-                                        className="bg-[#162036] border-[#14B8A6]/20 text-white text-xs h-8"
+                                        className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs h-8"
                                         data-testid={`input-expiry-${tmpl.documentSlug}`}
                                       />
                                     </div>
@@ -496,14 +496,14 @@ export default function VaultPage() {
                                     <Label className="text-slate-400 text-xs">{t.vault.notesLabel}</Label>
                                     <Textarea value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))}
                                       placeholder={t.vault.notesPlaceholder}
-                                      className="bg-[#162036] border-[#14B8A6]/20 text-white text-xs min-h-[60px]"
+                                      className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs min-h-[60px]"
                                       data-testid={`input-notes-${tmpl.documentSlug}`}
                                     />
                                   </div>
                                 </div>
                                 <div className="flex gap-2">
                                   <Button size="sm" onClick={() => handleSave(tmpl.id)} disabled={upsertMutation.isPending}
-                                    className="bg-[#14B8A6] hover:bg-[#0D9488] text-white text-xs"
+                                    className="bg-[var(--accent)] hover:bg-[var(--accent2)] text-white text-xs"
                                     data-testid={`button-save-doc-${tmpl.documentSlug}`}
                                   >
                                     {t.vault.saveButton}
@@ -551,13 +551,13 @@ export default function VaultPage() {
                         {/* Status indicators inline */}
                         <div className="flex items-center gap-1.5 mr-2">
                           {allDone ? (
-                            <CheckCircle2 className="h-4 w-4 text-[#22C55E]" />
+                            <CheckCircle2 className="h-4 w-4 text-[var(--grn)]" />
                           ) : (
                             <>
-                              {counts.uploaded > 0 && <span className="flex items-center gap-0.5 text-[10px] text-[#22C55E]"><CheckCircle2 className="h-3 w-3" />{counts.uploaded}</span>}
-                              {counts.missing > 0 && <span className="flex items-center gap-0.5 text-[10px] text-[#EF4444]"><XCircle className="h-3 w-3" />{counts.missing}</span>}
-                              {counts.expiring > 0 && <span className="flex items-center gap-0.5 text-[10px] text-[#F59E0B]"><Clock className="h-3 w-3" />{counts.expiring}</span>}
-                              {counts.expired > 0 && <span className="flex items-center gap-0.5 text-[10px] text-[#EF4444]"><AlertTriangle className="h-3 w-3" />{counts.expired}</span>}
+                              {counts.uploaded > 0 && <span className="flex items-center gap-0.5 text-[10px] text-[var(--grn)]"><CheckCircle2 className="h-3 w-3" />{counts.uploaded}</span>}
+                              {counts.missing > 0 && <span className="flex items-center gap-0.5 text-[10px] text-[var(--danger)]"><XCircle className="h-3 w-3" />{counts.missing}</span>}
+                              {counts.expiring > 0 && <span className="flex items-center gap-0.5 text-[10px] text-[var(--gold)]"><Clock className="h-3 w-3" />{counts.expiring}</span>}
+                              {counts.expired > 0 && <span className="flex items-center gap-0.5 text-[10px] text-[var(--danger)]"><AlertTriangle className="h-3 w-3" />{counts.expired}</span>}
                             </>
                           )}
                         </div>
@@ -578,16 +578,16 @@ export default function VaultPage() {
                                 const isEditing = editingId === tmpl.id;
 
                                 return (
-                                  <div key={tmpl.id} className="border-b last:border-b-0 px-5 py-3" style={{ borderColor: "rgba(255,255,255,0.04)" }}>
+                                  <div key={tmpl.id} className="border-b last:border-b-0 px-5 py-3" style={{ borderColor: "var(--b)" }}>
                                     <div className="flex items-center gap-3">
                                       <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${dot.pulse ? "animate-pulse" : ""}`} style={{ background: dot.color }} />
-                                      {dot.icon && <AlertTriangle className="h-3.5 w-3.5 text-[#EF4444] shrink-0 -ml-2" />}
+                                      {dot.icon && <AlertTriangle className="h-3.5 w-3.5 text-[var(--danger)] shrink-0 -ml-2" />}
                                       <span className="text-sm text-slate-200 flex-1">
                                         <GlossaryAwareText text={getTemplateName(tmpl, language)} terms={terms} />
                                       </span>
                                       <span className="text-[9px] font-heading font-bold tracking-wider uppercase px-2 py-0.5 rounded-full" style={{
                                         background: tmpl.isRequired ? "rgba(239,68,68,0.08)" : "rgba(148,163,184,0.08)",
-                                        color: tmpl.isRequired ? "#FCA5A5" : "#94A3B8",
+                                        color: tmpl.isRequired ? "#FCA5A5" : "var(--t2)",
                                         border: `1px solid ${tmpl.isRequired ? "rgba(239,68,68,0.15)" : "rgba(148,163,184,0.15)"}`,
                                       }}>
                                         {tmpl.isRequired ? t.vault.requiredLabel : t.vault.optionalLabel}
@@ -596,7 +596,7 @@ export default function VaultPage() {
                                         <span className="text-[10px] text-slate-500 hidden sm:inline">{t.vault.expiryLabel}: {new Date(doc.expiryDate).toLocaleDateString()}</span>
                                       )}
                                       <Button size="sm" variant="ghost" onClick={() => isEditing ? setEditingId(null) : startEdit(tmpl.id)}
-                                        className="text-slate-400 hover:text-[#14B8A6] text-xs"
+                                        className="text-slate-400 hover:text-[var(--accent)] text-xs"
                                       >
                                         {isEditing ? t.vault.cancelButton : t.vault.editButton}
                                       </Button>
@@ -610,10 +610,10 @@ export default function VaultPage() {
                                             <div className="space-y-1">
                                               <Label className="text-slate-400 text-xs">{t.timeline.statusLabel}</Label>
                                               <Select value={editForm.status} onValueChange={v => setEditForm(f => ({ ...f, status: v }))}>
-                                                <SelectTrigger className="bg-[#162036] border-[#14B8A6]/20 text-white text-xs h-8">
+                                                <SelectTrigger className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs h-8">
                                                   <SelectValue />
                                                 </SelectTrigger>
-                                                <SelectContent className="bg-[#162036] border-[#14B8A6]/20">
+                                                <SelectContent className="bg-[var(--surface2)] border-[var(--accent-tint)]">
                                                   <SelectItem value="missing" className="text-white text-xs">{t.vault.statusMissing}</SelectItem>
                                                   <SelectItem value="uploaded" className="text-white text-xs">{t.vault.statusUploaded}</SelectItem>
                                                   <SelectItem value="expiring" className="text-white text-xs">{t.vault.statusExpiring}</SelectItem>
@@ -625,7 +625,7 @@ export default function VaultPage() {
                                               <div className="space-y-1">
                                                 <Label className="text-slate-400 text-xs">{t.vault.expiryDateLabel}</Label>
                                                 <Input type="date" value={editForm.expiryDate} onChange={e => setEditForm(f => ({ ...f, expiryDate: e.target.value }))}
-                                                  className="bg-[#162036] border-[#14B8A6]/20 text-white text-xs h-8"
+                                                  className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs h-8"
                                                 />
                                               </div>
                                             )}
@@ -633,13 +633,13 @@ export default function VaultPage() {
                                               <Label className="text-slate-400 text-xs">{t.vault.notesLabel}</Label>
                                               <Textarea value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))}
                                                 placeholder={t.vault.notesPlaceholder}
-                                                className="bg-[#162036] border-[#14B8A6]/20 text-white text-xs min-h-[60px]"
+                                                className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs min-h-[60px]"
                                               />
                                             </div>
                                           </div>
                                           <div className="flex gap-2">
                                             <Button size="sm" onClick={() => handleSave(tmpl.id)} disabled={upsertMutation.isPending}
-                                              className="bg-[#14B8A6] hover:bg-[#0D9488] text-white text-xs"
+                                              className="bg-[var(--accent)] hover:bg-[var(--accent2)] text-white text-xs"
                                             >
                                               {t.vault.saveButton}
                                             </Button>
@@ -667,26 +667,26 @@ export default function VaultPage() {
 
             {/* Generate Report + Pricing Note */}
             {selectedPropertyId && (
-              <div className="rounded-xl p-5 space-y-4" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid rgba(20,184,166,0.1)" }}>
+              <div className="rounded-xl p-5 space-y-4" style={{ background: "rgba(15,26,46,0.6)", border: "1px solid var(--accent-tint)" }}>
                 <div className="flex items-center justify-between flex-wrap gap-3">
                   <div>
                     <h3 className="font-heading font-bold text-white text-sm flex items-center gap-2">
-                      <Download className="h-4 w-4 text-[#14B8A6]" />
+                      <Download className="h-4 w-4 text-[var(--accent)]" />
                       {t.vault.reportButton}
                     </h3>
                     <p className="text-slate-500 text-xs mt-1">{t.vault.reportHelper}</p>
                   </div>
                   <Button
                     onClick={handleDownloadReport}
-                    className="bg-[#14B8A6] hover:bg-[#0D9488] text-white text-xs font-heading font-bold tracking-wider"
+                    className="bg-[var(--accent)] hover:bg-[var(--accent2)] text-white text-xs font-heading font-bold tracking-wider"
                     data-testid="button-generate-report"
                   >
                     <Download className="h-3.5 w-3.5 mr-1.5" />
                     {t.vault.reportButton}
                   </Button>
                 </div>
-                <div className="flex items-start gap-2 pt-2 border-t" style={{ borderColor: "rgba(20,184,166,0.08)" }}>
-                  <Lock className="h-3.5 w-3.5 text-[#F59E0B] shrink-0 mt-0.5" />
+                <div className="flex items-start gap-2 pt-2 border-t" style={{ borderColor: "var(--accent-tint)" }}>
+                  <Lock className="h-3.5 w-3.5 text-[var(--gold)] shrink-0 mt-0.5" />
                   <p className="text-[#F59E0B]/80 text-xs leading-relaxed">{t.vault.pricingNote}</p>
                 </div>
               </div>

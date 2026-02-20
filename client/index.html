@@ -11,7 +11,26 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=Lato:ital,wght@0,300;0,400;0,700;1,300;1,400&display=swap" rel="stylesheet">
+    <script>
+      try {
+        var t = localStorage.getItem('dscvr-theme') || 'light';
+        document.documentElement.setAttribute('data-theme', t);
+        if (t === 'dark') {
+          document.documentElement.classList.add('dark');
+          var r = document.documentElement;
+          r.style.setProperty('--bg', '#07101E');
+          r.style.setProperty('--surface', '#0C1A2E');
+          r.style.setProperty('--txt', '#F1F5F9');
+          r.style.setProperty('--accent', '#14B8A6');
+        } else {
+          r = document.documentElement;
+          r.style.setProperty('--bg', '#F7F8FA');
+          r.style.setProperty('--surface', '#FFFFFF');
+          r.style.setProperty('--txt', '#0F1923');
+          r.style.setProperty('--accent', '#E8192C');
+        }
+      } catch(e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>

@@ -45,15 +45,15 @@ export default function SelfAudit() {
   return (
     <div>
       <div className="relative z-[5] max-w-5xl mx-auto pt-10 pb-8 px-6 md:px-10">
-        <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[#0D9488] mb-[18px] flex items-center gap-3">
-          <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
+        <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[var(--accent2)] mb-[18px] flex items-center gap-3">
+          <span className="block w-[28px] h-[1px] bg-[var(--accent2)] shrink-0" />
           {t.audit.tagline}
         </div>
-        <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--app-text)" }}>
+        <h1 className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]" style={{ color: "var(--txt)" }}>
           {t.audit.heroTitle1}<br />
-          <span className="text-[#14B8A6]">{t.audit.heroTitle2}</span>
+          <span className="text-[var(--accent)]">{t.audit.heroTitle2}</span>
         </h1>
-        <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--app-text-secondary)" }}>
+        <p className="text-[16px] font-light leading-[1.8] max-w-[580px]" style={{ color: "var(--t2)" }}>
           {t.audit.heroDesc}
         </p>
       </div>
@@ -62,23 +62,23 @@ export default function SelfAudit() {
         <div className="flex gap-[10px] items-start p-[20px_24px] rounded-[10px] mb-10 bg-[rgba(239,68,68,0.05)] border border-[rgba(239,68,68,0.15)]" data-testid="audit-alert">
           <span className="text-[28px] shrink-0">{"\u26A0"}</span>
           <div>
-            <h2 className="font-heading font-extrabold text-[18px] mb-[6px] tracking-[-0.2px]" style={{ color: "var(--app-text)" }}>
+            <h2 className="font-heading font-extrabold text-[18px] mb-[6px] tracking-[-0.2px]" style={{ color: "var(--txt)" }}>
               {t.audit.deadlineTitle}
             </h2>
-            <p className="text-[13px] font-light leading-[1.7]" style={{ color: "var(--app-text-secondary)" }}>
+            <p className="text-[13px] font-light leading-[1.7]" style={{ color: "var(--t2)" }}>
               {t.audit.deadlineDesc}
             </p>
           </div>
         </div>
 
-        <div className="flex gap-4 mb-7 p-[14px_18px] border rounded-[8px] flex-wrap" style={{ background: "var(--app-expand-bg)", borderColor: "var(--app-border)" }} data-testid="audit-legend">
+        <div className="flex gap-4 mb-7 p-[14px_18px] border rounded-[8px] flex-wrap" style={{ background: "var(--app-expand-bg)", borderColor: "var(--b)" }} data-testid="audit-legend">
           {[
             { color: "#22C55E", label: t.audit.legendCompliant },
             { color: "#EF4444", label: t.audit.legendFlagged },
             { color: "#F59E0B", label: t.audit.legendNeedsAttention },
-            { color: "#64748B", label: t.audit.legendNotChecked },
+            { color: "var(--t3)", label: t.audit.legendNotChecked },
           ].map((item) => (
-            <div key={item.label} className="flex items-center gap-[7px] text-[12px]" style={{ color: "var(--app-text-secondary)" }}>
+            <div key={item.label} className="flex items-center gap-[7px] text-[12px]" style={{ color: "var(--t2)" }}>
               <div className="w-[10px] h-[10px] rounded-[3px] shrink-0" style={{ background: item.color }} />
               {item.label}
             </div>
@@ -87,8 +87,8 @@ export default function SelfAudit() {
 
         {translatedAuditSections.map((section) => (
           <div key={section.num}>
-            <div className="font-heading font-extrabold text-[13px] text-[#14B8A6] tracking-[0.3px] mb-[14px] pb-[10px] border-b flex items-center gap-[10px]" style={{ borderColor: "rgba(20,184,166,0.12)" }}>
-              <span className="font-heading text-[9px] font-bold tracking-[2px] bg-[rgba(13,148,136,0.12)] border border-[rgba(20,184,166,0.2)] text-[#0D9488] py-[3px] px-[9px] rounded uppercase">
+            <div className="font-heading font-extrabold text-[13px] text-[var(--accent)] tracking-[0.3px] mb-[14px] pb-[10px] border-b flex items-center gap-[10px]" style={{ borderColor: "var(--accent-tint)" }}>
+              <span className="font-heading text-[9px] font-bold tracking-[2px] bg-[var(--accent-tint)] border border-[var(--accent-tint2)] text-[var(--accent2)] py-[3px] px-[9px] rounded uppercase">
                 {section.num}
               </span>
               {section.title}
@@ -107,7 +107,7 @@ export default function SelfAudit() {
                           ? "bg-[rgba(239,68,68,0.05)] border-[rgba(239,68,68,0.14)]"
                           : status === "warn"
                             ? "bg-[rgba(245,158,11,0.05)] border-[rgba(245,158,11,0.14)]"
-                            : "border-[rgba(226,232,240,0.06)] hover:bg-[rgba(255,255,255,0.035)]"
+                            : "border-[var(--b)] hover:bg-[var(--b)]"
                     }`}
                     style={!status ? { background: "var(--app-expand-bg)" } : undefined}
                     onClick={() => cycleCheck(item.id)}
@@ -120,16 +120,16 @@ export default function SelfAudit() {
                             ? "bg-[#EF4444] border-[#EF4444] text-white"
                             : status === "warn"
                               ? "bg-[#F59E0B] border-[#F59E0B] text-white"
-                              : "border-[1.5px] border-[#64748B]"
+                              : "border-[1.5px] border-[var(--t3)]"
                       }`}
                     >
                       {status === "checked" ? "\u2713" : status === "flagged" ? "\u2717" : status === "warn" ? "!" : ""}
                     </div>
                     <div>
-                      <div className="font-heading font-bold text-[13px] mb-[3px] tracking-[-0.1px]" style={{ color: "var(--app-text)" }}>
+                      <div className="font-heading font-bold text-[13px] mb-[3px] tracking-[-0.1px]" style={{ color: "var(--txt)" }}>
                         {item.title}
                       </div>
-                      <div className="text-[12px] font-light leading-[1.55]" style={{ color: "var(--app-text-muted)" }}>{item.desc}</div>
+                      <div className="text-[12px] font-light leading-[1.55]" style={{ color: "var(--t3)" }}>{item.desc}</div>
                     </div>
                     <span
                       className={`font-heading text-[9px] font-bold tracking-[1px] py-[3px] px-[8px] rounded shrink-0 self-start mt-[2px] uppercase ${
@@ -138,7 +138,7 @@ export default function SelfAudit() {
                           : item.severity === "high"
                             ? "bg-[rgba(245,158,11,0.12)]"
                             : item.severity === "medium"
-                              ? "bg-[rgba(20,184,166,0.12)] text-[#14B8A6]"
+                              ? "bg-[var(--accent-tint)] text-[var(--accent)]"
                               : "bg-[rgba(148,163,184,0.12)]"
                       }`}
                       style={{
@@ -147,7 +147,7 @@ export default function SelfAudit() {
                           : item.severity === "high"
                             ? "var(--app-amber-alert-text)"
                             : item.severity === "low"
-                              ? "var(--app-text-secondary)"
+                              ? "var(--t2)"
                               : undefined,
                       }}
                     >
@@ -160,7 +160,7 @@ export default function SelfAudit() {
           </div>
         ))}
 
-        <div className="mt-8 pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic" style={{ color: "var(--app-text-muted)" }}>
+        <div className="mt-8 pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic" style={{ color: "var(--t3)" }}>
           {t.audit.disclaimer}
         </div>
       </div>

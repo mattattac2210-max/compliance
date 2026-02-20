@@ -90,7 +90,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
         onMouseLeave={handleMouseLeave}
       >
         <span
-          className="text-[#14B8A6] border-b border-dotted border-[rgba(20,184,166,0.4)] cursor-help"
+          className="text-[var(--accent)] border-b border-dotted border-[var(--accent-tint2)] cursor-help"
           data-testid={`glossary-link-${term.slug}`}
         >
           {children}
@@ -113,27 +113,27 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
                 top: `${popoverPos.top - 8}px`,
                 left: `${popoverPos.left}px`,
                 transform: "translateY(-100%)",
-                background: "var(--app-panel)",
+                background: "var(--surface)",
                 borderColor: "var(--app-border-teal)",
                 boxShadow: "0 8px 24px var(--app-shadow-popover)",
               }}
               data-testid={`glossary-popover-${term.slug}`}
             >
-              <div className="font-heading font-extrabold text-[13px] mb-[6px] tracking-[-0.1px]" style={{ color: "var(--app-text)" }}>
+              <div className="font-heading font-extrabold text-[13px] mb-[6px] tracking-[-0.1px]" style={{ color: "var(--txt)" }}>
                 {content.termName}
               </div>
               <div className="text-[11px] font-light leading-[1.6] mb-[8px]" style={{ color: "var(--app-text-secondary)" }}>
                 {content.plainDefinition}
               </div>
               {whyItMatters.length > 0 && (
-                <div className="flex items-start gap-[6px] text-[10px] text-[#F59E0B] leading-[1.5] mb-[10px]">
-                  <span className="w-[3px] h-[3px] rounded-full bg-[#F59E0B] shrink-0 mt-[5px]" />
+                <div className="flex items-start gap-[6px] text-[10px] text-[var(--gold)] leading-[1.5] mb-[10px]">
+                  <span className="w-[3px] h-[3px] rounded-full bg-[var(--gold)] shrink-0 mt-[5px]" />
                   {whyItMatters[0]}
                 </div>
               )}
               <button
                 onClick={openModal}
-                className="font-heading text-[9px] font-bold tracking-[1.5px] uppercase py-[4px] px-[10px] rounded bg-[rgba(20,184,166,0.1)] border border-[rgba(20,184,166,0.2)] text-[#14B8A6] cursor-pointer hover-elevate"
+                className="font-heading text-[9px] font-bold tracking-[1.5px] uppercase py-[4px] px-[10px] rounded bg-[var(--accent-tint)] border border-[var(--accent-tint2)] text-[var(--accent)] cursor-pointer hover-elevate"
                 data-testid={`glossary-view-full-${term.slug}`}
               >
                 {t.glossary.readMore}
@@ -141,7 +141,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
               <div
                 className="absolute left-[20px] bottom-[-5px] w-[10px] h-[10px] rotate-45"
                 style={{
-                  background: "var(--app-panel)",
+                  background: "var(--surface)",
                   borderRight: "1px solid var(--app-border-teal)",
                   borderBottom: "1px solid var(--app-border-teal)",
                 }}
@@ -164,14 +164,14 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
             animate={{ opacity: 1, scale: 1 }}
             className="rounded-[12px] p-[28px_32px] max-w-[520px] w-[90vw] max-h-[80vh] overflow-y-auto border"
             style={{
-              background: "var(--app-panel)",
+              background: "var(--surface)",
               borderColor: "var(--app-border-teal)",
               boxShadow: "0 16px 48px var(--app-shadow-popover)",
             }}
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start justify-between mb-4">
-              <div className="font-heading font-black text-[20px] tracking-[-0.3px]" style={{ color: "var(--app-text)" }}>
+              <div className="font-heading font-black text-[20px] tracking-[-0.3px]" style={{ color: "var(--txt)" }}>
                 {content.termName}
               </div>
               <button
@@ -190,13 +190,13 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
 
             {whyItMatters.length > 0 && (
               <div className="mb-5">
-                <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#F59E0B] mb-[8px]">
+                <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[var(--gold)] mb-[8px]">
                   {t.glossary.whyItMatters}
                 </div>
                 <ul className="space-y-[5px]">
                   {whyItMatters.map((item, i) => (
                     <li key={i} className="flex items-start gap-[8px] text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
-                      <span className="w-[4px] h-[4px] rounded-full bg-[#F59E0B] shrink-0 mt-[7px]" />
+                      <span className="w-[4px] h-[4px] rounded-full bg-[var(--gold)] shrink-0 mt-[7px]" />
                       {item}
                     </li>
                   ))}
@@ -205,13 +205,13 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
             )}
 
             <div className="mb-5">
-              <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#14B8A6] mb-[8px]">
+              <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[var(--accent)] mb-[8px]">
                 {t.glossary.whatToStore}
               </div>
               <ul className="space-y-[5px]">
                 {content.whatToStore.map((item, i) => (
                   <li key={i} className="flex items-start gap-[8px] text-[12px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
-                    <span className="w-[4px] h-[4px] rounded-full bg-[#14B8A6] shrink-0 mt-[7px]" />
+                    <span className="w-[4px] h-[4px] rounded-full bg-[var(--accent)] shrink-0 mt-[7px]" />
                     {item}
                   </li>
                 ))}
@@ -220,13 +220,13 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
 
             {content.commonPitfalls && content.commonPitfalls.length > 0 && (
               <div className="mb-4">
-                <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[#EF4444] mb-[8px]">
+                <div className="font-heading text-[9px] font-bold tracking-[2px] uppercase text-[var(--danger)] mb-[8px]">
                   {t.glossary.commonPitfalls}
                 </div>
                 <ul className="space-y-[5px]">
                   {content.commonPitfalls.map((item, i) => (
                     <li key={i} className="flex items-start gap-[8px] text-[12px] text-[#FCA5A5] leading-[1.6]">
-                      <span className="w-[4px] h-[4px] rounded-full bg-[#EF4444] shrink-0 mt-[7px]" />
+                      <span className="w-[4px] h-[4px] rounded-full bg-[var(--danger)] shrink-0 mt-[7px]" />
                       {item}
                     </li>
                   ))}

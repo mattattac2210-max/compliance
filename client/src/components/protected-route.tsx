@@ -7,8 +7,8 @@ import { useUpgradeModal } from "@/components/upgrade-modal";
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth();
   if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--app-bg)" }}>
-      <div className="text-[#14B8A6] font-heading text-sm tracking-widest uppercase animate-pulse">Loading…</div>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
+      <div className="text-[var(--accent)] font-heading text-sm tracking-widest uppercase animate-pulse">Loading…</div>
     </div>
   );
   if (!isAuthenticated) return <Redirect to="/login" />;
@@ -21,8 +21,8 @@ export function ProRoute({ children }: { children: React.ReactNode }) {
   const { openUpgradeModal } = useUpgradeModal();
 
   if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--app-bg)" }}>
-      <div className="text-[#14B8A6] font-heading text-sm tracking-widest uppercase animate-pulse">Loading…</div>
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
+      <div className="text-[var(--accent)] font-heading text-sm tracking-widest uppercase animate-pulse">Loading…</div>
     </div>
   );
   if (!isAuthenticated) return <Redirect to="/login" />;
@@ -54,7 +54,7 @@ export function ProRoute({ children }: { children: React.ReactNode }) {
           <div
             style={{
               background: "rgba(7,16,30,0.85)",
-              border: "1px solid rgba(20,184,166,0.3)",
+              border: "1px solid var(--accent-tint2)",
               borderRadius: "16px",
               padding: "40px 36px",
               maxWidth: "400px",
@@ -69,21 +69,21 @@ export function ProRoute({ children }: { children: React.ReactNode }) {
               width: "56px",
               height: "56px",
               borderRadius: "50%",
-              background: "rgba(20,184,166,0.1)",
-              border: "1px solid rgba(20,184,166,0.25)",
+              background: "var(--accent-tint)",
+              border: "1px solid var(--accent-tint2)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
               margin: "0 auto 20px",
             }}>
-              <Lock size={24} style={{ color: "#14B8A6" }} />
+              <Lock size={24} style={{ color: "var(--accent)" }} />
             </div>
 
             <div style={{
-              fontFamily: "Montserrat",
+              fontFamily: "var(--font-display)",
               fontSize: "18px",
               fontWeight: 800,
-              color: "#F1F5F9",
+              color: "var(--txt)",
               marginBottom: "8px",
               letterSpacing: "-0.2px",
             }}>
@@ -91,9 +91,9 @@ export function ProRoute({ children }: { children: React.ReactNode }) {
             </div>
 
             <div style={{
-              fontFamily: "Lato",
+              fontFamily: "var(--font-body)",
               fontSize: "13px",
-              color: "#94A3B8",
+              color: "var(--t2)",
               lineHeight: 1.6,
               marginBottom: "24px",
             }}>
@@ -105,9 +105,9 @@ export function ProRoute({ children }: { children: React.ReactNode }) {
               data-testid="button-upgrade-teaser"
               style={{
                 padding: "12px 28px",
-                background: "#14B8A6",
+                background: "var(--accent)",
                 color: "#FFFFFF",
-                fontFamily: "Montserrat",
+                fontFamily: "var(--font-display)",
                 fontSize: "13px",
                 fontWeight: 700,
                 letterSpacing: "0.5px",
@@ -116,8 +116,8 @@ export function ProRoute({ children }: { children: React.ReactNode }) {
                 cursor: "pointer",
                 transition: "background 0.2s",
               }}
-              onMouseEnter={(e) => (e.currentTarget.style.background = "#0D9488")}
-              onMouseLeave={(e) => (e.currentTarget.style.background = "#14B8A6")}
+              onMouseEnter={(e) => (e.currentTarget.style.background = "var(--accent2)")}
+              onMouseLeave={(e) => (e.currentTarget.style.background = "var(--accent)")}
             >
               {t.upgrade.upgradeButton}
             </button>
