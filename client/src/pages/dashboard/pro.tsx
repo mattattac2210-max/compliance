@@ -9,6 +9,10 @@ import {
   Hexagon, CheckCircle, BookOpen, List, ChevronRight
 } from "lucide-react";
 import { FILING_SCHEDULE, getNextFilingDates } from "@/lib/filing-schedule";
+import {
+  generateEvents, mapVaultDocs, mapStaffKitas, mapPropertyHgb,
+  typeColor,
+} from "@/lib/calendar-events";
 import type { Property, VaultDocument, VaultDocumentTemplate, StaffMember } from "@shared/schema";
 
 interface ProDashboardProps {
@@ -31,7 +35,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
   const { t, lang } = useLanguage();
   const { user } = useAuth();
   const [setupDismissed, setSetupDismissed] = useState(() => {
-    try { return localStorage.getItem("dscvr-setup-dismissed") === "true"; } catch { return false; }
+    try { return sessionStorage.getItem("dscvr-setup-dismissed") === "true"; } catch { return false; }
   });
 
   const { data: properties = [] } = useQuery<Property[]>({
@@ -145,31 +149,29 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
   const alertCount = expiringDocs.length + expiredDocs.length + complianceAlerts;
 
   const upcomingDeadlines = useMemo(() => {
-    const items: Array<{ label: string; date: Date; color: string }> = [];
-
-    const otaDeadline = new Date("2026-03-31");
-    if (otaDeadline > now && otaDeadline <= in90) {
-      items.push({ label: "OTA Compliance Deadline", date: otaDeadline, color: "#EF4444" });
+    const yr = now.getFullYear();
+    const staticEvents = generateEvents(yr);
+    const nextYearEvents = generateEvents(yr + 1);
+    const seen = new Set(staticEvents.map(e => e.id));
+    for (const e of nextYearEvents) {
+      if (!seen.has(e.id)) staticEvents.push(e);
     }
 
-    FILING_SCHEDULE.forEach(f => {
-      const dates = getNextFilingDates(f, now, 2);
-      dates.forEach(d => {
-        if (d > now && d <= in90) {
-          items.push({ label: f.description, date: d, color: "#F59E0B" });
-        }
-      });
-    });
+    const vaultEvents = mapVaultDocs(documents, templates, lang);
+    const kitasEvents = mapStaffKitas(staffMembers);
+    const hgbEvents = mapPropertyHgb(properties);
 
-    expiringDocs.forEach(d => {
-      const tmpl = templates.find(tp => tp.id === d.templateId);
-      const tmplName = tmpl?.translations?.[lang]?.name ?? tmpl?.translations?.en?.name ?? t.dashboard.documentRenewal;
-      items.push({ label: tmplName, date: new Date(d.expiryDate!), color: "#14B8A6" });
-    });
+    const all = [...staticEvents, ...vaultEvents, ...kitasEvents, ...hgbEvents]
+      .filter(e => e.date > now && e.date <= in90)
+      .sort((a, b) => a.date.getTime() - b.date.getTime())
+      .slice(0, 6);
 
-    items.sort((a, b) => a.date.getTime() - b.date.getTime());
-    return items.slice(0, 6);
-  }, [expiringDocs, templates, now, in90, lang, t]);
+    return all.map(e => ({
+      label: e.title,
+      date: e.date,
+      color: typeColor(e.type, e.gate),
+    }));
+  }, [documents, templates, staffMembers, properties, now, in90, lang]);
 
   const gateDocCounts = useMemo(() => {
     return GATE_ABBRS.map((_, i) => {
@@ -201,7 +203,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
 
   const dismissSetup = () => {
     setSetupDismissed(true);
-    try { localStorage.setItem("dscvr-setup-dismissed", "true"); } catch {}
+    try { sessionStorage.setItem("dscvr-setup-dismissed", "true"); } catch {}
   };
 
   if (!hasProperty) {
