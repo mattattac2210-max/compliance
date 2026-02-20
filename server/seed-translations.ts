@@ -3,6 +3,8 @@ import type { TermTranslation, GuideTranslation, SequenceStep } from "@shared/sc
 export const termTranslationsMap: Record<string, { uk: TermTranslation; id: TermTranslation }> = {
   "wet-signature": {
     uk: {
+      term: "Мокрий підпис",
+      tags: ["Підписи", "Документи"],
       plainDefinition: "Фізичний підпис, зроблений ручкою на друкованому документі (не цифровий підпис).",
       whyItMatters: [
         "Багато державних установ Індонезії вимагають паперові підписи для верифікації",
@@ -27,6 +29,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "Tanda Tangan Basah",
+      tags: ["Tanda Tangan", "Dokumen"],
       plainDefinition: "Tanda tangan fisik yang dibubuhkan dengan pena di atas dokumen cetak (bukan tanda tangan digital).",
       whyItMatters: [
         "Banyak kantor pemerintah Indonesia mensyaratkan tanda tangan basah untuk verifikasi",
@@ -53,6 +57,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "company-stamp-chop": {
     uk: {
+      term: "Печатка компанії",
+      tags: ["Підписи", "Документи"],
       plainDefinition: "Печатка або штамп компанії, що використовується для засвідчення офіційних документів, виданих підприємством.",
       whyItMatters: [
         "Часто вимагається державними органами для підтвердження того, що документи офіційно видані підприємством",
@@ -73,6 +79,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "Cap / Stempel Perusahaan",
+      tags: ["Tanda Tangan", "Dokumen"],
       plainDefinition: "Cap atau stempel perusahaan yang digunakan untuk mengesahkan dokumen resmi yang dikeluarkan oleh perusahaan.",
       whyItMatters: [
         "Sering diminta oleh instansi pemerintah untuk mengonfirmasi bahwa dokumen resmi dikeluarkan oleh perusahaan",
@@ -95,6 +103,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "notarised-document": {
     uk: {
+      term: "Нотаріально засвідчений документ",
+      tags: ["Документи", "Юридичне"],
       plainDefinition: "Документ, який був перевірений та засвідчений ліцензованим нотаріусом.",
       whyItMatters: [
         "Використовується для підтвердження особи, підписів та автентичності документів",
@@ -111,6 +121,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "Dokumen Notaris",
+      tags: ["Dokumen", "Hukum"],
       plainDefinition: "Dokumen yang telah diverifikasi dan disahkan oleh notaris berlisensi.",
       whyItMatters: [
         "Digunakan untuk mengonfirmasi identitas, tanda tangan, dan keaslian dokumen",
@@ -129,6 +141,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "legalised-copy": {
     uk: {
+      term: "Легалізована копія",
+      tags: ["Документи", "Юридичне"],
       plainDefinition: "Копія, яка була офіційно засвідчена уповноваженим органом або нотаріусом як точна та достовірна копія оригіналу.",
       whyItMatters: [
         "Деякі державні заявки вимагають легалізовані копії замість оригіналів",
@@ -144,6 +158,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "Salinan Legalisir",
+      tags: ["Dokumen", "Hukum"],
       plainDefinition: "Salinan yang telah diverifikasi secara resmi oleh pejabat berwenang atau notaris sebagai salinan yang benar dan akurat dari dokumen asli.",
       whyItMatters: [
         "Beberapa pengajuan pemerintah mensyaratkan salinan yang dilegalisir sebagai pengganti dokumen asli",
@@ -161,6 +177,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "certified-copy": {
     uk: {
+      term: "Засвідчена копія",
+      tags: ["Документи"],
       plainDefinition: "Копія, підписана та/або скріплена печаткою уповноваженою особою, що підтверджує її відповідність оригінальному документу.",
       whyItMatters: [
         "Часто приймається замість оригіналів, коли оригінали не вимагаються",
@@ -176,6 +194,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "Salinan Tersertifikasi",
+      tags: ["Dokumen"],
       plainDefinition: "Salinan yang ditandatangani dan/atau distempel oleh pejabat berwenang yang menyatakan bahwa salinan tersebut sesuai dengan dokumen asli.",
       whyItMatters: [
         "Sering diterima sebagai pengganti dokumen asli jika dokumen asli tidak diperlukan",
@@ -193,6 +213,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "oss-online-single-submission": {
     uk: {
+      term: "OSS (Єдине онлайн-подання)",
+      tags: ["OSS", "Дозволи"],
       plainDefinition: "Онлайн-портал Індонезії, що використовується для реєстрації бізнесу та управління певними дозволами та ліцензіями.",
       whyItMatters: [
         "Багато реєстрацій та ліцензій починаються тут — це центральний державний реєстр",
@@ -210,6 +232,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "OSS (Pengajuan Tunggal Daring)",
+      tags: ["OSS", "Perizinan"],
       plainDefinition: "Portal daring Indonesia yang digunakan untuk mendaftarkan usaha dan mengelola perizinan serta lisensi tertentu.",
       whyItMatters: [
         "Banyak pendaftaran dan perizinan dimulai di sini — ini adalah catatan resmi pemerintah pusat",
@@ -229,6 +253,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "nib-business-identification-number": {
     uk: {
+      term: "NIB (Номер ідентифікації бізнесу)",
+      tags: ["OSS", "Дозволи"],
       plainDefinition: "Основний ідентифікаційний номер бізнесу, що видається через портал OSS після успішної реєстрації.",
       whyItMatters: [
         "Часто вимагається перед отриманням інших дозволів, податковою реєстрацією та операційними кроками",
@@ -245,6 +271,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "NIB (Nomor Induk Berusaha)",
+      tags: ["OSS", "Perizinan"],
       plainDefinition: "Nomor identitas usaha utama yang diterbitkan melalui portal OSS setelah pendaftaran berhasil.",
       whyItMatters: [
         "Sering diperlukan sebelum mengurus perizinan lain, pendaftaran pajak, dan langkah operasional",
@@ -263,6 +291,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "kbli": {
     uk: {
+      term: "KBLI",
+      tags: ["OSS", "Дозволи"],
       plainDefinition: "Стандартні коди класифікації видів діяльності бізнесу в Індонезії, що визначають, чим займається підприємство.",
       whyItMatters: [
         "Обраний код KBLI впливає на те, які ліцензії та дозволи застосовуються до вашого бізнесу",
@@ -278,6 +308,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "KBLI",
+      tags: ["OSS", "Perizinan"],
       plainDefinition: "Kode klasifikasi kegiatan usaha standar Indonesia yang mengkategorikan jenis kegiatan suatu usaha.",
       whyItMatters: [
         "Kode KBLI yang dipilih memengaruhi perizinan dan lisensi apa saja yang berlaku untuk usaha Anda",
@@ -295,6 +327,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "pbg-building-approval": {
     uk: {
+      term: "PBG (Будівельний дозвіл)",
+      tags: ["Дозволи", "Будівництво"],
       plainDefinition: "Дозвіл на будівництво, необхідний для будівництва, реновації або зміни функції/статусу будівлі.",
       whyItMatters: [
         "Необхідний для законного дозволу на будівництво та отримання подальших сертифікатів, таких як SLF",
@@ -312,6 +346,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "PBG (Persetujuan Bangunan)",
+      tags: ["Perizinan", "Bangunan"],
       plainDefinition: "Persetujuan atau izin bangunan yang diperlukan untuk pembangunan, renovasi, atau perubahan fungsi/status bangunan.",
       whyItMatters: [
         "Diperlukan untuk persetujuan bangunan yang sah dan sertifikat turunan seperti SLF",
@@ -331,6 +367,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "slf-building-function-certificate": {
     uk: {
+      term: "SLF (Сертифікат функції будівлі)",
+      tags: ["Дозволи", "Будівництво"],
       plainDefinition: "Сертифікат, що підтверджує придатність будівлі для її призначеної функції та безпеку для експлуатації.",
       whyItMatters: [
         "Часто вимагається для комерційної діяльності, страхування та аудитів комплаєнсу",
@@ -348,6 +386,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "SLF (Sertifikat Laik Fungsi)",
+      tags: ["Perizinan", "Bangunan"],
       plainDefinition: "Sertifikat yang menyatakan bahwa bangunan layak untuk fungsi yang dimaksudkan dan aman untuk ditempati.",
       whyItMatters: [
         "Sering diperlukan untuk operasional komersial, asuransi, dan audit kepatuhan",
@@ -367,6 +407,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
   },
   "zoning-certificate": {
     uk: {
+      term: "Сертифікат зонування",
+      tags: ["Дозволи", "Зонування"],
       plainDefinition: "Офіційний документ, що підтверджує дозволену класифікацію використання землі для конкретної ділянки.",
       whyItMatters: [
         "Визначає, які види діяльності юридично дозволені на цій ділянці",
@@ -384,6 +426,8 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
       ]
     },
     id: {
+      term: "Sertifikat Zonasi",
+      tags: ["Perizinan", "Zonasi"],
       plainDefinition: "Dokumen resmi yang menyatakan klasifikasi penggunaan lahan yang diizinkan untuk properti atau bidang tanah tertentu.",
       whyItMatters: [
         "Menentukan kegiatan apa saja yang secara hukum diizinkan di atas lahan tersebut",

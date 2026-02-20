@@ -499,27 +499,37 @@ export async function seedComplianceTerms() {
 }
 
 async function backfillTranslations() {
-  const termsWithoutTranslations = await db.select({ id: complianceTerms.id, slug: complianceTerms.slug, translations: complianceTerms.translations }).from(complianceTerms);
+  const allTerms = await db.select({ id: complianceTerms.id, slug: complianceTerms.slug, translations: complianceTerms.translations }).from(complianceTerms);
   let termCount = 0;
-  for (const term of termsWithoutTranslations) {
-    if (!term.translations && termTranslationsMap[term.slug]) {
-      await db.update(complianceTerms).set({ translations: termTranslationsMap[term.slug] }).where(eq(complianceTerms.id, term.id));
-      termCount++;
+  for (const term of allTerms) {
+    const latest = termTranslationsMap[term.slug];
+    if (latest) {
+      const needsUpdate = !term.translations ||
+        JSON.stringify(term.translations) !== JSON.stringify(latest);
+      if (needsUpdate) {
+        await db.update(complianceTerms).set({ translations: latest }).where(eq(complianceTerms.id, term.id));
+        termCount++;
+      }
     }
   }
   if (termCount > 0) {
-    console.log(`Backfilled translations for ${termCount} compliance terms.`);
+    console.log(`Updated translations for ${termCount} compliance terms.`);
   }
 
-  const guidesWithoutTranslations = await db.select({ id: processNavigationGuides.id, title: processNavigationGuides.title, translations: processNavigationGuides.translations }).from(processNavigationGuides);
+  const allGuides = await db.select({ id: processNavigationGuides.id, title: processNavigationGuides.title, translations: processNavigationGuides.translations }).from(processNavigationGuides);
   let guideCount = 0;
-  for (const guide of guidesWithoutTranslations) {
-    if (!guide.translations && guide.title === "SLF Renewal Workflow" && guideTranslationsMap["slf-renewal-workflow"]) {
-      await db.update(processNavigationGuides).set({ translations: guideTranslationsMap["slf-renewal-workflow"] }).where(eq(processNavigationGuides.id, guide.id));
-      guideCount++;
+  for (const guide of allGuides) {
+    if (guide.title === "SLF Renewal Workflow" && guideTranslationsMap["slf-renewal-workflow"]) {
+      const latest = guideTranslationsMap["slf-renewal-workflow"];
+      const needsUpdate = !guide.translations ||
+        JSON.stringify(guide.translations) !== JSON.stringify(latest);
+      if (needsUpdate) {
+        await db.update(processNavigationGuides).set({ translations: latest }).where(eq(processNavigationGuides.id, guide.id));
+        guideCount++;
+      }
     }
   }
   if (guideCount > 0) {
-    console.log(`Backfilled translations for ${guideCount} process guides.`);
+    console.log(`Updated translations for ${guideCount} process guides.`);
   }
 }

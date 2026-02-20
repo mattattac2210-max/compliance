@@ -6,6 +6,8 @@ import { useLanguage } from "@/i18n/context";
 import type { Language } from "@/i18n/types";
 
 interface TermContent {
+  termName: string;
+  tags: string[];
   plainDefinition: string;
   whyItMatters: string[];
   typicalProcessSteps: string[] | null;
@@ -14,28 +16,24 @@ interface TermContent {
 }
 
 function getTermContent(term: ComplianceTerm, language: Language): TermContent {
-  if (language === "en" || !term.translations) {
-    return {
-      plainDefinition: term.plainDefinition,
-      whyItMatters: term.whyItMatters as string[],
-      typicalProcessSteps: term.typicalProcessSteps as string[] | null,
-      whatToStore: term.whatToStore as string[],
-      commonPitfalls: term.commonPitfalls as string[] | null,
-    };
-  }
+  const fallback: TermContent = {
+    termName: term.term,
+    tags: term.tags as string[],
+    plainDefinition: term.plainDefinition,
+    whyItMatters: term.whyItMatters as string[],
+    typicalProcessSteps: term.typicalProcessSteps as string[] | null,
+    whatToStore: term.whatToStore as string[],
+    commonPitfalls: term.commonPitfalls as string[] | null,
+  };
+
+  if (language === "en" || !term.translations) return fallback;
 
   const translation = term.translations[language];
-  if (!translation) {
-    return {
-      plainDefinition: term.plainDefinition,
-      whyItMatters: term.whyItMatters as string[],
-      typicalProcessSteps: term.typicalProcessSteps as string[] | null,
-      whatToStore: term.whatToStore as string[],
-      commonPitfalls: term.commonPitfalls as string[] | null,
-    };
-  }
+  if (!translation) return fallback;
 
   return {
+    termName: translation.term || term.term,
+    tags: translation.tags || (term.tags as string[]),
     plainDefinition: translation.plainDefinition,
     whyItMatters: translation.whyItMatters,
     typicalProcessSteps: translation.typicalProcessSteps ?? null,
@@ -44,8 +42,8 @@ function getTermContent(term: ComplianceTerm, language: Language): TermContent {
   };
 }
 
-function copyTermToClipboard(term: ComplianceTerm, content: TermContent) {
-  let text = `${term.term}\n\n`;
+function copyTermToClipboard(content: TermContent) {
+  let text = `${content.termName}\n\n`;
   text += `Definition: ${content.plainDefinition}\n\n`;
   if (content.whyItMatters && content.whyItMatters.length > 0) {
     text += `Why it matters:\n${content.whyItMatters.map(w => `- ${w}`).join("\n")}\n\n`;
@@ -73,29 +71,35 @@ export default function GlossarySection() {
     queryKey: ["/api/terms"],
   });
 
+  const translatedTerms = useMemo(() =>
+    terms.map(t => ({ term: t, content: getTermContent(t, language) })),
+    [terms, language]
+  );
+
   const allTags = useMemo(() => {
     const tagSet = new Set<string>();
-    terms.forEach(t => (t.tags as string[]).forEach(tag => tagSet.add(tag)));
+    translatedTerms.forEach(({ content }) => content.tags.forEach(tag => tagSet.add(tag)));
     return Array.from(tagSet).sort();
-  }, [terms]);
+  }, [translatedTerms]);
 
   const filtered = useMemo(() => {
-    let result = terms;
+    let result = translatedTerms;
     if (search.trim()) {
       const q = search.toLowerCase();
-      result = result.filter(t =>
+      result = result.filter(({ term: t, content: c }) =>
+        c.termName.toLowerCase().includes(q) ||
         t.term.toLowerCase().includes(q) ||
-        t.plainDefinition.toLowerCase().includes(q) ||
-        (t.tags as string[]).some(tag => tag.toLowerCase().includes(q))
+        c.plainDefinition.toLowerCase().includes(q) ||
+        c.tags.some(tag => tag.toLowerCase().includes(q))
       );
     }
     if (selectedTags.size > 0) {
-      result = result.filter(t =>
-        (t.tags as string[]).some(tag => selectedTags.has(tag))
+      result = result.filter(({ content: c }) =>
+        c.tags.some(tag => selectedTags.has(tag))
       );
     }
     return result;
-  }, [terms, search, selectedTags]);
+  }, [translatedTerms, search, selectedTags]);
 
   const toggleTag = (tag: string) => {
     setSelectedTags(prev => {
@@ -118,7 +122,7 @@ export default function GlossarySection() {
   const handleCopy = (e: React.MouseEvent, term: ComplianceTerm) => {
     e.stopPropagation();
     const content = getTermContent(term, language);
-    copyTermToClipboard(term, content);
+    copyTermToClipboard(content);
     setCopiedId(term.id);
     setTimeout(() => setCopiedId(null), 2000);
   };
@@ -193,10 +197,8 @@ export default function GlossarySection() {
       )}
 
       <div className="space-y-[6px]">
-        {filtered.map(term => {
+        {filtered.map(({ term, content }) => {
           const isOpen = openTerms.has(term.id);
-          const tags = term.tags as string[];
-          const content = getTermContent(term, language);
           const whyItMatters = content.whyItMatters;
           const steps = content.typicalProcessSteps;
           const whatToStore = content.whatToStore;
@@ -228,11 +230,11 @@ export default function GlossarySection() {
                     {"\u25B6"}
                   </span>
                   <span className="font-heading font-extrabold text-[14px] tracking-[-0.1px] truncate" style={{ color: "var(--app-text)" }}>
-                    {term.term}
+                    {content.termName}
                   </span>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                  {tags.map(tag => (
+                  {content.tags.map(tag => (
                     <span
                       key={tag}
                       className="font-heading text-[8px] font-bold tracking-[1.5px] uppercase py-[2px] px-[7px] rounded bg-[rgba(13,148,136,0.08)] border border-[rgba(20,184,166,0.12)] text-[#0D9488] hidden sm:inline-block"

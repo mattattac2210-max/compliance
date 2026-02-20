@@ -22,6 +22,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
   const getTranslatedContent = useCallback(() => {
     if (lang === "en" || !term.translations || !term.translations[lang]) {
       return {
+        termName: term.term,
         plainDefinition: term.plainDefinition,
         whyItMatters: term.whyItMatters as string[],
         whatToStore: term.whatToStore as string[],
@@ -31,6 +32,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
     
     const translation = term.translations[lang];
     return {
+      termName: translation.term || term.term,
       plainDefinition: translation.plainDefinition,
       whyItMatters: translation.whyItMatters,
       whatToStore: translation.whatToStore,
@@ -102,7 +104,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
               data-testid={`glossary-popover-${term.slug}`}
             >
               <div className="font-heading font-extrabold text-[13px] mb-[6px] tracking-[-0.1px]" style={{ color: "var(--app-text)" }}>
-                {term.term}
+                {content.termName}
               </div>
               <div className="text-[11px] font-light leading-[1.6] mb-[8px]" style={{ color: "var(--app-text-secondary)" }}>
                 {content.plainDefinition}
@@ -153,7 +155,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
           >
             <div className="flex items-start justify-between mb-4">
               <div className="font-heading font-black text-[20px] tracking-[-0.3px]" style={{ color: "var(--app-text)" }}>
-                {term.term}
+                {content.termName}
               </div>
               <button
                 onClick={() => setShowModal(false)}

@@ -18,6 +18,8 @@ export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
 export interface TermTranslation {
+  term?: string;
+  tags?: string[];
   plainDefinition: string;
   whyItMatters: string[];
   typicalProcessSteps?: string[] | null;
