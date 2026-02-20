@@ -1,27 +1,18 @@
 import { useLanguage } from "@/i18n/context";
 import { Scale, Building2, Search, Zap, MapPin, RefreshCw, Calendar, HandshakeIcon, AlertTriangle, ExternalLink, CheckCircle2 } from "lucide-react";
 
-const AUTHORITIES = [
-  { name: "OSS / BKPM", desc: "NIB, LKPM investment reports, business licence verification", type: "oss.go.id" },
-  { name: "Bapenda Badung/Gianyar", desc: "PB1 hotel tax, NPWPD registration, PBB assessment, SPTPD", type: "Regency Tax Office" },
-  { name: "Kantor Pajak (KPP)", desc: "PPh 21, PPh 25, SPT Tahunan, NPWP, CoreTax system", type: "pajak.go.id" },
-  { name: "BPJS Kesehatan", desc: "Staff health insurance registration, contributions, eDabu", type: "bpjs-kesehatan.go.id" },
-  { name: "BPJamsostek", desc: "Employment insurance, JHT/JKK/JKM/JP, SIPP Online", type: "bpjsketenagakerjaan.go.id" },
-  { name: "DPMPTSP", desc: "TDUP tourism licence, operational permits, local OSS liaison", type: "Regency DPMPTSP" },
-  { name: "Imigrasi Bali", desc: "KITAS, KITAP, sponsor letters, immigration status", type: "imigrasi.go.id" },
-  { name: "PU Perkim", desc: "PBG building permits, SLF assessment, Pengkaji Teknis", type: "Regency Public Works" },
-  { name: "DAMKAR", desc: "Fire safety certificate, APAR compliance, emergency systems", type: "Dinas Pemadam Kebakaran" },
-  { name: "Dinas Lingkungan Hidup", desc: "Wastewater (IPAL), environmental permits, B3 waste disposal", type: "Environmental Office" },
-  { name: "Dinas Ketenagakerjaan", desc: "Employment contracts, THR obligations, RPTKA, labour disputes", type: "Manpower Office" },
-  { name: "Kelian Banjar", desc: "Banjar fees, event permits, community obligations, domicile letters", type: "Your local Banjar" },
+const AUTHORITY_NAMES = [
+  "OSS / BKPM", "Bapenda Badung/Gianyar", "Kantor Pajak (KPP)", "BPJS Kesehatan",
+  "BPJamsostek", "DPMPTSP", "Imigrasi Bali", "PU Perkim",
+  "DAMKAR", "Dinas Lingkungan Hidup", "Dinas Ketenagakerjaan", "Kelian Banjar",
 ];
 
-const COMMITMENTS = [
-  { icon: <Calendar className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />, title: "Monthly Government Form Review", desc: "We cross-check all government portal forms, fees, and deadlines against our database monthly and update promptly." },
-  { icon: <AlertTriangle className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />, title: "Breaking Change Alerts", desc: "When significant regulatory changes are identified, we update affected content and notify users via in-app alerts." },
-  { icon: <HandshakeIcon className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />, title: "Community Feedback Loop", desc: "We actively incorporate reports from users via the in-app feedback tool — your on-the-ground experience is invaluable." },
-  { icon: <ExternalLink className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />, title: "Source Attribution", desc: "Where possible, we reference official government sources and note the date of our last verification. Always verify with local sources." },
-  { icon: <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />, title: "Professional Relationship Encouragement", desc: "DSCVR is built to complement — not replace — your professional advisors. We strongly encourage every user to maintain an independent relationship with qualified local professionals." },
+const COMMITMENT_ICONS = [
+  <Calendar className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />,
+  <AlertTriangle className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />,
+  <HandshakeIcon className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />,
+  <ExternalLink className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />,
+  <CheckCircle2 className="w-4 h-4 text-teal-400 shrink-0 mt-0.5" />,
 ];
 
 export default function DisclaimersPage() {
@@ -122,19 +113,22 @@ export default function DisclaimersPage() {
           {t.disclaimers.s4PrimaryRuleBody}
         </Card>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 mt-1">
-          {AUTHORITIES.map((a) => (
-            <div
-              key={a.name}
-              className="bg-[#111f34] border border-white/[0.07] rounded-lg p-3"
-              data-testid={`authority-card-${a.name.replace(/[^a-zA-Z]/g, "").toLowerCase()}`}
-            >
-              <div className="font-montserrat font-bold text-[11px] text-slate-100 mb-0.5">{a.name}</div>
-              <div className="text-[11px] text-slate-500 leading-snug">{a.desc}</div>
-              <span className="inline-block mt-1.5 font-mono text-[9px] text-teal-500 bg-teal-500/10 px-1.5 py-0.5 rounded">
-                {a.type}
-              </span>
-            </div>
-          ))}
+          {AUTHORITY_NAMES.map((name, i) => {
+            const auth = t.disclaimers.authorities[i];
+            return (
+              <div
+                key={name}
+                className="bg-[#111f34] border border-white/[0.07] rounded-lg p-3"
+                data-testid={`authority-card-${name.replace(/[^a-zA-Z]/g, "").toLowerCase()}`}
+              >
+                <div className="font-montserrat font-bold text-[11px] text-slate-100 mb-0.5">{name}</div>
+                <div className="text-[11px] text-slate-500 leading-snug">{auth?.desc}</div>
+                <span className="inline-block mt-1.5 font-mono text-[9px] text-teal-500 bg-teal-500/10 px-1.5 py-0.5 rounded">
+                  {auth?.type}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </Section>
 
@@ -149,12 +143,12 @@ export default function DisclaimersPage() {
             </div>
           </div>
           <div className="flex flex-col gap-2">
-            {COMMITMENTS.map((c, i) => (
+            {t.disclaimers.commitments.map((c, i) => (
               <div
                 key={i}
                 className="flex items-start gap-3 p-2.5 bg-[#07101E]/50 border border-teal-500/10 rounded-lg"
               >
-                {c.icon}
+                {COMMITMENT_ICONS[i]}
                 <div className="text-[12px] text-slate-400 leading-relaxed">
                   <strong className="text-slate-100 font-montserrat text-[11px] tracking-wide block mb-0.5">{c.title}</strong>
                   {c.desc}

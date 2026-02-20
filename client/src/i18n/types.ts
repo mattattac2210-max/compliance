@@ -263,9 +263,11 @@ export interface UITranslations {
     s4Title: string;
     s4PrimaryRule: string;
     s4PrimaryRuleBody: string;
+    authorities: Array<{ desc: string; type: string }>;
     s5Title: string;
     commitmentTitle: string;
     commitmentSub: string;
+    commitments: Array<{ title: string; desc: string }>;
     s5Card1Title: string;
     s5Card1Body: string;
     s5Card2Title: string;
