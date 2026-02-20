@@ -560,7 +560,7 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
               color: isActive ? "var(--txt)" : "var(--t2)",
               flex: 1, textAlign: "left",
             }}
-            className="text-[#d6d6d6]">
+            className="text-[#ededed]">
             {item.label}
           </span>
           {item.roundBadge !== undefined && item.roundBadge > 0 && (
