@@ -609,13 +609,20 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
           </div>
         </div>
 
-        <div style={{ padding: "20px 20px 16px", position: "relative" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(8,1fr)", position: "relative" }}>
+        <div
+          style={{
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+            padding: "20px 20px 16px",
+            position: "relative",
+          }}
+        >
+          <div style={{ display: "flex", gap: 32, minWidth: "max-content", position: "relative" }}>
             <div style={{
               position: "absolute",
               top: 28,
-              left: "calc(6.25%)",
-              right: "calc(6.25%)",
+              left: 28,
+              right: 28,
               height: 2,
               background: `linear-gradient(to right, ${gradientStops})`,
               zIndex: 0,
@@ -628,7 +635,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
                 <div
                   key={i}
                   data-testid={`gate-node-${i}`}
-                  style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 1, cursor: "pointer" }}
+                  style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 1, cursor: "pointer", width: 80, flexShrink: 0 }}
                 >
                   <div style={{
                     width: 56, height: 56, borderRadius: "50%",
@@ -667,43 +674,22 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
                   </div>
                   <div style={{
                     fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 10,
-                    color: "var(--txt)", textAlign: "center", lineHeight: 1.3, maxWidth: 68,
+                    color: "var(--txt)", textAlign: "center", lineHeight: 1.3,
                   }}>
                     {GATE_NAMES[i]}
                   </div>
-                  <div style={{ fontSize: 9, color: "var(--t3)", textAlign: "center", lineHeight: 1.4, maxWidth: 68, marginTop: 2 }}>
+                  <div style={{ fontSize: 9, color: "var(--t3)", textAlign: "center", lineHeight: 1.4, marginTop: 2 }}>
                     {GATE_SUBS[i]}
+                  </div>
+                  <div style={{ width: "100%", marginTop: 8 }}>
+                    <div style={{ height: 4, background: "var(--b)", borderRadius: 2, margin: "0 4px 3px" }}>
+                      <div style={{ height: "100%", width: `${g.pct}%`, background: col, borderRadius: 2, transition: "width .8s ease" }} />
+                    </div>
                   </div>
                 </div>
               );
             })}
           </div>
-        </div>
-
-        <div style={{
-          borderTop: "1px solid var(--b)",
-          display: "grid",
-          gridTemplateColumns: "repeat(8,1fr)",
-          background: "var(--bg)",
-        }}>
-          {gateDocCounts.map((g, i) => {
-            const s = gateStatus(g.pct);
-            const col = STATUS_COLORS[s];
-            return (
-              <div key={i} style={{
-                padding: "10px 8px",
-                borderRight: i < 7 ? "1px solid var(--b)" : "none",
-                textAlign: "center",
-              }}>
-                <div style={{ height: 4, background: "var(--b)", borderRadius: 2, margin: "0 4px 4px" }}>
-                  <div style={{ height: "100%", width: `${g.pct}%`, background: col, borderRadius: 2, transition: "width .8s ease" }} />
-                </div>
-                <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--t3)" }}>
-                  {g.pct}%
-                </div>
-              </div>
-            );
-          })}
         </div>
       </div>
 
