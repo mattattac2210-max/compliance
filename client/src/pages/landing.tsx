@@ -172,7 +172,6 @@ export default function LandingPage() {
         }
         .teal-pulse { animation: tealPulse 2s ease-in-out infinite; }
       `}</style>
-
       {/* SECTION 1 — Sticky Header */}
       <header
         className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${scrolled ? "py-2" : "py-3"}`}
@@ -223,7 +222,6 @@ export default function LandingPage() {
           </div>
         </div>
       </header>
-
       {/* SECTION 2 — Hero */}
       <section className="min-h-[90vh] flex items-center pt-20 relative overflow-hidden" data-testid="section-hero">
         <div className="absolute inset-0 opacity-[0.03]" style={{
@@ -371,7 +369,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* SECTION 3 — The Stakes (urgency block) */}
       <section className="py-12 px-4 sm:px-6" data-testid="section-urgency">
         <div
@@ -395,7 +392,6 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* SECTION 4 — The Seven Gates (tease section) */}
       <section ref={gatesRef} className="py-16 px-4 sm:px-6" id="gates" data-testid="section-gates">
         <div className="max-w-7xl mx-auto">
@@ -454,10 +450,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
-
       {/* SECTION 5 — What DSCVR Does (features) */}
       <section className="py-16 px-4 sm:px-6" data-testid="section-features">
-        <div className="max-w-7xl mx-auto">
+        <div className="max-w-7xl mx-auto text-[#e81a2d]">
           <h2 className="font-heading font-black text-3xl sm:text-4xl text-center mb-12" style={{ color: "var(--txt)" }} data-testid="text-features-heading">
             {l.featuresHeading}
           </h2>
@@ -469,7 +464,6 @@ export default function LandingPage() {
           <FeatureCard icon={<ArrowRight className="h-6 w-6" />} title={l.feature4Title} body={l.feature4Body} index={3} comingSoon={l.feature4Soon} />
         </div>
       </section>
-
       {/* SECTION 6 — What DSCVR Does NOT (credibility/trust) */}
       <section className="py-16 px-4 sm:px-6" data-testid="section-scope">
         <div className="max-w-5xl mx-auto">
@@ -515,7 +509,6 @@ export default function LandingPage() {
           </p>
         </div>
       </section>
-
       {/* SECTION 7 — Language support callout */}
       <section className="py-8 px-4 sm:px-6" data-testid="section-language">
         <div
@@ -529,7 +522,6 @@ export default function LandingPage() {
           <p className="text-xs mt-1" style={{ color: "var(--t3)" }}>{l.langSub}</p>
         </div>
       </section>
-
       {/* SECTION 8 — Final CTA */}
       <section className="py-20 px-4 sm:px-6" data-testid="section-final-cta">
         <div className="max-w-2xl mx-auto text-center space-y-6">
@@ -566,7 +558,6 @@ export default function LandingPage() {
           <p className="text-xs" style={{ color: "var(--t4)" }}>{l.trustLine}</p>
         </div>
       </section>
-
       {/* SECTION 9 — Footer */}
       <footer className="py-12 px-4 sm:px-6" style={{ borderTop: "1px solid var(--b)" }} data-testid="section-footer">
         <div className="max-w-5xl mx-auto text-center space-y-4">
