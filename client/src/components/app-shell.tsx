@@ -552,11 +552,13 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
       </span>
       {!collapsed && (
         <>
-          <span style={{
-            fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: isActive ? 700 : 600,
-            color: isActive ? "var(--txt)" : "var(--t2)",
-            flex: 1, textAlign: "left",
-          }}>
+          <span
+            style={{
+              fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: isActive ? 700 : 600,
+              color: isActive ? "var(--txt)" : "var(--t2)",
+              flex: 1, textAlign: "left",
+            }}
+            className="text-[#d6d6d6]">
             {item.label}
           </span>
           {item.roundBadge !== undefined && item.roundBadge > 0 && (
