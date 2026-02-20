@@ -101,16 +101,6 @@ export async function registerRoutes(
     next();
   }
 
-  app.patch("/api/admin/users/:id/pro", requireAuth, requireAdmin, async (req, res) => {
-    const { isPro } = req.body;
-    if (typeof isPro !== "boolean") {
-      return res.status(400).json({ message: "isPro must be a boolean" });
-    }
-    const updated = await storage.updateUserPro(req.params.id, isPro);
-    if (!updated) return res.status(404).json({ message: "User not found" });
-    res.json({ id: updated.id, email: updated.email, isAdmin: updated.isAdmin, isPro: updated.isPro || updated.isAdmin });
-  });
-
   app.get("/api/properties", requireAuth, async (req, res) => {
     const props = await storage.getPropertiesByUserId(req.session.userId!);
     res.json(props);
@@ -346,6 +336,159 @@ export async function registerRoutes(
     const { propertyId, templateId, ...body } = req.body;
     const updated = await storage.updateVaultDocument(req.params.id, body);
     res.json(updated);
+  });
+
+  // === User-facing support access routes ===
+  app.get("/api/support-access", requireAuth, async (req, res) => {
+    const grant = await storage.getSupportGrant(req.session.userId!);
+    res.json({ isActive: grant?.isActive ?? false, grantedAt: grant?.grantedAt, lastAccessedAt: grant?.lastAccessedAt, lastAccessedBy: grant?.lastAccessedBy });
+  });
+
+  app.post("/api/support-access/grant", requireAuth, async (req, res) => {
+    const grant = await storage.createOrReactivateSupportGrant(req.session.userId!);
+    res.json({ isActive: grant.isActive, grantedAt: grant.grantedAt });
+  });
+
+  app.post("/api/support-access/revoke", requireAuth, async (req, res) => {
+    await storage.revokeSupportGrant(req.session.userId!);
+    res.json({ isActive: false });
+  });
+
+  // === Admin user management routes ===
+  app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res) => {
+    const allUsers = await storage.getAllUsers();
+    const activeGrantIds = await storage.getActiveGrantUserIds();
+    const activeGrantSet = new Set(activeGrantIds);
+    const propCounts = await storage.getPropertyCountsByUserIds();
+
+    const result = allUsers.map(u => ({
+      id: u.id,
+      email: u.email,
+      isAdmin: u.isAdmin,
+      isPro: u.isPro || u.isAdmin,
+      proGrantedAt: u.proGrantedAt,
+      proGrantedBy: u.proGrantedBy,
+      createdAt: u.createdAt,
+      lastLogin: u.lastLogin,
+      hasSupportAccess: activeGrantSet.has(u.id),
+      propertyCount: propCounts.get(u.id) || 0,
+    }));
+
+    await storage.createAccessLogEntry(req.session.userId!, req.session.userId!, "view_user_list");
+    res.json(result);
+  });
+
+  app.patch("/api/admin/users/:id/admin", requireAuth, requireAdmin, async (req, res) => {
+    const { isAdmin } = req.body;
+    if (typeof isAdmin !== "boolean") {
+      return res.status(400).json({ message: "isAdmin must be a boolean" });
+    }
+    if (req.params.id === req.session.userId) {
+      return res.status(400).json({ message: "Cannot change own admin status" });
+    }
+    const updated = await storage.updateUserAdmin(req.params.id, isAdmin);
+    if (!updated) return res.status(404).json({ message: "User not found" });
+
+    await storage.createAccessLogEntry(req.session.userId!, req.params.id, isAdmin ? "grant_admin" : "revoke_admin");
+    res.json({ id: updated.id, email: updated.email, isAdmin: updated.isAdmin, isPro: updated.isPro || updated.isAdmin });
+  });
+
+  app.patch("/api/admin/users/:id/pro", requireAuth, requireAdmin, async (req, res) => {
+    const { isPro } = req.body;
+    if (typeof isPro !== "boolean") {
+      return res.status(400).json({ message: "isPro must be a boolean" });
+    }
+    const updated = await storage.updateUserProWithGranter(req.params.id, isPro, req.session.userId!);
+    if (!updated) return res.status(404).json({ message: "User not found" });
+
+    await storage.createAccessLogEntry(req.session.userId!, req.params.id, isPro ? "grant_pro" : "revoke_pro");
+    res.json({ id: updated.id, email: updated.email, isAdmin: updated.isAdmin, isPro: updated.isPro || updated.isAdmin });
+  });
+
+  // === Admin support mode enter/exit ===
+  app.post("/api/admin/support/enter/:userId", requireAuth, requireAdmin, async (req, res) => {
+    const grant = await storage.getSupportGrant(req.params.userId);
+    if (!grant?.isActive) {
+      return res.status(403).json({ message: "User has not granted support access" });
+    }
+    await storage.updateSupportGrantAccess(req.params.userId, req.session.userId!);
+    await storage.createAccessLogEntry(req.session.userId!, req.params.userId, "enter_support_mode");
+    req.session.supportUserId = req.params.userId;
+    res.json({ ok: true, targetUserId: req.params.userId });
+  });
+
+  app.post("/api/admin/support/exit", requireAuth, requireAdmin, async (req, res) => {
+    if (req.session.supportUserId) {
+      await storage.createAccessLogEntry(req.session.userId!, req.session.supportUserId, "exit_support_mode");
+      delete req.session.supportUserId;
+    }
+    res.json({ ok: true });
+  });
+
+  app.get("/api/admin/support/status", requireAuth, requireAdmin, async (req, res) => {
+    if (!req.session.supportUserId) {
+      return res.json({ active: false });
+    }
+    const targetUser = await storage.getUser(req.session.supportUserId);
+    res.json({ active: true, targetUserId: req.session.supportUserId, targetEmail: targetUser?.email });
+  });
+
+  // === Admin access log ===
+  app.get("/api/admin/access-log", requireAuth, requireAdmin, async (req, res) => {
+    const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);
+    const offset = parseInt(req.query.offset as string) || 0;
+    const entries = await storage.getAccessLog(limit, offset);
+    res.json(entries);
+  });
+
+  // === Support-mode aware property/vault access ===
+  // When admin is in support mode, they can view the target user's data (read-only)
+  app.get("/api/admin/support/properties", requireAuth, requireAdmin, async (req, res) => {
+    if (!req.session.supportUserId) {
+      return res.status(400).json({ message: "Not in support mode" });
+    }
+    const grant = await storage.getSupportGrant(req.session.supportUserId);
+    if (!grant?.isActive) {
+      delete req.session.supportUserId;
+      return res.status(403).json({ message: "Support access revoked" });
+    }
+    const props = await storage.getPropertiesByUserId(req.session.supportUserId);
+    await storage.createAccessLogEntry(req.session.userId!, req.session.supportUserId, "view_properties");
+    res.json(props);
+  });
+
+  app.get("/api/admin/support/vault", requireAuth, requireAdmin, async (req, res) => {
+    if (!req.session.supportUserId) {
+      return res.status(400).json({ message: "Not in support mode" });
+    }
+    const grant = await storage.getSupportGrant(req.session.supportUserId);
+    if (!grant?.isActive) {
+      delete req.session.supportUserId;
+      return res.status(403).json({ message: "Support access revoked" });
+    }
+    const propertyId = req.query.propertyId as string;
+    if (!propertyId) return res.status(400).json({ message: "propertyId required" });
+
+    const property = await storage.getPropertyById(propertyId);
+    if (!property || property.userId !== req.session.supportUserId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    const docs = await storage.getVaultDocumentsByProperty(propertyId);
+    const today = new Date();
+    const ninetyDays = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
+    const computed = docs.map(doc => {
+      let status = doc.status;
+      if (doc.expiryDate) {
+        const exp = new Date(doc.expiryDate);
+        if (exp < today) status = "expired";
+        else if (exp < ninetyDays) status = "expiring";
+      }
+      return { ...doc, status };
+    });
+
+    await storage.createAccessLogEntry(req.session.userId!, req.session.supportUserId, "view_vault", { propertyId });
+    res.json(computed);
   });
 
   app.get("/api/vault/report", requireAuth, async (req, res) => {

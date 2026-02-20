@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLanguage } from "@/i18n/context";
 import { useAuth } from "@/hooks/useAuth";
 import type { Property } from "@shared/schema";
@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Building2, Plus, Pencil, Trash2, X } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, X, ShieldCheck, ShieldOff } from "lucide-react";
 
 const REGENCIES = [
   "Badung", "Bangli", "Buleleng", "Denpasar", "Gianyar",
@@ -261,7 +261,94 @@ export default function ProfilePage() {
             <p className="text-slate-500 text-sm mt-1">{t.profile.noPropertiesDesc}</p>
           </div>
         )}
+
+        <SupportAccessSection />
       </div>
     </div>
+  );
+}
+
+function SupportAccessSection() {
+  const { t } = useLanguage();
+
+  const { data: grant, isLoading } = useQuery<{
+    isActive: boolean;
+    grantedAt?: string;
+    lastAccessedAt?: string;
+    lastAccessedBy?: string;
+  }>({
+    queryKey: ["/api/support-access"],
+  });
+
+  const enableMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/support-access/grant"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/support-access"] });
+    },
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/support-access/revoke"),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/support-access"] });
+    },
+  });
+
+  if (isLoading) return null;
+
+  return (
+    <Card className="border-[#14B8A6]/20 bg-[#0F1A2E]/80 backdrop-blur-sm mt-8" data-testid="card-support-access">
+      <CardHeader>
+        <CardTitle className="font-heading text-lg text-slate-100 flex items-center gap-2">
+          {grant?.isActive ? <ShieldCheck className="h-5 w-5 text-green-400" /> : <ShieldOff className="h-5 w-5 text-slate-500" />}
+          {t.supportAccess.heading}
+          <span className={`text-xs px-2 py-0.5 rounded-full ml-auto ${grant?.isActive ? "bg-green-500/20 text-green-400" : "bg-slate-500/20 text-slate-400"}`}>
+            {grant?.isActive ? t.supportAccess.statusActive : t.supportAccess.statusInactive}
+          </span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <p className="text-sm text-slate-400">{t.supportAccess.description}</p>
+
+        {grant?.isActive && (
+          <div className="text-xs text-slate-500 space-y-1">
+            {grant.grantedAt && <p>{t.supportAccess.grantedAt}: {new Date(grant.grantedAt).toLocaleDateString()}</p>}
+            {grant.lastAccessedAt && <p>{t.supportAccess.lastAccessed}: {new Date(grant.lastAccessedAt).toLocaleDateString()}</p>}
+          </div>
+        )}
+
+        <p className="text-xs text-slate-600 italic">{t.supportAccess.privacyNote}</p>
+
+        {grant?.isActive ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              if (confirm(t.supportAccess.confirmRevoke)) {
+                revokeMutation.mutate();
+              }
+            }}
+            disabled={revokeMutation.isPending}
+            className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+            data-testid="button-revoke-support"
+          >
+            <ShieldOff className="h-4 w-4 mr-2" />
+            {t.supportAccess.disableButton}
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => enableMutation.mutate()}
+            disabled={enableMutation.isPending}
+            className="border-[#14B8A6]/30 text-[#14B8A6] hover:bg-[#14B8A6]/10"
+            data-testid="button-enable-support"
+          >
+            <ShieldCheck className="h-4 w-4 mr-2" />
+            {t.supportAccess.enableButton}
+          </Button>
+        )}
+      </CardContent>
+    </Card>
   );
 }

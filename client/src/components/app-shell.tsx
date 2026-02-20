@@ -6,6 +6,7 @@ import { useLanguage, LanguageSelector } from "@/i18n/context";
 import { ThemeToggle } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { useUpgradeModal } from "@/components/upgrade-modal";
+import { SupportModeBanner } from "@/components/support-mode-banner";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -40,6 +41,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     if (location === "/timeline") return "timeline";
     if (location === "/alerts") return "alerts";
     if (location === "/profile") return "profile";
+    if (location === "/admin-dashboard") return "admin-dashboard";
     if (location === "/app" || location === "/") {
       if (tabParam === "guide" && sectionParam === "glossary") return "glossary";
       if (tabParam === "guide" && sectionParam === "workflows") return "workflows";
@@ -107,9 +109,10 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
       label: "ACCOUNT",
       items: [
         { key: "profile", icon: "\u25CB", label: t.nav.profile, href: "/profile", pro: false },
+        ...(user?.isAdmin ? [{ key: "admin-dashboard", icon: "\u2699", label: t.adminDashboard.heading, href: "/admin-dashboard", pro: false }] : []),
       ],
     },
-  ], [t, isPro, vaultDocCount, alertCount]);
+  ], [t, isPro, vaultDocCount, alertCount, user?.isAdmin]);
 
   const handleNavClick = (item: any) => {
     if (item.pro && !isPro) {
@@ -125,6 +128,8 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     : "??";
 
   return (
+    <div className="relative">
+    {user?.isAdmin && <SupportModeBanner />}
     <div
       style={{ display: "grid", gridTemplateColumns: `${sidebarW}px 1fr`, height: "100vh", overflow: "hidden", transition: "grid-template-columns 0.2s ease" }}
       className="max-md:!grid-cols-[0px_1fr]"
@@ -443,6 +448,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           {children}
         </div>
       </main>
+    </div>
     </div>
   );
 }

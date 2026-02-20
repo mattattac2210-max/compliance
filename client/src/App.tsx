@@ -18,6 +18,7 @@ import ProfilePage from "@/pages/profile";
 import VaultPage from "@/pages/vault";
 import TimelinePage from "@/pages/timeline";
 import AlertsPage from "@/pages/alerts";
+import AdminDashboardPage from "@/pages/admin-dashboard";
 
 function Router() {
   return (
@@ -31,6 +32,11 @@ function Router() {
         </ProtectedRoute>
       </Route>
       <Route path="/admin" component={AdminPage} />
+      <Route path="/admin-dashboard">
+        <ProtectedRoute>
+          <AdminDashboardPage />
+        </ProtectedRoute>
+      </Route>
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/profile">

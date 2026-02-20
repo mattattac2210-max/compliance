@@ -1,0 +1,699 @@
+# DSCVR — Phase 5 Replit Prompt
+## Admin Dashboard + Support Access System
+
+---
+
+## CONTEXT
+
+You are continuing work on **DSCVR Compliance Navigator**. The app now has:
+- SaaS sidebar layout (`AppShell`) for all authenticated pages
+- `isPro` + `isAdmin` flags on users
+- Session-based auth with `requireAuth` + `requireAdmin` middleware
+- Document Vault, Timeline, Alerts (Pro-gated)
+- `properties`, `vault_documents`, `vault_document_templates` tables
+
+**This phase builds:**
+1. A full admin dashboard at `/admin/users` — user list, Pro toggle, isAdmin toggle
+2. A support access system — users grant permission from their profile, admins can then view their data in a read-only "Support Mode" with a persistent banner
+3. Privacy boundary — admins can **never** see user data without an active support grant
+
+---
+
+## STEP 1 — Schema additions (`shared/schema.ts`)
+
+### Add to `users` table:
+```typescript
+proGrantedAt: text("pro_granted_at"),       // ISO date, nullable — when Pro was granted
+proGrantedBy: text("pro_granted_by"),       // admin userId who granted it, nullable
+```
+
+### New table: `support_access_grants`
+```typescript
+export const supportAccessGrants = pgTable("support_access_grants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  grantedAt: text("granted_at").notNull().default(new Date().toISOString()),
+  revokedAt: text("revoked_at"),            // null = still active
+  isActive: boolean("is_active").notNull().default(true),
+  // Audit trail — admin access log
+  lastAccessedAt: text("last_accessed_at"), // updated when admin views their data
+  lastAccessedBy: text("last_accessed_by"), // admin userId
+});
+```
+
+### New table: `admin_access_log`
+Immutable audit trail — append only, never delete.
+```typescript
+export const adminAccessLog = pgTable("admin_access_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  adminId: varchar("admin_id").notNull().references(() => users.id),
+  targetUserId: varchar("target_user_id").notNull().references(() => users.id),
+  action: text("action").notNull(), // "support_session_start" | "support_session_end" | "pro_granted" | "pro_revoked" | "admin_granted" | "admin_revoked"
+  timestamp: text("timestamp").notNull().default(new Date().toISOString()),
+  metadata: json("metadata").$type<Record<string, string>>(),
+});
+```
+
+Run `npm run db:push` after all schema changes.
+
+---
+
+## STEP 2 — Session: support mode
+
+Add to express-session types:
+```typescript
+declare module "express-session" {
+  interface SessionData {
+    userId: string;
+    supportTargetUserId?: string;  // set when admin is in support mode
+  }
+}
+```
+
+When `req.session.supportTargetUserId` is set, API routes that read user data (vault, timeline, alerts, properties) should use `supportTargetUserId` as the effective user — **but only for GET requests**. All write operations (POST, PATCH, DELETE) must always use `req.session.userId` and must reject if in support mode.
+
+---
+
+## STEP 3 — API routes (`server/routes.ts`)
+
+### Support access — user-facing (requireAuth)
+
+```
+GET /api/support-access
+→ Returns current user's support grant status
+→ { isGranted: boolean, grantedAt: string | null, lastAccessedAt: string | null, lastAccessedBy: string | null }
+
+POST /api/support-access/grant
+→ Creates or reactivates a support_access_grant for the current user
+→ Returns { ok: true, grantedAt }
+
+POST /api/support-access/revoke
+→ Sets isActive: false, revokedAt: now on user's grant
+→ If admin is currently in a support session for this user, that session is invalidated
+→ Returns { ok: true }
+```
+
+### Support access — admin-facing (requireAuth + requireAdmin)
+
+```
+POST /api/admin/support/enter/:userId
+→ Validates: target user has an active support_access_grant
+→ If no grant: return 403 { message: "User has not granted support access" }
+→ Sets req.session.supportTargetUserId = userId
+→ Logs to admin_access_log: action "support_session_start"
+→ Updates support_access_grants.lastAccessedAt + lastAccessedBy
+→ Returns { ok: true, targetUser: { email, id } }
+
+POST /api/admin/support/exit
+→ Clears req.session.supportTargetUserId
+→ Logs to admin_access_log: action "support_session_end"
+→ Returns { ok: true }
+
+GET /api/admin/support/status
+→ Returns whether admin is currently in a support session
+→ { inSupportMode: boolean, targetUser?: { id, email } }
+```
+
+### Admin user management (requireAuth + requireAdmin)
+
+```
+GET /api/admin/users
+→ Returns all users with:
+  { id, email, createdAt, lastLogin, isAdmin, isPro, proGrantedAt,
+    propertyCount, hasSupportGrant }
+→ propertyCount: count of active properties
+→ hasSupportGrant: whether they have an active support_access_grants row
+→ NEVER returns vault data, document data, or property details
+
+PATCH /api/admin/users/:id/pro
+→ Body: { isPro: boolean }
+→ Updates isPro, sets proGrantedAt / clears it, sets proGrantedBy
+→ Logs to admin_access_log
+→ Returns updated user fields only
+
+PATCH /api/admin/users/:id/admin
+→ Body: { isAdmin: boolean }
+→ Updates isAdmin flag
+→ Logs to admin_access_log
+→ Returns updated user fields only
+
+GET /api/admin/users/:id/properties
+→ requireAdmin only
+→ Returns ONLY: [ { id, propertyName, regency, createdAt } ]
+→ NO vault data, NO document data, NO compliance status
+→ This is purely for support context — "which villa are we talking about"
+
+GET /api/admin/access-log
+→ Returns last 100 admin_access_log entries, newest first
+→ Joined with admin email + target user email for display
+```
+
+### Modify existing data routes to respect support mode
+
+Update these routes to check `req.session.supportTargetUserId`:
+
+```typescript
+// Helper — get effective userId, respecting support mode
+function getEffectiveUserId(req: Request): string {
+  return req.session.supportTargetUserId || req.session.userId!;
+}
+
+// IMPORTANT: Block writes in support mode
+function blockSupportModeWrites(req: Request, res: Response, next: NextFunction) {
+  if (req.session.supportTargetUserId) {
+    return res.status(403).json({ message: "Cannot modify data in support mode" });
+  }
+  next();
+}
+```
+
+Apply `getEffectiveUserId()` to:
+- `GET /api/vault` — uses effective userId's properties
+- `GET /api/vault/summary` — same
+- `GET /api/timeline` (if it has an API route)
+- `GET /api/alerts` (if it has an API route)
+- `GET /api/properties` — returns effective user's properties
+
+Apply `blockSupportModeWrites` middleware to ALL POST/PATCH/DELETE routes for vault, properties, alerts.
+
+---
+
+## STEP 4 — Support mode context (`client/src/hooks/useSupportMode.ts`)
+
+```typescript
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+
+export function useSupportMode() {
+  const queryClient = useQueryClient();
+
+  const { data: status } = useQuery({
+    queryKey: ["/api/admin/support/status"],
+    refetchInterval: 30000, // poll every 30s
+  });
+
+  const exitMutation = useMutation({
+    mutationFn: () => fetch("/api/admin/support/exit", { method: "POST" }).then(r => r.json()),
+    onSuccess: () => {
+      // Invalidate all data queries so they reload as admin
+      queryClient.invalidateQueries();
+    },
+  });
+
+  return {
+    inSupportMode: status?.inSupportMode ?? false,
+    targetUser: status?.targetUser ?? null,
+    exit: exitMutation.mutate,
+  };
+}
+```
+
+---
+
+## STEP 5 — Support mode banner
+
+Create `client/src/components/support-mode-banner.tsx`.
+
+This renders at the very top of `AppShell` — above the topbar — when `inSupportMode: true`. It is always visible, cannot be dismissed, and covers the full width.
+
+```
+┌────────────────────────────────────────────────────────────────────────────┐
+│  👁  SUPPORT MODE  —  Viewing as jane@villa.com  ·  Read-only              │
+│                                           [ Exit support mode → ]          │
+└────────────────────────────────────────────────────────────────────────────┘
+```
+
+Design:
+- Background: `rgba(245,158,11,0.1)`, border-bottom `1px solid rgba(245,158,11,0.3)`
+- Text: `#FCD34D` (amber), Montserrat 11px bold
+- "Exit support mode →" button: amber outline, Montserrat bold, small
+- On click exit: calls `POST /api/admin/support/exit`, invalidates all queries, banner disappears
+
+```typescript
+export function SupportModeBanner() {
+  const { inSupportMode, targetUser, exit } = useSupportMode();
+  const { t } = useLanguage();
+
+  if (!inSupportMode) return null;
+
+  return (
+    <motion.div
+      initial={{ height: 0, opacity: 0 }}
+      animate={{ height: "auto", opacity: 1 }}
+      style={{
+        background: "rgba(245,158,11,0.1)",
+        borderBottom: "1px solid rgba(245,158,11,0.3)",
+        padding: "10px 24px",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: "16px",
+        flexShrink: 0,
+      }}
+    >
+      <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <span style={{ fontSize: "14px" }}>👁</span>
+        <span style={{
+          fontFamily: "Montserrat", fontSize: "11px", fontWeight: 700,
+          letterSpacing: "1px", color: "#FCD34D",
+        }}>
+          {t.admin.supportModeLabel}
+        </span>
+        <span style={{ color: "rgba(252,211,77,0.5)", fontSize: "11px" }}>—</span>
+        <span style={{ fontFamily: "Lato", fontSize: "12px", color: "#FCD34D" }}>
+          {t.admin.viewingAs} {targetUser?.email}
+        </span>
+        <span style={{
+          fontFamily: "Montserrat", fontSize: "9px", fontWeight: 700,
+          letterSpacing: "1.5px", color: "#F59E0B", textTransform: "uppercase",
+          padding: "2px 8px", border: "1px solid rgba(245,158,11,0.3)",
+          borderRadius: "4px", marginLeft: "4px",
+        }}>
+          {t.admin.readOnly}
+        </span>
+      </div>
+      <button
+        onClick={() => exit()}
+        style={{
+          fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700,
+          letterSpacing: "1px", color: "#F59E0B", textTransform: "uppercase",
+          padding: "5px 14px", border: "1px solid rgba(245,158,11,0.4)",
+          borderRadius: "6px", background: "transparent", cursor: "pointer",
+          whiteSpace: "nowrap",
+        }}
+      >
+        {t.admin.exitSupportMode} →
+      </button>
+    </motion.div>
+  );
+}
+```
+
+Wire into `AppShell` — add `<SupportModeBanner />` as the very first child inside the main column, before the topbar:
+```typescript
+<main style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+  <SupportModeBanner />   {/* ← always first */}
+  <div className="topbar">...</div>
+  <div className="content">...</div>
+</main>
+```
+
+---
+
+## STEP 6 — User profile: support access toggle
+
+Add a "Support Access" section to `/profile` page, at the bottom of the page below the property cards.
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  SUPPORT ACCESS                                         │
+│                                                         │
+│  Allow DSCVR support to view your account data         │
+│  when you need help. You can revoke this at any time.  │
+│                                                         │
+│  ● Active since 12 Feb 2026    [ Revoke access ]       │
+│  — or —                                                 │
+│  ○ Not granted                 [ Grant access ]        │
+│                                                         │
+│  ℹ When granted, support can view your vault,          │
+│  timeline, and property details in read-only mode.     │
+│  All access is logged and visible to you here.         │
+│                                                         │
+│  Last accessed: 18 Feb 2026 by DSCVR Support           │
+└─────────────────────────────────────────────────────────┘
+```
+
+Design: same dark card style as property cards. Status indicator:
+- Active: green dot, `"Active since [date]"`, teal border on card
+- Not granted: muted dot, `"Not granted"`, normal border
+
+**Grant button:** calls `POST /api/support-access/grant`, shows success toast
+**Revoke button:** calls `POST /api/support-access/revoke`, shows confirmation dialog first
+
+Show "Last accessed" only if `lastAccessedAt` is set — this is the audit trail the user sees.
+
+---
+
+## STEP 7 — Admin dashboard pages
+
+### Route structure
+The admin section gets its own layout — **not** AppShell. It uses a minimal admin shell:
+
+```typescript
+// client/src/components/admin-shell.tsx
+// Simple layout: admin header + content
+// Header: "DSCVR Admin" wordmark + "← Back to app" link + user email + sign out
+// No sidebar — admin pages use their own tab navigation
+```
+
+Admin routes:
+```
+/admin              → redirect to /admin/users
+/admin/users        → User management (this phase)
+/admin/glossary     → existing glossary admin (move here)
+/admin/access-log   → Admin access log viewer
+```
+
+Admin tab nav (horizontal, at top of content area):
+```
+Users    Glossary    Access Log
+```
+
+### `/admin/users` page (`client/src/pages/admin-users.tsx`)
+
+**Page layout:**
+
+Top stats row:
+```
+Total users: 12    Pro users: 3    Admin users: 2    Support grants active: 1
+```
+
+Search bar: filter by email in real-time (client-side filter on the loaded list).
+
+**User table:**
+
+Columns:
+```
+Email               Joined      Last login    Pro         Admin       Properties    Support    Actions
+```
+
+- **Email**: shown in full, Lato 13px
+- **Joined**: relative date ("3 days ago") + absolute on hover tooltip
+- **Last login**: relative date, muted if > 30 days ago
+- **Pro**: toggle switch — on/off. When toggled ON: `PATCH /api/admin/users/:id/pro { isPro: true }`, shows amber "granting…" state then green "Pro" badge. When OFF: shows grey "Free" badge.
+- **Admin**: toggle switch — same pattern, `PATCH /api/admin/users/:id/admin`
+- **Properties**: count pill (e.g. "2 properties") — clicking expands an inline row showing property names + regency only. No vault data.
+- **Support**: if `hasSupportGrant: true` → teal "Access granted" badge. Clicking shows "Enter support mode →" button.
+- **Actions**: `Enter support mode →` button (only visible if `hasSupportGrant: true`)
+
+**Pro toggle confirmation:**
+When toggling Pro ON, show a small inline confirmation:
+```
+Grant Pro access to jane@villa.com?
+[ Confirm ]  [ Cancel ]
+```
+When toggling OFF, same confirmation with revoke wording.
+
+**Enter support mode flow:**
+1. Admin clicks "Enter support mode →"
+2. Confirm dialog: `"You are about to view [email]'s account data in read-only mode. This access will be logged and visible to the user. Continue?"`
+3. On confirm: calls `POST /api/admin/support/enter/:userId`
+4. On success: redirects to `/app` — the app reloads as that user's data with the amber support banner visible
+
+**Property expand row:**
+When admin clicks the property count pill, an expandable row appears below that user showing:
+```
+  Villa Kerti — Badung
+  Villa Sunset — Gianyar
+```
+Just name + regency. No vault data. No compliance status. No document details.
+
+**Table styling:**
+- Dark `#0F2040` rows, alternating `#0A1628`
+- Teal border on header row
+- Row hover: subtle `rgba(20,184,166,0.04)` tint
+- Pro badge: `background: rgba(20,184,166,0.1)`, teal text, teal border
+- Free badge: `background: rgba(100,116,139,0.1)`, muted text
+- Admin badge: `background: rgba(139,92,246,0.1)`, purple text
+- Support granted badge: `background: rgba(20,184,166,0.08)`, teal text
+
+### `/admin/access-log` page
+
+Simple chronological list of all admin actions, newest first.
+
+Each entry:
+```
+[timestamp]  [admin email]  →  [action]  →  [target user email]
+18 Feb 2026 14:23   admin@dscvr.com  →  support_session_start  →  jane@villa.com
+18 Feb 2026 14:41   admin@dscvr.com  →  support_session_end    →  jane@villa.com
+17 Feb 2026 09:12   admin@dscvr.com  →  pro_granted            →  user@example.com
+```
+
+Action labels (human readable):
+- `support_session_start` → "Entered support mode"
+- `support_session_end` → "Exited support mode"
+- `pro_granted` → "Granted Pro access"
+- `pro_revoked` → "Revoked Pro access"
+- `admin_granted` → "Granted admin access"
+- `admin_revoked` → "Revoked admin access"
+
+Paginate at 50 per page. No filters needed for now.
+
+---
+
+## STEP 8 — i18n additions
+
+Add to `UITranslations` in `types.ts`:
+
+```typescript
+admin: {
+  // existing admin keys stay unchanged, add:
+  usersTitle: string;
+  searchPlaceholder: string;
+  totalUsers: string;
+  proUsers: string;
+  adminUsers: string;
+  activeGrants: string;
+  emailCol: string;
+  joinedCol: string;
+  lastLoginCol: string;
+  proCol: string;
+  adminCol: string;
+  propertiesCol: string;
+  supportCol: string;
+  actionsCol: string;
+  grantPro: string;
+  revokePro: string;
+  grantAdmin: string;
+  revokeAdmin: string;
+  confirmGrantPro: string;
+  confirmRevokePro: string;
+  enterSupportMode: string;
+  supportModeConfirm: string;
+  supportGrantedBadge: string;
+  noSupportGrant: string;
+  accessLogTitle: string;
+  // Support mode banner:
+  supportModeLabel: string;   // "SUPPORT MODE"
+  viewingAs: string;          // "Viewing as"
+  readOnly: string;           // "Read-only"
+  exitSupportMode: string;    // "Exit support mode"
+  // Profile page support section:
+  supportAccessHeading: string;
+  supportAccessDesc: string;
+  supportAccessActive: string;
+  supportAccessInactive: string;
+  grantAccessButton: string;
+  revokeAccessButton: string;
+  revokeConfirm: string;
+  lastAccessedLabel: string;
+  supportAccessNote: string;
+  accessLogHeading: string;
+};
+```
+
+**English values:**
+```typescript
+// (add to existing admin object)
+usersTitle: "User Management",
+searchPlaceholder: "Search by email…",
+totalUsers: "Total users",
+proUsers: "Pro users",
+adminUsers: "Admin users",
+activeGrants: "Support grants active",
+emailCol: "Email",
+joinedCol: "Joined",
+lastLoginCol: "Last login",
+proCol: "Pro",
+adminCol: "Admin",
+propertiesCol: "Properties",
+supportCol: "Support",
+actionsCol: "Actions",
+grantPro: "Grant Pro",
+revokePro: "Revoke Pro",
+grantAdmin: "Grant admin",
+revokeAdmin: "Revoke admin",
+confirmGrantPro: "Grant Pro access to this user?",
+confirmRevokePro: "Revoke Pro access from this user?",
+enterSupportMode: "Enter support mode →",
+supportModeConfirm: "You are about to view this user's account data in read-only mode. This access is logged and visible to the user.",
+supportGrantedBadge: "Access granted",
+noSupportGrant: "No access granted",
+accessLogTitle: "Access Log",
+supportModeLabel: "SUPPORT MODE",
+viewingAs: "Viewing as",
+readOnly: "Read-only",
+exitSupportMode: "Exit support mode",
+supportAccessHeading: "Support Access",
+supportAccessDesc: "Allow DSCVR support to view your account data when you need help. You can revoke this at any time.",
+supportAccessActive: "Active since",
+supportAccessInactive: "Not granted",
+grantAccessButton: "Grant access",
+revokeAccessButton: "Revoke access",
+revokeConfirm: "Revoke support access? Support will no longer be able to view your data.",
+lastAccessedLabel: "Last accessed",
+supportAccessNote: "When granted, support can view your vault, timeline, and property details in read-only mode. All access is logged and visible to you here.",
+accessLogHeading: "Support access log",
+```
+
+**Ukrainian values:**
+```typescript
+usersTitle: "Управління користувачами",
+searchPlaceholder: "Пошук за поштою…",
+totalUsers: "Всього користувачів",
+proUsers: "Pro користувачів",
+adminUsers: "Адміністраторів",
+activeGrants: "Активних дозволів підтримки",
+emailCol: "Електронна пошта",
+joinedCol: "Приєднався",
+lastLoginCol: "Останній вхід",
+proCol: "Pro",
+adminCol: "Адмін",
+propertiesCol: "Нерухомість",
+supportCol: "Підтримка",
+actionsCol: "Дії",
+grantPro: "Надати Pro",
+revokePro: "Скасувати Pro",
+grantAdmin: "Надати права адміна",
+revokeAdmin: "Скасувати права адміна",
+confirmGrantPro: "Надати Pro доступ цьому користувачу?",
+confirmRevokePro: "Скасувати Pro доступ цього користувача?",
+enterSupportMode: "Увійти в режим підтримки →",
+supportModeConfirm: "Ви збираєтесь переглянути дані цього користувача в режимі лише для читання. Цей доступ реєструється і видимий користувачу.",
+supportGrantedBadge: "Доступ надано",
+noSupportGrant: "Доступ не надано",
+accessLogTitle: "Журнал доступу",
+supportModeLabel: "РЕЖИМ ПІДТРИМКИ",
+viewingAs: "Перегляд як",
+readOnly: "Тільки читання",
+exitSupportMode: "Вийти з режиму підтримки",
+supportAccessHeading: "Доступ для підтримки",
+supportAccessDesc: "Дозвольте підтримці DSCVR переглядати дані вашого облікового запису, коли вам потрібна допомога. Ви можете скасувати це в будь-який час.",
+supportAccessActive: "Активно з",
+supportAccessInactive: "Не надано",
+grantAccessButton: "Надати доступ",
+revokeAccessButton: "Скасувати доступ",
+revokeConfirm: "Скасувати доступ підтримки? Підтримка більше не зможе переглядати ваші дані.",
+lastAccessedLabel: "Останній доступ",
+supportAccessNote: "Після надання підтримка може переглядати ваше сховище, часову шкалу та дані нерухомості лише для читання. Весь доступ реєструється.",
+accessLogHeading: "Журнал доступу підтримки",
+```
+
+**Bahasa Indonesia values:**
+```typescript
+usersTitle: "Manajemen Pengguna",
+searchPlaceholder: "Cari berdasarkan email…",
+totalUsers: "Total pengguna",
+proUsers: "Pengguna Pro",
+adminUsers: "Admin",
+activeGrants: "Izin dukungan aktif",
+emailCol: "Email",
+joinedCol: "Bergabung",
+lastLoginCol: "Login terakhir",
+proCol: "Pro",
+adminCol: "Admin",
+propertiesCol: "Properti",
+supportCol: "Dukungan",
+actionsCol: "Tindakan",
+grantPro: "Berikan Pro",
+revokePro: "Cabut Pro",
+grantAdmin: "Berikan admin",
+revokeAdmin: "Cabut admin",
+confirmGrantPro: "Berikan akses Pro ke pengguna ini?",
+confirmRevokePro: "Cabut akses Pro dari pengguna ini?",
+enterSupportMode: "Masuk mode dukungan →",
+supportModeConfirm: "Anda akan melihat data pengguna ini dalam mode baca saja. Akses ini dicatat dan terlihat oleh pengguna.",
+supportGrantedBadge: "Akses diberikan",
+noSupportGrant: "Tidak ada akses",
+accessLogTitle: "Log Akses",
+supportModeLabel: "MODE DUKUNGAN",
+viewingAs: "Melihat sebagai",
+readOnly: "Baca saja",
+exitSupportMode: "Keluar mode dukungan",
+supportAccessHeading: "Akses Dukungan",
+supportAccessDesc: "Izinkan dukungan DSCVR melihat data akun Anda saat Anda membutuhkan bantuan. Anda dapat mencabutnya kapan saja.",
+supportAccessActive: "Aktif sejak",
+supportAccessInactive: "Belum diberikan",
+grantAccessButton: "Berikan akses",
+revokeAccessButton: "Cabut akses",
+revokeConfirm: "Cabut akses dukungan? Dukungan tidak akan dapat melihat data Anda lagi.",
+lastAccessedLabel: "Terakhir diakses",
+supportAccessNote: "Setelah diberikan, dukungan dapat melihat vault, linimasa, dan detail properti Anda dalam mode baca saja. Semua akses dicatat.",
+accessLogHeading: "Log akses dukungan",
+```
+
+---
+
+## STEP 9 — Storage layer additions (`server/storage.ts`)
+
+Add to `IStorage` and `DatabaseStorage`:
+
+```typescript
+// Users (admin)
+getAllUsers(): Promise<UserWithMeta[]>   // includes propertyCount, hasSupportGrant
+getUserById(id: string): Promise<User | undefined>
+updateUserPro(id: string, isPro: boolean, grantedBy: string): Promise<User>
+updateUserAdmin(id: string, isAdmin: boolean): Promise<User>
+
+// Support access
+getSupportGrant(userId: string): Promise<SupportAccessGrant | undefined>
+createOrReactivateSupportGrant(userId: string): Promise<SupportAccessGrant>
+revokeSupportGrant(userId: string): Promise<void>
+updateSupportGrantLastAccess(userId: string, adminId: string): Promise<void>
+
+// Access log
+appendAccessLog(entry: InsertAdminAccessLog): Promise<void>
+getAccessLog(limit?: number): Promise<AccessLogWithEmails[]>
+```
+
+---
+
+## CONSTRAINTS
+
+1. **Privacy boundary is absolute** — `GET /api/admin/users` NEVER returns vault documents, document status, compliance scores, or alert data. Only: email, dates, isPro, isAdmin, property count, support grant status.
+
+2. **Property expand** returns ONLY name + regency — not NIB, not address, not KBLI, not any document data.
+
+3. **Support mode blocks all writes** — `blockSupportModeWrites` middleware on every POST/PATCH/DELETE for vault, properties, alerts. Return `403 { message: "Cannot modify data in support mode" }`.
+
+4. **Support mode cannot be entered without an active grant** — `POST /api/admin/support/enter/:userId` must verify `isActive: true` in `support_access_grants` before setting session. Return `403` if no grant exists.
+
+5. **Audit log is immutable** — `admin_access_log` table has no update or delete routes. Append only.
+
+6. **Admin shell is separate from AppShell** — `/admin/*` routes use `AdminShell`, not the sidebar `AppShell`. Admin pages are not affected by support mode.
+
+7. **The support mode banner is rendered in `AppShell`** — it appears on all app pages (`/app`, `/vault`, `/timeline`, `/alerts`, `/profile`) when in support mode.
+
+8. **isAdmin implies isPro** — this rule applies everywhere, including when admin enters support mode and is viewing another user's data.
+
+9. **Never hardcode English** — all strings via `t.admin.*`.
+
+10. **Run `npm run db:push`** after schema changes.
+
+---
+
+## EXPECTED RESULT
+
+**You (admin) in `/admin/users`:**
+- See all registered users in a table — email, join date, last login, Pro/Admin toggle switches, property count
+- Click property count to see villa names + regency only
+- Toggle Pro on/off with confirmation — logs to access log
+- Toggle Admin on/off (e.g. to grant Lana admin once she registers)
+- See who has granted support access
+
+**You entering support mode:**
+- Click "Enter support mode →" on a user who has granted access
+- Confirm dialog appears
+- Redirect to `/app` — amber banner across top: "👁 SUPPORT MODE — Viewing as jane@villa.com · Read-only [Exit support mode →]"
+- All data (vault, timeline, alerts) shows that user's data
+- All save/edit buttons are disabled
+- Click "Exit support mode →" → returns to your own data, banner disappears
+
+**User granting support access (in `/profile`):**
+- Sees "Support Access" section at bottom of profile
+- "Not granted" state with "Grant access" button
+- After granting: "Active since [date]" with "Revoke access" button
+- Sees "Last accessed: [date] by DSCVR Support" if accessed
+
+**Access log (`/admin/access-log`):**
+- Chronological list of every Pro grant/revoke and every support session start/end
+- Human-readable action labels, emails shown for both admin and target user

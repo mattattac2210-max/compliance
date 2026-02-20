@@ -9,6 +9,7 @@ import { pool } from "./db";
 declare module "express-session" {
   interface SessionData {
     userId: string;
+    supportUserId?: string;
   }
 }
 

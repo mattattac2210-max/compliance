@@ -5,11 +5,13 @@ import {
   type Property, type InsertProperty,
   type VaultDocumentTemplate,
   type VaultDocument, type InsertVaultDocument,
+  type SupportAccessGrant, type AdminAccessLogEntry,
   users, complianceTerms, processNavigationGuides, properties,
   vaultDocumentTemplates, vaultDocuments,
+  supportAccessGrants, adminAccessLog,
 } from "@shared/schema";
 import { db } from "./db";
-import { eq, and, sql } from "drizzle-orm";
+import { eq, and, sql, desc, count } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -42,6 +44,20 @@ export interface IStorage {
   upsertVaultDocument(doc: InsertVaultDocument): Promise<VaultDocument>;
   updateVaultDocument(id: string, updates: Partial<InsertVaultDocument>): Promise<VaultDocument | undefined>;
   getVaultDocumentById(id: string): Promise<VaultDocument | undefined>;
+
+  getAllUsers(): Promise<User[]>;
+  updateUserAdmin(id: string, isAdmin: boolean): Promise<User | undefined>;
+  updateUserProWithGranter(id: string, isPro: boolean, granterId: string): Promise<User | undefined>;
+
+  getSupportGrant(userId: string): Promise<SupportAccessGrant | undefined>;
+  createOrReactivateSupportGrant(userId: string): Promise<SupportAccessGrant>;
+  revokeSupportGrant(userId: string): Promise<void>;
+  updateSupportGrantAccess(userId: string, adminId: string): Promise<void>;
+
+  createAccessLogEntry(adminId: string, targetUserId: string, action: string, metadata?: Record<string, string>): Promise<AdminAccessLogEntry>;
+  getAccessLog(limit: number, offset: number): Promise<Array<AdminAccessLogEntry & { adminEmail?: string; targetEmail?: string }>>;
+  getActiveGrantUserIds(): Promise<string[]>;
+  getPropertyCountsByUserIds(): Promise<Map<string, number>>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -224,6 +240,108 @@ export class DatabaseStorage implements IStorage {
       .where(eq(vaultDocuments.id, id))
       .returning();
     return updated;
+  }
+
+  async getAllUsers(): Promise<User[]> {
+    return db.select().from(users).orderBy(users.createdAt);
+  }
+
+  async updateUserAdmin(id: string, isAdmin: boolean): Promise<User | undefined> {
+    const [updated] = await db.update(users)
+      .set({ isAdmin })
+      .where(eq(users.id, id))
+      .returning();
+    return updated;
+  }
+
+  async updateUserProWithGranter(id: string, isPro: boolean, granterId: string): Promise<User | undefined> {
+    const [updated] = await db.update(users)
+      .set({
+        isPro,
+        proGrantedAt: isPro ? new Date().toISOString() : null,
+        proGrantedBy: isPro ? granterId : null,
+      })
+      .where(eq(users.id, id))
+      .returning();
+    return updated;
+  }
+
+  async getSupportGrant(userId: string): Promise<SupportAccessGrant | undefined> {
+    const [grant] = await db.select().from(supportAccessGrants)
+      .where(eq(supportAccessGrants.userId, userId));
+    return grant;
+  }
+
+  async createOrReactivateSupportGrant(userId: string): Promise<SupportAccessGrant> {
+    const existing = await this.getSupportGrant(userId);
+    if (existing) {
+      const [updated] = await db.update(supportAccessGrants)
+        .set({ isActive: true, revokedAt: null, grantedAt: new Date().toISOString() })
+        .where(eq(supportAccessGrants.id, existing.id))
+        .returning();
+      return updated;
+    }
+    const [created] = await db.insert(supportAccessGrants)
+      .values({ userId, grantedAt: new Date().toISOString(), isActive: true })
+      .returning();
+    return created;
+  }
+
+  async revokeSupportGrant(userId: string): Promise<void> {
+    await db.update(supportAccessGrants)
+      .set({ isActive: false, revokedAt: new Date().toISOString() })
+      .where(and(eq(supportAccessGrants.userId, userId), eq(supportAccessGrants.isActive, true)));
+  }
+
+  async updateSupportGrantAccess(userId: string, adminId: string): Promise<void> {
+    await db.update(supportAccessGrants)
+      .set({ lastAccessedAt: new Date().toISOString(), lastAccessedBy: adminId })
+      .where(and(eq(supportAccessGrants.userId, userId), eq(supportAccessGrants.isActive, true)));
+  }
+
+  async createAccessLogEntry(adminId: string, targetUserId: string, action: string, metadata?: Record<string, string>): Promise<AdminAccessLogEntry> {
+    const [entry] = await db.insert(adminAccessLog)
+      .values({ adminId, targetUserId, action, timestamp: new Date().toISOString(), metadata: metadata || null })
+      .returning();
+    return entry;
+  }
+
+  async getAccessLog(limit: number, offset: number): Promise<Array<AdminAccessLogEntry & { adminEmail?: string; targetEmail?: string }>> {
+    const rows = await db
+      .select()
+      .from(adminAccessLog)
+      .orderBy(desc(adminAccessLog.timestamp))
+      .limit(limit)
+      .offset(offset);
+
+    const userIds = [...new Set(rows.flatMap(r => [r.adminId, r.targetUserId]))];
+    const userRows = userIds.length > 0
+      ? await db.select({ id: users.id, email: users.email }).from(users).where(sql`${users.id} IN (${sql.join(userIds.map(id => sql`${id}`), sql`, `)})`)
+      : [];
+    const emailMap = new Map(userRows.map(u => [u.id, u.email]));
+
+    return rows.map(r => ({
+      ...r,
+      adminEmail: emailMap.get(r.adminId),
+      targetEmail: emailMap.get(r.targetUserId),
+    }));
+  }
+
+  async getActiveGrantUserIds(): Promise<string[]> {
+    const rows = await db.select({ userId: supportAccessGrants.userId })
+      .from(supportAccessGrants)
+      .where(eq(supportAccessGrants.isActive, true));
+    return rows.map(r => r.userId);
+  }
+
+  async getPropertyCountsByUserIds(): Promise<Map<string, number>> {
+    const rows = await db.select({
+      userId: properties.userId,
+      count: count(),
+    }).from(properties)
+      .where(eq(properties.isActive, true))
+      .groupBy(properties.userId);
+    return new Map(rows.map(r => [r.userId, r.count]));
   }
 }
 

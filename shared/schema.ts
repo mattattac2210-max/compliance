@@ -13,6 +13,7 @@ export const users = pgTable("users", {
   isAdmin: boolean("is_admin").notNull().default(false),
   isPro: boolean("is_pro").notNull().default(false),
   proGrantedAt: text("pro_granted_at"),
+  proGrantedBy: text("pro_granted_by"),
 });
 
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -22,10 +23,34 @@ export const insertUserSchema = createInsertSchema(users).omit({
   isAdmin: true,
   isPro: true,
   proGrantedAt: true,
+  proGrantedBy: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
+
+export const supportAccessGrants = pgTable("support_access_grants", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  grantedAt: text("granted_at").notNull().default(sql`now()`),
+  revokedAt: text("revoked_at"),
+  isActive: boolean("is_active").notNull().default(true),
+  lastAccessedAt: text("last_accessed_at"),
+  lastAccessedBy: text("last_accessed_by"),
+});
+
+export type SupportAccessGrant = typeof supportAccessGrants.$inferSelect;
+
+export const adminAccessLog = pgTable("admin_access_log", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  adminId: varchar("admin_id").notNull().references(() => users.id),
+  targetUserId: varchar("target_user_id").notNull().references(() => users.id),
+  action: text("action").notNull(),
+  timestamp: text("timestamp").notNull().default(sql`now()`),
+  metadata: json("metadata").$type<Record<string, string>>(),
+});
+
+export type AdminAccessLogEntry = typeof adminAccessLog.$inferSelect;
 
 export const properties = pgTable("properties", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
