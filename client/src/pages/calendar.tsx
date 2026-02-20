@@ -261,7 +261,7 @@ export default function ComplianceCalendar() {
   }, [selDate]);
 
   return (
-    <div style={{ padding: "22px 26px" }} data-testid="calendar-page">
+    <div className="p-4 md:px-[26px] md:py-[22px]" data-testid="calendar-page">
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px", flexWrap: "wrap", gap: "12px" }}>
         <div>
@@ -311,7 +311,7 @@ export default function ComplianceCalendar() {
         </div>
       </div>
       {/* Year strip */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: "4px", marginBottom: "14px" }} data-testid="year-strip">
+      <div className="grid grid-cols-6 md:grid-cols-12 gap-1 mb-3.5" data-testid="year-strip">
         {t.months.map((mn, mi) => {
           const mEvts = getEventsForMonth(curYear, mi);
           const types = [...new Set(mEvts.map(e => e.type))];
@@ -380,8 +380,8 @@ export default function ComplianceCalendar() {
           {t.days.map(d => (
             <div
               key={d}
-              style={{ padding: "9px 0", textAlign: "center", fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--t4)" }}
-              className="text-[#404040] text-[13px]">
+              style={{ padding: "9px 0", textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--t4)" }}
+              className="text-[#404040] text-[10px] md:text-[13px]">
               {d}
             </div>
           ))}
@@ -401,10 +401,11 @@ export default function ComplianceCalendar() {
                 key={idx}
                 onClick={() => !c.outside && setSelDate(cellDate)}
                 data-testid={`cell-${c.y}-${c.m}-${c.d}`}
+                className="min-h-[60px] md:min-h-[88px]"
                 style={{
                   borderRight: (idx + 1) % 7 !== 0 ? "1px solid var(--b)" : undefined,
                   borderBottom: "1px solid var(--b)",
-                  minHeight: "88px", padding: "5px 4px", cursor: c.outside ? "default" : "pointer",
+                  padding: "5px 4px", cursor: c.outside ? "default" : "pointer",
                   transition: "background .1s", overflow: "hidden",
                   opacity: c.outside ? 0.3 : 1,
                   background: isSel ? "var(--accent-tint)" : hasOverdue ? "rgba(239,68,68,0.04)" : "transparent",
