@@ -350,29 +350,36 @@ export default function ComplianceCalendar() {
       </div>
       {/* Filters */}
       <div
-        style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginBottom: "14px", alignItems: "center" }}
+        style={{
+          display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "14px", alignItems: "center",
+          background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "10px",
+          padding: "10px 14px",
+        }}
         data-testid="calendar-filters"
-        className="pl-[5px] pr-[5px] pt-[6px] pb-[6px]">
-        <span style={{ fontFamily: "var(--font-display)", fontSize: "9px", letterSpacing: "1.5px", color: "var(--t4)", textTransform: "uppercase", marginRight: "3px" }}>{t.filter}</span>
-        {FILTER_TYPES.map(f => (
-          <button
-            key={f}
-            data-testid={`filter-${f}`}
-            onClick={() => toggleFilter(f)}
-            style={{
-              padding: "4px 11px", borderRadius: "20px",
-              border: `1px solid ${filters.has(f) ? "var(--accent-tint2)" : "var(--b)"}`,
-              background: filters.has(f) ? "var(--accent-tint)" : "var(--surface)",
-              color: filters.has(f) ? "var(--accent)" : "var(--t2)",
-              fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, letterSpacing: ".4px",
-              cursor: "pointer", transition: "all .15s", textTransform: "uppercase",
-            }}
-            onMouseEnter={e => { if (!filters.has(f)) { e.currentTarget.style.borderColor = "var(--b)"; e.currentTarget.style.color = "var(--txt)"; } }}
-            onMouseLeave={e => { if (!filters.has(f)) { e.currentTarget.style.borderColor = "var(--b)"; e.currentTarget.style.color = "var(--t2)"; } }}
-          >
-            {filterLabels[f]}
-          </button>
-        ))}
+      >
+        <span style={{ fontFamily: "var(--font-display)", fontSize: "9px", letterSpacing: "1.5px", color: "var(--t3)", textTransform: "uppercase", marginRight: "4px", fontWeight: 700 }}>{t.filter}</span>
+        {FILTER_TYPES.map(f => {
+          const active = filters.has(f);
+          return (
+            <button
+              key={f}
+              data-testid={`filter-${f}`}
+              onClick={() => toggleFilter(f)}
+              style={{
+                padding: "5px 14px", borderRadius: "20px",
+                border: active ? "1px solid var(--accent)" : "1px solid var(--b)",
+                background: active ? "var(--accent)" : "transparent",
+                color: active ? "#ffffff" : "var(--t2)",
+                fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, letterSpacing: ".3px",
+                cursor: "pointer", transition: "all .15s",
+              }}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = "var(--accent-tint2)"; e.currentTarget.style.color = "var(--txt)"; } }}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = "var(--b)"; e.currentTarget.style.color = "var(--t2)"; } }}
+            >
+              {filterLabels[f]}
+            </button>
+          );
+        })}
       </div>
       {/* Calendar grid */}
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="calendar-grid">
