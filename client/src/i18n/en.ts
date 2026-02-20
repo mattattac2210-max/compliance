@@ -9,9 +9,9 @@ export const en: UITranslations = {
     rightLabel2: "Seven-Gate Compliance Journey",
   },
   tabs: {
-    flow: "\u21B3 Compliance Flow",
-    audit: "\u2299 Self-Audit Checklist",
-    guide: "\u25FB Guidebook",
+    flow: "Compliance Flow",
+    audit: "Self-Audit Checklist",
+    guide: "Guidebook",
   },
   flow: {
     tagline: "Interactive compliance reference",

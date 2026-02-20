@@ -9,9 +9,9 @@ export const id: UITranslations = {
     rightLabel2: "Perjalanan Kepatuhan Tujuh Gerbang",
   },
   tabs: {
-    flow: "\u21B3 Alur Kepatuhan",
-    audit: "\u2299 Daftar Periksa Audit",
-    guide: "\u25FB Buku Panduan",
+    flow: "Alur Kepatuhan",
+    audit: "Daftar Periksa Audit",
+    guide: "Buku Panduan",
   },
   flow: {
     tagline: "Referensi kepatuhan interaktif",
