@@ -9,7 +9,7 @@ import { useUpgradeModal } from "@/components/upgrade-modal";
 import { SupportModeBanner } from "@/components/support-mode-banner";
 import {
   Hexagon, CheckCircle, BookOpen, Archive, Clock, AlertTriangle,
-  List, GitBranch, User, Settings, Lock, Menu, LogOut, ChevronLeft, ChevronRight
+  List, GitBranch, User, Settings, Lock, Menu, LogOut, ChevronLeft, ChevronRight, LayoutDashboard
 } from "lucide-react";
 
 interface AppShellProps {
@@ -49,9 +49,10 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     if (location === "/app" || location === "/") {
       if (tabParam === "guide" && sectionParam === "glossary") return "glossary";
       if (tabParam === "guide" && sectionParam === "workflows") return "workflows";
+      if (tabParam === "flow") return "compliance";
       if (tabParam === "audit") return "audit";
       if (tabParam === "guide") return "guide";
-      return "compliance";
+      return "dashboard";
     }
     return activeNav;
   }, [location, tabParam, sectionParam, activeNav]);
@@ -90,7 +91,8 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     {
       label: "OVERVIEW",
       items: [
-        { key: "compliance", icon: <Hexagon size={iconSize} />, label: t.tabs.flow, href: "/app", pro: false },
+        { key: "dashboard", icon: <LayoutDashboard size={iconSize} />, label: "Dashboard", href: "/app", pro: false },
+        { key: "compliance", icon: <Hexagon size={iconSize} />, label: t.tabs.flow, href: "/app?tab=flow", pro: false },
         { key: "audit", icon: <CheckCircle size={iconSize} />, label: t.tabs.audit, href: "/app?tab=audit", pro: false },
         { key: "guide", icon: <BookOpen size={iconSize} />, label: t.tabs.guide, href: "/app?tab=guide", pro: false },
       ],
