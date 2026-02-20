@@ -1,0 +1,533 @@
+# DSCVR — Phase 4 Replit Prompt
+## Marketing Landing Page — `/`
+
+---
+
+## CONTEXT
+
+You are continuing work on **DSCVR Compliance Navigator**. Phases 1–3 are complete:
+- Auth system, Property Profile, Document Vault, Timeline, Alerts
+- 30+ glossary terms with universal hover
+- Session-based auth with protected routes
+
+**The current `/` route shows the full compliance tool immediately to everyone — authenticated or not. This phase replaces that with a proper marketing landing page at `/`, moves the full compliance tool to `/app`, and gates the full tool behind authentication.**
+
+Stack: React 18 + TypeScript + Vite + Wouter + Express 5 + Tailwind + Framer Motion. Fonts already loaded globally: Montserrat (headings) + Lato (body).
+
+---
+
+## ROUTING CHANGE — DO THIS FIRST
+
+### Update `App.tsx`
+
+```typescript
+// Current:
+<Route path="/" component={Home} />
+
+// Change to:
+<Route path="/" component={LandingPage} />
+<Route path="/app">
+  <ProtectedRoute><Home /></ProtectedRoute>
+</Route>
+```
+
+- `/` → new `LandingPage` component (public, always accessible)
+- `/app` → existing `Home` component (full compliance tool, requires auth)
+- `/login`, `/register`, `/profile`, `/vault`, `/timeline`, `/alerts` → unchanged
+- `/admin` → unchanged
+
+### Update all internal links
+
+Any "Back to compliance navigator" links in vault, timeline, alerts, profile now point to `/app` not `/`.
+
+After login/register, redirect to `/app` not `/`.
+
+---
+
+## THE LANDING PAGE — `client/src/pages/landing.tsx`
+
+### Design philosophy
+
+This is a **dark, editorial, intelligence-grade** marketing page. The audience is sophisticated foreign villa operators — entrepreneurs, not tourists. They understand risk. They are time-poor. They have seen bad advice cost them real money.
+
+The tone is: **authoritative, direct, zero fluff.** Not "we help you succeed" — but "here is exactly what will block your listing on March 31 and here is what DSCVR does about it." Lead with the threat, follow with the solution.
+
+Visual language: Deep navy (#07101E), teal accents (#14B8A6), the same grid overlay and Montserrat/Lato as the app. It should feel like the same product — not a separate marketing site. Think intelligence briefing, not SaaS landing page.
+
+**The key UX mechanic:** The compliance tool content is *teased* — visitors can see the gate structure, blurred/locked content, and a preview of what they're missing — but cannot interact without an account. This creates desire through partial visibility, not just description.
+
+---
+
+### SECTION 1 — Sticky Header
+
+```
+[DSCVR wordmark + "Compliance Navigator"]     [🌐 Language]  [Sign in]  [Get access →]
+```
+
+- Same header style as the app: `rgba(7,16,30,0.95)` background, backdrop blur, teal bottom border
+- "Get access →" button: solid teal `#14B8A6`, Montserrat, dark text, subtle hover glow
+- "Sign in" is ghost/outline style
+- Language selector (reuse `LanguageSelector` component)
+- On scroll: header compresses slightly, "Get access →" gets a pulsing teal border animation
+
+---
+
+### SECTION 2 — Hero
+
+Full-width, min-height 90vh. Grid overlay background (same as app).
+
+**Left column (60%):**
+
+Kicker line (small caps, teal):
+```
+◈ BALI VILLA COMPLIANCE · 2026
+```
+
+Headline (Montserrat, 900 weight, 64px, tight letter-spacing):
+```
+Seven gates stand
+between your villa
+and OTA listing.
+```
+The word **"Seven"** renders in teal `#14B8A6`.
+
+Sub-headline (Lato, 300 weight, 18px, slate colour):
+```
+The March 31, 2026 OTA verification deadline is not
+a bureaucratic formality. It's an automated system
+check against OSS. Account manager relationships
+cannot override a failed system check.
+```
+
+Two CTA buttons stacked or side by side:
+- Primary: `Get access — it's free` → `/register` — teal fill, Montserrat bold
+- Secondary: `See what's inside ↓` → smooth scroll to tease section — ghost/outline
+
+Below CTAs, a trust line in small muted text:
+```
+No credit card required  ·  EN · UK · ID  ·  Purpose-built for Bali villa operators
+```
+
+**Right column (40%):**
+
+A visual "preview card" showing a blurred/locked version of the compliance gate flow. Show 3 gate cards (PT PMA, ZONE, NIB) in their actual DSCVR style, but:
+- Cards are slightly blurred (`filter: blur(3px)`)
+- A frosted-glass overlay with a lock icon and "Sign in to access full navigator →" overlaid
+- The gate nodes (numbered circles) are visible and sharp — only the card content is blurred
+- This is a static visual mockup using the real gate card HTML/CSS, not a screenshot
+
+```tsx
+// Preview card structure:
+<div className="relative">
+  {/* Actual gate cards rendered in read-only style */}
+  <div style={{ filter: "blur(3px)", pointerEvents: "none" }}>
+    {/* Gate 0, 1, 2 cards — simplified, non-interactive */}
+  </div>
+  {/* Overlay */}
+  <div className="absolute inset-0 flex flex-col items-center justify-center"
+       style={{ background: "rgba(7,16,30,0.7)", backdropFilter: "blur(2px)", borderRadius: "12px" }}>
+    <div style={{ color: "#14B8A6", fontSize: "32px" }}>🔒</div>
+    <p style={{ color: "#CBD5E1", fontFamily: "Montserrat", fontSize: "13px", fontWeight: 700, letterSpacing: "1px", marginTop: "12px" }}>
+      FULL ACCESS REQUIRES AN ACCOUNT
+    </p>
+    <a href="/register" style={{ marginTop: "16px", padding: "8px 20px", background: "#14B8A6", color: "#07101E", borderRadius: "6px", fontFamily: "Montserrat", fontWeight: 700, fontSize: "12px", letterSpacing: "1px", textDecoration: "none" }}>
+      Create free account →
+    </a>
+  </div>
+</div>
+```
+
+---
+
+### SECTION 3 — The Stakes (urgency block)
+
+Dark card, full width, with a red-tinted left border or top border.
+
+```
+⚠ THE MARCH 31, 2026 DEADLINE
+
+OTA platforms including Airbnb and Booking.com are implementing automated compliance
+verification against Indonesia's OSS system. The check queries NIB status, entity name,
+and KBLI in real time.
+
+A listing that passes today will fail if:
+  · Your SLF certificate expires and causes NIB status to revert
+  · Your entity name on the OTA account differs from OSS — even minor formatting
+  · Your NIB is in "Issued" status rather than "Verified" status
+
+March 31 is the start of continuous monitoring — not a one-time checkpoint.
+```
+
+Style: amber alert style from the app (`rgba(245,158,11,0.06)` background, amber border), but full-width. Larger text (15px body). Use the same `▲` icon treatment.
+
+---
+
+### SECTION 4 — The Seven Gates (tease section)
+
+This is the centrepiece of the page. Scroll target for "See what's inside ↓".
+
+**Section heading:**
+```
+The Seven-Gate Compliance Journey
+```
+Sub: *"Each gate is a dependency. None can be skipped. DSCVR tracks the status of every document, deadline, and certificate across all seven."*
+
+**Gate preview strip:**
+
+Show all 7 gates as a horizontal scroll (mobile) or 2-row grid (desktop) of compact cards — **not** the full expandable cards from the app. Each preview card shows:
+
+- Gate number badge (coloured circle matching app colours)
+- Gate title
+- DSCVR role pill
+- A frosted lock icon in the bottom right
+- On hover: the card lifts slightly and shows a tooltip: *"Full process guide unlocked with account"*
+
+Gate colours exactly as in the app:
+- PT PMA: `#94A3B8` (dashed border)
+- 1 ZONE: `#14B8A6`
+- 2 NIB: `#60A5FA`
+- 3 SLF: `#A78BFA`
+- 4 TAX: `#F59E0B`
+- 5 STAFF: `#22C55E`
+- 6 SAFE: `#FCA5A5`
+- 7 OTA: `#14B8A6` (glowing border, deadline pill)
+
+Below the gate grid, a CTA panel:
+```
+[Lock icon]  The full gate navigator — with expandable process guides, government portal
+             links, alert thresholds, and compliance terminology — is available to
+             registered users.
+
+                    [ Create free account → ]    [ Sign in ]
+```
+
+---
+
+### SECTION 5 — What DSCVR Does (features)
+
+Three-column feature grid. Cards with teal top border accent.
+
+**Column 1 — Document Vault**
+Icon: `□` (file-like)
+Title: Document Vault
+Body: Track every required document across all 7 gates. Status: not uploaded, uploaded, expiring, expired. Expiry alerts at 90 / 60 / 30 / 14 days. Never miss an SLF renewal again.
+
+**Column 2 — Compliance Timeline**
+Icon: `◎`
+Title: Compliance Timeline
+Body: All deadlines in one view — SLF renewal dates, monthly PB1 filings, BPJS contributions, annual SPT Tahunan. Fixed recurring deadlines combined with your vault expiry dates.
+
+**Column 3 — Terminology Decoder**
+Icon: `◈`
+Title: Plain-Language Glossary
+Body: 30+ compliance terms explained in plain English — with definitions that appear on hover anywhere in the app. KKPR, SLF, KITAS, NIB, PBG, CoreTax — every acronym decoded.
+
+Below the three columns, a fourth full-width feature card:
+
+**Compliance Passport (coming soon pill)**
+Title: Compliance Passport Export
+Body: Generate a document export showing all uploaded materials with dates — for submission to OTA platforms, consultants, or government offices on demand. Not a legal certification — an operator evidence record.
+Style: slightly dimmed, "Coming soon" pill in amber.
+
+---
+
+### SECTION 6 — What DSCVR Does NOT (credibility / trust)
+
+This section is important. It builds trust by being honest about scope.
+
+Heading: `DSCVR is an operational tracking tool. Not a legal service.`
+
+Two-column split (same "scope box" style from the app):
+
+**DSCVR tracks:**
+- Licence documents and expiry dates
+- Permit inspection schedules
+- Staff documentation and permit status
+- Filing calendar deadlines
+- Safety compliance task logs
+- SOP execution evidence
+
+**DSCVR does not:**
+- Interpret zoning or legal status
+- Provide legal or tax advice
+- Validate corporate structures
+- File returns or submissions
+- Certify compliance status
+- Replace licensed professionals
+
+Small text below: *"All regulatory work should be managed by appropriately licensed Indonesian professionals. DSCVR provides the document organisation and deadline tracking that lets you stay on top of what your advisors tell you to do."*
+
+---
+
+### SECTION 7 — Language support callout
+
+Slim banner, full width, teal tint:
+
+```
+🌐  Available in English  ·  Українська  ·  Bahasa Indonesia
+     Built for international villa operators in Bali
+```
+
+---
+
+### SECTION 8 — Final CTA
+
+Clean, centred, generous whitespace.
+
+Headline: `Your compliance journey starts with an account.`
+Sub: `Free to use. No credit card. Takes 60 seconds.`
+
+Large primary button: `Create your free account →` → `/register`
+Secondary link: `Already have an account? Sign in` → `/login`
+
+Below button, repeat the trust line:
+```
+Purpose-built for Bali villa operators  ·  EN · UK · ID  ·  March 2026 deadline
+```
+
+---
+
+### SECTION 9 — Footer
+
+Minimal. Same dark background.
+
+```
+[DSCVR wordmark]
+
+Compliance Navigator for Bali Villa Operators
+
+This platform provides operational workflow guidance and document tracking.
+It is not legal, tax, immigration, or regulatory advice. All submissions
+and regulatory matters should be managed by appropriately licensed professionals.
+
+EN · UK · ID                                              © 2026 DSCVR
+```
+
+---
+
+## ANIMATIONS
+
+Use Framer Motion for these specific effects:
+
+1. **Hero headline** — staggered word reveal on page load (each word fades up with 0.08s delay between words)
+2. **Gate preview cards** — scroll-triggered fade-in stagger as they enter viewport (use `whileInView`)
+3. **Feature cards** — scroll-triggered lift-in (y: 20 → 0, opacity: 0 → 1) with stagger
+4. **Header CTA button** — subtle teal pulse animation on the border (CSS keyframe, not Framer)
+5. **Stats row** (if included) — count-up animation on the numbers when they scroll into view
+
+Do NOT add animations to every element — only the five listed above. Restraint is key.
+
+---
+
+## i18n
+
+Add landing page strings to `UITranslations` in `types.ts` and populate in `en.ts`, `uk.ts`, `id.ts`:
+
+```typescript
+landing: {
+  heroKicker: string;          // "BALI VILLA COMPLIANCE · 2026"
+  heroHeadline1: string;       // "Seven gates stand"
+  heroHeadline2: string;       // "between your villa"
+  heroHeadline3: string;       // "and OTA listing."
+  heroSub: string;             // Full sub-headline paragraph
+  ctaPrimary: string;          // "Get access — it's free"
+  ctaSecondary: string;        // "See what's inside ↓"
+  trustLine: string;           // "No credit card required · EN · UK · ID · ..."
+  urgencyHeading: string;      // "THE MARCH 31, 2026 DEADLINE"
+  urgencyBody: string;
+  gatesHeading: string;        // "The Seven-Gate Compliance Journey"
+  gatesSub: string;
+  gatesLockedTooltip: string;  // "Full process guide unlocked with account"
+  gatesCta: string;            // "The full gate navigator..."
+  featuresHeading: string;     // "What DSCVR does"
+  feature1Title: string;       // "Document Vault"
+  feature1Body: string;
+  feature2Title: string;       // "Compliance Timeline"
+  feature2Body: string;
+  feature3Title: string;       // "Plain-Language Glossary"
+  feature3Body: string;
+  feature4Title: string;       // "Compliance Passport Export"
+  feature4Body: string;
+  feature4Soon: string;        // "Coming soon"
+  scopeHeading: string;        // "DSCVR is an operational tracking tool..."
+  scopeTracks: string;         // "DSCVR tracks"
+  scopeNot: string;            // "DSCVR does not"
+  scopeDisclaimer: string;
+  langBanner: string;          // "Available in English · Українська · Bahasa Indonesia"
+  langSub: string;
+  finalHeading: string;        // "Your compliance journey starts with an account."
+  finalSub: string;            // "Free to use. No credit card. Takes 60 seconds."
+  finalCta: string;            // "Create your free account →"
+  finalSignIn: string;         // "Already have an account? Sign in"
+  footerDisclaimer: string;
+  previewLockLabel: string;    // "FULL ACCESS REQUIRES AN ACCOUNT"
+  previewLockCta: string;      // "Create free account →"
+  lockedOverlaySignIn: string; // "Already have an account?"
+}
+```
+
+**English values:**
+```typescript
+landing: {
+  heroKicker: "BALI VILLA COMPLIANCE · 2026",
+  heroHeadline1: "Seven gates stand",
+  heroHeadline2: "between your villa",
+  heroHeadline3: "and OTA listing.",
+  heroSub: "The March 31, 2026 OTA verification deadline is not a bureaucratic formality. It's an automated system check against OSS. Account manager relationships cannot override a failed system check.",
+  ctaPrimary: "Get access — it's free",
+  ctaSecondary: "See what's inside ↓",
+  trustLine: "No credit card required  ·  EN · UK · ID  ·  Purpose-built for Bali villa operators",
+  urgencyHeading: "THE MARCH 31, 2026 DEADLINE",
+  urgencyBody: "OTA platforms are implementing automated compliance verification against Indonesia's OSS system. A listing that passes today will fail if your SLF expires, your entity name differs from OSS, or your NIB is in Issued rather than Verified status. March 31 is the start of continuous monitoring — not a one-time checkpoint.",
+  gatesHeading: "The Seven-Gate Compliance Journey",
+  gatesSub: "Each gate is a dependency. None can be skipped. DSCVR tracks the status of every document, deadline, and certificate across all seven.",
+  gatesLockedTooltip: "Full process guide unlocked with account",
+  gatesCta: "The full gate navigator — with expandable process guides, government portal links, alert thresholds, and compliance terminology — is available to registered users.",
+  featuresHeading: "What DSCVR does",
+  feature1Title: "Document Vault",
+  feature1Body: "Track every required document across all 7 gates. Status tracking: not uploaded, uploaded, expiring, expired. Expiry alerts at 90, 60, 30, and 14 days. Never miss an SLF renewal.",
+  feature2Title: "Compliance Timeline",
+  feature2Body: "All deadlines in one view — SLF renewal dates, monthly PB1 filings, BPJS contributions, annual SPT Tahunan. Fixed recurring deadlines combined with your vault expiry dates.",
+  feature3Title: "Plain-Language Glossary",
+  feature3Body: "30+ compliance terms explained in plain language — with definitions that appear on hover anywhere in the app. KKPR, SLF, KITAS, NIB, PBG, CoreTax — every acronym decoded.",
+  feature4Title: "Compliance Passport Export",
+  feature4Body: "Generate a document export showing all uploaded materials with dates — for OTA platforms, consultants, or government offices on demand. An operator evidence record, not a legal certification.",
+  feature4Soon: "Coming soon",
+  scopeHeading: "DSCVR is an operational tracking tool. Not a legal service.",
+  scopeTracks: "DSCVR tracks",
+  scopeNot: "DSCVR does not",
+  scopeDisclaimer: "All regulatory work should be managed by appropriately licensed Indonesian professionals. DSCVR provides the document organisation and deadline tracking that lets you stay on top of what your advisors tell you to do.",
+  langBanner: "Available in English  ·  Українська  ·  Bahasa Indonesia",
+  langSub: "Built for international villa operators in Bali",
+  finalHeading: "Your compliance journey starts with an account.",
+  finalSub: "Free to use. No credit card. Takes 60 seconds.",
+  finalCta: "Create your free account →",
+  finalSignIn: "Already have an account? Sign in",
+  footerDisclaimer: "This platform provides operational workflow guidance and document tracking. It is not legal, tax, immigration, or regulatory advice. All submissions and regulatory matters should be managed by appropriately licensed professionals.",
+  previewLockLabel: "FULL ACCESS REQUIRES AN ACCOUNT",
+  previewLockCta: "Create free account →",
+  lockedOverlaySignIn: "Already have an account?",
+}
+```
+
+**Ukrainian values:**
+```typescript
+landing: {
+  heroKicker: "ВІДПОВІДНІСТЬ ВІЛЛИ НА БАЛІ · 2026",
+  heroHeadline1: "Сім воріт стоять",
+  heroHeadline2: "між вашою віллою",
+  heroHeadline3: "та розміщенням на OTA.",
+  heroSub: "Дедлайн верифікації OTA 31 березня 2026 року — це не бюрократична формальність. Це автоматична перевірка системи OSS. Стосунки з менеджером акаунту не можуть скасувати відмову системи.",
+  ctaPrimary: "Отримати доступ — безкоштовно",
+  ctaSecondary: "Подивитися, що всередині ↓",
+  trustLine: "Кредитна картка не потрібна  ·  EN · UK · ID  ·  Для іноземних власників вілл на Балі",
+  urgencyHeading: "ДЕДЛАЙН 31 БЕРЕЗНЯ 2026 РОКУ",
+  urgencyBody: "OTA-платформи впроваджують автоматичну перевірку відповідності через систему OSS Індонезії. Оголошення, яке проходить перевірку сьогодні, може не пройти, якщо ваш SLF прострочено, назва юридичної особи не збігається з OSS або NIB у статусі 'Видано', а не 'Верифіковано'. 31 березня — початок постійного моніторингу, а не разова перевірка.",
+  gatesHeading: "Подорож через Сім Воріт відповідності",
+  gatesSub: "Кожні ворота є залежністю. Жодні не можна пропустити. DSCVR відстежує статус кожного документа, дедлайну та сертифіката по всіх семи.",
+  gatesLockedTooltip: "Повний посібник із процесу доступний після реєстрації",
+  gatesCta: "Повний навігатор воріт — з розгорнутими посібниками, посиланнями на державні портали та термінологією — доступний зареєстрованим користувачам.",
+  featuresHeading: "Що робить DSCVR",
+  feature1Title: "Сховище документів",
+  feature1Body: "Відстежуйте кожен необхідний документ по всіх 7 воротах. Статус: не завантажено, завантажено, скоро закінчується, прострочено. Сповіщення за 90, 60, 30 та 14 днів до закінчення.",
+  feature2Title: "Часова шкала відповідності",
+  feature2Body: "Всі дедлайни в одному місці — дати поновлення SLF, щомісячні подання PB1, внески BPJS, річна SPT Tahunan.",
+  feature3Title: "Глосарій простою мовою",
+  feature3Body: "30+ термінів відповідності, пояснених простою мовою — з визначеннями, що з'являються при наведенні курсора будь-де в додатку.",
+  feature4Title: "Експорт паспорту відповідності",
+  feature4Body: "Генеруйте експорт документів із датами для OTA-платформ, консультантів або державних органів на вимогу.",
+  feature4Soon: "Незабаром",
+  scopeHeading: "DSCVR — це інструмент оперативного відстеження. Не юридична служба.",
+  scopeTracks: "DSCVR відстежує",
+  scopeNot: "DSCVR не робить",
+  scopeDisclaimer: "Вся регуляторна робота повинна виконуватися ліцензованими індонезійськими фахівцями. DSCVR надає організацію документів і відстеження дедлайнів.",
+  langBanner: "Доступно англійською  ·  Українською  ·  Bahasa Indonesia",
+  langSub: "Для міжнародних власників вілл на Балі",
+  finalHeading: "Ваша подорож до відповідності починається з облікового запису.",
+  finalSub: "Безкоштовно. Без кредитної картки. Займає 60 секунд.",
+  finalCta: "Створити безкоштовний обліковий запис →",
+  finalSignIn: "Вже є обліковий запис? Увійти",
+  footerDisclaimer: "Ця платформа надає операційні посібники та відстеження документів. Це не юридична, податкова, імміграційна або регуляторна порада.",
+  previewLockLabel: "ПОВНИЙ ДОСТУП ПОТРЕБУЄ ОБЛІКОВОГО ЗАПИСУ",
+  previewLockCta: "Створити безкоштовний обліковий запис →",
+  lockedOverlaySignIn: "Вже є обліковий запис?",
+}
+```
+
+**Bahasa Indonesia values:**
+```typescript
+landing: {
+  heroKicker: "KEPATUHAN VILLA BALI · 2026",
+  heroHeadline1: "Tujuh gerbang menghalangi",
+  heroHeadline2: "villa Anda",
+  heroHeadline3: "dari listing OTA.",
+  heroSub: "Tenggat verifikasi OTA 31 Maret 2026 bukan formalitas birokrasi. Ini adalah pemeriksaan sistem otomatis terhadap OSS. Hubungan dengan manajer akun tidak dapat mengesampingkan kegagalan sistem.",
+  ctaPrimary: "Dapatkan akses — gratis",
+  ctaSecondary: "Lihat isinya ↓",
+  trustLine: "Tidak perlu kartu kredit  ·  EN · UK · ID  ·  Dibuat untuk operator villa di Bali",
+  urgencyHeading: "TENGGAT 31 MARET 2026",
+  urgencyBody: "Platform OTA mengimplementasikan verifikasi kepatuhan otomatis terhadap sistem OSS Indonesia. Listing yang lulus hari ini bisa gagal jika SLF Anda kadaluarsa, nama entitas berbeda dari OSS, atau NIB berstatus 'Diterbitkan' bukan 'Terverifikasi'. 31 Maret adalah awal pemantauan berkelanjutan, bukan titik pemeriksaan satu kali.",
+  gatesHeading: "Perjalanan Kepatuhan Tujuh Gerbang",
+  gatesSub: "Setiap gerbang adalah ketergantungan. Tidak ada yang bisa dilewati. DSCVR melacak status setiap dokumen, tenggat, dan sertifikat di semua tujuh gerbang.",
+  gatesLockedTooltip: "Panduan proses lengkap tersedia dengan akun",
+  gatesCta: "Navigator gerbang lengkap — dengan panduan proses yang dapat diperluas, tautan portal pemerintah, dan terminologi kepatuhan — tersedia untuk pengguna terdaftar.",
+  featuresHeading: "Apa yang dilakukan DSCVR",
+  feature1Title: "Vault Dokumen",
+  feature1Body: "Lacak setiap dokumen yang diperlukan di semua 7 gerbang. Status: belum diunggah, diunggah, segera kadaluarsa, kadaluarsa. Peringatan 90, 60, 30, dan 14 hari sebelum kadaluarsa.",
+  feature2Title: "Linimasa Kepatuhan",
+  feature2Body: "Semua tenggat dalam satu tampilan — tanggal pembaruan SLF, pengajuan PB1 bulanan, iuran BPJS, SPT Tahunan tahunan.",
+  feature3Title: "Glosarium Bahasa Sederhana",
+  feature3Body: "30+ istilah kepatuhan dijelaskan dalam bahasa sederhana — dengan definisi yang muncul saat hover di mana saja dalam aplikasi.",
+  feature4Title: "Ekspor Paspor Kepatuhan",
+  feature4Body: "Buat ekspor dokumen dengan tanggal untuk platform OTA, konsultan, atau kantor pemerintah sesuai permintaan.",
+  feature4Soon: "Segera hadir",
+  scopeHeading: "DSCVR adalah alat pelacakan operasional. Bukan layanan hukum.",
+  scopeTracks: "DSCVR melacak",
+  scopeNot: "DSCVR tidak",
+  scopeDisclaimer: "Semua pekerjaan regulasi harus dikelola oleh profesional Indonesia yang berlisensi. DSCVR menyediakan organisasi dokumen dan pelacakan tenggat.",
+  langBanner: "Tersedia dalam English  ·  Українська  ·  Bahasa Indonesia",
+  langSub: "Dibuat untuk operator villa internasional di Bali",
+  finalHeading: "Perjalanan kepatuhan Anda dimulai dengan sebuah akun.",
+  finalSub: "Gratis digunakan. Tanpa kartu kredit. Butuh 60 detik.",
+  finalCta: "Buat akun gratis Anda →",
+  finalSignIn: "Sudah punya akun? Masuk",
+  footerDisclaimer: "Platform ini menyediakan panduan alur kerja operasional dan pelacakan dokumen. Ini bukan saran hukum, pajak, imigrasi, atau regulasi.",
+  previewLockLabel: "AKSES PENUH MEMERLUKAN AKUN",
+  previewLockCta: "Buat akun gratis →",
+  lockedOverlaySignIn: "Sudah punya akun?",
+}
+```
+
+---
+
+## AUTHENTICATED USER BEHAVIOUR
+
+If the user is **already logged in** when they visit `/`:
+- Replace hero CTAs with: `Go to your compliance navigator →` (links to `/app`)
+- Remove the locked preview overlay — show a live mini-summary instead: "Your vault: X% complete · Next deadline: [date]" pulled from their actual data
+- Header shows their nav links (Profile, Vault, Timeline, Alerts) instead of Sign in / Get access
+
+Use `useAuth()` hook to detect this state.
+
+---
+
+## CONSTRAINTS
+
+1. **`/app` must require auth** — `ProtectedRoute` wraps the existing `Home` component
+2. **`/` is fully public** — no auth required, language selector works, no redirects for unauthenticated users
+3. **Gate preview cards are static** — they are not the real interactive gate cards. Render simplified non-interactive versions for the tease section. Do not import the full gate logic.
+4. **Keep the tease honest** — show real gate names, real DSCVR role pill text, real colours. Just blur/lock the detailed content.
+5. **Never hardcode English** — all text via `t.landing.*` keys
+6. **Mobile responsive** — hero stacks to single column on mobile. Gate grid becomes horizontal scroll. Feature cards stack to 1 column.
+7. **Framer Motion only for the 5 listed animations** — do not animate every element
+8. **All existing routes continue to work** — `/login`, `/register`, `/profile`, `/vault`, `/timeline`, `/alerts`, `/admin` all unchanged
+
+---
+
+## EXPECTED RESULT
+
+- `/` — full marketing landing page, public, 3 languages, auth-aware
+- `/app` — existing compliance tool, requires login, redirects to `/login` if not authenticated
+- Unauthenticated visitors see: hero, urgency block, teased gate preview (blurred), features, scope, language banner, final CTA
+- Authenticated visitors see: same page with personalised CTA and mini vault summary instead of lock overlay
+- All "Back to compliance navigator" links throughout the app now point to `/app`
