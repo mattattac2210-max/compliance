@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/context";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "wouter";
-import type { Property, VaultDocumentTemplate, VaultDocument } from "@shared/schema";
-import { CheckCircle2, AlertTriangle, Clock, X, FileText, Calendar } from "lucide-react";
+import type { Property, VaultDocumentTemplate, VaultDocument, StaffMember } from "@shared/schema";
+import { CheckCircle2, AlertTriangle, Clock, X, FileText, Calendar, Users, Globe } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const GATE_COLORS = ["#94A3B8", "#14B8A6", "#60A5FA", "#A78BFA", "#F59E0B", "#22C55E", "#FCA5A5", "#14B8A6"];
@@ -18,8 +18,9 @@ interface AlertItem {
   date: Date;
   daysUntil: number;
   type: "overdue" | "upcoming";
-  source: "vault" | "fixed";
+  source: "vault" | "fixed" | "compliance";
   propertyName?: string;
+  description?: string;
 }
 
 const FIXED_DEADLINES = [
@@ -62,6 +63,12 @@ export default function AlertsPage() {
   const { data: vaultDocs = [] } = useQuery<VaultDocument[]>({
     queryKey: ["/api/vault", properties[0]?.id],
     queryFn: () => properties.length > 0 ? fetch(`/api/vault?propertyId=${properties[0].id}`, { credentials: "include" }).then(r => r.json()) : Promise.resolve([]),
+    enabled: properties.length > 0,
+  });
+
+  const { data: staffMembers = [] } = useQuery<StaffMember[]>({
+    queryKey: ["/api/staff", properties[0]?.id],
+    queryFn: () => properties.length > 0 ? fetch(`/api/staff?propertyId=${properties[0].id}`, { credentials: "include" }).then(r => r.json()) : Promise.resolve([]),
     enabled: properties.length > 0,
   });
 
@@ -155,8 +162,86 @@ export default function AlertsPage() {
       }
     }
 
+    for (const prop of properties) {
+      if (prop.otaEntityName && prop.entityName && 
+          prop.otaEntityName.toLowerCase().trim() !== prop.entityName.toLowerCase().trim()) {
+        result.push({
+          id: `entity-mismatch-${prop.id}`,
+          label: t.alerts.entityMismatch,
+          gateNumber: 7,
+          color: "#EF4444",
+          date: today,
+          daysUntil: 0,
+          type: "overdue",
+          source: "compliance",
+          propertyName: prop.propertyName,
+          description: t.alerts.entityMismatchDesc,
+        });
+      }
+    }
+
+    const activeStaff = staffMembers.filter(s => s.isActive);
+    const bpjsGaps = activeStaff.filter(s => 
+      s.bpjsKesehatanStatus === "not_registered" || 
+      s.bpjsKetenagakerjaanStatus === "not_registered"
+    );
+    if (bpjsGaps.length > 0) {
+      result.push({
+        id: "bpjs-gap",
+        label: `${t.alerts.bpjsGap} (${bpjsGaps.length})`,
+        gateNumber: 5,
+        color: "#F59E0B",
+        date: today,
+        daysUntil: 0,
+        type: "overdue",
+        source: "compliance",
+        description: t.alerts.bpjsGapDesc,
+      });
+    }
+
+    for (const prop of properties) {
+      if (prop.landTitleType === "hgb" && prop.landTitleExpiry) {
+        const expDate = new Date(prop.landTitleExpiry);
+        const diff = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (diff < 365 * 2) {
+          result.push({
+            id: `hgb-expiry-${prop.id}`,
+            label: t.alerts.hgbExpiryAlert,
+            gateNumber: 0,
+            color: diff < 0 ? "#EF4444" : "#F59E0B",
+            date: expDate,
+            daysUntil: diff,
+            type: diff < 0 ? "overdue" : "upcoming",
+            source: "compliance",
+            propertyName: prop.propertyName,
+            description: t.alerts.hgbExpiryAlertDesc,
+          });
+        }
+      }
+    }
+
+    for (const staff of activeStaff) {
+      if (staff.kitasExpiry) {
+        const expDate = new Date(staff.kitasExpiry);
+        const diff = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        if (diff < 90) {
+          result.push({
+            id: `kitas-expiry-${staff.id}`,
+            label: `${t.alerts.kitasExpiryAlert}: ${staff.name}`,
+            gateNumber: 5,
+            color: diff < 0 ? "#EF4444" : "#F59E0B",
+            date: expDate,
+            daysUntil: diff,
+            type: diff < 0 ? "overdue" : "upcoming",
+            source: "compliance",
+            description: t.alerts.kitasExpiryAlertDesc,
+          });
+        }
+      }
+    }
+
     return result.filter(a => !dismissed.has(a.id));
-  }, [vaultDocs, templates, properties, language, dismissed, t]);
+  }, [vaultDocs, templates, properties, language, dismissed, t, staffMembers]);
 
   const overdueAlerts = alerts.filter(a => a.type === "overdue");
   const upcomingAlerts = alerts.filter(a => a.type === "upcoming");
@@ -190,12 +275,15 @@ export default function AlertsPage() {
                       <AlertTriangle className="h-5 w-5 text-[#EF4444] shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm text-slate-200">{alert.label}</p>
+                        {alert.description && <p className="text-xs text-slate-500 mt-0.5" data-testid={`text-desc-${alert.id}`}>{alert.description}</p>}
                         {alert.propertyName && <p className="text-xs text-slate-500 mt-0.5">{alert.propertyName}</p>}
                       </div>
                       <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${alert.color}15`, color: alert.color }}>{GATE_ABBRS[alert.gateNumber]}</span>
                       <span className="text-[10px] font-heading font-bold text-[#EF4444]">{Math.abs(alert.daysUntil)} {t.timeline.daysOverdue}</span>
                       <div className="flex items-center gap-1">
-                        {alert.source === "vault" ? (
+                        {alert.source === "compliance" ? (
+                          <Link to="/profile" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]" data-testid={`link-profile-${alert.id}`}>Profile</Link>
+                        ) : alert.source === "vault" ? (
                           <Link to="/vault" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]" data-testid={`link-vault-${alert.id}`}>{t.alerts.viewVault}</Link>
                         ) : (
                           <Link to="/timeline" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]" data-testid={`link-timeline-${alert.id}`}>{t.alerts.viewTimeline}</Link>
@@ -221,13 +309,16 @@ export default function AlertsPage() {
                       <Clock className="h-5 w-5 text-[#F59E0B] shrink-0" />
                       <div className="flex-1">
                         <p className="text-sm text-slate-200">{alert.label}</p>
+                        {alert.description && <p className="text-xs text-slate-500 mt-0.5" data-testid={`text-desc-${alert.id}`}>{alert.description}</p>}
                         {alert.propertyName && <p className="text-xs text-slate-500 mt-0.5">{alert.propertyName}</p>}
                       </div>
                       <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${alert.color}15`, color: alert.color }}>{GATE_ABBRS[alert.gateNumber]}</span>
                       <span className="text-xs text-slate-500">{alert.date.toLocaleDateString()}</span>
                       <span className="text-[10px] font-heading text-slate-500">{alert.daysUntil} {t.alerts.daysLabel}</span>
                       <div className="flex items-center gap-1">
-                        {alert.source === "vault" ? (
+                        {alert.source === "compliance" ? (
+                          <Link to="/profile" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]" data-testid={`link-profile-${alert.id}`}>Profile</Link>
+                        ) : alert.source === "vault" ? (
                           <Link to="/vault" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]">{t.alerts.viewVault}</Link>
                         ) : (
                           <Link to="/timeline" className="text-[10px] text-[#14B8A6] hover:text-[#5EEAD4]">{t.alerts.viewTimeline}</Link>

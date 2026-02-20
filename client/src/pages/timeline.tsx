@@ -2,8 +2,8 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/context";
 import { useAuth } from "@/hooks/useAuth";
-import type { Property, VaultDocumentTemplate, VaultDocument } from "@shared/schema";
-import { Calendar, Clock, AlertTriangle } from "lucide-react";
+import type { Property, VaultDocumentTemplate, VaultDocument, StaffMember } from "@shared/schema";
+import { Calendar, Clock, AlertTriangle, RotateCw } from "lucide-react";
 
 const GATE_COLORS = ["#94A3B8", "#14B8A6", "#60A5FA", "#A78BFA", "#F59E0B", "#22C55E", "#FCA5A5", "#14B8A6"];
 const GATE_ABBRS = ["PT", "ZONE", "NIB", "SLF", "TAX", "STAFF", "SAFE", "OTA"];
@@ -18,8 +18,9 @@ interface TimelineItem {
   color: string;
   isOverdue: boolean;
   daysUntil: number;
-  source: "vault" | "fixed";
+  source: "vault" | "fixed" | "staff" | "property";
   propertyName?: string;
+  isRecurring?: boolean;
 }
 
 const FIXED_DEADLINES = [
@@ -77,6 +78,12 @@ export default function TimelinePage() {
     enabled: properties.length > 0,
   });
 
+  const { data: staffMembers = [] } = useQuery<StaffMember[]>({
+    queryKey: ["/api/staff", properties[0]?.id],
+    queryFn: () => properties.length > 0 ? fetch(`/api/staff?propertyId=${properties[0].id}`, { credentials: "include" }).then(r => r.json()) : Promise.resolve([]),
+    enabled: properties.length > 0,
+  });
+
   const items = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -121,9 +128,45 @@ export default function TimelinePage() {
       }
     }
 
+    for (const staff of staffMembers) {
+      if (staff.kitasExpiry && staff.isActive) {
+        const expDate = new Date(staff.kitasExpiry);
+        const diff = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        result.push({
+          id: `kitas-${staff.id}`,
+          label: `${t.timeline.kitasExpiry}: ${staff.name}`,
+          date: expDate,
+          gateNumber: 5,
+          color: GATE_COLORS[5],
+          isOverdue: diff < 0,
+          daysUntil: diff,
+          source: "staff" as const,
+          propertyName: properties[0]?.propertyName,
+        });
+      }
+    }
+
+    for (const prop of properties) {
+      if (prop.landTitleType === "hgb" && prop.landTitleExpiry) {
+        const expDate = new Date(prop.landTitleExpiry);
+        const diff = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+        result.push({
+          id: `hgb-${prop.id}`,
+          label: t.timeline.hgbExpiry,
+          date: expDate,
+          gateNumber: 0,
+          color: "#F59E0B",
+          isOverdue: diff < 0,
+          daysUntil: diff,
+          source: "property" as const,
+          propertyName: prop.propertyName,
+        });
+      }
+    }
+
     result.sort((a, b) => a.date.getTime() - b.date.getTime());
     return result;
-  }, [templates, allVaultDocs.data, properties, language, t]);
+  }, [templates, allVaultDocs.data, properties, language, t, staffMembers]);
 
   const filtered = useMemo(() => {
     const today = new Date();
@@ -198,6 +241,7 @@ export default function TimelinePage() {
                   {overdueItems.map(item => (
                     <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg bg-[#EF4444]/5 border border-[#EF4444]/15" data-testid={`item-timeline-${item.id}`}>
                       <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
+                      {item.source === "fixed" && <RotateCw className="h-3 w-3 text-slate-500 shrink-0" data-testid={`icon-recurring-${item.id}`} />}
                       <span className="text-sm text-slate-200 flex-1">{item.label}</span>
                       <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${item.color}15`, color: item.color }}>{GATE_ABBRS[item.gateNumber]}</span>
                       <span className="text-xs text-slate-500">{item.date.toLocaleDateString()}</span>
@@ -220,6 +264,7 @@ export default function TimelinePage() {
                     {groupItems.map(item => (
                       <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/[0.02] transition-colors" data-testid={`item-timeline-${item.id}`}>
                         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
+                        {item.source === "fixed" && <RotateCw className="h-3 w-3 text-slate-500 shrink-0" data-testid={`icon-recurring-${item.id}`} />}
                         <span className="text-sm text-slate-200 flex-1">{item.label}</span>
                         <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${item.color}15`, color: item.color }}>{GATE_ABBRS[item.gateNumber]}</span>
                         <span className="text-xs text-slate-500">{item.date.toLocaleDateString()}</span>
