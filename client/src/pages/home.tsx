@@ -774,11 +774,11 @@ export default function Home() {
               ))}
             </div>
 
-            <div id="glossary-section" style={{ scrollMarginTop: "16px" }}>
+            <div id="glossary-section" style={{ scrollMarginTop: "64px" }}>
               <GlossarySection />
             </div>
 
-            <div id="workflows-section" className="mb-12" style={{ scrollMarginTop: "16px" }}>
+            <div id="workflows-section" className="mb-12" style={{ scrollMarginTop: "64px" }}>
               <ProcessNavigation />
             </div>
 
