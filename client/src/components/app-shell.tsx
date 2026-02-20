@@ -92,16 +92,16 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
   const iconSize = 16;
   const navSections = useMemo(() => [
     {
-      label: "OVERVIEW",
+      label: t.shell.sectionOverview,
       items: [
-        { key: "dashboard", icon: <LayoutDashboard size={iconSize} />, label: "Dashboard", href: "/app", pro: false },
+        { key: "dashboard", icon: <LayoutDashboard size={iconSize} />, label: t.shell.navDashboard, href: "/app", pro: false },
         { key: "compliance", icon: <Hexagon size={iconSize} />, label: t.tabs.flow, href: "/app?tab=flow", pro: false },
         { key: "audit", icon: <CheckCircle size={iconSize} />, label: t.tabs.audit, href: "/app?tab=audit", pro: false },
         { key: "guide", icon: <BookOpen size={iconSize} />, label: t.tabs.guide, href: "/app?tab=guide", pro: false },
       ],
     },
     {
-      label: "TRACKING",
+      label: t.shell.sectionTracking,
       items: [
         { key: "vault", icon: <Archive size={iconSize} />, label: t.nav.vault, href: "/vault", pro: true, badge: isPro ? vaultDocCount : undefined },
         { key: "calendar", icon: <Calendar size={iconSize} />, label: t.nav.calendar, href: "/calendar", pro: true },
@@ -110,7 +110,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
       ],
     },
     {
-      label: "REFERENCE",
+      label: t.shell.sectionReference,
       items: [
         { key: "glossary", icon: <List size={iconSize} />, label: t.glossary.heading, href: "/app?tab=guide&section=glossary", pro: false },
         { key: "workflows", icon: <GitBranch size={iconSize} />, label: t.processNav.heading, href: "/app?tab=guide&section=workflows", pro: false },
@@ -118,7 +118,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
       ],
     },
     {
-      label: "ACCOUNT",
+      label: t.shell.sectionAccount,
       items: [
         { key: "profile", icon: <User size={iconSize} />, label: t.nav.profile, href: "/profile", pro: false },
         ...(user?.isAdmin ? [{ key: "admin-dashboard", icon: <Settings size={iconSize} />, label: t.adminDashboard.heading, href: "/admin-dashboard", pro: false }] : []),
@@ -191,7 +191,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           </div>
           {!collapsed && (
             <div style={{ fontFamily: "Lato", fontSize: "9px", letterSpacing: "3px", color: "#64748B", textTransform: "uppercase", marginTop: "2px" }}>
-              COMPLIANCE NAVIGATOR
+              {t.shell.complianceNavigator}
             </div>
           )}
         </div>
@@ -321,7 +321,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
               </span>
             </div>
             <div style={{ fontFamily: "Montserrat", fontSize: "11px", fontWeight: 700, color: "#FCA5A5" }}>
-              31 March 2026
+              {t.shell.otaDeadlineDate}
             </div>
             <div style={{ fontFamily: "Lato", fontSize: "10px", color: "#64748B" }}>
               {deadlinePassed ? t.shell.deadlinePassed : `${daysRemaining} ${t.shell.daysRemaining}`}
@@ -329,7 +329,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           </div>
         ) : (
           <div style={{ textAlign: "center", margin: "0 0 10px" }} data-testid="ota-countdown">
-            <NavTooltip label={`OTA: ${daysRemaining}d`}>
+            <NavTooltip label={`OTA: ${daysRemaining}${t.shell.daysShort}`}>
               <span className="animate-blink" style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#EF4444", display: "inline-block" }} />
             </NavTooltip>
           </div>
@@ -418,7 +418,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           }}
           onMouseEnter={(e) => (e.currentTarget.style.color = "#14B8A6")}
           onMouseLeave={(e) => (e.currentTarget.style.color = "#64748B")}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          title={collapsed ? t.shell.expandSidebar : t.shell.collapseSidebar}
         >
           {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>

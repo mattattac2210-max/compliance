@@ -485,9 +485,19 @@ export interface UITranslations {
     addProperty: string;
     vaultCompletion: string;
     otaDeadlineLabel: string;
+    otaDeadlineDate: string;
     daysRemaining: string;
     deadlinePassed: string;
     signOut: string;
+    complianceNavigator: string;
+    sectionOverview: string;
+    sectionTracking: string;
+    sectionReference: string;
+    sectionAccount: string;
+    navDashboard: string;
+    expandSidebar: string;
+    collapseSidebar: string;
+    daysShort: string;
   };
   dashboard: {
     welcomeBack: string;
@@ -587,6 +597,9 @@ export interface UITranslations {
     hgbExpiresInDays: string;
     documentRenewal: string;
     document: string;
+    gateLabel: string;
+    ptLabel: string;
+    daysShort: string;
   };
   supportAccess: {
     heading: string;

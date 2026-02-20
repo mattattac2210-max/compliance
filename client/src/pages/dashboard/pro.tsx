@@ -468,10 +468,10 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
                     <div className="w-1.5 h-1.5 rounded-full flex-shrink-0" style={{ background: item.color }} />
                     <span className="flex-1 truncate" style={{ color: "var(--app-text)" }}>{item.label}</span>
                     <span className="text-[10px] font-heading font-bold whitespace-nowrap" style={{ color: item.color }}>
-                      {daysLeft}d
+                      {daysLeft}{t.dashboard.daysShort}
                     </span>
                     <span className="text-[10px]" style={{ color: "var(--app-text-muted)" }}>
-                      {item.date.toLocaleDateString("en-GB", { day: "numeric", month: "short" })}
+                      {item.date.toLocaleDateString(lang === "uk" ? "uk" : lang === "id" ? "id" : "en-GB", { day: "numeric", month: "short" })}
                     </span>
                   </div>
                 );
@@ -496,7 +496,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[10px] font-heading font-bold tracking-widest uppercase" style={{ color: GATE_COLORS[i] }}>
-                  {i === 0 ? "PT" : `Gate ${i}`}
+                  {i === 0 ? t.dashboard.ptLabel : `${t.dashboard.gateLabel} ${i}`}
                 </span>
                 <ChevronRight className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" style={{ color: GATE_COLORS[i] }} />
               </div>
