@@ -55,7 +55,9 @@ export interface UITranslations {
     disclaimer: string;
   };
   glossary: {
+    eyebrow: string;
     heading: string;
+    headingAccent: string;
     searchPlaceholder: string;
     allTags: string;
     whyItMatters: string;
@@ -72,7 +74,9 @@ export interface UITranslations {
     synonyms: string;
   };
   processNav: {
+    eyebrow: string;
     heading: string;
+    headingAccent: string;
     headingDesc: string;
     filterAll: string;
     stepPrefix: string;
@@ -354,7 +358,9 @@ export interface UITranslations {
     acceptanceBody: string;
   };
   vault: {
+    eyebrow: string;
     heading: string;
+    headingAccent: string;
     subheading: string;
     backToApp: string;
     gateLabel: string;
@@ -401,7 +407,9 @@ export interface UITranslations {
     noResults: string;
   };
   timeline: {
+    eyebrow: string;
     heading: string;
+    headingAccent: string;
     subheading: string;
     backToApp: string;
     overdueLabel: string;
@@ -433,7 +441,9 @@ export interface UITranslations {
     recurringIcon: string;
   };
   alerts: {
+    eyebrow: string;
     heading: string;
+    headingAccent: string;
     subheading: string;
     backToApp: string;
     allClear: string;
