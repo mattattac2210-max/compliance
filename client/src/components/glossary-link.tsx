@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import type { ComplianceTerm } from "@shared/schema";
@@ -12,13 +13,13 @@ interface GlossaryLinkProps {
 export function GlossaryLink({ term, children }: GlossaryLinkProps) {
   const [showPopover, setShowPopover] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [popoverPos, setPopoverPos] = useState<{ top: number; left: number } | null>(null);
   const ref = useRef<HTMLSpanElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
   const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   
   const { lang, t } = useLanguage();
 
-  // Get translated content with fallback to English
   const getTranslatedContent = useCallback(() => {
     if (lang === "en" || !term.translations || !term.translations[lang]) {
       return {
@@ -43,8 +44,18 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
   const content = getTranslatedContent();
   const whyItMatters = content.whyItMatters;
 
+  const updatePosition = useCallback(() => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    setPopoverPos({
+      top: rect.top,
+      left: rect.left,
+    });
+  }, []);
+
   const handleMouseEnter = () => {
     clearTimeout(timeoutRef.current);
+    updatePosition();
     setShowPopover(true);
   };
 
@@ -74,7 +85,7 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
     <>
       <span
         ref={ref}
-        className="relative inline"
+        className="inline"
         onMouseEnter={handleMouseEnter}
         onMouseLeave={handleMouseLeave}
       >
@@ -84,9 +95,11 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
         >
           {children}
         </span>
+      </span>
 
+      {createPortal(
         <AnimatePresence>
-          {showPopover && (
+          {showPopover && popoverPos && (
             <motion.div
               ref={popoverRef}
               initial={{ opacity: 0, y: 4 }}
@@ -95,8 +108,11 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
               transition={{ duration: 0.15 }}
               onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
-              className="absolute bottom-full left-0 mb-2 z-[300] w-[280px] rounded-[8px] p-[14px_16px] border"
+              className="fixed z-[9999] w-[280px] rounded-[8px] p-[14px_16px] border"
               style={{
+                top: `${popoverPos.top - 8}px`,
+                left: `${popoverPos.left}px`,
+                transform: "translateY(-100%)",
                 background: "var(--app-panel)",
                 borderColor: "var(--app-border-teal)",
                 boxShadow: "0 8px 24px var(--app-shadow-popover)",
@@ -132,8 +148,9 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
               />
             </motion.div>
           )}
-        </AnimatePresence>
-      </span>
+        </AnimatePresence>,
+        document.body
+      )}
 
       {showModal && (
         <div
