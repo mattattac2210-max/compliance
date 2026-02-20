@@ -1,4 +1,5 @@
 import { useLanguage } from "@/i18n/context";
+import PageHeader from "@/components/page-header";
 import { Scale, Building2, Search, Zap, MapPin, RefreshCw, Calendar, HandshakeIcon, AlertTriangle, ExternalLink, CheckCircle2, ClipboardList, Target, Landmark, Lightbulb, BarChart3, FileText, LockKeyhole } from "lucide-react";
 
 const AUTHORITY_NAMES = [
@@ -19,37 +20,20 @@ export default function DisclaimersPage() {
   const { t } = useLanguage();
 
   return (
-    <div className="space-y-7 max-w-4xl" data-testid="disclaimers-page">
-      {/* HERO */}
-      <div data-testid="disclaimers-hero">
-        <div className="flex items-center gap-2.5 mb-3">
-          <div className="h-px w-8" style={{ background: "var(--accent-tint2)" }} />
-          <span className="text-[9px] font-bold tracking-[3px] uppercase" style={{ fontFamily: "var(--font-display)", color: "var(--accent)" }}>
-            {t.disclaimers.eyebrow}
-          </span>
-          <div className="h-px w-8" style={{ background: "var(--accent-tint2)" }} />
-        </div>
-        <h1 className="font-black text-[28px] leading-tight mb-2" style={{ fontFamily: "var(--font-display)" }}>
-          {t.disclaimers.title} <span style={{ color: "var(--accent)" }}>{t.disclaimers.titleAccent}</span>
-        </h1>
-        <p className="text-sm leading-relaxed max-w-[680px]" style={{ color: "var(--t2)" }}>
-          {t.disclaimers.subtitle}
-        </p>
-        <div className="flex items-center gap-4 mt-4 flex-wrap">
-          <div className="flex items-center gap-1.5 font-mono text-[10px]" style={{ color: "var(--t3)" }}>
-            <div className="w-[5px] h-[5px] rounded-full" style={{ background: "var(--accent)" }} />
-            {t.disclaimers.metaReviewed}
-          </div>
-          <div className="flex items-center gap-1.5 font-mono text-[10px]" style={{ color: "var(--t3)" }}>
-            <div className="w-[5px] h-[5px] rounded-full" style={{ background: "var(--accent)" }} />
-            {t.disclaimers.metaMonthly}
-          </div>
-          <div className="flex items-center gap-1.5 font-mono text-[10px]" style={{ color: "var(--t3)" }}>
-            <div className="w-[5px] h-[5px] rounded-full" style={{ background: "var(--gold)" }} />
-            {t.disclaimers.metaAllUsers}
-          </div>
-        </div>
-      </div>
+    <div className="relative z-[5] max-w-5xl mx-auto pt-10 pb-16 px-6 md:px-10" data-testid="disclaimers-page">
+      <PageHeader
+        eyebrow={t.disclaimers.eyebrow}
+        title={t.disclaimers.title}
+        titleAccent={t.disclaimers.titleAccent}
+        subtitle={t.disclaimers.subtitle}
+        meta={[
+          { label: t.disclaimers.metaReviewed },
+          { label: t.disclaimers.metaMonthly },
+          { label: t.disclaimers.metaAllUsers, dotColor: "var(--gold)" },
+        ]}
+      />
+
+      <div className="space-y-7">
 
       {/* CRITICAL BANNER */}
       <div
@@ -199,6 +183,7 @@ export default function DisclaimersPage() {
           <strong style={{ color: "var(--txt)" }}>{t.disclaimers.acceptanceStrong}</strong>{" "}
           {t.disclaimers.acceptanceBody}
         </p>
+      </div>
       </div>
     </div>
   );

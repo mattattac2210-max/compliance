@@ -1,7 +1,5 @@
 import { useMemo } from "react";
 import { useLanguage } from "@/i18n/context";
-import GlossarySection from "@/components/glossary";
-import { ProcessNavigation } from "@/components/process-navigation";
 
 const guideCardStyles = [
   { num: "GUIDE-01", roleColor: "var(--accent)", roleBg: "var(--accent-tint)", roleBorder: "var(--accent-tint2)", linkUrls: ["https://gistarubali.id"] },
@@ -82,14 +80,6 @@ export default function Guidebook() {
               </div>
             </div>
           ))}
-        </div>
-
-        <div id="glossary-section" style={{ scrollMarginTop: "64px" }}>
-          <GlossarySection />
-        </div>
-
-        <div id="workflows-section" className="mb-12" style={{ scrollMarginTop: "64px" }}>
-          <ProcessNavigation />
         </div>
 
         <div className="mb-12">

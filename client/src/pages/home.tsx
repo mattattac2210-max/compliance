@@ -1,8 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useSearch } from "wouter";
-import GlossarySection from "@/components/glossary";
-import { ProcessNavigation } from "@/components/process-navigation";
 import { useLanguage } from "@/i18n/context";
 import DashboardStats from "@/components/dashboard-stats";
 
@@ -776,14 +774,6 @@ export default function Home() {
                   </div>
                 </div>
               ))}
-            </div>
-
-            <div id="glossary-section" style={{ scrollMarginTop: "64px" }}>
-              <GlossarySection />
-            </div>
-
-            <div id="workflows-section" className="mb-12" style={{ scrollMarginTop: "64px" }}>
-              <ProcessNavigation />
             </div>
 
             <div className="mb-12">

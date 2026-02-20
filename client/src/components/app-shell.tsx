@@ -149,6 +149,9 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
       navigate(item.href);
     }
     setSidebarOpen(false);
+    window.scrollTo({ top: 0 });
+    const main = document.querySelector("[data-main-scroll]");
+    if (main) main.scrollTop = 0;
   };
 
   const displayName = user?.firstName || user?.email?.split("@")[0] || "";
@@ -487,7 +490,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
             </div>
           </div>
 
-          <div style={{ flex: 1, overflowY: "auto" }} data-testid="app-content">
+          <div style={{ flex: 1, overflowY: "auto" }} data-testid="app-content" data-main-scroll>
             {children}
           </div>
         </main>
@@ -617,7 +620,7 @@ function LockedNavItem({ icon, label, href, isActive, collapsed }: { icon: React
       data-testid={`nav-locked-${label.toLowerCase().replace(/\s+/g, "-")}`}
     >
       <button
-        onClick={() => navigate(href)}
+        onClick={() => { navigate(href); window.scrollTo({ top: 0 }); const m = document.querySelector("[data-main-scroll]"); if (m) m.scrollTop = 0; }}
         style={{
           display: "flex",
           alignItems: "center",

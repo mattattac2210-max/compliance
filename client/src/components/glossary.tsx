@@ -60,7 +60,7 @@ function copyTermToClipboard(content: TermContent) {
   navigator.clipboard.writeText(text);
 }
 
-export default function GlossarySection() {
+export default function GlossarySection({ hideHeading = false }: { hideHeading?: boolean }) {
   const { lang: language, t } = useLanguage();
   const [search, setSearch] = useState("");
   const [selectedTags, setSelectedTags] = useState<Set<string>>(new Set());
@@ -129,21 +129,25 @@ export default function GlossarySection() {
 
   return (
     <div className="mb-12">
-      <h3
-        className="font-heading font-extrabold text-[16px] text-[var(--accent)] mb-6 pb-[10px] tracking-[-0.2px]"
-        style={{ borderBottom: "1px solid var(--app-border-teal-subtle)" }}
-        data-testid="glossary-heading"
-      >
-        {t.glossary.heading}
-      </h3>
+      {!hideHeading && (
+        <>
+          <h3
+            className="font-heading font-extrabold text-[16px] text-[var(--accent)] mb-6 pb-[10px] tracking-[-0.2px]"
+            style={{ borderBottom: "1px solid var(--app-border-teal-subtle)" }}
+            data-testid="glossary-heading"
+          >
+            {t.glossary.heading}
+          </h3>
 
-      <div
-        className="pl-5 border-l-2 border-l-[rgba(245,158,11,0.25)] text-[12px] font-light leading-[1.7] italic mb-8 bg-[rgba(245,158,11,0.03)] p-[14px_18px] rounded-r-[8px]"
-        style={{ color: "var(--app-text-secondary)" }}
-        data-testid="glossary-disclaimer"
-      >
-        {t.glossary.disclaimer}
-      </div>
+          <div
+            className="pl-5 border-l-2 border-l-[rgba(245,158,11,0.25)] text-[12px] font-light leading-[1.7] italic mb-8 bg-[rgba(245,158,11,0.03)] p-[14px_18px] rounded-r-[8px]"
+            style={{ color: "var(--app-text-secondary)" }}
+            data-testid="glossary-disclaimer"
+          >
+            {t.glossary.disclaimer}
+          </div>
+        </>
+      )}
 
       <div className="mb-5">
         <div className="relative">
