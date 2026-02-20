@@ -40,24 +40,19 @@ export default function PageHeader({
         {back}
       </Link>
 
-      <div className="flex items-center gap-2.5 mb-3">
-        <div className="h-px w-8" style={{ background: "var(--accent)" }} />
-        <span
-          className="text-[9px] font-bold tracking-[3px] uppercase"
-          style={{ fontFamily: "var(--font-display)", color: "var(--accent)" }}
-        >
-          {eyebrow}
-        </span>
+      <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase mb-[18px] flex items-center gap-3" style={{ color: "var(--accent)" }}>
+        <span className="block w-[28px] h-[1px] shrink-0" style={{ background: "var(--accent)" }} />
+        {eyebrow}
       </div>
 
       <h1
-        className="font-black text-[26px] md:text-[32px] leading-tight mb-2"
-        style={{ fontFamily: "var(--font-display)", color: "var(--txt)" }}
+        className="font-heading font-black text-[50px] leading-[1.06] tracking-[-1.5px] mb-[18px] max-md:text-[34px]"
+        style={{ color: "var(--txt)" }}
       >
         {title}
         {titleAccent && (
           <>
-            {" "}
+            <br />
             <span style={{ color: "var(--accent)" }}>{titleAccent}</span>
           </>
         )}
@@ -77,7 +72,7 @@ export default function PageHeader({
 
       {subtitle && (
         <p
-          className="text-sm leading-relaxed max-w-[680px]"
+          className="text-[16px] font-light leading-[1.8] max-w-[580px]"
           style={{ color: "var(--t2)" }}
         >
           {subtitle}
