@@ -331,5 +331,52 @@ export async function registerRoutes(
     res.json(updated);
   });
 
+  app.get("/api/vault/report", requireAuth, async (req, res) => {
+    const propertyId = req.query.propertyId as string;
+    if (!propertyId) return res.status(400).json({ message: "propertyId required" });
+
+    const property = await storage.getPropertyById(propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    const templates = await storage.getAllTemplates();
+    const docs = await storage.getVaultDocumentsByProperty(propertyId);
+    const today = new Date();
+    const ninetyDays = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
+    const docMap = new Map(docs.map(d => [d.templateId, d]));
+
+    const gateAbbrs = ["PT PMA", "ZONE/KKPR", "NIB/KBLI", "PBG/SLF", "TAX", "STAFF", "SAFETY", "OTA"];
+
+    const rows: string[] = [];
+    rows.push("Gate,Document,Required,Status,Expiry Date,Notes");
+
+    for (const tmpl of templates) {
+      const doc = docMap.get(tmpl.id);
+      let status = doc?.status || "missing";
+      if (doc?.expiryDate) {
+        const exp = new Date(doc.expiryDate);
+        if (exp < today) status = "expired";
+        else if (exp < ninetyDays) status = "expiring";
+      }
+
+      const tr = tmpl.translations as Record<string, { name: string }>;
+      const name = tr?.en?.name || "";
+      const gate = `Gate ${tmpl.gateNumber} - ${gateAbbrs[tmpl.gateNumber] || ""}`;
+      const required = tmpl.isRequired ? "Yes" : "No";
+      const expiry = doc?.expiryDate ? new Date(doc.expiryDate).toLocaleDateString() : "";
+      const notes = (doc?.notes || "").replace(/"/g, '""');
+
+      rows.push(`"${gate}","${name}","${required}","${status}","${expiry}","${notes}"`);
+    }
+
+    const csv = rows.join("\n");
+    const filename = `DSCVR_Compliance_Report_${property.propertyName.replace(/[^a-zA-Z0-9]/g, "_")}_${today.toISOString().slice(0, 10)}.csv`;
+
+    res.setHeader("Content-Type", "text/csv");
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+    res.send(csv);
+  });
+
   return httpServer;
 }
