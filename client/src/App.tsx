@@ -29,7 +29,7 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/app">
         <ProtectedRoute>
-          <AppShell pageTitle="Dashboard" activeNav="compliance">
+          <AppShell pageTitle="dashboard" activeNav="compliance">
             <Dashboard />
           </AppShell>
         </ProtectedRoute>
@@ -44,14 +44,14 @@ function Router() {
       <Route path="/register" component={RegisterPage} />
       <Route path="/profile">
         <ProtectedRoute>
-          <AppShell pageTitle="Profile" activeNav="profile">
+          <AppShell pageTitle="profile" activeNav="profile">
             <ProfilePage />
           </AppShell>
         </ProtectedRoute>
       </Route>
       <Route path="/vault">
         <ProtectedRoute>
-          <AppShell pageTitle="Document Vault" activeNav="vault">
+          <AppShell pageTitle="vault" activeNav="vault">
             <ProRoute>
               <VaultPage />
             </ProRoute>
@@ -60,7 +60,7 @@ function Router() {
       </Route>
       <Route path="/calendar">
         <ProtectedRoute>
-          <AppShell pageTitle="Compliance Calendar" activeNav="calendar">
+          <AppShell pageTitle="calendar" activeNav="calendar">
             <ProRoute>
               <CalendarPage />
             </ProRoute>
@@ -69,7 +69,7 @@ function Router() {
       </Route>
       <Route path="/timeline">
         <ProtectedRoute>
-          <AppShell pageTitle="Compliance Timeline" activeNav="timeline">
+          <AppShell pageTitle="timeline" activeNav="timeline">
             <ProRoute>
               <TimelinePage />
             </ProRoute>
@@ -78,7 +78,7 @@ function Router() {
       </Route>
       <Route path="/alerts">
         <ProtectedRoute>
-          <AppShell pageTitle="Alerts" activeNav="alerts">
+          <AppShell pageTitle="alerts" activeNav="alerts">
             <ProRoute>
               <AlertsPage />
             </ProRoute>
@@ -87,7 +87,7 @@ function Router() {
       </Route>
       <Route path="/disclaimers">
         <ProtectedRoute>
-          <AppShell pageTitle="Disclaimers" activeNav="disclaimers">
+          <AppShell pageTitle="disclaimers" activeNav="disclaimers">
             <DisclaimersPage />
           </AppShell>
         </ProtectedRoute>

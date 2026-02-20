@@ -183,16 +183,16 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
 
   const upcomingDeadlines = useMemo(() => {
     const yr = now.getFullYear();
-    const staticEvents = generateEvents(yr);
-    const nextYearEvents = generateEvents(yr + 1);
+    const staticEvents = generateEvents(yr, lang);
+    const nextYearEvents = generateEvents(yr + 1, lang);
     const seen = new Set(staticEvents.map(e => e.id));
     for (const e of nextYearEvents) {
       if (!seen.has(e.id)) staticEvents.push(e);
     }
 
     const vaultEvents = mapVaultDocs(documents, templates, lang);
-    const kitasEvents = mapStaffKitas(staffMembers);
-    const hgbEvents = mapPropertyHgb(properties);
+    const kitasEvents = mapStaffKitas(staffMembers, lang);
+    const hgbEvents = mapPropertyHgb(properties, lang);
 
     const all = [...staticEvents, ...vaultEvents, ...kitasEvents, ...hgbEvents]
       .filter(e => e.date > now && e.date <= in90)

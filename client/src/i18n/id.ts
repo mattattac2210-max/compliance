@@ -531,6 +531,13 @@ export const id: UITranslations = {
     expandSidebar: "Perluas sidebar",
     collapseSidebar: "Ciutkan sidebar",
     daysShort: "h",
+    pageTitleDashboard: "Dasbor",
+    pageTitleProfile: "Profil",
+    pageTitleVault: "Brankas Dokumen",
+    pageTitleCalendar: "Kalender Kepatuhan",
+    pageTitleTimeline: "Linimasa Kepatuhan",
+    pageTitleAlerts: "Peringatan",
+    pageTitleDisclaimers: "Sanggahan",
   },
   dashboard: {
     welcomeBack: "Selamat datang kembali",

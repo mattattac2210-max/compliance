@@ -13,9 +13,11 @@ import {
   Calendar, Scale
 } from "lucide-react";
 
+type PageTitleKey = "dashboard" | "profile" | "vault" | "calendar" | "timeline" | "alerts" | "disclaimers";
+
 interface AppShellProps {
   children: React.ReactNode;
-  pageTitle: string;
+  pageTitle: PageTitleKey;
   activeNav: string;
 }
 
@@ -456,7 +458,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
             </span>
             <span style={{ color: "#334155", fontSize: "12px" }}>/</span>
             <span style={{ fontFamily: "Montserrat", fontSize: "11px", fontWeight: 600, color: "#94A3B8" }}>
-              {pageTitle}
+              {t.shell[`pageTitle${pageTitle.charAt(0).toUpperCase()}${pageTitle.slice(1)}` as keyof typeof t.shell] || pageTitle}
             </span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>

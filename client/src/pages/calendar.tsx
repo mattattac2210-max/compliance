@@ -80,12 +80,12 @@ export default function ComplianceCalendar() {
     enabled: !!selectedPropertyId,
   });
 
-  const baseEvents = useMemo(() => generateEvents(curYear), [curYear]);
+  const baseEvents = useMemo(() => generateEvents(curYear, language), [curYear, language]);
   const allEvents = useMemo(() => {
     const expanded = customEvs.flatMap(ce => expandCustomEvent(ce, curYear));
     const vaultEvents = mapVaultDocs(vaultDocs, templates, language);
-    const kitasEvents = mapStaffKitas(staffMembers);
-    const hgbEvents = mapPropertyHgb(properties);
+    const kitasEvents = mapStaffKitas(staffMembers, language);
+    const hgbEvents = mapPropertyHgb(properties, language);
     return [...baseEvents, ...expanded, ...vaultEvents, ...kitasEvents, ...hgbEvents];
   }, [baseEvents, customEvs, curYear, vaultDocs, templates, staffMembers, properties, language]);
 

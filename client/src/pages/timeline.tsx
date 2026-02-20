@@ -46,8 +46,8 @@ export default function TimelinePage() {
     today.setHours(0, 0, 0, 0);
     const yr = today.getFullYear();
 
-    const thisYearEvents = generateEvents(yr);
-    const nextYearEvents = generateEvents(yr + 1);
+    const thisYearEvents = generateEvents(yr, language);
+    const nextYearEvents = generateEvents(yr + 1, language);
     const seen = new Set(thisYearEvents.map(e => e.id));
     const merged = [...thisYearEvents];
     for (const e of nextYearEvents) {
@@ -55,8 +55,8 @@ export default function TimelinePage() {
     }
 
     const vaultEvents = mapVaultDocs(vaultDocs, templates, language);
-    const kitasEvents = mapStaffKitas(staffMembers);
-    const hgbEvents = mapPropertyHgb(properties);
+    const kitasEvents = mapStaffKitas(staffMembers, language);
+    const hgbEvents = mapPropertyHgb(properties, language);
 
     const all = [...merged, ...vaultEvents, ...kitasEvents, ...hgbEvents];
 

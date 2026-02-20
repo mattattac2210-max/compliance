@@ -531,6 +531,13 @@ export const en: UITranslations = {
     expandSidebar: "Expand sidebar",
     collapseSidebar: "Collapse sidebar",
     daysShort: "d",
+    pageTitleDashboard: "Dashboard",
+    pageTitleProfile: "Profile",
+    pageTitleVault: "Document Vault",
+    pageTitleCalendar: "Compliance Calendar",
+    pageTitleTimeline: "Compliance Timeline",
+    pageTitleAlerts: "Alerts",
+    pageTitleDisclaimers: "Disclaimers",
   },
   dashboard: {
     welcomeBack: "Welcome back",

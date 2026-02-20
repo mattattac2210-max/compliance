@@ -498,6 +498,13 @@ export interface UITranslations {
     expandSidebar: string;
     collapseSidebar: string;
     daysShort: string;
+    pageTitleDashboard: string;
+    pageTitleProfile: string;
+    pageTitleVault: string;
+    pageTitleCalendar: string;
+    pageTitleTimeline: string;
+    pageTitleAlerts: string;
+    pageTitleDisclaimers: string;
   };
   dashboard: {
     welcomeBack: string;
