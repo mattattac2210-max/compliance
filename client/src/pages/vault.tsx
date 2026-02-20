@@ -156,7 +156,7 @@ export default function VaultPage() {
             <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-vault-heading">{t.vault.heading}</h1>
             <p className="text-slate-400 text-sm mt-1">{t.vault.subheading}</p>
           </div>
-          <Link to="/" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-vault-back">
+          <Link to="/app" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-vault-back">
             {t.vault.backToApp}
           </Link>
         </div>

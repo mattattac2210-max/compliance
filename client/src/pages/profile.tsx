@@ -196,7 +196,7 @@ export default function ProfilePage() {
             <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-profile-heading">{t.profile.heading}</h1>
             <p className="text-slate-400 text-sm mt-1">{t.profile.subheading}</p>
           </div>
-          <Link to="/" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-back-to-app">
+          <Link to="/app" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-back-to-app">
             {t.profile.backToApp}
           </Link>
         </div>

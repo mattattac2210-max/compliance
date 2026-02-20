@@ -243,6 +243,52 @@ export interface UITranslations {
     daysLabel: string;
     badgeTooltip: string;
   };
+  landing: {
+    heroKicker: string;
+    heroHeadline1: string;
+    heroHeadline2: string;
+    heroHeadline3: string;
+    heroSub: string;
+    ctaPrimary: string;
+    ctaSecondary: string;
+    trustLine: string;
+    urgencyHeading: string;
+    urgencyBody: string;
+    gatesHeading: string;
+    gatesSub: string;
+    gatesLockedTooltip: string;
+    gatesCta: string;
+    featuresHeading: string;
+    feature1Title: string;
+    feature1Body: string;
+    feature2Title: string;
+    feature2Body: string;
+    feature3Title: string;
+    feature3Body: string;
+    feature4Title: string;
+    feature4Body: string;
+    feature4Soon: string;
+    scopeHeading: string;
+    scopeTracks: string;
+    scopeNot: string;
+    scopeTrackItems: string[];
+    scopeNotItems: string[];
+    scopeDisclaimer: string;
+    langBanner: string;
+    langSub: string;
+    finalHeading: string;
+    finalSub: string;
+    finalCta: string;
+    finalSignIn: string;
+    footerDisclaimer: string;
+    previewLockLabel: string;
+    previewLockCta: string;
+    lockedOverlaySignIn: string;
+    goToApp: string;
+    getAccess: string;
+    gatePreviewTitles: string[];
+    gatePreviewRoles: string[];
+  };
 }
 
 export interface GateTranslation {

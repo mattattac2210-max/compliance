@@ -26,7 +26,7 @@ export default function LoginPage() {
     },
     onSuccess: (data) => {
       queryClient.setQueryData(["/api/auth/me"], data);
-      navigate("/");
+      navigate("/app");
     },
     onError: async (err: any) => {
       const msg = err?.message || "";
@@ -47,7 +47,7 @@ export default function LoginPage() {
   };
 
   if (isLoading) return null;
-  if (isAuthenticated) return <Redirect to="/" />;
+  if (isAuthenticated) return <Redirect to="/app" />;
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--app-bg)" }}>

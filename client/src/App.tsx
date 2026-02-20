@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/i18n/context";
 import { ProtectedRoute } from "@/components/protected-route";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
+import LandingPage from "@/pages/landing";
 import AdminPage from "@/pages/admin";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
@@ -19,7 +20,10 @@ import AlertsPage from "@/pages/alerts";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Home} />
+      <Route path="/" component={LandingPage} />
+      <Route path="/app">
+        <ProtectedRoute><Home /></ProtectedRoute>
+      </Route>
       <Route path="/admin" component={AdminPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />

@@ -171,7 +171,7 @@ export default function TimelinePage() {
             <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-timeline-heading">{t.timeline.heading}</h1>
             <p className="text-slate-400 text-sm mt-1">{t.timeline.subheading}</p>
           </div>
-          <Link to="/" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-timeline-back">
+          <Link to="/app" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-timeline-back">
             {t.timeline.backToApp}
           </Link>
         </div>

@@ -157,7 +157,7 @@ export default function AdminPage() {
           <LanguageSelector />
           <ThemeToggle />
           <a
-            href="/"
+            href="/app"
             className="font-heading text-[11px] font-bold tracking-[1.5px] uppercase text-[#14B8A6] py-[8px] px-[16px] rounded border border-[rgba(20,184,166,0.22)] bg-[rgba(13,148,136,0.06)] hover-elevate no-underline"
             data-testid="back-to-app"
           >
