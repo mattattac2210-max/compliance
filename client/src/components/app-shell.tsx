@@ -163,9 +163,8 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
       {user?.isAdmin && <SupportModeBanner />}
       <div
         style={{
-          display: isMobile ? "flex" : "grid",
-          flexDirection: isMobile ? "column" : undefined,
-          gridTemplateColumns: isMobile ? undefined : `${sidebarW}px 1fr`,
+          display: "grid",
+          gridTemplateColumns: isMobile ? "1fr" : `${sidebarW}px 1fr`,
           height: "100vh",
           overflow: "hidden",
           transition: "grid-template-columns 0.2s ease",
@@ -190,9 +189,10 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
             height: "100vh",
             background: "var(--sidebar)",
             borderRight: "1px solid var(--b)",
-            display: "flex",
+            display: isMobile ? (sidebarOpen ? "flex" : "none") : "flex",
             flexDirection: "column",
             overflow: "hidden",
+            gridRow: isMobile ? undefined : "1 / -1",
           }}
           data-testid="app-sidebar"
         >
