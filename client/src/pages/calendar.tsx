@@ -352,7 +352,7 @@ export default function ComplianceCalendar() {
       <div
         style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginBottom: "14px", alignItems: "center" }}
         data-testid="calendar-filters"
-        className="bg-[#ff000000]">
+        className="bg-[#eb0000]">
         <span style={{ fontFamily: "var(--font-display)", fontSize: "9px", letterSpacing: "1.5px", color: "var(--t4)", textTransform: "uppercase", marginRight: "3px" }}>{t.filter}</span>
         {FILTER_TYPES.map(f => (
           <button
