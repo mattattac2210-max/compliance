@@ -333,36 +333,6 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           )}
         </nav>
 
-        {/* OTA countdown */}
-        {!collapsed ? (
-          <div style={{
-            margin: "0 14px 10px",
-            background: deadlinePassed ? "rgba(239,68,68,0.1)" : "rgba(239,68,68,0.07)",
-            border: `1px solid rgba(239,68,68,0.2)`,
-            borderRadius: "7px",
-            padding: "10px 12px",
-          }} data-testid="ota-countdown">
-            <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "4px" }}>
-              <span className="animate-blink" style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#EF4444", display: "inline-block" }} />
-              <span style={{ fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700, letterSpacing: "2px", color: "#FCA5A5", textTransform: "uppercase" }}>
-                {t.shell.otaDeadlineLabel}
-              </span>
-            </div>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, color: "#FCA5A5" }}>
-              {t.shell.otaDeadlineDate}
-            </div>
-            <div style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--t3)" }}>
-              {deadlinePassed ? t.shell.deadlinePassed : `${daysRemaining} ${t.shell.daysRemaining}`}
-            </div>
-          </div>
-        ) : (
-          <div style={{ textAlign: "center", margin: "0 0 10px" }} data-testid="ota-countdown">
-            <NavTooltip label={`OTA: ${daysRemaining}${t.shell.daysShort}`}>
-              <span className="animate-blink" style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#EF4444", display: "inline-block" }} />
-            </NavTooltip>
-          </div>
-        )}
-
         {/* User footer */}
         <div style={{
           padding: collapsed ? "12px 0" : "12px 14px",
