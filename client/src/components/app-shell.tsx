@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Link, useLocation } from "wouter";
+import { Link, useLocation, useSearch } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage, LanguageSelector } from "@/i18n/context";
@@ -18,7 +18,24 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
   const { t } = useLanguage();
   const { user, logout } = useAuth();
   const { openUpgradeModal } = useUpgradeModal();
-  const [, navigate] = useLocation();
+  const [location, navigate] = useLocation();
+  const searchString = useSearch();
+  const tabParam = new URLSearchParams(searchString).get("tab");
+  const sectionParam = new URLSearchParams(searchString).get("section");
+
+  const computedActiveNav = useMemo(() => {
+    if (location === "/vault") return "vault";
+    if (location === "/timeline") return "timeline";
+    if (location === "/alerts") return "alerts";
+    if (location === "/profile") return "profile";
+    if (location === "/app" || location === "/") {
+      if (tabParam === "guide" && sectionParam === "glossary") return "glossary";
+      if (tabParam === "audit") return "audit";
+      if (tabParam === "guide") return "guide";
+      return "compliance";
+    }
+    return activeNav;
+  }, [location, tabParam, sectionParam, activeNav]);
 
   const { data: properties } = useQuery<any[]>({
     queryKey: ["/api/properties"],
@@ -213,7 +230,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
               </div>
               {section.items.map((item) => {
                 const isLocked = item.pro && !isPro;
-                const isActive = activeNav === item.key;
+                const isActive = computedActiveNav === item.key;
 
                 if (isLocked) {
                   return <LockedNavItem key={item.key} icon={item.icon} label={item.label} />;

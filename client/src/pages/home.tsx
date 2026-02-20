@@ -345,9 +345,23 @@ export default function Home() {
   const gates = useTranslatedGates();
 
   useEffect(() => {
-    const param = new URLSearchParams(searchString).get("tab");
+    const params = new URLSearchParams(searchString);
+    const param = params.get("tab");
     if (param === "audit" || param === "guide") setActiveTab(param);
     else if (!param) setActiveTab("flow");
+
+    if (param === "guide" && params.get("section") === "glossary") {
+      setTimeout(() => {
+        const el = document.getElementById("glossary-section");
+        const container = document.querySelector('[data-testid="app-content"]');
+        if (el && container) {
+          const top = el.offsetTop - container.getBoundingClientRect().top + container.scrollTop;
+          container.scrollTo({ top, behavior: "smooth" });
+        } else {
+          el?.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 150);
+    }
   }, [searchString]);
 
   const translatedAuditSections = useMemo(() => content.auditSections.map((sec, si) => ({
@@ -762,7 +776,9 @@ export default function Home() {
               ))}
             </div>
 
-            <GlossarySection />
+            <div id="glossary-section">
+              <GlossarySection />
+            </div>
 
             <div className="mb-12">
               <ProcessNavigation />
