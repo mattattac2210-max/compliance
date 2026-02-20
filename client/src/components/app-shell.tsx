@@ -557,7 +557,7 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
           <span
             style={{
               fontFamily: "var(--font-display)", fontSize: "14px", fontWeight: isActive ? 700 : 600,
-              color: isActive ? "var(--txt)" : "#ededed",
+              color: isActive ? "#ffffff" : "#ededed",
               flex: 1, textAlign: "left",
             }}>
             {item.label}
