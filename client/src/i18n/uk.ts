@@ -233,6 +233,7 @@ export const uk: UITranslations = {
   nav: {
     profile: "\u041F\u0440\u043E\u0444\u0456\u043B\u044C",
     vault: "\u0421\u0445\u043E\u0432\u0438\u0449\u0435",
+    calendar: "Календар",
     timeline: "\u0427\u0430\u0441\u043E\u0432\u0430 \u0448\u043A\u0430\u043B\u0430",
     alerts: "\u0421\u043F\u043E\u0432\u0456\u0449\u0435\u043D\u043D\u044F",
     logout: "\u0412\u0438\u0439\u0442\u0438",

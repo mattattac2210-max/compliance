@@ -233,6 +233,7 @@ export const en: UITranslations = {
   nav: {
     profile: "Profile",
     vault: "Vault",
+    calendar: "Calendar",
     timeline: "Timeline",
     alerts: "Alerts",
     logout: "Sign out",

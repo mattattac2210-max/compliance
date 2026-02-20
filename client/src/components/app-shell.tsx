@@ -9,7 +9,8 @@ import { useUpgradeModal } from "@/components/upgrade-modal";
 import { SupportModeBanner } from "@/components/support-mode-banner";
 import {
   Hexagon, CheckCircle, BookOpen, Archive, Clock, AlertTriangle,
-  List, GitBranch, User, Settings, Lock, Menu, LogOut, ChevronLeft, ChevronRight, LayoutDashboard
+  List, GitBranch, User, Settings, Lock, Menu, LogOut, ChevronLeft, ChevronRight, LayoutDashboard,
+  Calendar
 } from "lucide-react";
 
 interface AppShellProps {
@@ -42,6 +43,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
 
   const computedActiveNav = useMemo(() => {
     if (location === "/vault") return "vault";
+    if (location === "/calendar") return "calendar";
     if (location === "/timeline") return "timeline";
     if (location === "/alerts") return "alerts";
     if (location === "/profile") return "profile";
@@ -101,6 +103,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
       label: "TRACKING",
       items: [
         { key: "vault", icon: <Archive size={iconSize} />, label: t.nav.vault, href: "/vault", pro: true, badge: isPro ? vaultDocCount : undefined },
+        { key: "calendar", icon: <Calendar size={iconSize} />, label: t.nav.calendar, href: "/calendar", pro: true },
         { key: "timeline", icon: <Clock size={iconSize} />, label: t.nav.timeline, href: "/timeline", pro: true },
         { key: "alerts", icon: <AlertTriangle size={iconSize} />, label: t.nav.alerts, href: "/alerts", pro: true, alertBadge: isPro ? alertCount : undefined },
       ],

@@ -20,6 +20,7 @@ import VaultPage from "@/pages/vault";
 import TimelinePage from "@/pages/timeline";
 import AlertsPage from "@/pages/alerts";
 import AdminDashboardPage from "@/pages/admin-dashboard";
+import CalendarPage from "@/pages/calendar";
 
 function Router() {
   return (
@@ -52,6 +53,15 @@ function Router() {
           <AppShell pageTitle="Document Vault" activeNav="vault">
             <ProRoute>
               <VaultPage />
+            </ProRoute>
+          </AppShell>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/calendar">
+        <ProtectedRoute>
+          <AppShell pageTitle="Compliance Calendar" activeNav="calendar">
+            <ProRoute>
+              <CalendarPage />
             </ProRoute>
           </AppShell>
         </ProtectedRoute>

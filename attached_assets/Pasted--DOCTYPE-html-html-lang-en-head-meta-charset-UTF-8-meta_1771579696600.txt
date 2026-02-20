@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DSCVR — Compliance Calendar v2</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#07101E;--panel:#0D1B2E;--p2:#111f34;--p3:#162540;
+  --b:rgba(255,255,255,0.07);--b2:rgba(255,255,255,0.04);
+  --teal:#14B8A6;--td:rgba(20,184,166,0.12);
+  --gold:#F59E0B;--red:#EF4444;--grn:#22C55E;
+  --txt:#F1F5F9;--t2:#94A3B8;--t3:#475569;
+  --g0:#94A3B8;--g1:#14B8A6;--g2:#60A5FA;--g3:#A78BFA;
+  --g4:#F59E0B;--g5:#22C55E;--g6:#FCA5A5;--g7:#14B8A6;
+  --bj:#E879F9;--sf:#FCA5A5;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--txt);font-family:'Lato',sans-serif;font-size:14px;min-height:100vh;}
+body::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(20,184,166,0.02) 1px,transparent 1px),linear-gradient(90deg,rgba(20,184,166,0.02) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0;}
+.shell{display:grid;grid-template-columns:220px 1fr;height:100vh;overflow:hidden;position:relative;z-index:1;}
+/* sidebar */
+.sb{background:#0A1628;border-right:1px solid var(--b);display:flex;flex-direction:column;height:100vh;}
+.sbl{padding:20px 18px 16px;border-bottom:1px solid var(--b);}
+.wm{font-family:'Montserrat',sans-serif;font-weight:900;font-size:22px;color:var(--teal);}
+.ws{font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:3px;color:var(--t3);text-transform:uppercase;margin-top:2px;}
+.spr{margin:14px 12px 0;background:rgba(12,26,46,.8);border:1px solid rgba(20,184,166,.2);border-radius:8px;padding:10px 12px;}
+.spr .lb{font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:2.5px;color:var(--teal);text-transform:uppercase;margin-bottom:4px;}
+.spr .nm{font-family:'Montserrat',sans-serif;font-weight:700;font-size:13px;}
+.svt{margin:10px 12px 0;background:rgba(20,184,166,.04);border:1px solid rgba(20,184,166,.1);border-radius:8px;padding:10px 12px;}
+.svt .rw{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:6px;}
+.vb{height:3px;background:rgba(20,184,166,.15);border-radius:2px;}.vbf{height:100%;background:var(--teal);border-radius:2px;width:42%;}
+.snv{padding:14px 0;flex:1;overflow-y:auto;}
+.sns{padding:0 12px;margin-bottom:4px;}
+.snl{font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:2.5px;color:var(--t3);text-transform:uppercase;padding:8px 4px 4px;}
+.ni{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:7px;cursor:pointer;color:var(--t2);font-size:13px;transition:all .15s;margin-bottom:1px;}
+.ni:hover{background:rgba(255,255,255,.04);color:var(--txt);}
+.ni.ac{background:rgba(20,184,166,.1);border:1px solid rgba(20,184,166,.18);color:var(--txt);}
+.ni.ac .ic2{color:var(--teal);}
+.ic2{font-size:14px;width:16px;text-align:center;flex-shrink:0;}
+.nbg{margin-left:auto;background:var(--red);color:#fff;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:2px 5px;border-radius:10px;}
+.sota{margin:0 12px 10px;background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:8px;padding:10px 12px;}
+.od{display:inline-block;width:6px;height:6px;background:var(--red);border-radius:50%;margin-right:6px;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.ol{font-family:'Montserrat',sans-serif;font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;}
+.odt{font-family:'Montserrat',sans-serif;font-size:12px;font-weight:700;color:#FCA5A5;margin-top:4px;}
+.ody{font-size:10px;color:var(--t3);margin-top:2px;}
+.su{border-top:1px solid var(--b);padding:12px;display:flex;align-items:center;gap:10px;}
+.ua{width:32px;height:32px;background:var(--td);border:1px solid rgba(20,184,166,.3);border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;color:var(--teal);flex-shrink:0;}
+.ue{font-size:11px;color:var(--t2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.ur{font-family:'Montserrat',sans-serif;font-size:8px;color:var(--teal);letter-spacing:1px;}
+/* main */
+.mn{display:flex;flex-direction:column;overflow:hidden;height:100vh;}
+.tp{height:56px;background:rgba(7,16,30,.9);backdrop-filter:blur(12px);border-bottom:1px solid var(--b);display:flex;align-items:center;padding:0 28px;flex-shrink:0;}
+.bc{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--t2);}
+.bcx{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--txt);font-size:13px;}
+.ct{flex:1;overflow-y:auto;padding:22px 26px;}
+/* header */
+.ch{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;}
+.cth h1{font-family:'Montserrat',sans-serif;font-weight:800;font-size:22px;}
+.cth p{font-size:12px;color:var(--t2);margin-top:3px;}
+.cc{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+.cnb{background:var(--panel);border:1px solid var(--b);color:var(--t2);padding:7px 12px;border-radius:7px;cursor:pointer;font-size:12px;font-family:'Montserrat',sans-serif;font-weight:700;transition:all .15s;}
+.cnb:hover{border-color:var(--teal);color:var(--teal);}
+.cml{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;min-width:165px;text-align:center;}
+.tb{background:var(--td);border:1px solid rgba(20,184,166,.3);color:var(--teal);padding:7px 14px;border-radius:7px;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;transition:all .15s;}
+.tb:hover{background:rgba(20,184,166,.2);}
+.ab{background:var(--teal);border:none;color:#07101E;padding:7px 16px;border-radius:7px;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;transition:all .15s;}
+.ab:hover{background:#0fa898;}
+/* year strip */
+.ys{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin-bottom:14px;}
+.ym{background:var(--panel);border:1px solid var(--b);border-radius:6px;padding:5px 3px;text-align:center;cursor:pointer;transition:all .15s;}
+.ym:hover{border-color:rgba(20,184,166,.3);}
+.ym.ac{border-color:var(--teal);background:var(--td);}
+.ymn{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:1px;color:var(--t2);text-transform:uppercase;margin-bottom:3px;}
+.ym.ac .ymn{color:var(--teal);}
+.mds{display:flex;gap:2px;justify-content:center;flex-wrap:wrap;min-height:10px;}
+.md2{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
+/* filters */
+.frow{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+.flb{font-family:'Montserrat',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--t3);text-transform:uppercase;margin-right:3px;}
+.fc{padding:4px 11px;border-radius:20px;border:1px solid var(--b);background:var(--panel);color:var(--t2);font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:.4px;cursor:pointer;transition:all .15s;text-transform:uppercase;}
+.fc:hover{border-color:rgba(255,255,255,.2);color:var(--txt);}
+.fc.ac{background:var(--td);border-color:rgba(20,184,166,.4);color:var(--teal);}
+/* calendar */
+.cgw{background:var(--panel);border:1px solid var(--b);border-radius:12px;overflow:hidden;margin-bottom:12px;}
+.cwd{display:grid;grid-template-columns:repeat(7,1fr);border-bottom:1px solid var(--b);}
+.wd{padding:9px 0;text-align:center;font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--t3);}
+.cd{display:grid;grid-template-columns:repeat(7,1fr);}
+.cc2{border-right:1px solid var(--b2);border-bottom:1px solid var(--b2);min-height:88px;padding:5px 4px;cursor:pointer;transition:background .1s;overflow:hidden;}
+.cc2:nth-child(7n){border-right:none;}
+.cc2:hover{background:rgba(255,255,255,.025);}
+.cc2.sl{background:rgba(20,184,166,.07);}
+.cc2.om{opacity:.3;}
+.cc2.ovr{background:rgba(239,68,68,.04);}
+.dn{font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;color:var(--t2);margin-bottom:3px;width:22px;height:22px;display:flex;align-items:center;justify-content:center;border-radius:50%;}
+.cc2.td .dn{background:var(--teal);color:#07101E;}
+.ec{display:flex;align-items:center;gap:2px;font-size:9px;font-family:'Montserrat',sans-serif;font-weight:600;padding:1px 4px;border-radius:3px;margin-bottom:2px;border-left:2px solid;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;cursor:pointer;letter-spacing:.2px;transition:opacity .1s;}
+.ec:hover{opacity:.75;}
+.ovc{font-size:9px;color:var(--t3);font-family:'Montserrat',sans-serif;font-weight:600;padding:1px 3px;cursor:pointer;}
+.ovc:hover{color:var(--t2);}
+/* detail */
+.dp{background:var(--panel);border:1px solid var(--b);border-radius:12px;overflow:hidden;margin-bottom:12px;}
+.dph{display:flex;align-items:center;justify-content:space-between;padding:13px 17px;border-bottom:1px solid var(--b);background:var(--p2);}
+.dpd{font-family:'Montserrat',sans-serif;font-weight:800;font-size:14px;}
+.dpc{font-size:11px;color:var(--t2);margin-top:2px;}
+.dpx{width:26px;height:26px;background:rgba(255,255,255,.06);border:1px solid var(--b);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--t2);}
+.dpx:hover{background:rgba(255,255,255,.12);color:var(--txt);}
+.dpe{padding:10px;display:flex;flex-direction:column;gap:7px;max-height:300px;overflow-y:auto;}
+.dc{background:var(--p2);border:1px solid var(--b);border-radius:8px;padding:10px 13px;border-left:3px solid;}
+.dc.cx{background:rgba(20,184,166,.04);}
+.dct{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:4px;}
+.dcti{font-family:'Montserrat',sans-serif;font-weight:700;font-size:12px;flex:1;line-height:1.4;}
+.dcg{font-family:'Montserrat',sans-serif;font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;white-space:nowrap;letter-spacing:.4px;flex-shrink:0;}
+.dcp{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--t3);margin-bottom:4px;}
+.dcd{font-size:11px;color:var(--t2);line-height:1.5;margin-bottom:8px;}
+.dca{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.db{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;padding:4px 10px;border-radius:5px;cursor:pointer;letter-spacing:.3px;transition:all .15s;border:1px solid;}
+.db.pr{background:rgba(20,184,166,.12);border-color:rgba(20,184,166,.3);color:var(--teal);}
+.db.pr:hover{background:rgba(20,184,166,.2);}
+.db.se{background:transparent;border-color:var(--b);color:var(--t2);}
+.db.se:hover{border-color:rgba(255,255,255,.2);color:var(--txt);}
+.db.fi{background:rgba(34,197,94,.1);border-color:rgba(34,197,94,.3);color:var(--grn);cursor:default;}
+.db.de{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.2);color:var(--red);}
+.db.de:hover{background:rgba(239,68,68,.2);}
+.de2{padding:32px 20px;text-align:center;color:var(--t3);}
+.de2 .ico{font-size:26px;margin-bottom:8px;opacity:.4;}
+.rb{display:inline-flex;align-items:center;gap:3px;font-size:9px;font-family:'Montserrat',sans-serif;font-weight:700;color:var(--t3);padding:1px 5px;background:rgba(255,255,255,.05);border-radius:10px;margin-left:6px;}
+/* legend */
+.lg{display:flex;gap:12px;flex-wrap:wrap;padding:10px 14px;background:var(--panel);border:1px solid var(--b);border-radius:8px;}
+.li{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--t2);font-family:'Montserrat',sans-serif;font-weight:600;}
+.ld{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+/* modal */
+.mo{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(4px);z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;}
+.mo.hd{display:none;}
+.mw{background:var(--panel);border:1px solid rgba(20,184,166,.25);border-radius:14px;width:100%;max-width:490px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.6);}
+.mh{display:flex;align-items:center;justify-content:space-between;padding:17px 22px;border-bottom:1px solid var(--b);background:var(--p2);}
+.mt{font-family:'Montserrat',sans-serif;font-weight:800;font-size:16px;}
+.mx{width:28px;height:28px;background:rgba(255,255,255,.06);border:1px solid var(--b);border-radius:6px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:15px;color:var(--t2);}
+.mx:hover{background:rgba(255,255,255,.12);}
+.mb{padding:18px 22px;display:flex;flex-direction:column;gap:13px;}
+.fg{display:flex;flex-direction:column;gap:5px;}
+.fl{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--t2);}
+.fi,.fs,.fta{background:var(--p2);border:1px solid var(--b);border-radius:7px;padding:8px 12px;color:var(--txt);font-family:'Lato',sans-serif;font-size:13px;transition:border-color .15s;outline:none;width:100%;}
+.fi:focus,.fs:focus,.fta:focus{border-color:rgba(20,184,166,.4);}
+.fs{appearance:none;cursor:pointer;}
+.fs option{background:#0D1B2E;}
+.fta{resize:vertical;min-height:65px;}
+.fr2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.mf{padding:13px 22px 17px;display:flex;gap:10px;justify-content:flex-end;border-top:1px solid var(--b);}
+.bcn{background:transparent;border:1px solid var(--b);color:var(--t2);padding:8px 18px;border-radius:7px;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;}
+.bcn:hover{border-color:rgba(255,255,255,.2);color:var(--txt);}
+.bsv{background:var(--teal);border:none;color:#07101E;padding:8px 22px;border-radius:7px;cursor:pointer;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:800;}
+.bsv:hover{background:#0fa898;}
+.cp{display:flex;gap:7px;flex-wrap:wrap;}
+.cs{width:22px;height:22px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .1s;}
+.cs.sl{border-color:#fff;transform:scale(1.2);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px;}
+input[type="date"]::-webkit-calendar-picker-indicator{filter:invert(.6);}
+</style>
+</head>
+<body>
+<div class="shell">
+<aside class="sb">
+  <div class="sbl"><div class="wm">DSCVR</div><div class="ws">Compliance Navigator</div></div>
+  <div class="spr"><div class="lb">Active Property</div><div class="nm">Villa Kerti ▾</div></div>
+  <div class="svt"><div class="rw"><span>Vault completion</span><span style="color:var(--teal);font-weight:700">42%</span></div><div class="vb"><div class="vbf"></div></div></div>
+  <nav class="snv">
+    <div class="sns"><div class="snl">Overview</div>
+      <div class="ni"><span class="ic2">⬡</span>Compliance Flow</div>
+      <div class="ni"><span class="ic2">✓</span>Self-Audit</div>
+      <div class="ni"><span class="ic2">□</span>Guidebook</div>
+    </div>
+    <div class="sns"><div class="snl">Tracking</div>
+      <div class="ni"><span class="ic2">▣</span>Document Vault</div>
+      <div class="ni ac"><span class="ic2">📅</span>Calendar</div>
+      <div class="ni"><span class="ic2">◎</span>Timeline</div>
+      <div class="ni"><span class="ic2">⚠</span>Alerts<span class="nbg">3</span></div>
+    </div>
+    <div class="sns"><div class="snl">Account</div>
+      <div class="ni"><span class="ic2">○</span>Profile</div>
+    </div>
+  </nav>
+  <div class="sota"><div><span class="od"></span><span class="ol">OTA Deadline</span></div><div class="odt">31 March 2026</div><div class="ody" id="otacd">—</div></div>
+  <div class="su"><div class="ua">MA</div><div style="overflow:hidden;flex:1"><div class="ue">matt@villa.com</div><div class="ur">Pro Member</div></div></div>
+</aside>
+<main class="mn">
+  <div class="tp">
+    <div class="bc">
+      <span style="color:var(--teal);font-family:Montserrat;font-weight:900;font-size:14px">DSCVR</span>
+      <span style="color:var(--t3)">/</span><span class="bcx">Compliance Calendar</span>
+    </div>
+  </div>
+  <div class="ct">
+    <div class="ch">
+      <div class="cth"><h1>Compliance Calendar</h1><p>Every filing, renewal, banjar obligation, safety check &amp; Bali deadline</p></div>
+      <div class="cc">
+        <button class="cnb" onclick="chM(-1)">← Prev</button>
+        <div class="cml" id="mlbl">—</div>
+        <button class="cnb" onclick="chM(1)">Next →</button>
+        <button class="tb" onclick="goTd()">Today</button>
+        <button class="ab" onclick="openAdd()">＋ Add Event</button>
+      </div>
+    </div>
+    <div class="ys" id="ys"></div>
+    <div class="frow">
+      <span class="flb">Filter:</span>
+      <div class="fc ac" data-f="all" onclick="togF(this)">All</div>
+      <div class="fc" data-f="tax" onclick="togF(this)">Tax</div>
+      <div class="fc" data-f="bpjs" onclick="togF(this)">BPJS/Staff</div>
+      <div class="fc" data-f="banjar" onclick="togF(this)">Banjar</div>
+      <div class="fc" data-f="safety" onclick="togF(this)">Safety</div>
+      <div class="fc" data-f="docs" onclick="togF(this)">Documents</div>
+      <div class="fc" data-f="ops" onclick="togF(this)">Operational</div>
+      <div class="fc" data-f="ota" onclick="togF(this)">OTA</div>
+      <div class="fc" data-f="custom" onclick="togF(this)">Custom</div>
+    </div>
+    <div class="cgw">
+      <div class="cwd"><div class="wd">Mon</div><div class="wd">Tue</div><div class="wd">Wed</div><div class="wd">Thu</div><div class="wd">Fri</div><div class="wd">Sat</div><div class="wd">Sun</div></div>
+      <div class="cd" id="caldays"></div>
+    </div>
+    <div id="detpanel" class="dp"><div class="de2"><div class="ico">📅</div><p>Click any day to see compliance events</p></div></div>
+    <div class="lg">
+      <div class="li"><div class="ld" style="background:var(--g4)"></div>Tax</div>
+      <div class="li"><div class="ld" style="background:var(--g5)"></div>BPJS/Staff</div>
+      <div class="li"><div class="ld" style="background:var(--bj)"></div>Banjar</div>
+      <div class="li"><div class="ld" style="background:var(--sf)"></div>Safety</div>
+      <div class="li"><div class="ld" style="background:var(--g0)"></div>Corp/LKPM</div>
+      <div class="li"><div class="ld" style="background:var(--g3)"></div>Doc expiry</div>
+      <div class="li"><div class="ld" style="background:rgba(255,220,80,.9)"></div>Holidays</div>
+      <div class="li"><div class="ld" style="background:var(--teal)"></div>OTA</div>
+      <div class="li"><div class="ld" style="background:rgba(239,68,68,.8)"></div>Overdue</div>
+      <div class="li"><div class="ld" style="background:rgba(255,255,255,.3)"></div>Custom</div>
+    </div>
+  </div>
+</main>
+</div>
+<div class="mo hd" id="modal">
+  <div class="mw">
+    <div class="mh"><div class="mt" id="mtxt">Add Calendar Event</div><div class="mx" onclick="closeM()">×</div></div>
+    <div class="mb">
+      <div class="fg"><label class="fl">Event Title *</label><input type="text" class="fi" id="in-title" placeholder="e.g. Banjar monthly donation, APAR recheck, Pool chemical test…"></div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Date *</label><input type="date" class="fi" id="in-date"></div>
+        <div class="fg"><label class="fl">Category</label>
+          <select class="fs" id="in-type">
+            <option value="custom">Custom</option><option value="banjar">Banjar</option>
+            <option value="safety">Safety</option><option value="tax">Tax</option>
+            <option value="bpjs">BPJS / Staff</option><option value="docs">Document</option>
+            <option value="ops">Operational</option><option value="ota">OTA</option>
+          </select>
+        </div>
+      </div>
+      <div class="fr2">
+        <div class="fg"><label class="fl">Repeats</label>
+          <select class="fs" id="in-rec">
+            <option value="none">No repeat</option><option value="monthly">Monthly</option>
+            <option value="quarterly">Quarterly</option><option value="annual">Annually</option>
+          </select>
+        </div>
+        <div class="fg"><label class="fl">Gate (optional)</label>
+          <select class="fs" id="in-gate">
+            <option value="-1">No gate</option><option value="0">G0 Foundation</option>
+            <option value="1">G1 Zoning</option><option value="2">G2 NIB</option>
+            <option value="3">G3 Building</option><option value="4">G4 Tax</option>
+            <option value="5">G5 Staff</option><option value="6">G6 Safety</option>
+            <option value="7">G7 OTA</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg"><label class="fl">Notes / Description</label><textarea class="fta" id="in-desc" placeholder="Amounts, contacts, portal links, what to bring…"></textarea></div>
+      <div class="fg"><label class="fl">Colour</label>
+        <div class="cp" id="cpick">
+          <div class="cs sl" data-c="#14B8A6" style="background:#14B8A6" onclick="selC(this)"></div>
+          <div class="cs" data-c="#F59E0B" style="background:#F59E0B" onclick="selC(this)"></div>
+          <div class="cs" data-c="#E879F9" style="background:#E879F9" onclick="selC(this)"></div>
+          <div class="cs" data-c="#FCA5A5" style="background:#FCA5A5" onclick="selC(this)"></div>
+          <div class="cs" data-c="#60A5FA" style="background:#60A5FA" onclick="selC(this)"></div>
+          <div class="cs" data-c="#22C55E" style="background:#22C55E" onclick="selC(this)"></div>
+          <div class="cs" data-c="#A78BFA" style="background:#A78BFA" onclick="selC(this)"></div>
+          <div class="cs" data-c="#94A3B8" style="background:#94A3B8" onclick="selC(this)"></div>
+          <div class="cs" data-c="#FB923C" style="background:#FB923C" onclick="selC(this)"></div>
+          <div class="cs" data-c="#F472B6" style="background:#F472B6" onclick="selC(this)"></div>
+        </div>
+      </div>
+    </div>
+    <div class="mf"><button class="bcn" onclick="closeM()">Cancel</button><button class="bsv" onclick="saveEv()">Save Event</button></div>
+  </div>
+</div>
+<script>
+const GC={0:'#94A3B8',1:'#14B8A6',2:'#60A5FA',3:'#A78BFA',4:'#F59E0B',5:'#22C55E',6:'#FCA5A5',7:'#14B8A6'};
+const GN={0:'G0 Foundation',1:'G1 Zoning',2:'G2 NIB',3:'G3 Building',4:'G4 Tax',5:'G5 Staff',6:'G6 Safety',7:'G7 OTA'};
+let curY=2026,curM=1,selDate=null,aF=new Set(['all']),filed=new Set(),custEvs=[],editId=null,selColor='#14B8A6';
+const dU=d=>{const t=new Date();t.setHours(0,0,0,0);return Math.floor((new Date(d)-t)/86400000);};
+function tc(t,g){if(t==='ops')return'rgba(255,220,80,.9)';if(t==='ota')return'#14B8A6';if(t==='banjar')return'#E879F9';if(t==='safety')return'#FCA5A5';if(t==='custom')return'rgba(255,255,255,.35)';return GC[g]||'#94A3B8';}
+const uid=()=>Math.random().toString(36).slice(2);
+const fmtD=d=>d.toLocaleDateString('en',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const pml=(y,m)=>new Date(m===0?y-1:y,m===0?11:m-1,1).toLocaleString('en',{month:'long',year:'numeric'});
+const cml=(y,m)=>new Date(y,m,1).toLocaleString('en',{month:'long',year:'numeric'});
+
+function genEvs(yr){
+  const E=[];
+  const add=o=>E.push({daysUntil:dU(o.date),...o});
+  for(let m=0;m<12;m++){
+    const p=pml(yr,m),c=cml(yr,m);
+    add({id:`pb1-${yr}-${m}`,date:new Date(yr,m,20),type:'tax',gate:4,icon:'↻',short:'PB1 Tax',title:'PB1 Hotel Tax (SPTPD)',period:p+' period',recurring:true,
+      desc:'File and pay 10% hotel tax on prior month room revenue via e-Palapa / local Bapenda portal. Late filing = penalties from day 1. NPWPD required first. PB1 is your single highest-risk recurring compliance item — OTA revenue is visible to Bapenda.'});
+    add({id:`pph21-${yr}-${m}`,date:new Date(yr,m,20),type:'tax',gate:4,icon:'↻',short:'PPh 21',title:'PPh 21 Payroll Tax Filing',period:p+' period',recurring:true,
+      desc:'File employee income tax withholding for prior month via CoreTax. Calculate per employee salary bracket. Reconcile with payroll records and employment contracts.'});
+    add({id:`pph25-${yr}-${m}`,date:new Date(yr,m,15),type:'tax',gate:4,icon:'↻',short:'PPh 25',title:'PPh 25 Corporate Tax Instalment',period:c,recurring:true,
+      desc:'Monthly corporate income tax instalment. Amount = prior year SPT Tahunan ÷ 12. File and pay via CoreTax by 15th. Adjust with tax consultant if revenue has changed significantly from prior year.'});
+    add({id:`bpjsk-${yr}-${m}`,date:new Date(yr,m,10),type:'bpjs',gate:5,icon:'●',short:'BPJS-K',title:'BPJS Kesehatan Contributions',period:c,recurring:true,
+      desc:'Pay health insurance contributions for all enrolled staff. Employer: 4%, Employee: 1% of capped salary. Via eDabu or BPD Bali virtual account by the 10th. Digitally monitored — late payment can block permit renewals in 2026.'});
+    add({id:`bpjstk-${yr}-${m}`,date:new Date(yr,m,10),type:'bpjs',gate:5,icon:'●',short:'BPJamsostek',title:'BPJamsostek Contributions',period:c,recurring:true,
+      desc:'Employment insurance (JHT, JKK, JKM, JP) for all staff. Employer: 6.24–7.74% (risk class). Employee: 2%. Via SIPP Online by the 10th. Must be current for any TDUP or licence renewal.'});
+    add({id:`banjar-${yr}-${m}`,date:new Date(yr,m,1),type:'banjar',gate:5,icon:'🏘',short:'Iuran Banjar',title:'Banjar Monthly Donation (Iuran)',period:c,recurring:true,
+      desc:'Monthly iuran to local Banjar. Commercial villas: IDR 100,000–1,000,000 depending on location. Pay at Bale Banjar or directly to Kelian. Keep receipt. Non-payment = loss of community goodwill, Pecalang non-cooperation, complaint-triggered Satpol PP inspection. Your Banjar relationship is your most important informal compliance asset.'});
+    add({id:`apar-${yr}-${m}`,date:new Date(yr,m,1),type:'safety',gate:6,icon:'🧯',short:'APAR Check',title:'APAR Fire Extinguisher Monthly Inspection',period:c,recurring:true,
+      desc:'Monthly physical check of all APAR units: pressure gauge in green, safety pin intact, nozzle clear, no corrosion, label readable, location sign visible. Log in SOP Execution Evidence Log — DAMKAR inspector reviews this log. Note units needing service. 1 APAR per 200m² floor area minimum.'});
+  }
+  [[3,'Q1',`Q1 ${yr} (Jan–Mar)`],[6,'Q2',`Q2 ${yr} (Apr–Jun)`],[9,'Q3',`Q3 ${yr} (Jul–Sep)`]].forEach(([m,q,pr])=>{
+    add({id:`lkpm-${q}-${yr}`,date:new Date(yr,m,10),type:'tax',gate:0,icon:'↻',short:'LKPM '+q,title:`LKPM ${q} Investment Report`,period:pr,recurring:true,
+      desc:`LKPM Investment Activity Report via OSS LKPM module (oss.go.id). Report: investment value in IDR (land/building/machinery), operational costs, local + foreign staff headcount. Missed filing triggers NIB suspension warnings. Affects your OTA verification chain — do not miss.`});
+  });
+  add({id:`lkpm-ann-${yr}`,date:new Date(yr+1,0,10),type:'tax',gate:0,icon:'↻',short:'LKPM Annual',title:'LKPM Annual Investment Report',period:`Full year ${yr}`,recurring:false,
+    desc:`Annual LKPM Investment Report for ${yr} — replaces Q4. File via OSS by January 10 ${yr+1}. Comprehensive full-year summary.`});
+  [[1,1],[4,2],[7,3],[10,4]].forEach(([m,q])=>{
+    add({id:`pool-q${q}-${yr}`,date:new Date(yr,m,15),type:'safety',gate:6,icon:'🏊',short:'Pool Check',title:`Pool Chemical & Safety — Q${q}`,period:`Q${q} ${yr}`,recurring:true,
+      desc:`Quarterly pool maintenance: pH 7.2–7.8, free chlorine 1–3 ppm, alkalinity 80–120, stabiliser 30–50 ppm. Safety: pool fence/gate latch, depth markers, life ring accessible, no-diving sign, drain covers secured. Suction entrapment at drains = serious liability. Log in SOP Evidence Log.`});
+    add({id:`gr-q${q}-${yr}`,date:new Date(yr,m,8),type:'banjar',gate:5,icon:'🤝',short:'Gotong Royong',title:`Gotong Royong Community Day — Q${q}`,period:`Q${q} ${yr}`,recurring:true,
+      desc:"Quarterly Banjar community cleanup and village maintenance. Send a staff member or contribute IDR 200,000–500,000. Non-participation is remembered. Good Banjar relations = early warning before inspections and community backing during disputes."});
+  });
+  const anns=[
+    {id:`spt-${yr}`,date:new Date(yr,3,30),type:'tax',gate:4,icon:'⬡',short:'SPT Tahunan',title:'SPT Tahunan — Annual Corporate Tax',period:`Fiscal ${yr-1}/${yr}`,
+      desc:`Annual PPh Badan return via CoreTax by April 30. Extension to October 31 available with prior application. Reconcile all PPh 25 instalments paid. Penalty: 2% per month of underpaid tax. Requires reviewed financial statements for larger taxpayers.`},
+    {id:`pbb-${yr}`,date:new Date(yr,8,30),type:'tax',gate:4,icon:'⬡',short:'PBB Tax',title:'PBB — Land & Building Tax',period:`Annual ${yr}`,
+      desc:`Annual PBB P2 due September 30 in Badung — verify with local Bapenda. CRITICAL: must be assessed at COMMERCIAL rates, not residential. Paying residential = major audit trigger + back-assessment with penalties. Retain STTS payment receipt.`},
+    {id:`skd-${yr}`,date:new Date(yr,0,15),type:'docs',gate:0,icon:'□',short:'SKD Renewal',title:'Surat Keterangan Domisili (SKD) Renewal',period:`Annual ${yr}`,
+      desc:'Annual renewal from Banjar Dinas/Kelurahan. Required for OSS, KITAS, NPWP address consistency. Bring director KTP/KITAS, company docs, previous SKD. 1–3 days. Must not lapse — cascading effect on all government registrations.'},
+    {id:`nib-${yr}`,date:new Date(yr,0,5),type:'docs',gate:2,icon:'✓',short:'NIB Status',title:'NIB Status Verification (OSS)',period:`Annual ${yr}`,
+      desc:'Annual check that NIB remains "Verified/Effective" on oss.go.id. Status reverts if LKPM missed, BPJS lapsed, or tax non-compliant. Screenshot and file. OTAs cross-reference NIB — lapsed = listing suspension risk. Verify KBLI 55193 for Villa.'},
+    {id:`damkar-${yr}`,date:new Date(yr,1,15),type:'safety',gate:6,icon:'🔥',short:'DAMKAR Renewal',title:'Fire Safety Certificate Renewal (DAMKAR)',period:`Annual ${yr}`,
+      desc:'Annual fire cert renewal. Schedule DAMKAR inspection 30+ days early — schedules fill. Inspector checks: APAR condition/placement, fire blankets, clear emergency exits, smoke detectors, evacuation signage, electrical safety, pool safety. Expired cert = TDUP renewal blocked. Typical processing: 14–21 days after inspection.'},
+    {id:`apar-svc-${yr}`,date:new Date(yr,5,1),type:'safety',gate:6,icon:'🧯',short:'APAR Annual Service',title:'APAR Annual Professional Servicing',period:`Annual ${yr}`,
+      desc:'Annual APAR service by certified provider: weigh + refill if <80%, internal inspection, new tamper seal, service tag. Hydrostatic test every 5 years. IDR 150,000–400,000/unit. Service certificate required for DAMKAR inspection. Also: fire blankets, smoke detector batteries, emergency torch batteries.'},
+    {id:`elec-${yr}`,date:new Date(yr,3,1),type:'safety',gate:6,icon:'⚡',short:'Electrical Inspection',title:'Annual Electrical Safety Inspection',period:`Annual ${yr}`,
+      desc:"PLN-certified electrician: earthing/grounding, RCD/ELCB trip function, switchboard condition, outdoor wiring, pool bonding and GFCI, solar/inverter (if fitted). Bali's 80%+ humidity accelerates insulation failure. Document in SOP Evidence Log. Required for SLF renewal and insurance validity."},
+    {id:`water-${yr}`,date:new Date(yr,1,1),type:'safety',gate:6,icon:'💧',short:'Water Quality Test',title:'Pool & Drinking Water Quality Test',period:`Annual ${yr}`,
+      desc:"Lab test: pool water (pH, chlorine, turbidity, coliforms) + drinking water supply (E.coli, TDS, turbidity). 'Bali Belly' complaints linked to contaminated water are increasing. Certificate required for laik fungsi standard and SLF renewal. IDR 300,000–600,000."},
+    {id:`ipal-${yr}`,date:new Date(yr,7,1),type:'safety',gate:6,icon:'♻️',short:'IPAL Inspection',title:'Wastewater Treatment (IPAL) Annual Check',period:`Annual ${yr}`,
+      desc:'Inspect IPAL: biodigester/septic tank function, soakpit condition, confirm zero discharge to drainage or subak irrigation canals. Subak contamination = serious environmental offence + community complaint to Dinas Lingkungan Hidup.'},
+    {id:`waste-${yr}`,date:new Date(yr,0,5),type:'safety',gate:6,icon:'🗑️',short:'Waste Contract',title:'Commercial Waste Management Contract',period:`Annual ${yr}`,
+      desc:'Renew licensed waste collection contract. Commercial properties cannot use residential pickup. Provide contract copy to Banjar. B3 hazardous waste (pool chemicals, batteries) requires separate licensed disposal. Checked during Satpol PP inspections.'},
+    {id:`insure-${yr}`,date:new Date(yr,0,30),type:'docs',gate:0,icon:'🛡️',short:'Insurance Renewal',title:'Commercial Property Insurance Renewal',period:`Annual ${yr}`,
+      desc:'Renew commercial property insurance. Residential policies void if used for commercial rental. Cover: property damage, public liability (min IDR 1–2bn), natural disaster. Some insurers now require valid SLF + TDUP as preconditions.'},
+    {id:`passport-${yr}`,date:new Date(yr,2,1),type:'docs',gate:0,icon:'🛂',short:'Passport Check',title:'Director Passport Validity Review',period:`Annual ${yr}`,
+      desc:'Ensure all director/shareholder passports valid 12+ months. Expired = OSS access issues, bank complications, LKPM filing blocked. Renew 6 months before expiry. Update OSS and bank records immediately after renewal.'},
+    {id:`kitas-${yr}`,date:new Date(yr,2,1),type:'docs',gate:5,icon:'🪪',short:'KITAS Renewal',title:'KITAS Investor Renewal (if applicable)',period:`Annual ${yr}`,
+      desc:'Begin 60 days before expiry. Docs: passport (6+ months), sponsor letter, RPTKA, NPWP, Akta. Via Imigrasi Bali. Fee approx IDR 1.25M. Working without valid KITAS = deportation risk. Expiry also affects BPJS and bank accounts.'},
+    {id:`pbg-${yr}`,date:new Date(yr,0,20),type:'docs',gate:3,icon:'⬡',short:'PBG Review',title:'PBG Building Permit Annual Review',period:`Annual ${yr}`,
+      desc:'Any physical changes made (extensions, new structures, pool changes, pergolas) without updating PBG? Authorities cross-check approved drawings vs actual structure. Unauthorised changes = SLF invalidity risk. Engage architect to assess if amendment required.'},
+    {id:`slf-${yr}`,date:new Date(yr,5,15),type:'docs',gate:3,icon:'□',short:'SLF Renewal',title:'SLF Certificate — Begin Renewal (90-day lead)',period:`Annual ${yr}`,
+      desc:'Begin SLF renewal 90 days before expiry. Engage accredited Pengkaji Teknis, prepare updated as-built drawings, schedule inspection. SLF renewal: 60–90 days. Expired SLF = TDUP not renewable = OTA listing at risk. Non-negotiable lead time.'},
+    {id:`satpol-${yr}`,date:new Date(yr,5,1),type:'ops',gate:7,icon:'👮',short:'Satpol PP Season',title:'Satpol PP Inspection Season (June–Aug)',period:yr.toString(),
+      desc:'Peak enforcement season. Pre-inspection checklist (complete by May): TDUP displayed ✓, employment contracts on file ✓, BPJS current ✓, price list posted ✓, APOA guest register current ✓, fire equipment labelled ✓, no unauthorised structures ✓.'},
+    {id:`apoa-${yr}`,date:new Date(yr,0,10),type:'ops',gate:7,icon:'📋',short:'APOA Review',title:'APOA Guest Registration System Review',period:`Annual ${yr}`,
+      desc:'Annual review of APOA compliance. Foreign guests staying 24h+ must be registered. Update APOA credentials. Assign staff for daily registration. Failure = operational licence risk + fine.'},
+    {id:`banjar-od-${yr}`,date:new Date(yr,3,15),type:'banjar',gate:5,icon:'🛕',short:'Banjar Ceremony',title:'Banjar Annual Ceremony Contribution',period:`Annual ${yr}`,
+      desc:'Annual contribution to major Banjar ceremony (Odalan/Melaspas). Commercial properties: IDR 500,000–5,000,000+ depending on ceremony scale. Confirm date with Kelian Banjar at start of year. Non-payment damages the community relationship.'},
+    {id:`event-${yr}`,date:new Date(yr,0,20),type:'banjar',gate:5,icon:'🎉',short:'Event Permits',title:'Villa Events — Banjar Permit Process',period:`Annual ${yr}`,
+      desc:'For any villa events (weddings, parties, photoshoots): prior Banjar + Kepala Desa approval required. Banjar fee: IDR 1M–5M+ by guest numbers. Pecalang coordination for 50+ guests. Failure to notify = complaint to police = venue shutdown mid-event.'},
+    {id:`peak1-${yr}`,date:new Date(yr,0,1),type:'ops',gate:7,icon:'📈',short:'Peak Jan–Feb',title:'Peak Season Compliance Check (Jan–Feb)',period:yr.toString(),
+      desc:'Pre-peak checklist: all licences valid and accessible, APOA current, fire equipment checked, pool safety confirmed, BPJS fully paid. Satpol PP inspections increase during peak season.'},
+    {id:`peak2-${yr}`,date:new Date(yr,6,1),type:'ops',gate:7,icon:'📈',short:'Peak Jul–Aug',title:'Peak + Inspection Season (Jul–Aug)',period:yr.toString(),
+      desc:"Second peak + Satpol PP primary enforcement. Complete self-audit by July 1: all licences displayed, staff IDs current, guest register updated, SOP log filled, wastewater systems checked."},
+  ];
+  anns.forEach(a=>add(a));
+  if(yr===2026){
+    add({id:`ota-2026`,date:new Date(2026,2,31),type:'ota',gate:7,icon:'⬡',short:'OTA Deadline',title:'OTA Verification Deadline — Airbnb & Booking.com',period:'One-time 2026',
+      desc:'All Bali villa OTA listings must submit verified compliance docs by March 31, 2026. Required: NIB Verified (OSS), TDUP cert, KBLI 55193. Entity name must match exactly across NIB, TDUP, and OTA profile — even minor spelling differences = rejection.'});
+    add({id:`thr-nf`,date:new Date(2026,2,21),type:'bpjs',gate:5,icon:'💰',short:'THR Nyepi',title:'THR Due — Hindu Staff (Nyepi)',period:'7 days before Nyepi Mar 28',
+      desc:'One full month gross salary. ≥ 7 days before Nyepi. Staff <12 months: pro-rated. Late = Dinas Ketenagakerjaan investigation. Get signed bukti terima THR from each employee.'});
+    add({id:`thr-eid`,date:new Date(2026,2,23),type:'bpjs',gate:5,icon:'💰',short:'THR Eid',title:'THR Due — Muslim Staff (Eid al-Fitr)',period:'7 days before Eid ~Mar 30–31',
+      desc:'One full month gross salary. Eid 2026 est. March 30–31. Pay by March 23. Signed receipt per employee required.'});
+    add({id:`thr-xm`,date:new Date(2026,11,18),type:'bpjs',gate:5,icon:'💰',short:'THR Christmas',title:'THR Due — Christian Staff (Christmas)',period:'7 days before Dec 25',
+      desc:'One full month gross salary by December 18. Batak, Timorese, Manadonese staff common in Bali villas. Verify religion on employment contract. Labour inspectors specifically check Christmas THR.'});
+  }
+  const hols=[
+    {d:[2026,0,1],s:"New Year's Day",t:"New Year's Day",desc:"National holiday. Peak season arrival day. Skeleton staff — plan check-in coverage."},
+    {d:[2026,0,29],s:"Imlek",t:"Imlek — Chinese New Year",desc:"National holiday. Road celebrations in Denpasar/Kuta. Plan guest transfers."},
+    {d:[2026,1,11],s:"Galungan 🎋",t:"Galungan",desc:"Major Balinese Hindu ceremony. Bamboo penjor poles everywhere. Most Balinese staff take 3–5 days. Plan with reduced staff or temporary help."},
+    {d:[2026,1,21],s:"Kuningan",t:"Kuningan",desc:"10 days after Galungan. Spirits return to heaven. Staff typically return. End of Galungan-Kuningan block."},
+    {d:[2026,2,28],s:"Nyepi 🔇",t:"Nyepi — Day of Silence ⚠️",desc:"⚠️ TOTAL ISLAND SHUTDOWN. No movement, light, noise, arrivals/departures. Airport closes 6am–6am. Villa completely dark and silent. All guests indoors all day. Pecalang patrols streets. Schedule ALL check-outs before March 28."},
+    {d:[2026,2,30],s:"Eid al-Fitr",t:"Eid al-Fitr",desc:"Muslim staff holiday. Ensure THR paid by March 23. Javanese/NTB staff may take 2–5 days. Kitchen and housekeeping cover critical — mid-peak season."},
+    {d:[2026,3,3],s:"Good Friday",t:"Good Friday",desc:"National holiday. Generally normal operations."},
+    {d:[2026,4,1],s:"Labour Day 🔧",t:"Labour Day",desc:"National holiday. Labour demonstrations possible in Denpasar — road disruptions. Staff entitled to day off or overtime pay."},
+    {d:[2026,4,14],s:"Ascension",t:"Ascension Day",desc:"National holiday."},
+    {d:[2026,5,5],s:"Waisak",t:"Waisak — Buddha Day",desc:"National holiday. Normal villa operations."},
+    {d:[2026,5,6],s:"Idul Adha",t:"Idul Adha",desc:"Muslim staff holiday. Sacrifice ceremonies at mosques — road disruptions near Islamic communities."},
+    {d:[2026,7,17],s:"Independence 🇮🇩",t:"Indonesian Independence Day",desc:"National holiday. Display Indonesian flag at gate — cultural expectation, appreciated by Banjar. Staff entitled to public holiday pay."},
+    {d:[2026,8,2],s:"Galungan ② 🎋",t:"Galungan — Cycle 2",desc:"Second Galungan of 2026 (Pawukon 210-day cycle). Same operational impact — plan reduced Balinese staff 3–5 days."},
+    {d:[2026,8,12],s:"Kuningan ②",t:"Kuningan — Cycle 2",desc:"10 days after second Galungan. Staff return. End of second 2026 Galungan-Kuningan period."},
+    {d:[2026,11,25],s:"Christmas 🎄",t:"Christmas Day",desc:"National holiday. Peak season. Ensure Christian staff THR paid December 18. High-demand period — manage staff leave vs bookings carefully."},
+  ].filter(h=>h.d[0]===yr);
+  hols.forEach(h=>{
+    const dt=new Date(h.d[0],h.d[1],h.d[2]);
+    add({id:`hol-${dt.toISOString().slice(0,10)}`,date:dt,type:'ops',gate:5,icon:'🌺',short:h.s,title:h.t,desc:h.desc,recurring:false});
+  });
+  return E;
+}
+
+function expandCust(ce){
+  if(!ce.recurring||ce.recurring==='none')return[{...ce,date:new Date(ce.date)}];
+  const out=[],end=new Date(curY+2,11,31);let cur=new Date(ce.date);
+  while(cur<=end){
+    out.push({...ce,id:ce.id+'-'+cur.toISOString().slice(0,7),date:new Date(cur)});
+    if(ce.recurring==='monthly')cur.setMonth(cur.getMonth()+1);
+    else if(ce.recurring==='quarterly')cur.setMonth(cur.getMonth()+3);
+    else if(ce.recurring==='annual')cur.setFullYear(cur.getFullYear()+1);
+    else break;
+  }
+  return out;
+}
+
+let BASE=[];
+function refresh(){BASE=genEvs(curY);}
+function allE(){return[...BASE,...custEvs.flatMap(expandCust)];}
+function forD(y,m,d){let e=allE().filter(ev=>ev.date.getFullYear()===y&&ev.date.getMonth()===m&&ev.date.getDate()===d);if(!aF.has('all'))e=e.filter(ev=>aF.has(ev.type)||(aF.has('custom')&&ev.isCustom));return e;}
+function forM(y,m){return allE().filter(ev=>ev.date.getFullYear()===y&&ev.date.getMonth()===m);}
+
+function renderYS(){
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('ys').innerHTML=MN.map((mn,mi)=>{
+    const evts=forM(curY,mi),types=[...new Set(evts.map(e=>e.type))];
+    const dots=types.slice(0,6).map(t=>{const s=evts.find(e=>e.type===t);return`<div class="md2" style="background:${tc(t,s?.gate||4)}"></div>`;}).join('');
+    return`<div class="ym${mi===curM?' ac':''}" onclick="goM(${mi})"><div class="ymn">${mn}</div><div class="mds">${dots||'<div style="height:4px"></div>'}</div></div>`;
+  }).join('');
+}
+
+function renderCal(){
+  document.getElementById('mlbl').textContent=new Date(curY,curM,1).toLocaleString('en',{month:'long',year:'numeric'});
+  const con=document.getElementById('caldays');con.innerHTML='';
+  let sd=new Date(curY,curM,1).getDay()-1;if(sd<0)sd=6;
+  const dim=new Date(curY,curM+1,0).getDate(),dip=new Date(curY,curM,0).getDate();
+  const today=new Date();today.setHours(0,0,0,0);
+  const cells=[];
+  for(let i=sd-1;i>=0;i--)cells.push({d:dip-i,m:curM-1,y:curM===0?curY-1:curY,o:true});
+  for(let d=1;d<=dim;d++)cells.push({d,m:curM,y:curY,o:false});
+  const rem=42-cells.length;
+  for(let d=1;d<=rem;d++)cells.push({d,m:curM+1,y:curM===11?curY+1:curY,o:true});
+  cells.forEach(c=>{
+    const cd=new Date(c.y,c.m,c.d);
+    const isTd=cd.getTime()===today.getTime(),isSel=selDate&&selDate.getTime()===cd.getTime();
+    const evts=c.o?[]:forD(c.y,c.m,c.d);
+    const hasOD=evts.some(e=>e.daysUntil<0&&e.type!=='ops');
+    let cls='cc2';if(c.o)cls+=' om';if(isTd)cls+=' td';if(isSel)cls+=' sl';if(hasOD)cls+=' ovr';
+    const vis=evts.slice(0,3),ov=evts.length-3;
+    const chips=vis.map(ev=>{
+      const col=ev.isCustom?(ev.customColor||'rgba(255,255,255,.35)'):tc(ev.type,ev.gate),fi=filed.has(ev.id);
+      return`<div class="ec" style="background:${col}18;border-left-color:${col};color:${col};opacity:${fi?.5:1}" onclick="event.stopPropagation();selD(${c.y},${c.m},${c.d})">${fi?'✓ ':ev.icon+' '}${ev.short}</div>`;
+    }).join('');
+    const ovEl=ov>0?`<div class="ovc" onclick="event.stopPropagation();selD(${c.y},${c.m},${c.d})">+${ov} more</div>`:'';
+    const div=document.createElement('div');div.className=cls;div.innerHTML=`<div class="dn">${c.d}</div>${chips}${ovEl}`;div.onclick=()=>selD(c.y,c.m,c.d);con.appendChild(div);
+  });
+}
+
+function renderDet(){
+  const panel=document.getElementById('detpanel');
+  if(!selDate){panel.innerHTML=`<div class="de2"><div class="ico">📅</div><p>Click any day to see compliance events</p></div>`;return;}
+  const evts=forD(selDate.getFullYear(),selDate.getMonth(),selDate.getDate()),ds=fmtD(selDate);
+  if(!evts.length){panel.innerHTML=`<div class="dph"><div><div class="dpd">${ds}</div><div class="dpc">No events</div></div><div class="dpx" onclick="closeD()">×</div></div><div class="de2" style="padding:20px"><p>No filings or deadlines on this date.</p></div>`;return;}
+  const cards=evts.map(ev=>{
+    const col=ev.isCustom?(ev.customColor||'rgba(255,255,255,.35)'):tc(ev.type,ev.gate);
+    const gn=ev.gate>=0?(GN[ev.gate]||'Custom'):'Custom';
+    const fi=filed.has(ev.id),od=ev.daysUntil<0&&ev.type!=='ops'&&ev.type!=='banjar';
+    const ovb=od?`<span style="font-size:9px;color:var(--red);font-family:Montserrat;font-weight:700;margin-left:6px">⚠ OVERDUE</span>`:ev.daysUntil===0?`<span style="font-size:9px;color:var(--gold);font-family:Montserrat;font-weight:700;margin-left:6px">DUE TODAY</span>`:'';
+    const rb=ev.recurring?`<span class="rb">↻ Recurring</span>`:'';
+    const fb=ev.recurring?(fi?`<button class="db fi">✓ Filed</button>`:`<button class="db pr" onclick="markF('${ev.id}')">Mark as filed</button>`):'';
+    const eb=ev.isCustom?`<button class="db de" onclick="delC('${ev.id}')">Delete</button><button class="db se" onclick="editC('${ev.id}')">Edit</button>`:'';
+    const vb=!ev.isCustom&&ev.type!=='ops'?`<button class="db se">Go to Vault →</button>`:'';
+    return`<div class="dc${ev.isCustom?' cx':''}" style="border-left-color:${col};${od?'background:rgba(239,68,68,.05)':''}">
+      <div class="dct"><div style="flex:1"><div class="dcti">${ev.icon} ${ev.title}${ovb}</div></div><div class="dcg" style="background:${col}22;color:${col};border:1px solid ${col}44">${gn}</div></div>
+      <div class="dcp">${ev.period||''} ${rb}</div>
+      <div class="dcd">${ev.desc||''}</div>
+      <div class="dca">${fb}${vb}${eb}</div>
+    </div>`;
+  }).join('');
+  panel.innerHTML=`<div class="dph"><div><div class="dpd">${ds}</div><div class="dpc">${evts.length} event${evts.length!==1?'s':''}</div></div><div class="dpx" onclick="closeD()">×</div></div><div class="dpe">${cards}</div>`;
+}
+
+function selD(y,m,d){selDate=new Date(y,m,d);renderCal();renderDet();setTimeout(()=>document.getElementById('detpanel').scrollIntoView({behavior:'smooth',block:'nearest'}),50);}
+function closeD(){selDate=null;renderCal();renderDet();}
+function chM(delta){curM+=delta;if(curM>11){curM=0;curY++;}if(curM<0){curM=11;curY--;}selDate=null;refresh();renderYS();renderCal();renderDet();}
+function goM(m){curM=m;selDate=null;refresh();renderYS();renderCal();renderDet();}
+function goTd(){const t=new Date();curY=t.getFullYear();curM=t.getMonth();selDate=new Date(t);selDate.setHours(0,0,0,0);refresh();renderYS();renderCal();renderDet();}
+
+function togF(el){
+  const f=el.dataset.f;
+  if(f==='all'){aF=new Set(['all']);document.querySelectorAll('.fc').forEach(c=>c.classList.remove('ac'));el.classList.add('ac');}
+  else{aF.delete('all');document.querySelector('[data-f="all"]').classList.remove('ac');aF.has(f)?aF.delete(f):aF.add(f);el.classList.toggle('ac');if(!aF.size){aF.add('all');document.querySelector('[data-f="all"]').classList.add('ac');}}
+  renderCal();
+}
+
+function markF(id){filed.add(id);renderCal();renderDet();}
+
+function openAdd(){
+  editId=null;document.getElementById('mtxt').textContent='Add Calendar Event';
+  document.getElementById('in-title').value='';
+  const dd=selDate||new Date();document.getElementById('in-date').value=dd.toISOString().slice(0,10);
+  document.getElementById('in-type').value='custom';document.getElementById('in-rec').value='none';
+  document.getElementById('in-gate').value='-1';document.getElementById('in-desc').value='';
+  selColor='#14B8A6';document.querySelectorAll('.cs').forEach(s=>s.classList.toggle('sl',s.dataset.c===selColor));
+  document.getElementById('modal').classList.remove('hd');setTimeout(()=>document.getElementById('in-title').focus(),100);
+}
+function closeM(){document.getElementById('modal').classList.add('hd');editId=null;}
+function selC(el){selColor=el.dataset.c;document.querySelectorAll('.cs').forEach(s=>s.classList.remove('sl'));el.classList.add('sl');}
+function saveEv(){
+  const title=document.getElementById('in-title').value.trim();
+  if(!title){document.getElementById('in-title').style.borderColor='var(--red)';return;}
+  document.getElementById('in-title').style.borderColor='';
+  const dv=document.getElementById('in-date').value;
+  if(!dv){document.getElementById('in-date').style.borderColor='var(--red)';return;}
+  document.getElementById('in-date').style.borderColor='';
+  const type=document.getElementById('in-type').value,gate=parseInt(document.getElementById('in-gate').value);
+  const rec=document.getElementById('in-rec').value,desc=document.getElementById('in-desc').value.trim();
+  const icons={custom:'📌',banjar:'🏘',safety:'🔒',tax:'↻',bpjs:'●',docs:'□',ops:'🌺',ota:'⬡'};
+  const ev={id:editId||uid(),date:new Date(dv+'T00:00:00'),type,gate:gate>=0?gate:-1,icon:icons[type]||'📌',
+    short:title.slice(0,18),title,period:rec==='none'?'One-time event':'Repeating '+rec,
+    desc,recurring:rec==='none'?false:rec,isCustom:true,customColor:selColor,daysUntil:dU(dv)};
+  if(editId){const i=custEvs.findIndex(e=>e.id===editId);if(i>=0)custEvs[i]=ev;}
+  else custEvs.push(ev);
+  closeM();renderYS();renderCal();if(selDate)renderDet();toast('"'+title+'" saved');
+}
+function editC(id){
+  const baseId=id.replace(/-\d{4}-\d{2}$/,'');
+  const ev=custEvs.find(e=>e.id===baseId||e.id===id);if(!ev)return;
+  editId=ev.id;document.getElementById('mtxt').textContent='Edit Event';
+  document.getElementById('in-title').value=ev.title;
+  document.getElementById('in-date').value=new Date(ev.date).toISOString().slice(0,10);
+  document.getElementById('in-type').value=ev.type;document.getElementById('in-rec').value=ev.recurring||'none';
+  document.getElementById('in-gate').value=ev.gate>=0?ev.gate:'-1';document.getElementById('in-desc').value=ev.desc||'';
+  selColor=ev.customColor||'#14B8A6';document.querySelectorAll('.cs').forEach(s=>s.classList.toggle('sl',s.dataset.c===selColor));
+  document.getElementById('modal').classList.remove('hd');
+}
+function delC(id){
+  const baseId=id.replace(/-\d{4}-\d{2}$/,'');
+  custEvs=custEvs.filter(e=>e.id!==baseId&&e.id!==id);
+  renderYS();renderCal();if(selDate)renderDet();toast('Event deleted');
+}
+function toast(msg){
+  const t=document.createElement('div');
+  t.style.cssText='position:fixed;bottom:24px;right:24px;background:#0D1B2E;border:1px solid rgba(20,184,166,.35);color:#14B8A6;font-family:Montserrat;font-size:11px;font-weight:700;padding:10px 16px;border-radius:8px;z-index:200;letter-spacing:.5px;transition:opacity .3s';
+  t.textContent=msg;document.body.appendChild(t);setTimeout(()=>{t.style.opacity='0';setTimeout(()=>t.remove(),300);},2200);
+}
+function updateOta(){
+  const days=Math.floor((new Date(2026,2,31)-new Date())/86400000);
+  const el=document.getElementById('otacd');if(el)el.textContent=days>0?days+' days remaining':'Deadline passed';
+}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeM();if(e.ctrlKey&&e.key==='ArrowLeft')chM(-1);if(e.ctrlKey&&e.key==='ArrowRight')chM(1);});
+document.getElementById('modal').addEventListener('click',e=>{if(e.target===document.getElementById('modal'))closeM();});
+updateOta();refresh();renderYS();renderCal();renderDet();
+</script>
+</body>
+</html>

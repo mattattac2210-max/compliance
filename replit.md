@@ -1,88 +1,74 @@
 # DSCVR — Compliance Navigator
 
 ## Overview
-
-DSCVR Compliance Navigator is a web application that guides users through a "Seven-Gate Compliance Journey" for Bali villa operations. It presents a multi-gate compliance flow where each gate represents a stage in the legal/regulatory process (e.g., PT PMA company formation, licensing, etc.). The app features a dark-themed, teal-accented UI with animated gate cards, tabbed views (flow, audit, guide), and informational panels with alerts and portals to external resources.
-
-The project follows a full-stack TypeScript architecture with a React frontend (Vite) and Express backend, using PostgreSQL via Drizzle ORM for data persistence. The app now uses the database for a Compliance Terminology Decoder glossary (searchable, tag-filterable accordion cards in the Guide tab), managed via a simple admin page at `/admin`.
-
-## Recent Changes
-- **2026-02-20**: Phase 7 — Dashboard Redesign. Split /app into Free User Landing and Pro User Dashboard. New `dashboard/index.tsx` router with view state management (dashboard/flow/audit/guide), `dashboard/free.tsx` (welcome header, OTA deadline banner with blinking dot + countdown, 3 free tool tiles for Flow/Audit/Guide, 3 locked Pro tiles for Vault/Timeline/Alerts, upgrade nudge), `dashboard/pro.tsx` (time-based greeting, property subtitle, dismissible 4-step setup progress banner, 4 stat cards with live data — vault progress, expiring docs, filings due this month, active alerts, "What needs attention" panel with max 5 items from vault/filings/OTA/HGB/BPJS, "Upcoming deadlines" panel with next 6 items, 8-gate status grid with completion bars linking to /vault?gate=N, reference link row). Extracted 3 reusable components from home.tsx: `compliance-flow.tsx` (with expandGate7 prop), `self-audit.tsx`, `guidebook.tsx`. No-property empty states for both tiers. All strings use i18n — 75+ new keys across EN/UK/ID with {{template}} interpolation for dynamic content. Template names use active language selection. OTA deadline date: 31 March 2026. Setup steps: property profile, first vault doc, entity structure, self-audit.
-- **2026-02-20**: Phase 6 — Compliance Intelligence Patch. No new pages — enhances existing pages with compliance data. New DB tables: `banjar_contributions`, `recurring_filings`, `staff_members`. Extended properties table with 8 columns (entityStructure, otaEntityName, otaIdentityChecked, landTitleType, landTitleExpiry, banjars, banjarIntroDate, banjarNotes). Profile page: banjar relationship tracking, entity structure selection, OTA identity consistency checker, HGB land title expiry warnings, staff roster with BPJS status badges and KITAS expiry tracking, banjar contributions log. Timeline: staff KITAS expiry items, HGB land title expiry, ↻ icon for recurring filings. Alerts: entity name mismatch, BPJS enrollment gaps, HGB expiry approaching, KITAS expiry approaching — all linking to Profile page. Dashboard stats: compliance alert count includes BPJS gaps, entity mismatches, HGB/KITAS expiry. Filing schedule config (client-side static in filing-schedule.ts). Glossary: 8 new seeded terms (Banjar, BPJS, CoreTax, HGB, KITAS, PB1, PKWT, THR) with UK/ID translations. 65+ new i18n keys across EN/UK/ID. Storage layer with 12 new CRUD methods, 11 new API endpoints.
-- **2026-02-20**: Phase 5 — Admin Dashboard + Support Access System. New `support_access_grants` and `admin_access_log` tables, `proGrantedBy` field on users. User-facing support access toggle on Profile page (grant/revoke). Admin dashboard at `/admin-dashboard` with user management table (Pro/Admin toggles, support mode entry), access log tab, stat cards. Support mode: admin enters via active user grant, sees SupportModeBanner (amber fixed bar), can view user properties/vault read-only. All admin actions logged to `admin_access_log`. Privacy boundaries: support mode requires active grant, auto-exits if revoked, admin can't change own admin status. Admin sidebar nav item for admin users only. 60+ new i18n keys (supportAccess.*, adminDashboard.*) across EN/UK/ID.
-- **2026-02-20**: Phase 4a — SaaS sidebar layout with freemium gating. AppShell component with 220px sidebar (logo, property selector, vault progress ring for Pro users, nav sections OVERVIEW/TRACKING/REFERENCE/ACCOUNT, OTA countdown, user footer) + 56px topbar with breadcrumb, language/theme controls. Pro user tier: `isPro`/`proGrantedAt` fields on users table, `isAdmin` always implies Pro. ProRoute gating: free users see UpgradePage for Vault/Timeline/Alerts. Locked sidebar nav items at 40% opacity with hover tooltips. UpgradeModal with feature list and Stripe placeholder. DashboardStats: 3 stat cards (vault progress, expiring docs, active alerts) — Pro shows live data, free shows "—" with unlock buttons. Mobile sidebar: slides in as overlay with backdrop on <768px, hamburger toggle. Admin endpoint PATCH /api/admin/users/:id/pro for granting Pro access. All authenticated pages wrapped in AppShell, old standalone headers removed. 30+ new i18n keys (upgrade.*, shell.*, dashboard.*) across EN/UK/ID.
-- **2026-02-20**: Vault page redesign — Property-focused UI with entity/location details in summary header. Gate status grid (8 color-coded interactive cards) with hover tooltips showing uploaded/missing/expiring/expired counts per gate, checkmark/alert icons. Quick Access panel with search and filter tabs (all/required/expiring/expired) for inline document editing without opening gate accordions. Generate Report button downloads CSV compliance report via GET /api/vault/report. "Paid feature" badge, pricing note, disclaimer, and privacy footer. 20+ new i18n keys across EN/UK/ID.
-- **2026-02-20**: Phase 4 — Marketing landing page at `/`. Public-facing page with 9 sections: sticky header, hero with staggered word animation, urgency block, gate preview cards (blurred/locked for unauthenticated users), features, scope (tracks vs does not), language banner, final CTA, footer. Auth-aware CTAs: authenticated users see "Go to app" linking to `/app`, visitors see "Get access"/"Sign in" linking to register/login. Vault summary percentage shown for authenticated users. 50+ i18n keys across EN/UK/ID. Routing changed: `/` → LandingPage (public), `/app` → protected Home (compliance tool). All login/register redirects now go to `/app`. All "back to app" links in vault/timeline/alerts/profile/admin updated to `/app`.
-- **2026-02-20**: Phase 2 — Document Vault (`/vault`), Compliance Timeline (`/timeline`), and Alert Centre (`/alerts`). New `vault_document_templates` table (23 seeded templates across gates 0-7 with i18n JSONB translations, isRequired, expiryMonths) and `vault_documents` table (per-property document tracking with status, expiryDate, notes). Vault API: GET /api/vault/templates (public), GET/POST /api/vault, PATCH /api/vault/:id, GET /api/vault/summary (all auth-protected with property ownership checks). Dynamic status computation (expired if past date, expiring if <90 days). Timeline page with fixed recurring deadlines (SPT Tahunan, PPh, PB1, BPJS, OTA) + vault document expiry dates, filter by all/overdue/this-month/next-90-days. Alert Centre with overdue/upcoming sections, localStorage-based dismiss. Header nav links (Vault, Timeline, Alerts) for authenticated users. All UI strings use i18n keys (50+ new keys across EN/UK/ID).
-- **2026-02-20**: Phase 1 — User authentication (register/login with bcrypt, express-session with connect-pg-simple PostgreSQL session store) and property profile management (CRUD for villa properties with fields: propertyName, entityName, NIB, address, regency, KBLI). Extended users table with email, createdAt, lastLogin, isAdmin. New `properties` table with soft-delete. Auth API routes at `/api/auth/*`, property routes at `/api/properties`. Protected `/profile` route, login/register pages, useAuth hook. Header shows Sign in/Profile+Sign out based on auth state. All auth/profile UI strings added to i18n (en, uk, id).
-- **2026-02-20**: Added multi-language i18n support (English, Ukrainian, Bahasa Indonesia). LanguageProvider context with localStorage persistence (key: "dscvr-lang"), LanguageSelector dropdown in header and admin. All UI text uses translation keys. DB tables extended with `translations` JSONB column for glossary terms and process guides with Ukrainian/Bahasa seed data. Light/dark theme support with ThemeProvider.
-- **2026-02-19**: Added Process Navigation Guides feature with step-by-step workflow cards, expandable step timelines with detailed expand panels (why-this-matters, common issues, preparation tips, storage reminders), gate filters, info tabs (what to expect, delays, rejections, storage). GlossaryLink hover popover and GlossaryAwareText auto-linking system that detects glossary terms + synonyms in workflow text. Added `synonyms` field to compliance_terms table. New `process_navigation_guides` table with 1 seeded SLF Renewal workflow. API routes at `/api/guides`. Admin page updated with synonyms field.
-- **2026-02-19**: Added Compliance Terminology Decoder glossary to Guide tab with search, tag filters, expandable accordion cards, copy-to-clipboard, and disclaimer. Database-backed with 11 seeded terms (including Zoning Certificate). Admin editor page at `/admin` for creating/editing/deactivating terms. API routes at `/api/terms`.
+DSCVR Compliance Navigator is a web application designed to guide users through a "Seven-Gate Compliance Journey" for Bali villa operations. It facilitates adherence to legal and regulatory processes, such as PT PMA company formation and licensing, through a structured, multi-gate flow. The application aims to provide a comprehensive compliance solution, featuring a dark-themed, teal-accented user interface. Key capabilities include a searchable Compliance Terminology Decoder glossary, document vault, compliance timeline, alert center, and a compliance calendar. The project envisions simplifying complex regulatory landscapes for villa operators, enhancing compliance efficiency, and reducing legal risks.
 
 ## User Preferences
-
 Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
 ### Frontend
-- **Framework**: React 18 with TypeScript
-- **Bundler**: Vite with HMR support via custom dev server integration
-- **Routing**: Wouter (lightweight client-side router)
-- **State/Data Fetching**: TanStack React Query with a custom `apiRequest` helper and `getQueryFn` factory
-- **UI Components**: shadcn/ui (new-york style) built on Radix UI primitives with Tailwind CSS
-- **Animations**: Framer Motion for gate card transitions and tab animations
-- **Styling**: Tailwind CSS with CSS custom properties for a dark theme (deep navy/teal color scheme). Fonts are Montserrat (headings) and Lato (body) loaded from Google Fonts
-- **Component Structure**: All reusable UI primitives live in `client/src/components/ui/`. Page components are in `client/src/pages/`. The main page is `home.tsx` which contains the full compliance gate flow
+- **Framework**: React 18 with TypeScript, bundled by Vite.
+- **Routing**: Wouter for client-side navigation.
+- **State Management**: TanStack React Query for data fetching and state management.
+- **UI/UX**: Utilizes shadcn/ui (New York style) built on Radix UI primitives, styled with Tailwind CSS. The design incorporates a dark theme with a deep navy/teal color scheme, using Montserrat (headings) and Lato (body) fonts.
+- **Animations**: Framer Motion is used for UI transitions, particularly in the gate flow.
+- **Core Features**:
+    - **Seven-Gate Compliance Journey**: A multi-stage flow guiding users through regulatory processes.
+    - **Compliance Terminology Decoder**: A database-backed, searchable, tag-filterable glossary accessible via an admin page.
+    - **Document Vault**: Manages property-specific documents, tracking status and expiry, with a reporting feature.
+    - **Compliance Timeline**: Displays fixed recurring deadlines and vault document expiry dates.
+    - **Alert Centre**: Notifies users of overdue and upcoming compliance events.
+    - **Compliance Calendar**: A Pro-only feature for tracking compliance events, including pre-built recurring events and custom event support, with month grid, year strip, and filter chips.
+    - **Dashboard**: Differentiates between Free and Pro user experiences, offering tailored insights and feature access.
+    - **Process Navigation Guides**: Provides step-by-step workflow cards with detailed explanations and glossary integration.
+    - **User Authentication & Property Management**: Secure user login/registration and CRUD operations for villa properties.
+    - **SaaS Layout**: Features a persistent sidebar with navigation, property selector, and freemium gating for Pro features.
+    - **Admin Dashboard**: For user management and support access control.
 
 ### Backend
-- **Runtime**: Node.js with Express 5
-- **Language**: TypeScript, executed via `tsx`
-- **API Pattern**: All API routes should be prefixed with `/api` and registered in `server/routes.ts`
-- **Storage Layer**: Abstract `IStorage` interface in `server/storage.ts` with a `MemStorage` in-memory implementation as default. This can be swapped for a database-backed implementation
-- **Dev Server**: In development, Vite middleware is integrated into Express for HMR. In production, static files are served from `dist/public`
+- **Runtime**: Node.js with Express 5, written in TypeScript.
+- **API**: All routes are prefixed with `/api`.
+- **Storage**: Abstract `IStorage` interface, with an in-memory `MemStorage` for development, designed to be swapped with a database-backed implementation.
+- **Development**: Vite middleware integrated with Express for Hot Module Replacement (HMR).
+- **Production**: Static files served from `dist/public`, server bundled with esbuild.
 
 ### Database
-- **ORM**: Drizzle ORM with PostgreSQL dialect
-- **Schema**: Defined in `shared/schema.ts` — currently has a `users` table with `id`, `username`, and `password` fields
-- **Validation**: Zod schemas generated from Drizzle schemas via `drizzle-zod`
-- **Migrations**: Drizzle Kit with `db:push` command for schema synchronization
-- **Connection**: Requires `DATABASE_URL` environment variable pointing to a PostgreSQL instance
-- **Note**: The current storage implementation is in-memory (`MemStorage`). When adding database features, switch to a Drizzle-backed implementation of `IStorage`
+- **ORM**: Drizzle ORM with PostgreSQL dialect.
+- **Schema**: Defined in `shared/schema.ts`, including tables for users, properties, vault documents, document templates, compliance terms, process guides, banjar contributions, recurring filings, staff members, support access grants, and admin access logs.
+- **Validation**: Zod schemas generated from Drizzle schemas.
+- **Migrations**: Drizzle Kit for schema synchronization.
+- **Connection**: Requires `DATABASE_URL` environment variable for PostgreSQL.
 
 ### Shared Code
-- The `shared/` directory contains code shared between frontend and backend (schemas, types)
-- Path alias `@shared/*` maps to `shared/*` in both TypeScript and Vite configs
+- The `shared/` directory contains common schemas and types for both frontend and backend, accessible via `@shared/*` alias.
 
 ### Build System
-- **Development**: `npm run dev` runs the Express server with Vite middleware via tsx
-- **Production Build**: Custom `script/build.ts` that builds the client with Vite and bundles the server with esbuild. Server dependencies are selectively bundled (allowlist pattern) to optimize cold start times
-- **Output**: Client builds to `dist/public`, server builds to `dist/index.cjs`
-
-### Path Aliases
-- `@/*` → `client/src/*`
-- `@shared/*` → `shared/*`
-- `@assets` → `attached_assets/`
+- **Development**: `npm run dev` starts Express with Vite.
+- **Production**: Custom script `script/build.ts` for client (Vite) and server (esbuild) bundling.
 
 ## External Dependencies
 
 ### Core Infrastructure
-- **PostgreSQL**: Primary database (requires `DATABASE_URL` env var)
-- **Google Fonts**: Montserrat and Lato font families loaded externally
+- **PostgreSQL**: Main database for data persistence.
+- **Google Fonts**: Hosts Montserrat and Lato font families.
 
 ### Key npm Packages
-- **Drizzle ORM + Drizzle Kit**: Database ORM and migration tooling for PostgreSQL
-- **Express 5**: HTTP server framework
-- **TanStack React Query**: Server state management
-- **Radix UI**: Headless UI component primitives (full suite installed)
-- **Tailwind CSS**: Utility-first CSS framework
-- **Framer Motion**: Animation library used in the gate flow UI
-- **Zod**: Schema validation (shared between client and server)
-- **Wouter**: Lightweight client-side routing
-- **connect-pg-simple**: PostgreSQL session store (available but not yet wired up)
-- **Vite**: Frontend build tool with React plugin
+- **Drizzle ORM & Drizzle Kit**: For database interaction and migrations.
+- **Express 5**: Backend web framework.
+- **TanStack React Query**: Frontend data management.
+- **Radix UI**: Headless UI components.
+- **Tailwind CSS**: Utility-first CSS framework.
+- **Framer Motion**: Animation library.
+- **Zod**: Schema validation.
+- **Wouter**: Client-side router.
+- **connect-pg-simple**: PostgreSQL session store.
+- **Vite**: Frontend build tool.
+- **bcrypt**: For password hashing.
+- **express-session**: Session management.
 
 ### Replit-specific
-- `@replit/vite-plugin-runtime-error-modal`: Runtime error overlay in development
-- `@replit/vite-plugin-cartographer`: Dev tooling (conditionally loaded)
-- `@replit/vite-plugin-dev-banner`: Dev environment banner (conditionally loaded)
+- `@replit/vite-plugin-runtime-error-modal`
+- `@replit/vite-plugin-cartographer`
+- `@replit/vite-plugin-dev-banner`
