@@ -397,21 +397,6 @@ export function ProcessNavigation() {
   return (
     <div data-testid="process-navigation">
       <div className="mb-[20px]">
-        <div className="flex items-center justify-between mb-[10px]">
-          <div>
-            <h2 className="font-heading font-black text-[22px] tracking-[-0.5px]" style={{ color: "var(--txt)" }}>
-              {t.processNav.heading}
-            </h2>
-          </div>
-          <div className="text-[10px]" style={{ color: "var(--app-text-muted)" }}>
-            {guides.length} workflow{guides.length !== 1 ? "s" : ""}
-          </div>
-        </div>
-
-        <p className="text-[12px] font-light leading-[1.7] mb-[14px]" style={{ color: "var(--app-text-secondary)" }}>
-          {t.processNav.headingDesc}
-        </p>
-
         {gateNumbers.length > 1 && (
           <div className="flex flex-wrap gap-[6px]">
             <button
