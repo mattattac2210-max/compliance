@@ -129,6 +129,22 @@ export default function GlossarySection() {
 
   return (
     <div className="mb-12">
+      <h3
+        className="font-heading font-extrabold text-[16px] text-[#14B8A6] mb-6 pb-[10px] tracking-[-0.2px]"
+        style={{ borderBottom: "1px solid var(--app-border-teal-subtle)" }}
+        data-testid="glossary-heading"
+      >
+        {t.glossary.heading}
+      </h3>
+
+      <div
+        className="pl-5 border-l-2 border-l-[rgba(245,158,11,0.25)] text-[12px] font-light leading-[1.7] italic mb-8 bg-[rgba(245,158,11,0.03)] p-[14px_18px] rounded-r-[8px]"
+        style={{ color: "var(--app-text-secondary)" }}
+        data-testid="glossary-disclaimer"
+      >
+        {t.glossary.disclaimer}
+      </div>
+
       <div className="mb-5">
         <div className="relative">
           <span className="absolute left-[14px] top-1/2 -translate-y-1/2 text-[14px]" style={{ color: "var(--app-text-muted)" }}>{"\u2315"}</span>

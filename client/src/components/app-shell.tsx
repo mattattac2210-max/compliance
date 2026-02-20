@@ -13,7 +13,7 @@ import {
   Calendar, Scale
 } from "lucide-react";
 
-type PageTitleKey = "dashboard" | "profile" | "vault" | "calendar" | "timeline" | "alerts" | "disclaimers";
+type PageTitleKey = "dashboard" | "profile" | "vault" | "calendar" | "timeline" | "alerts" | "disclaimers" | "glossary" | "workflows";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -49,11 +49,11 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     if (location === "/timeline") return "timeline";
     if (location === "/alerts") return "alerts";
     if (location === "/disclaimers") return "disclaimers";
+    if (location === "/glossary") return "glossary";
+    if (location === "/workflows") return "workflows";
     if (location === "/profile") return "profile";
     if (location === "/admin-dashboard") return "admin-dashboard";
     if (location === "/app" || location === "/") {
-      if (tabParam === "guide" && sectionParam === "glossary") return "glossary";
-      if (tabParam === "guide" && sectionParam === "workflows") return "workflows";
       if (tabParam === "flow") return "compliance";
       if (tabParam === "audit") return "audit";
       if (tabParam === "guide") return "guide";
@@ -114,8 +114,8 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     {
       label: t.shell.sectionReference,
       items: [
-        { key: "glossary", icon: <List size={iconSize} />, label: t.glossary.heading, href: "/app?tab=guide&section=glossary", pro: false },
-        { key: "workflows", icon: <GitBranch size={iconSize} />, label: t.processNav.heading, href: "/app?tab=guide&section=workflows", pro: false },
+        { key: "glossary", icon: <List size={iconSize} />, label: t.glossary.heading, href: "/glossary", pro: false },
+        { key: "workflows", icon: <GitBranch size={iconSize} />, label: t.processNav.heading, href: "/workflows", pro: false },
         { key: "disclaimers", icon: <Scale size={iconSize} />, label: t.nav.disclaimers, href: "/disclaimers", pro: false },
       ],
     },

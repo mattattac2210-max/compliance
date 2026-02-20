@@ -22,6 +22,8 @@ import AlertsPage from "@/pages/alerts";
 import AdminDashboardPage from "@/pages/admin-dashboard";
 import CalendarPage from "@/pages/calendar";
 import DisclaimersPage from "@/pages/disclaimers";
+import GlossaryPage from "@/pages/glossary";
+import WorkflowsPage from "@/pages/workflows";
 
 function Router() {
   return (
@@ -89,6 +91,20 @@ function Router() {
         <ProtectedRoute>
           <AppShell pageTitle="disclaimers" activeNav="disclaimers">
             <DisclaimersPage />
+          </AppShell>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/glossary">
+        <ProtectedRoute>
+          <AppShell pageTitle="glossary" activeNav="glossary">
+            <GlossaryPage />
+          </AppShell>
+        </ProtectedRoute>
+      </Route>
+      <Route path="/workflows">
+        <ProtectedRoute>
+          <AppShell pageTitle="workflows" activeNav="workflows">
+            <WorkflowsPage />
           </AppShell>
         </ProtectedRoute>
       </Route>

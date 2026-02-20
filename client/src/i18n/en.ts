@@ -538,6 +538,8 @@ export const en: UITranslations = {
     pageTitleTimeline: "Compliance Timeline",
     pageTitleAlerts: "Alerts",
     pageTitleDisclaimers: "Disclaimers",
+    pageTitleGlossary: "Compliance Terminology Decoder",
+    pageTitleWorkflows: "Step by Step Workflows",
   },
   dashboard: {
     welcomeBack: "Welcome back",

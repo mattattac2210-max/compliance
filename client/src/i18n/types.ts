@@ -505,6 +505,8 @@ export interface UITranslations {
     pageTitleTimeline: string;
     pageTitleAlerts: string;
     pageTitleDisclaimers: string;
+    pageTitleGlossary: string;
+    pageTitleWorkflows: string;
   };
   dashboard: {
     welcomeBack: string;

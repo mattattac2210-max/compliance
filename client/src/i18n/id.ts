@@ -538,6 +538,8 @@ export const id: UITranslations = {
     pageTitleTimeline: "Linimasa Kepatuhan",
     pageTitleAlerts: "Peringatan",
     pageTitleDisclaimers: "Sanggahan",
+    pageTitleGlossary: "Dekoder Terminologi Kepatuhan",
+    pageTitleWorkflows: "Alur Kerja Langkah demi Langkah",
   },
   dashboard: {
     welcomeBack: "Selamat datang kembali",
