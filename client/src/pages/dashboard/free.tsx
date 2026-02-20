@@ -96,7 +96,7 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
       <div>
         <div className="flex items-center gap-3 flex-wrap">
           <h1 className="font-heading font-extrabold text-2xl tracking-tight" style={{ color: "var(--app-text)" }} data-testid="text-welcome">
-            {t.dashboard.welcomeBack}, {user?.email?.split("@")[0] ?? ""}
+            {t.dashboard.welcomeBack}, {user?.firstName || user?.email?.split("@")[0] || ""}
           </h1>
           <span
             className="text-[10px] font-heading font-bold tracking-widest uppercase px-2.5 py-1 rounded-full"

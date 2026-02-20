@@ -25,6 +25,7 @@ export interface IStorage {
   updateUserLastLogin(id: string): Promise<void>;
   getUserById(id: string): Promise<User | undefined>;
   updateUserPro(id: string, isPro: boolean): Promise<User | undefined>;
+  updateUserFirstName(id: string, firstName: string | null): Promise<User | undefined>;
 
   getPropertiesByUserId(userId: string): Promise<Property[]>;
   getPropertyById(id: string): Promise<Property | undefined>;
@@ -111,6 +112,14 @@ export class DatabaseStorage implements IStorage {
   async updateUserPro(id: string, isPro: boolean): Promise<User | undefined> {
     const [updated] = await db.update(users)
       .set({ isPro, proGrantedAt: isPro ? new Date().toISOString() : null })
+      .where(eq(users.id, id))
+      .returning();
+    return updated;
+  }
+
+  async updateUserFirstName(id: string, firstName: string | null): Promise<User | undefined> {
+    const [updated] = await db.update(users)
+      .set({ firstName })
       .where(eq(users.id, id))
       .returning();
     return updated;

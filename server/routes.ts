@@ -15,6 +15,7 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
+  firstName: z.string().min(1).max(50).optional(),
 });
 
 const loginSchema = z.object({
@@ -35,7 +36,7 @@ export async function registerRoutes(
       return res.status(400).json({ message: "Invalid data" });
     }
 
-    const { email, password } = parsed.data;
+    const { email, password, firstName } = parsed.data;
 
     const existing = await storage.getUserByEmail(email);
     if (existing) {
@@ -47,10 +48,11 @@ export async function registerRoutes(
       email,
       password: hashedPassword,
       username: null,
+      firstName: firstName || null,
     });
 
     req.session.userId = user.id;
-    res.status(201).json({ id: user.id, email: user.email, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
+    res.status(201).json({ id: user.id, email: user.email, firstName: user.firstName, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
   });
 
   app.post("/api/auth/login", async (req, res) => {
@@ -73,7 +75,7 @@ export async function registerRoutes(
 
     await storage.updateUserLastLogin(user.id);
     req.session.userId = user.id;
-    res.json({ id: user.id, email: user.email, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
+    res.json({ id: user.id, email: user.email, firstName: user.firstName, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
   });
 
   app.post("/api/auth/logout", (req, res) => {
@@ -81,6 +83,15 @@ export async function registerRoutes(
       if (err) return res.status(500).json({ message: "Failed to logout" });
       res.json({ ok: true });
     });
+  });
+
+  app.patch("/api/auth/profile", requireAuth, async (req, res) => {
+    const schema = z.object({ firstName: z.string().max(50).nullable() });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid data" });
+    const user = await storage.updateUserFirstName(req.session.userId!, parsed.data.firstName);
+    if (!user) return res.status(404).json({ message: "User not found" });
+    res.json({ id: user.id, email: user.email, firstName: user.firstName, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
   });
 
   app.get("/api/auth/me", async (req, res) => {
@@ -91,7 +102,7 @@ export async function registerRoutes(
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    res.json({ id: user.id, email: user.email, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
+    res.json({ id: user.id, email: user.email, firstName: user.firstName, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
   });
 
   async function requireAdmin(req: Request, res: Response, next: NextFunction) {

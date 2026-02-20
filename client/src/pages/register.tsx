@@ -8,13 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Lock, AlertCircle } from "lucide-react";
+import { Mail, Lock, AlertCircle, User } from "lucide-react";
 
 export default function RegisterPage() {
   const { t } = useLanguage();
   const { isAuthenticated, isLoading } = useAuth();
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
+  const [firstName, setFirstName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -22,7 +23,7 @@ export default function RegisterPage() {
 
   const registerMutation = useMutation({
     mutationFn: async () => {
-      const res = await apiRequest("POST", "/api/auth/register", { email, password });
+      const res = await apiRequest("POST", "/api/auth/register", { email, password, firstName: firstName.trim() || undefined });
       return res.json();
     },
     onSuccess: (data) => {
@@ -68,6 +69,18 @@ export default function RegisterPage() {
                 <AlertCircle className="h-4 w-4 shrink-0" /> {error}
               </div>
             )}
+            <div className="space-y-2">
+              <Label htmlFor="firstName" className="text-slate-300 text-sm">{t.auth.firstNameLabel}</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
+                <Input
+                  id="firstName" type="text" value={firstName} onChange={e => setFirstName(e.target.value)}
+                  placeholder={t.auth.firstNamePlaceholder}
+                  className="pl-10 bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500"
+                  data-testid="input-first-name"
+                />
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="email" className="text-slate-300 text-sm">{t.auth.emailLabel}</Label>
               <div className="relative">

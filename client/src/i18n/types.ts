@@ -148,10 +148,15 @@ export interface UITranslations {
     loginError: string;
     registerError: string;
     emailTaken: string;
+    firstNameLabel: string;
+    firstNamePlaceholder: string;
   };
   profile: {
     heading: string;
     subheading: string;
+    yourName: string;
+    yourNameDesc: string;
+    nameSaved: string;
     propertyNameLabel: string;
     propertyNamePlaceholder: string;
     entityNameLabel: string;

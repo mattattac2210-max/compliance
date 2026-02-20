@@ -11,7 +11,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
-import { Building2, Plus, Pencil, Trash2, X, ShieldCheck, ShieldOff, Users, HeartHandshake, Globe, MapPin, ChevronDown, ChevronUp, Check, AlertTriangle } from "lucide-react";
+import { Building2, Plus, Pencil, Trash2, X, ShieldCheck, ShieldOff, Users, HeartHandshake, Globe, MapPin, ChevronDown, ChevronUp, Check, AlertTriangle, User as UserIcon } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 const REGENCIES = [
   "Badung", "Bangli", "Buleleng", "Denpasar", "Gianyar",
@@ -45,9 +46,24 @@ export default function ProfilePage() {
   const { t } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   const [editing, setEditing] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<PropertyFormData>(emptyForm);
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState(user?.firstName ?? "");
+
+  const nameMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("PATCH", "/api/auth/profile", { firstName: nameValue.trim() || null });
+      return res.json();
+    },
+    onSuccess: (data: any) => {
+      queryClient.setQueryData(["/api/auth/me"], data);
+      setEditingName(false);
+      toast({ title: t.profile.nameSaved });
+    },
+  });
 
   const { data: properties = [], isLoading } = useQuery<Property[]>({
     queryKey: ["/api/properties"],
@@ -339,6 +355,61 @@ export default function ProfilePage() {
           <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-profile-heading">{t.profile.heading}</h1>
           <p className="text-slate-400 text-sm mt-1">{t.profile.subheading}</p>
         </div>
+
+        <Card className="border-[#14B8A6]/10 bg-[#0F1A2E]/80 backdrop-blur-sm" data-testid="card-user-name">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-[#14B8A6]/10">
+                  <UserIcon className="h-5 w-5 text-[#14B8A6]" />
+                </div>
+                <div>
+                  <CardTitle className="text-white font-heading text-lg">{t.profile.yourName}</CardTitle>
+                  <p className="text-slate-400 text-xs mt-0.5">{t.profile.yourNameDesc}</p>
+                </div>
+              </div>
+              {!editingName && (
+                <Button size="sm" variant="ghost" onClick={() => { setNameValue(user?.firstName ?? ""); setEditingName(true); }}
+                  className="text-slate-400 hover:text-[#14B8A6] hover:bg-[#14B8A6]/10"
+                  data-testid="button-edit-name"
+                >
+                  <Pencil className="h-4 w-4 mr-1" /> {t.profile.editProperty}
+                </Button>
+              )}
+            </div>
+          </CardHeader>
+          <CardContent>
+            {editingName ? (
+              <div className="flex items-center gap-3">
+                <Input
+                  value={nameValue}
+                  onChange={e => setNameValue(e.target.value)}
+                  placeholder={t.auth.firstNamePlaceholder}
+                  className="bg-[#162036] border-[#14B8A6]/20 text-white placeholder:text-slate-500 max-w-xs"
+                  data-testid="input-profile-name"
+                  autoFocus
+                  onKeyDown={e => { if (e.key === "Enter") nameMutation.mutate(); }}
+                />
+                <Button size="sm" onClick={() => nameMutation.mutate()} disabled={nameMutation.isPending}
+                  className="bg-[#14B8A6] hover:bg-[#0D9488] text-white"
+                  data-testid="button-save-name"
+                >
+                  <Check className="h-4 w-4" />
+                </Button>
+                <Button size="sm" variant="ghost" onClick={() => setEditingName(false)}
+                  className="text-slate-400 hover:text-white"
+                  data-testid="button-cancel-name"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ) : (
+              <p className="text-slate-200" data-testid="text-user-name">
+                {user?.firstName || <span className="text-slate-500 italic">{t.auth.firstNamePlaceholder}</span>}
+              </p>
+            )}
+          </CardContent>
+        </Card>
 
         {properties.map(prop => (
           <div key={prop.id} className="space-y-4">

@@ -139,9 +139,12 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     setSidebarOpen(false);
   };
 
-  const emailInitials = user?.email
-    ? user.email.split("@")[0].slice(0, 2).toUpperCase()
-    : "??";
+  const displayName = user?.firstName || user?.email?.split("@")[0] || "";
+  const userInitials = user?.firstName
+    ? user.firstName.slice(0, 2).toUpperCase()
+    : user?.email
+      ? user.email.split("@")[0].slice(0, 2).toUpperCase()
+      : "??";
 
   return (
     <div className="relative">
@@ -349,7 +352,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
               color: "#14B8A6", background: "rgba(20,184,166,0.08)", flexShrink: 0,
               cursor: collapsed ? "pointer" : "default",
             }}>
-              {emailInitials}
+              {userInitials}
             </div>
           </NavTooltip>
           {!collapsed && (
@@ -359,7 +362,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                   fontFamily: "Lato", fontSize: "11px", color: "#F1F5F9",
                   overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
                 }}>
-                  {user?.email}
+                  {displayName}
                 </div>
                 <div style={{ fontFamily: "Lato", fontSize: "10px", color: "#64748B" }}>
                   {isPro ? t.upgrade.proLabel : (
