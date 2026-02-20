@@ -129,10 +129,6 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
   ], [t, isPro, vaultDocCount, alertCount, user?.isAdmin]);
 
   const handleNavClick = (item: any) => {
-    if (item.pro && !isPro) {
-      openUpgradeModal();
-      return;
-    }
     const [path, qs] = item.href.split("?");
     if (path === "/app" && location === "/app") {
       window.history.replaceState(null, "", item.href);
@@ -290,7 +286,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                 const isActive = computedActiveNav === item.key;
 
                 if (isLocked) {
-                  return <LockedNavItem key={item.key} icon={item.icon} label={item.label} collapsed={collapsed} />;
+                  return <LockedNavItem key={item.key} icon={item.icon} label={item.label} href={item.href} isActive={isActive} collapsed={collapsed} />;
                 }
 
                 return (
@@ -589,45 +585,50 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
   return btn;
 }
 
-function LockedNavItem({ icon, label, collapsed }: { icon: ReactNode; label: string; collapsed: boolean }) {
-  const [showTooltip, setShowTooltip] = useState(false);
+function LockedNavItem({ icon, label, href, isActive, collapsed }: { icon: ReactNode; label: string; href: string; isActive: boolean; collapsed: boolean }) {
+  const [, navigate] = useLocation();
+  const [hovered, setHovered] = useState(false);
   const { t } = useLanguage();
-  const { openUpgradeModal } = useUpgradeModal();
 
   const inner = (
     <div
       className="relative"
-      onMouseEnter={() => setShowTooltip(true)}
-      onMouseLeave={() => setShowTooltip(false)}
-      onClick={openUpgradeModal}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       data-testid={`nav-locked-${label.toLowerCase().replace(/\s+/g, "-")}`}
     >
-      <div style={{
-        display: "flex",
-        alignItems: "center",
-        justifyContent: collapsed ? "center" : "flex-start",
-        gap: collapsed ? "0" : "10px",
-        padding: collapsed ? "9px 0" : "9px 12px",
-        borderRadius: "7px",
-        opacity: 0.4,
-        cursor: "pointer",
-        filter: "grayscale(0.3)",
-        marginBottom: "2px",
-      }}>
-        <span style={{ color: "#64748B", width: "16px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</span>
+      <button
+        onClick={() => navigate(href)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: collapsed ? "center" : "flex-start",
+          gap: collapsed ? "0" : "10px",
+          padding: collapsed ? "9px 0" : "9px 12px",
+          borderRadius: "7px",
+          cursor: "pointer",
+          marginBottom: "2px",
+          width: "100%",
+          border: "none",
+          background: isActive ? "rgba(20,184,166,0.08)" : hovered ? "rgba(255,255,255,0.03)" : "transparent",
+          transition: "background 0.15s",
+        }}
+        data-testid={`nav-locked-btn-${label.toLowerCase().replace(/\s+/g, "-")}`}
+      >
+        <span style={{ color: isActive ? "#14B8A6" : "#64748B", width: "16px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</span>
         {!collapsed && (
           <>
-            <span style={{ fontFamily: "Montserrat", fontSize: "12px", fontWeight: 600, color: "#64748B", flex: 1 }}>
+            <span style={{ fontFamily: "Montserrat", fontSize: "12px", fontWeight: 600, color: isActive ? "#F1F5F9" : "#94A3B8", flex: 1, textAlign: "left" }}>
               {label}
             </span>
-            <Lock size={12} style={{ color: "#64748B", flexShrink: 0 }} />
+            <Lock size={11} style={{ color: "#64748B", flexShrink: 0 }} />
           </>
         )}
-      </div>
+      </button>
 
       {!collapsed && (
         <AnimatePresence>
-          {showTooltip && (
+          {hovered && !isActive && (
             <motion.div
               initial={{ opacity: 0, x: 8 }}
               animate={{ opacity: 1, x: 0 }}
@@ -639,6 +640,7 @@ function LockedNavItem({ icon, label, collapsed }: { icon: ReactNode; label: str
                 borderRadius: "8px", padding: "10px 14px", width: "180px",
                 boxShadow: "0 8px 24px rgba(0,0,0,0.4)",
               }}
+              data-testid={`nav-locked-tooltip-${label.toLowerCase().replace(/\s+/g, "-")}`}
             >
               <div style={{ fontFamily: "Montserrat", fontSize: "11px", fontWeight: 700, color: "#14B8A6", marginBottom: "4px" }}>
                 {t.upgrade.proFeature}
@@ -662,11 +664,7 @@ function LockedNavItem({ icon, label, collapsed }: { icon: ReactNode; label: str
   );
 
   if (collapsed) {
-    return (
-      <NavTooltip label={`${label} (Pro)`}>
-        {inner}
-      </NavTooltip>
-    );
+    return <NavTooltip label={`${label} (Pro)`}>{inner}</NavTooltip>;
   }
   return inner;
 }
