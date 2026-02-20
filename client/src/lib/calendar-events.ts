@@ -213,6 +213,88 @@ export function expandCustomEvent(ce: CustomEvent, maxYear: number): CalendarEve
   return out;
 }
 
+export interface VaultDocInput {
+  id: string;
+  templateId: string;
+  status: string;
+  expiryDate: string | null;
+}
+
+export interface VaultTemplateInput {
+  id: string;
+  gateNumber: number;
+  translations: Record<string, { name: string; description: string }> | null;
+}
+
+export interface StaffInput {
+  id: string;
+  name: string;
+  kitasExpiry: string | null;
+  isActive: boolean;
+}
+
+export interface PropertyInput {
+  id: string;
+  propertyName: string;
+  landTitleType: string | null;
+  landTitleExpiry: string | null;
+}
+
+export function mapVaultDocs(docs: VaultDocInput[], templates: VaultTemplateInput[], lang: string): CalendarEvent[] {
+  const tmplMap = new Map(templates.map(t => [t.id, t]));
+  const results: CalendarEvent[] = [];
+  for (const doc of docs) {
+    if (!doc.expiryDate) continue;
+    if (doc.status !== "uploaded" && doc.status !== "expiring" && doc.status !== "expired") continue;
+    const tmpl = tmplMap.get(doc.templateId);
+    if (!tmpl) continue;
+    const tr = tmpl.translations as Record<string, { name: string; description: string }> | null;
+    const name = tr?.[lang]?.name || tr?.en?.name || "Document";
+    const desc = tr?.[lang]?.description || tr?.en?.description || "";
+    const d = new Date(doc.expiryDate);
+    const du = daysUntil(d);
+    results.push({
+      id: `vault-${doc.id}`, date: d, type: "docs", gate: tmpl.gateNumber,
+      icon: "□", short: name.slice(0, 16), title: name, period: "Expiry",
+      desc: desc || `Document expires ${d.toLocaleDateString()}`,
+      recurring: false, daysUntil: du,
+    });
+  }
+  return results;
+}
+
+export function mapStaffKitas(staff: StaffInput[]): CalendarEvent[] {
+  const results: CalendarEvent[] = [];
+  for (const s of staff) {
+    if (!s.kitasExpiry || !s.isActive) continue;
+    const d = new Date(s.kitasExpiry);
+    results.push({
+      id: `kitas-${s.id}`, date: d, type: "docs", gate: 5,
+      icon: "🪪", short: `KITAS ${s.name}`, title: `KITAS Expiry: ${s.name}`,
+      period: "Expiry",
+      desc: `KITAS/work permit for ${s.name} expires ${d.toLocaleDateString()}. Begin renewal 60 days early.`,
+      recurring: false, daysUntil: daysUntil(d),
+    });
+  }
+  return results;
+}
+
+export function mapPropertyHgb(properties: PropertyInput[]): CalendarEvent[] {
+  const results: CalendarEvent[] = [];
+  for (const p of properties) {
+    if (p.landTitleType !== "hgb" || !p.landTitleExpiry) continue;
+    const d = new Date(p.landTitleExpiry);
+    results.push({
+      id: `hgb-${p.id}`, date: d, type: "docs", gate: 0,
+      icon: "⬡", short: "HGB Expiry", title: `HGB Land Title Expiry: ${p.propertyName}`,
+      period: "Expiry",
+      desc: `HGB land title for ${p.propertyName} expires ${d.toLocaleDateString()}. Begin renewal 2 years early.`,
+      recurring: false, daysUntil: daysUntil(d),
+    });
+  }
+  return results;
+}
+
 export const FILTER_TYPES = ["all", "tax", "bpjs", "banjar", "safety", "docs", "ops", "ota", "custom"] as const;
 
 export const FILTER_LABELS: Record<string, string> = {

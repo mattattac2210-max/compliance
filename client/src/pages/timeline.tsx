@@ -3,60 +3,15 @@ import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/context";
 import { useAuth } from "@/hooks/useAuth";
 import type { Property, VaultDocumentTemplate, VaultDocument, StaffMember } from "@shared/schema";
-import { Calendar, Clock, AlertTriangle, RotateCw } from "lucide-react";
+import { Calendar, AlertTriangle, RotateCw } from "lucide-react";
+import {
+  generateEvents, mapVaultDocs, mapStaffKitas, mapPropertyHgb,
+  typeColor, GATE_NAMES, type CalendarEvent,
+} from "@/lib/calendar-events";
 
-const GATE_COLORS = ["#94A3B8", "#14B8A6", "#60A5FA", "#A78BFA", "#F59E0B", "#22C55E", "#FCA5A5", "#14B8A6"];
 const GATE_ABBRS = ["PT", "ZONE", "NIB", "SLF", "TAX", "STAFF", "SAFE", "OTA"];
 
 type FilterType = "all" | "overdue" | "thisMonth" | "next90";
-
-interface TimelineItem {
-  id: string;
-  label: string;
-  date: Date;
-  gateNumber: number;
-  color: string;
-  isOverdue: boolean;
-  daysUntil: number;
-  source: "vault" | "fixed" | "staff" | "property";
-  propertyName?: string;
-  isRecurring?: boolean;
-}
-
-const FIXED_DEADLINES = [
-  { id: "tax-spt-tahunan", labelKey: "fixedSptTahunan" as const, month: 3, day: 30, recurring: "yearly" as const, gateNumber: 4 },
-  { id: "tax-pph-monthly", labelKey: "fixedPphMonthly" as const, dayOfMonth: 20, recurring: "monthly" as const, gateNumber: 4 },
-  { id: "tax-pb1-monthly", labelKey: "fixedPb1Monthly" as const, dayOfMonth: 20, recurring: "monthly" as const, gateNumber: 4 },
-  { id: "bpjs-monthly", labelKey: "fixedBpjsMonthly" as const, dayOfMonth: 10, recurring: "monthly" as const, gateNumber: 5 },
-  { id: "ota-deadline", labelKey: "fixedOtaDeadline" as const, fixedDate: "2026-03-31", gateNumber: 7 },
-];
-
-function getNextOccurrence(fd: typeof FIXED_DEADLINES[number], today: Date): Date[] {
-  const results: Date[] = [];
-  if ("fixedDate" in fd && fd.fixedDate) {
-    results.push(new Date(fd.fixedDate));
-    return results;
-  }
-  if (fd.recurring === "monthly" && "dayOfMonth" in fd) {
-    for (let i = 0; i < 3; i++) {
-      const d = new Date(today.getFullYear(), today.getMonth() + i, fd.dayOfMonth!);
-      results.push(d);
-    }
-    return results;
-  }
-  if (fd.recurring === "yearly" && "month" in fd) {
-    const thisYear = new Date(today.getFullYear(), fd.month! - 1, fd.day!);
-    const nextYear = new Date(today.getFullYear() + 1, fd.month! - 1, fd.day!);
-    results.push(thisYear >= today ? thisYear : nextYear);
-    return results;
-  }
-  return results;
-}
-
-function getTemplateName(tmpl: VaultDocumentTemplate, lang: string): string {
-  const tr = tmpl.translations as Record<string, { name: string; description: string }>;
-  return tr?.[lang]?.name || tr?.en?.name || "";
-}
 
 export default function TimelinePage() {
   const { t, language } = useLanguage();
@@ -72,101 +27,42 @@ export default function TimelinePage() {
     queryKey: ["/api/vault/templates"],
   });
 
-  const allVaultDocs = useQuery<VaultDocument[]>({
-    queryKey: ["/api/vault", properties[0]?.id],
-    queryFn: () => properties.length > 0 ? fetch(`/api/vault?propertyId=${properties[0].id}`, { credentials: "include" }).then(r => r.json()) : Promise.resolve([]),
-    enabled: properties.length > 0,
+  const selectedPropertyId = properties[0]?.id;
+
+  const { data: vaultDocs = [] } = useQuery<VaultDocument[]>({
+    queryKey: ["/api/vault", selectedPropertyId],
+    queryFn: () => fetch(`/api/vault?propertyId=${selectedPropertyId}`, { credentials: "include" }).then(r => r.json()),
+    enabled: !!selectedPropertyId,
   });
 
   const { data: staffMembers = [] } = useQuery<StaffMember[]>({
-    queryKey: ["/api/staff", properties[0]?.id],
-    queryFn: () => properties.length > 0 ? fetch(`/api/staff?propertyId=${properties[0].id}`, { credentials: "include" }).then(r => r.json()) : Promise.resolve([]),
-    enabled: properties.length > 0,
+    queryKey: ["/api/staff", selectedPropertyId],
+    queryFn: () => fetch(`/api/staff?propertyId=${selectedPropertyId}`, { credentials: "include" }).then(r => r.json()),
+    enabled: !!selectedPropertyId,
   });
 
   const items = useMemo(() => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const result: TimelineItem[] = [];
-    const tmplMap = new Map(templates.map(t => [t.id, t]));
+    const yr = today.getFullYear();
 
-    const docs = allVaultDocs.data || [];
-    for (const doc of docs) {
-      if (!doc.expiryDate) continue;
-      if (doc.status !== "uploaded" && doc.status !== "expiring" && doc.status !== "expired") continue;
-      const tmpl = tmplMap.get(doc.templateId);
-      if (!tmpl) continue;
-      const expDate = new Date(doc.expiryDate);
-      const diff = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-      result.push({
-        id: `vault-${doc.id}`,
-        label: getTemplateName(tmpl, language),
-        date: expDate,
-        gateNumber: tmpl.gateNumber,
-        color: GATE_COLORS[tmpl.gateNumber],
-        isOverdue: diff < 0,
-        daysUntil: diff,
-        source: "vault",
-        propertyName: properties[0]?.propertyName,
-      });
+    const thisYearEvents = generateEvents(yr);
+    const nextYearEvents = generateEvents(yr + 1);
+    const seen = new Set(thisYearEvents.map(e => e.id));
+    const merged = [...thisYearEvents];
+    for (const e of nextYearEvents) {
+      if (!seen.has(e.id)) merged.push(e);
     }
 
-    for (const fd of FIXED_DEADLINES) {
-      const dates = getNextOccurrence(fd, today);
-      for (const d of dates) {
-        const diff = Math.ceil((d.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        result.push({
-          id: `fixed-${fd.id}-${d.toISOString()}`,
-          label: t.timeline[fd.labelKey],
-          date: d,
-          gateNumber: fd.gateNumber,
-          color: GATE_COLORS[fd.gateNumber],
-          isOverdue: diff < 0,
-          daysUntil: diff,
-          source: "fixed",
-        });
-      }
-    }
+    const vaultEvents = mapVaultDocs(vaultDocs, templates, language);
+    const kitasEvents = mapStaffKitas(staffMembers);
+    const hgbEvents = mapPropertyHgb(properties);
 
-    for (const staff of staffMembers) {
-      if (staff.kitasExpiry && staff.isActive) {
-        const expDate = new Date(staff.kitasExpiry);
-        const diff = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        result.push({
-          id: `kitas-${staff.id}`,
-          label: `${t.timeline.kitasExpiry}: ${staff.name}`,
-          date: expDate,
-          gateNumber: 5,
-          color: GATE_COLORS[5],
-          isOverdue: diff < 0,
-          daysUntil: diff,
-          source: "staff" as const,
-          propertyName: properties[0]?.propertyName,
-        });
-      }
-    }
+    const all = [...merged, ...vaultEvents, ...kitasEvents, ...hgbEvents];
 
-    for (const prop of properties) {
-      if (prop.landTitleType === "hgb" && prop.landTitleExpiry) {
-        const expDate = new Date(prop.landTitleExpiry);
-        const diff = Math.ceil((expDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-        result.push({
-          id: `hgb-${prop.id}`,
-          label: t.timeline.hgbExpiry,
-          date: expDate,
-          gateNumber: 0,
-          color: "#F59E0B",
-          isOverdue: diff < 0,
-          daysUntil: diff,
-          source: "property" as const,
-          propertyName: prop.propertyName,
-        });
-      }
-    }
-
-    result.sort((a, b) => a.date.getTime() - b.date.getTime());
-    return result;
-  }, [templates, allVaultDocs.data, properties, language, t, staffMembers]);
+    all.sort((a, b) => a.date.getTime() - b.date.getTime());
+    return all;
+  }, [vaultDocs, templates, properties, staffMembers, language]);
 
   const filtered = useMemo(() => {
     const today = new Date();
@@ -175,18 +71,18 @@ export default function TimelinePage() {
     const ninety = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
 
     return items.filter(item => {
-      if (filter === "overdue") return item.isOverdue;
+      if (filter === "overdue") return item.daysUntil < 0;
       if (filter === "thisMonth") return item.date <= endOfMonth;
       if (filter === "next90") return item.date <= ninety;
       return true;
     });
   }, [items, filter]);
 
-  const overdueItems = filtered.filter(i => i.isOverdue);
-  const upcomingItems = filtered.filter(i => !i.isOverdue);
+  const overdueItems = filtered.filter(i => i.daysUntil < 0);
+  const upcomingItems = filtered.filter(i => i.daysUntil >= 0);
 
   const monthGroups = useMemo(() => {
-    const groups = new Map<string, TimelineItem[]>();
+    const groups = new Map<string, CalendarEvent[]>();
     for (const item of upcomingItems) {
       const key = `${item.date.getFullYear()}-${String(item.date.getMonth() + 1).padStart(2, "0")}`;
       const arr = groups.get(key) || [];
@@ -196,7 +92,7 @@ export default function TimelinePage() {
     return Array.from(groups.entries()).sort((a, b) => a[0].localeCompare(b[0]));
   }, [upcomingItems]);
 
-  const filters: { key: FilterType; label: string }[] = [
+  const filterOptions: { key: FilterType; label: string }[] = [
     { key: "all", label: t.timeline.filterAll },
     { key: "overdue", label: t.timeline.filterOverdue },
     { key: "thisMonth", label: t.timeline.filterThisMonth },
@@ -204,6 +100,9 @@ export default function TimelinePage() {
   ];
 
   if (!user) return null;
+
+  const getColor = (ev: CalendarEvent) => typeColor(ev.type, ev.gate);
+  const getGateLabel = (ev: CalendarEvent) => GATE_ABBRS[ev.gate] || "—";
 
   return (
     <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--app-bg)" }}>
@@ -214,7 +113,7 @@ export default function TimelinePage() {
         </div>
 
         <div className="flex gap-2 flex-wrap">
-          {filters.map(f => (
+          {filterOptions.map(f => (
             <button key={f.key} onClick={() => setFilter(f.key)}
               className={`px-3 py-1.5 rounded-full text-xs font-heading font-bold tracking-wider transition-colors ${filter === f.key ? "bg-[#14B8A6] text-white" : "bg-[#14B8A6]/10 text-[#14B8A6] hover:bg-[#14B8A6]/20"}`}
               data-testid={`button-filter-${f.key}`}
@@ -238,16 +137,19 @@ export default function TimelinePage() {
                   <AlertTriangle className="h-4 w-4" /> {t.timeline.overdueLabel}
                 </h2>
                 <div className="space-y-2 border-l-2 border-[#EF4444]/30 pl-4 ml-2">
-                  {overdueItems.map(item => (
-                    <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg bg-[#EF4444]/5 border border-[#EF4444]/15" data-testid={`item-timeline-${item.id}`}>
-                      <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
-                      {item.source === "fixed" && <RotateCw className="h-3 w-3 text-slate-500 shrink-0" data-testid={`icon-recurring-${item.id}`} />}
-                      <span className="text-sm text-slate-200 flex-1">{item.label}</span>
-                      <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${item.color}15`, color: item.color }}>{GATE_ABBRS[item.gateNumber]}</span>
-                      <span className="text-xs text-slate-500">{item.date.toLocaleDateString()}</span>
-                      <span className="text-[10px] font-heading font-bold text-[#EF4444] bg-[#EF4444]/10 px-2 py-0.5 rounded-full">{Math.abs(item.daysUntil)} {t.timeline.daysOverdue}</span>
-                    </div>
-                  ))}
+                  {overdueItems.map(item => {
+                    const color = getColor(item);
+                    return (
+                      <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg bg-[#EF4444]/5 border border-[#EF4444]/15" data-testid={`item-timeline-${item.id}`}>
+                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+                        {item.recurring && <RotateCw className="h-3 w-3 text-slate-500 shrink-0" data-testid={`icon-recurring-${item.id}`} />}
+                        <span className="text-sm text-slate-200 flex-1">{item.title}</span>
+                        <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${color}15`, color }}>{getGateLabel(item)}</span>
+                        <span className="text-xs text-slate-500">{item.date.toLocaleDateString()}</span>
+                        <span className="text-[10px] font-heading font-bold text-[#EF4444] bg-[#EF4444]/10 px-2 py-0.5 rounded-full">{Math.abs(item.daysUntil)} {t.timeline.daysOverdue}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -261,18 +163,21 @@ export default function TimelinePage() {
                     {monthLabel}
                   </h2>
                   <div className="space-y-2 border-l-2 border-[#14B8A6]/15 pl-4 ml-2">
-                    {groupItems.map(item => (
-                      <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/[0.02] transition-colors" data-testid={`item-timeline-${item.id}`}>
-                        <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: item.color }} />
-                        {item.source === "fixed" && <RotateCw className="h-3 w-3 text-slate-500 shrink-0" data-testid={`icon-recurring-${item.id}`} />}
-                        <span className="text-sm text-slate-200 flex-1">{item.label}</span>
-                        <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${item.color}15`, color: item.color }}>{GATE_ABBRS[item.gateNumber]}</span>
-                        <span className="text-xs text-slate-500">{item.date.toLocaleDateString()}</span>
-                        {item.daysUntil >= 0 && (
-                          <span className="text-[10px] font-heading text-slate-500">{item.daysUntil} {t.timeline.daysUntil}</span>
-                        )}
-                      </div>
-                    ))}
+                    {groupItems.map(item => {
+                      const color = getColor(item);
+                      return (
+                        <div key={item.id} className="flex items-center gap-3 p-3 rounded-lg hover:bg-white/[0.02] transition-colors" data-testid={`item-timeline-${item.id}`}>
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ background: color }} />
+                          {item.recurring && <RotateCw className="h-3 w-3 text-slate-500 shrink-0" data-testid={`icon-recurring-${item.id}`} />}
+                          <span className="text-sm text-slate-200 flex-1">{item.title}</span>
+                          <span className="text-[9px] font-heading font-bold px-2 py-0.5 rounded-full" style={{ background: `${color}15`, color }}>{getGateLabel(item)}</span>
+                          <span className="text-xs text-slate-500">{item.date.toLocaleDateString()}</span>
+                          {item.daysUntil >= 0 && (
+                            <span className="text-[10px] font-heading text-slate-500">{item.daysUntil} {t.timeline.daysUntil}</span>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );

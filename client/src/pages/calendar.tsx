@@ -1,10 +1,15 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalIcon } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { useLanguage } from "@/i18n/context";
 import {
   generateEvents, expandCustomEvent, typeColor, GATE_NAMES,
   FILTER_TYPES, FILTER_LABELS, LEGEND_ITEMS,
+  mapVaultDocs, mapStaffKitas, mapPropertyHgb,
   type CalendarEvent, type CustomEvent,
 } from "@/lib/calendar-events";
+import type { Property, VaultDocumentTemplate, VaultDocument, StaffMember } from "@shared/schema";
 
 const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -26,6 +31,8 @@ function saveFiled(s: Set<string>) {
 export default function ComplianceCalendar() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
+  const { user } = useAuth();
+  const { language } = useLanguage();
 
   const [curYear, setCurYear] = useState(today.getFullYear());
   const [curMonth, setCurMonth] = useState(today.getMonth());
@@ -44,11 +51,37 @@ export default function ComplianceCalendar() {
   const [formDesc, setFormDesc] = useState("");
   const [formColor, setFormColor] = useState("#14B8A6");
 
+  const { data: properties = [] } = useQuery<Property[]>({
+    queryKey: ["/api/properties"],
+    enabled: !!user,
+  });
+
+  const { data: templates = [] } = useQuery<VaultDocumentTemplate[]>({
+    queryKey: ["/api/vault/templates"],
+  });
+
+  const selectedPropertyId = properties[0]?.id;
+
+  const { data: vaultDocs = [] } = useQuery<VaultDocument[]>({
+    queryKey: ["/api/vault", selectedPropertyId],
+    queryFn: () => fetch(`/api/vault?propertyId=${selectedPropertyId}`, { credentials: "include" }).then(r => r.json()),
+    enabled: !!selectedPropertyId,
+  });
+
+  const { data: staffMembers = [] } = useQuery<StaffMember[]>({
+    queryKey: ["/api/staff", selectedPropertyId],
+    queryFn: () => fetch(`/api/staff?propertyId=${selectedPropertyId}`, { credentials: "include" }).then(r => r.json()),
+    enabled: !!selectedPropertyId,
+  });
+
   const baseEvents = useMemo(() => generateEvents(curYear), [curYear]);
   const allEvents = useMemo(() => {
     const expanded = customEvs.flatMap(ce => expandCustomEvent(ce, curYear));
-    return [...baseEvents, ...expanded];
-  }, [baseEvents, customEvs, curYear]);
+    const vaultEvents = mapVaultDocs(vaultDocs, templates, language);
+    const kitasEvents = mapStaffKitas(staffMembers);
+    const hgbEvents = mapPropertyHgb(properties);
+    return [...baseEvents, ...expanded, ...vaultEvents, ...kitasEvents, ...hgbEvents];
+  }, [baseEvents, customEvs, curYear, vaultDocs, templates, staffMembers, properties, language]);
 
   const getEventsForDay = useCallback((y: number, m: number, d: number) => {
     let evts = allEvents.filter(ev => ev.date.getFullYear() === y && ev.date.getMonth() === m && ev.date.getDate() === d);
