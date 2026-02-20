@@ -151,325 +151,327 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
 
   return (
     <div className="relative">
-    {user?.isAdmin && <SupportModeBanner />}
-    <div
-      style={{ display: "grid", gridTemplateColumns: `${sidebarW}px 1fr`, height: "100vh", overflow: "hidden", transition: "grid-template-columns 0.2s ease" }}
-      className="max-md:!grid-cols-[0px_1fr]"
-    >
-      {sidebarOpen && (
-        <div
-          className="md:hidden fixed inset-0 z-[998] bg-black/50"
-          onClick={() => setSidebarOpen(false)}
-          data-testid="sidebar-overlay"
-        />
-      )}
-
-      <aside
-        className={`
-          fixed md:relative z-[999] md:z-auto
-          transition-all duration-200
-          ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-        `}
-        style={{
-          width: sidebarOpen ? `${EXPANDED_W}px` : `${sidebarW}px`,
-          height: "100vh",
-          background: "var(--sidebar)",
-          borderRight: "1px solid var(--b)",
-          display: "flex",
-          flexDirection: "column",
-          overflow: "hidden",
-        }}
-        data-testid="app-sidebar"
+      {user?.isAdmin && <SupportModeBanner />}
+      <div
+        style={{ display: "grid", gridTemplateColumns: `${sidebarW}px 1fr`, height: "100vh", overflow: "hidden", transition: "grid-template-columns 0.2s ease" }}
+        className="max-md:!grid-cols-[0px_1fr]"
       >
-        {/* Logo */}
-        <div style={{
-          padding: collapsed ? "20px 0 14px" : "20px 18px 14px",
-          borderBottom: "1px solid var(--b)",
-          textAlign: collapsed ? "center" : "left",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: collapsed ? "0" : "10px", justifyContent: collapsed ? "center" : "flex-start" }}>
-            <div style={{
-              width: collapsed ? 28 : 34, height: collapsed ? 28 : 34,
-              background: "var(--accent)", borderRadius: 8,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              flexShrink: 0,
-            }}>
-              <Layers size={collapsed ? 14 : 18} style={{ color: "#fff" }} />
+        {sidebarOpen && (
+          <div
+            className="md:hidden fixed inset-0 z-[998] bg-black/50"
+            onClick={() => setSidebarOpen(false)}
+            data-testid="sidebar-overlay"
+          />
+        )}
+
+        <aside
+          className={`
+            fixed md:relative z-[999] md:z-auto
+            transition-all duration-200
+            ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+          `}
+          style={{
+            width: sidebarOpen ? `${EXPANDED_W}px` : `${sidebarW}px`,
+            height: "100vh",
+            background: "var(--sidebar)",
+            borderRight: "1px solid var(--b)",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+          data-testid="app-sidebar"
+        >
+          {/* Logo */}
+          <div style={{
+            padding: collapsed ? "20px 0 14px" : "20px 18px 14px",
+            borderBottom: "1px solid var(--b)",
+            textAlign: collapsed ? "center" : "left",
+          }}>
+            <div style={{ display: "flex", alignItems: "center", gap: collapsed ? "0" : "10px", justifyContent: collapsed ? "center" : "flex-start" }}>
+              <div style={{
+                width: collapsed ? 28 : 34, height: collapsed ? 28 : 34,
+                background: "var(--accent)", borderRadius: 8,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                flexShrink: 0,
+              }}>
+                <Layers size={collapsed ? 14 : 18} style={{ color: "#fff" }} />
+              </div>
+              {!collapsed && (
+                <div style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "22px", color: "var(--accent)", letterSpacing: "2px" }}>
+                  DSCVR
+                </div>
+              )}
             </div>
             {!collapsed && (
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: "22px", color: "var(--accent)", letterSpacing: "2px" }}>
-                DSCVR
+              <div style={{ fontFamily: "var(--font-body)", fontSize: "9px", letterSpacing: "3px", color: "var(--t3)", textTransform: "uppercase", marginTop: "6px" }}>
+                {t.shell.complianceNavigator}
               </div>
             )}
           </div>
+
+          {/* Property selector - hidden when collapsed */}
           {!collapsed && (
-            <div style={{ fontFamily: "var(--font-body)", fontSize: "9px", letterSpacing: "3px", color: "var(--t3)", textTransform: "uppercase", marginTop: "6px" }}>
-              {t.shell.complianceNavigator}
+            <div style={{ padding: "12px 14px 8px" }}>
+              <div style={{ fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700, letterSpacing: "2px", color: "var(--accent)", textTransform: "uppercase", marginBottom: "6px" }}>
+                {t.shell.activeProperty}
+              </div>
+              {activeProperty ? (
+                <button
+                  onClick={() => { navigate("/profile"); setSidebarOpen(false); }}
+                  data-testid="sidebar-property-selector"
+                  style={{
+                    width: "100%",
+                    background: "var(--sidebar2)",
+                    border: "1px solid var(--accent-tint2)",
+                    borderRadius: "7px",
+                    padding: "8px 10px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    cursor: "pointer",
+                    transition: "border-color 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--accent-tint2)")}
+                >
+                  <span
+                    style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 700, color: "var(--txt)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                    className="text-[#ffffff]">
+                    {activeProperty.propertyName}{activeProperty.regency ? `, ${activeProperty.regency}` : ""}
+                  </span>
+                  <span style={{ color: "var(--t3)", fontSize: "10px", flexShrink: 0, marginLeft: "4px" }}>&#9662;</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => { navigate("/profile"); setSidebarOpen(false); }}
+                  data-testid="sidebar-add-property"
+                  style={{
+                    background: "transparent", border: "none", cursor: "pointer",
+                    fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 600,
+                    color: "var(--accent)", padding: "4px 0",
+                  }}
+                >
+                  {t.shell.addProperty}
+                </button>
+              )}
             </div>
           )}
-        </div>
 
-        {/* Property selector - hidden when collapsed */}
-        {!collapsed && (
-          <div style={{ padding: "12px 14px 8px" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700, letterSpacing: "2px", color: "var(--accent)", textTransform: "uppercase", marginBottom: "6px" }}>
-              {t.shell.activeProperty}
-            </div>
-            {activeProperty ? (
-              <button
-                onClick={() => { navigate("/profile"); setSidebarOpen(false); }}
-                data-testid="sidebar-property-selector"
-                style={{
-                  width: "100%",
-                  background: "var(--sidebar2)",
-                  border: "1px solid var(--accent-tint2)",
-                  borderRadius: "7px",
-                  padding: "8px 10px",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  cursor: "pointer",
-                  transition: "border-color 0.2s",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.borderColor = "var(--accent)")}
-                onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--accent-tint2)")}
-              >
-                <span style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 700, color: "var(--txt)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {activeProperty.propertyName}{activeProperty.regency ? `, ${activeProperty.regency}` : ""}
-                </span>
-                <span style={{ color: "var(--t3)", fontSize: "10px", flexShrink: 0, marginLeft: "4px" }}>&#9662;</span>
-              </button>
-            ) : (
-              <button
-                onClick={() => { navigate("/profile"); setSidebarOpen(false); }}
-                data-testid="sidebar-add-property"
-                style={{
-                  background: "transparent", border: "none", cursor: "pointer",
-                  fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 600,
-                  color: "var(--accent)", padding: "4px 0",
-                }}
-              >
-                {t.shell.addProperty}
-              </button>
-            )}
-          </div>
-        )}
+          {/* Navigation */}
+          <nav style={{ flex: 1, overflowY: "auto", padding: collapsed ? "8px 6px" : "8px 10px" }} data-testid="sidebar-nav">
+            {navSections.map((section) => (
+              <div key={section.label} style={{ marginBottom: collapsed ? "12px" : "16px" }}>
+                {!collapsed && (
+                  <div style={{
+                    fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700,
+                    letterSpacing: "2.5px", color: "var(--t3)", textTransform: "uppercase",
+                    padding: "0 8px", marginBottom: "6px",
+                  }}>
+                    {section.label}
+                  </div>
+                )}
+                {collapsed && (
+                  <div style={{ height: "1px", background: "var(--b2)", margin: "0 8px 8px" }} />
+                )}
+                {section.items.map((item) => {
+                  const isLocked = item.pro && !isPro;
+                  const isActive = computedActiveNav === item.key;
 
-        {/* Navigation */}
-        <nav style={{ flex: 1, overflowY: "auto", padding: collapsed ? "8px 6px" : "8px 10px" }} data-testid="sidebar-nav">
-          {navSections.map((section) => (
-            <div key={section.label} style={{ marginBottom: collapsed ? "12px" : "16px" }}>
-              {!collapsed && (
+                  if (isLocked) {
+                    return <LockedNavItem key={item.key} icon={item.icon} label={item.label} href={item.href} isActive={isActive} collapsed={collapsed} />;
+                  }
+
+                  return (
+                    <NavItem
+                      key={item.key}
+                      item={item}
+                      isActive={isActive}
+                      collapsed={collapsed}
+                      onClick={() => handleNavClick(item)}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+
+            {/* INTELLIGENCE section with vault completion */}
+            {isPro && !collapsed && (
+              <div style={{ marginBottom: "16px" }}>
                 <div style={{
                   fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700,
                   letterSpacing: "2.5px", color: "var(--t3)", textTransform: "uppercase",
                   padding: "0 8px", marginBottom: "6px",
                 }}>
-                  {section.label}
+                  {t.shell.sectionIntelligence}
                 </div>
-              )}
-              {collapsed && (
-                <div style={{ height: "1px", background: "var(--b2)", margin: "0 8px 8px" }} />
-              )}
-              {section.items.map((item) => {
-                const isLocked = item.pro && !isPro;
-                const isActive = computedActiveNav === item.key;
-
-                if (isLocked) {
-                  return <LockedNavItem key={item.key} icon={item.icon} label={item.label} href={item.href} isActive={isActive} collapsed={collapsed} />;
-                }
-
-                return (
-                  <NavItem
-                    key={item.key}
-                    item={item}
-                    isActive={isActive}
-                    collapsed={collapsed}
-                    onClick={() => handleNavClick(item)}
-                  />
-                );
-              })}
-            </div>
-          ))}
-
-          {/* INTELLIGENCE section with vault completion */}
-          {isPro && !collapsed && (
-            <div style={{ marginBottom: "16px" }}>
-              <div style={{
-                fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700,
-                letterSpacing: "2.5px", color: "var(--t3)", textTransform: "uppercase",
-                padding: "0 8px", marginBottom: "6px",
-              }}>
-                {t.shell.sectionIntelligence}
-              </div>
-              <div style={{
-                margin: "0 4px",
-                background: "var(--sidebar2)",
-                border: "1px solid var(--b)",
-                borderRadius: "7px",
-                padding: "12px 12px",
-              }} data-testid="sidebar-vault-completion">
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-                  <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", fontWeight: 600, color: "var(--t2)" }}>{t.shell.vaultCompletion}</span>
-                  <span style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 800, color: "var(--accent)" }}>{completionPct}%</span>
-                </div>
-                <div style={{ height: "4px", background: "var(--b)", borderRadius: "2px", overflow: "hidden", marginBottom: "6px" }}>
-                  <div style={{
-                    height: "100%",
-                    width: `${completionPct}%`,
-                    background: "var(--accent)",
-                    borderRadius: "2px",
-                    transition: "width 0.5s ease",
-                  }} />
-                </div>
-                <div style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--t3)" }}>
-                  {vaultSummary ? `${vaultSummary.uploaded ?? 0} of ${vaultSummary.total ?? 0} documents uploaded` : ""}
-                </div>
-              </div>
-            </div>
-          )}
-          {isPro && collapsed && (
-            <div style={{ height: "1px", background: "var(--b2)", margin: "0 8px 8px" }} />
-          )}
-        </nav>
-
-        {/* User footer */}
-        <div style={{
-          padding: collapsed ? "12px 0" : "12px 14px",
-          borderTop: "1px solid var(--b)",
-          display: "flex",
-          alignItems: collapsed ? "center" : "center",
-          justifyContent: collapsed ? "center" : "flex-start",
-          gap: collapsed ? "0" : "10px",
-          flexDirection: collapsed ? "column" : "row",
-        }} data-testid="sidebar-user-footer">
-          <NavTooltip label={collapsed ? (user?.email ?? "") : ""}>
-            <div style={{
-              width: "32px", height: "32px", borderRadius: "50%",
-              border: "1.5px solid var(--accent)",
-              display: "flex", alignItems: "center", justifyContent: "center",
-              fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700,
-              color: "var(--accent)", background: "var(--accent-tint)", flexShrink: 0,
-              cursor: collapsed ? "pointer" : "default",
-            }}>
-              {userInitials}
-            </div>
-          </NavTooltip>
-          {!collapsed && (
-            <>
-              <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{
-                  fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--txt)",
-                  overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
-                }}>
-                  {user?.email || displayName}
-                </div>
-                <div style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700 }}>
-                  {isPro ? (
-                    <span style={{ color: "var(--accent)" }}>{t.upgrade.proLabel}</span>
-                  ) : (
-                    <button
-                      onClick={openUpgradeModal}
-                      style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--accent)", fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: 0 }}
-                      data-testid="sidebar-upgrade-link"
-                    >
-                      {t.upgrade.freeLabel} &middot; {t.upgrade.tooltipCta}
-                    </button>
-                  )}
+                  margin: "0 4px",
+                  background: "var(--sidebar2)",
+                  border: "1px solid var(--b)",
+                  borderRadius: "7px",
+                  padding: "12px 12px",
+                }} data-testid="sidebar-vault-completion">
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+                    <span style={{ fontFamily: "var(--font-body)", fontSize: "11px", fontWeight: 600, color: "var(--t2)" }}>{t.shell.vaultCompletion}</span>
+                    <span style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 800, color: "var(--accent)" }}>{completionPct}%</span>
+                  </div>
+                  <div style={{ height: "4px", background: "var(--b)", borderRadius: "2px", overflow: "hidden", marginBottom: "6px" }}>
+                    <div style={{
+                      height: "100%",
+                      width: `${completionPct}%`,
+                      background: "var(--accent)",
+                      borderRadius: "2px",
+                      transition: "width 0.5s ease",
+                    }} />
+                  </div>
+                  <div style={{ fontFamily: "var(--font-body)", fontSize: "10px", color: "var(--t3)" }}>
+                    {vaultSummary ? `${vaultSummary.uploaded ?? 0} of ${vaultSummary.total ?? 0} documents uploaded` : ""}
+                  </div>
                 </div>
               </div>
-              <button
-                onClick={() => logout()}
-                title={t.shell.signOut}
-                data-testid="sidebar-signout"
-                style={{
-                  background: "transparent", border: "none", cursor: "pointer",
-                  color: "var(--t3)", padding: "4px",
-                  transition: "color 0.2s",
-                  flexShrink: 0,
-                  display: "flex", alignItems: "center",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
-                onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t3)")}
-              >
-                <LogOut size={16} />
-              </button>
-            </>
-          )}
-        </div>
+            )}
+            {isPro && collapsed && (
+              <div style={{ height: "1px", background: "var(--b2)", margin: "0 8px 8px" }} />
+            )}
+          </nav>
 
-        {/* Collapse toggle */}
-        <button
-          className="hidden md:flex"
-          onClick={() => setCollapsed(!collapsed)}
-          data-testid="sidebar-collapse-toggle"
-          style={{
-            padding: "10px 0",
-            background: "transparent",
-            border: "none",
+          {/* User footer */}
+          <div style={{
+            padding: collapsed ? "12px 0" : "12px 14px",
             borderTop: "1px solid var(--b)",
-            cursor: "pointer",
-            color: "var(--t3)",
             display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "color 0.2s",
-            width: "100%",
-          }}
-          onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
-          onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t3)")}
-          title={collapsed ? t.shell.expandSidebar : t.shell.collapseSidebar}
-        >
-          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-        </button>
-      </aside>
-
-      <main style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
-        <div
-          style={{
-            height: "56px",
-            background: "var(--tp-bg)",
-            backdropFilter: "blur(12px)",
-            borderBottom: "1px solid var(--tp-b)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            padding: "0 24px",
-            flexShrink: 0,
-            position: "relative",
-            zIndex: 100,
-            overflow: "visible",
-          }}
-          data-testid="topbar"
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <button
-              className="md:hidden"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              data-testid="sidebar-toggle"
-              style={{ background: "transparent", border: "none", color: "var(--t2)", cursor: "pointer", padding: "4px", marginRight: "8px", display: "flex", alignItems: "center" }}
-            >
-              <Menu size={20} />
-            </button>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, color: "var(--accent)", letterSpacing: "1px" }}>
-              DSCVR
-            </span>
-            <span style={{ color: "var(--charcoal)", fontSize: "12px" }}>/</span>
-            <span style={{ fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 600, color: "var(--t2)" }}>
-              {t.shell[`pageTitle${pageTitle.charAt(0).toUpperCase()}${pageTitle.slice(1)}` as keyof typeof t.shell] || pageTitle}
-            </span>
+            alignItems: collapsed ? "center" : "center",
+            justifyContent: collapsed ? "center" : "flex-start",
+            gap: collapsed ? "0" : "10px",
+            flexDirection: collapsed ? "column" : "row",
+          }} data-testid="sidebar-user-footer">
+            <NavTooltip label={collapsed ? (user?.email ?? "") : ""}>
+              <div style={{
+                width: "32px", height: "32px", borderRadius: "50%",
+                border: "1.5px solid var(--accent)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700,
+                color: "var(--accent)", background: "var(--accent-tint)", flexShrink: 0,
+                cursor: collapsed ? "pointer" : "default",
+              }}>
+                {userInitials}
+              </div>
+            </NavTooltip>
+            {!collapsed && (
+              <>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{
+                    fontFamily: "var(--font-body)", fontSize: "11px", color: "var(--txt)",
+                    overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                  }}>
+                    {user?.email || displayName}
+                  </div>
+                  <div style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700 }}>
+                    {isPro ? (
+                      <span style={{ color: "var(--accent)" }}>{t.upgrade.proLabel}</span>
+                    ) : (
+                      <button
+                        onClick={openUpgradeModal}
+                        style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--accent)", fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: 0 }}
+                        data-testid="sidebar-upgrade-link"
+                      >
+                        {t.upgrade.freeLabel} &middot; {t.upgrade.tooltipCta}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <button
+                  onClick={() => logout()}
+                  title={t.shell.signOut}
+                  data-testid="sidebar-signout"
+                  style={{
+                    background: "transparent", border: "none", cursor: "pointer",
+                    color: "var(--t3)", padding: "4px",
+                    transition: "color 0.2s",
+                    flexShrink: 0,
+                    display: "flex", alignItems: "center",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t3)")}
+                >
+                  <LogOut size={16} />
+                </button>
+              </>
+            )}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
-            <LanguageSelector />
-            <ThemeToggle />
-          </div>
-        </div>
 
-        <div style={{ flex: 1, overflowY: "auto" }} data-testid="app-content">
-          {children}
-        </div>
-      </main>
-    </div>
+          {/* Collapse toggle */}
+          <button
+            className="hidden md:flex"
+            onClick={() => setCollapsed(!collapsed)}
+            data-testid="sidebar-collapse-toggle"
+            style={{
+              padding: "10px 0",
+              background: "transparent",
+              border: "none",
+              borderTop: "1px solid var(--b)",
+              cursor: "pointer",
+              color: "var(--t3)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "color 0.2s",
+              width: "100%",
+            }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = "var(--accent)")}
+            onMouseLeave={(e) => (e.currentTarget.style.color = "var(--t3)")}
+            title={collapsed ? t.shell.expandSidebar : t.shell.collapseSidebar}
+          >
+            {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
+        </aside>
+
+        <main style={{ display: "flex", flexDirection: "column", overflow: "hidden" }}>
+          <div
+            style={{
+              height: "56px",
+              background: "var(--tp-bg)",
+              backdropFilter: "blur(12px)",
+              borderBottom: "1px solid var(--tp-b)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              padding: "0 24px",
+              flexShrink: 0,
+              position: "relative",
+              zIndex: 100,
+              overflow: "visible",
+            }}
+            data-testid="topbar"
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <button
+                className="md:hidden"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                data-testid="sidebar-toggle"
+                style={{ background: "transparent", border: "none", color: "var(--t2)", cursor: "pointer", padding: "4px", marginRight: "8px", display: "flex", alignItems: "center" }}
+              >
+                <Menu size={20} />
+              </button>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, color: "var(--accent)", letterSpacing: "1px" }}>
+                DSCVR
+              </span>
+              <span style={{ color: "var(--charcoal)", fontSize: "12px" }}>/</span>
+              <span style={{ fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 600, color: "var(--t2)" }}>
+                {t.shell[`pageTitle${pageTitle.charAt(0).toUpperCase()}${pageTitle.slice(1)}` as keyof typeof t.shell] || pageTitle}
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              <LanguageSelector />
+              <ThemeToggle />
+            </div>
+          </div>
+
+          <div style={{ flex: 1, overflowY: "auto" }} data-testid="app-content">
+            {children}
+          </div>
+        </main>
+      </div>
     </div>
   );
 }
