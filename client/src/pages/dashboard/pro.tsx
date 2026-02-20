@@ -260,7 +260,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
   const gatesComplete = gateDocCounts.filter(g => g.pct >= 100).length;
   const overallPct = totalTemplates > 0 ? Math.round((uploadedCount / totalTemplates) * 100) : 0;
 
-  const otaDeadline = new Date("2026-07-01");
+  const otaDeadline = new Date("2026-03-31");
   const otaDaysLeft = Math.max(0, Math.ceil((otaDeadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24)));
   const showOtaBanner = otaDeadline > now;
 
@@ -348,61 +348,33 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
       {showOtaBanner && (
         <div
           data-testid="ota-banner"
+          onClick={onOpenFlow}
           style={{
             background: "var(--accent)",
-            borderRadius: 12,
-            padding: "16px 22px",
+            borderRadius: 8,
+            padding: "8px 14px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            marginBottom: 24,
-            position: "relative",
-            overflow: "hidden",
-            flexWrap: "wrap",
-            gap: 12,
+            marginBottom: 16,
+            cursor: "pointer",
+            gap: 8,
           }}
         >
-          <div style={{ position: "absolute", right: -20, top: -20, width: 100, height: 100, borderRadius: "50%", background: "rgba(255,255,255,0.06)", pointerEvents: "none" }} />
-          <div style={{ position: "absolute", right: 60, bottom: -30, width: 70, height: 70, borderRadius: "50%", background: "rgba(255,255,255,0.04)", pointerEvents: "none" }} />
-          <div style={{ display: "flex", alignItems: "center", gap: 14, position: "relative", zIndex: 1 }}>
-            <Zap className="w-5 h-5" style={{ color: "rgba(255,255,255,0.9)" }} />
-            <div>
-              <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 15, color: "#fff", marginBottom: 2 }}>
-                OTA Verification Deadline — Airbnb & Booking.com
-              </div>
-              <div style={{ fontSize: 12, color: "rgba(255,255,255,0.75)" }}>
-                NIB Verified + TDUP + KBLI 55193 required. Entity name must match exactly across all documents.
-              </div>
-            </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Zap className="w-3.5 h-3.5 flex-shrink-0" style={{ color: "rgba(255,255,255,0.9)" }} />
+            <span style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: 11, color: "#fff", whiteSpace: "nowrap" }}>
+              OTA Deadline
+            </span>
+            <span style={{ fontSize: 10, color: "rgba(255,255,255,0.65)" }}>
+              — Mar 31, 2026
+            </span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 16, position: "relative", zIndex: 1 }}>
-            <div style={{ textAlign: "right" }}>
-              <div data-testid="text-ota-days" style={{ fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 28, color: "#fff", lineHeight: 1 }}>
-                {otaDaysLeft}
-              </div>
-              <div style={{ fontSize: 10, color: "rgba(255,255,255,0.6)", fontFamily: "var(--font-body)", letterSpacing: 1, textTransform: "uppercase" }}>
-                days left
-              </div>
-            </div>
-            <button
-              onClick={onOpenFlow}
-              data-testid="button-view-checklist"
-              style={{
-                background: "rgba(255,255,255,0.15)",
-                border: "1px solid rgba(255,255,255,0.3)",
-                color: "#fff",
-                borderRadius: 7,
-                padding: "8px 16px",
-                fontFamily: "var(--font-body)",
-                fontSize: 11,
-                fontWeight: 700,
-                cursor: "pointer",
-                backdropFilter: "blur(4px)",
-                whiteSpace: "nowrap",
-              }}
-            >
-              View Checklist <ArrowRight className="w-3 h-3 inline-block ml-1" style={{ verticalAlign: "middle" }} />
-            </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+            <span data-testid="text-ota-days" style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 13, color: "#fff" }}>
+              {otaDaysLeft}d
+            </span>
+            <ArrowRight className="w-3 h-3" style={{ color: "rgba(255,255,255,0.7)" }} />
           </div>
         </div>
       )}

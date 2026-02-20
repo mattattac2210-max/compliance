@@ -142,45 +142,37 @@ export default function FreeDashboard({ onOpenFlow, onOpenAudit, onOpenGuide, on
 
       {!deadlinePassed && (
         <motion.div
-          initial={{ opacity: 0, y: 8 }}
+          initial={{ opacity: 0, y: 4 }}
           animate={{ opacity: 1, y: 0 }}
-          className="rounded-xl p-5 space-y-2"
-          style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)" }}
+          onClick={onOpenGate7}
+          className="rounded-lg flex items-center justify-between gap-2 cursor-pointer"
+          style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.18)", padding: "7px 12px" }}
           data-testid="ota-deadline-banner"
         >
           <div className="flex items-center gap-2">
-            <span className="relative flex h-2.5 w-2.5">
+            <span className="relative flex h-2 w-2 flex-shrink-0">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500" />
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500" />
             </span>
-            <span className="font-heading font-extrabold text-xs tracking-widest uppercase" style={{ color: "#EF4444" }}>
+            <span className="font-heading font-bold text-[10px] tracking-wide uppercase" style={{ color: "#EF4444" }}>
               {t.dashboard.otaDeadlineBanner}
             </span>
-            <span
-              className="ml-auto text-xs font-heading font-bold px-2 py-0.5 rounded-full"
-              style={{ background: "rgba(239,68,68,0.12)", color: "#EF4444" }}
-            >
-              {daysRemaining} {t.dashboard.daysRemaining}
-            </span>
+            <span className="text-[10px]" style={{ color: "var(--t3)" }}>— Mar 31, 2026</span>
           </div>
-          <p className="text-sm leading-relaxed" style={{ color: "var(--t3)" }}>
-            {t.dashboard.otaDeadlineBody}
-          </p>
-          <button
-            onClick={onOpenGate7}
-            className="text-xs font-heading font-bold tracking-wide hover:underline"
+          <span
+            className="text-[11px] font-heading font-bold flex-shrink-0"
             style={{ color: "#EF4444" }}
             data-testid="button-ota-gate7"
           >
-            {t.dashboard.otaDeadlineCta}
-          </button>
+            {daysRemaining}d →
+          </span>
         </motion.div>
       )}
 
       {deadlinePassed && (
         <div
-          className="rounded-xl p-4 text-sm"
-          style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.2)", color: "#F87171" }}
+          className="rounded-lg text-[11px] flex items-center gap-2"
+          style={{ background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.18)", color: "#F87171", padding: "7px 12px" }}
           data-testid="ota-deadline-passed"
         >
           {t.dashboard.otaDeadlinePassed}
