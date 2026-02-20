@@ -32,6 +32,8 @@ app.use(
 
 app.use(express.urlencoded({ extended: false }));
 
+app.set("trust proxy", 1);
+
 const PgSession = connectPgSimple(session);
 
 if (!process.env.SESSION_SECRET) {
@@ -50,6 +52,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
+    sameSite: process.env.NODE_ENV === "production" ? "none" as const : "lax" as const,
     maxAge: 7 * 24 * 60 * 60 * 1000,
   },
 }));
