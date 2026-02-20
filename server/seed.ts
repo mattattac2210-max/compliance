@@ -270,6 +270,174 @@ const seedTerms = [
     isActive: true,
     translations: termTranslationsMap["zoning-certificate"],
   },
+  {
+    term: "Banjar",
+    slug: "banjar",
+    plainDefinition: "A traditional Balinese community organisation that governs local affairs, ceremonies, and mutual obligations within a neighbourhood.",
+    whyItMatters: [
+      "Villa operators in Bali are expected to maintain good relationships with their local banjar",
+      "Banjar contributions and participation are socially mandatory — failure to engage can lead to operational difficulties"
+    ],
+    typicalProcessSteps: null,
+    whatToStore: ["Banjar introduction records", "Contribution receipts", "Meeting notes"],
+    commonPitfalls: ["Ignoring banjar obligations", "Not attending required ceremonies or meetings"],
+    synonyms: ["banjar adat", "community council"],
+    tags: ["Community", "Bali"],
+    lastUpdated: "2026-02-20",
+    isActive: true,
+    translations: termTranslationsMap["banjar"],
+  },
+  {
+    term: "BPJS (Social Security)",
+    slug: "bpjs",
+    plainDefinition: "Indonesia's mandatory social security programme covering health insurance (BPJS Kesehatan) and employment benefits (BPJS Ketenagakerjaan) for all workers.",
+    whyItMatters: [
+      "All employers must register staff in both BPJS Kesehatan and Ketenagakerjaan",
+      "Non-compliance can result in fines, sanctions, and inability to access government services"
+    ],
+    typicalProcessSteps: [
+      "Register as an employer with BPJS",
+      "Register each employee in both BPJS Kesehatan and Ketenagakerjaan",
+      "Pay monthly contributions by the 10th (Kesehatan) and 15th (Ketenagakerjaan)",
+      "Report any staff changes within 7 days"
+    ],
+    whatToStore: ["BPJS registration certificates", "Monthly payment receipts", "Employee membership cards"],
+    commonPitfalls: ["Late monthly payments resulting in service suspension", "Not registering new employees within the required timeframe"],
+    synonyms: ["social security", "BPJS Kesehatan", "BPJS Ketenagakerjaan", "jaminan sosial"],
+    tags: ["Staff", "Compliance"],
+    lastUpdated: "2026-02-20",
+    isActive: true,
+    translations: termTranslationsMap["bpjs"],
+  },
+  {
+    term: "CoreTax",
+    slug: "coretax",
+    plainDefinition: "Indonesia's new integrated tax administration system that replaces older DJP Online portals for tax filing and management.",
+    whyItMatters: [
+      "All tax filings are transitioning to CoreTax — businesses must adapt their processes",
+      "CoreTax changes how tax IDs (NPWP) and filings are managed digitally"
+    ],
+    typicalProcessSteps: null,
+    whatToStore: ["CoreTax login credentials (secure)", "Filing confirmations", "Tax ID registration documents"],
+    commonPitfalls: ["Using outdated DJP Online when CoreTax is now required", "Not updating company details in the new system"],
+    synonyms: ["core tax system", "DJP CoreTax"],
+    tags: ["Tax", "Digital"],
+    lastUpdated: "2026-02-20",
+    isActive: true,
+    translations: termTranslationsMap["coretax"],
+  },
+  {
+    term: "HGB (Hak Guna Bangunan)",
+    slug: "hgb",
+    plainDefinition: "A time-limited right to build on and use land in Indonesia, typically granted for 20–30 years and renewable.",
+    whyItMatters: [
+      "Most foreign-owned villa operations hold land under HGB — it expires and must be renewed",
+      "Expired HGB can jeopardise the entire operation and property rights"
+    ],
+    typicalProcessSteps: [
+      "Check HGB certificate for expiry date",
+      "Begin renewal process 1–2 years before expiry",
+      "Submit renewal application to BPN (Land Office)",
+      "Pay renewal fees and taxes",
+      "Receive updated HGB certificate"
+    ],
+    whatToStore: ["HGB certificate (original and scan)", "Renewal application receipts", "BPN correspondence"],
+    commonPitfalls: ["Waiting too long to start renewal — processing can take 6–12 months", "Not tracking the expiry date"],
+    synonyms: ["building rights", "hak guna bangunan", "land lease"],
+    tags: ["Property", "Legal"],
+    lastUpdated: "2026-02-20",
+    isActive: true,
+    translations: termTranslationsMap["hgb"],
+  },
+  {
+    term: "KITAS (Limited Stay Permit)",
+    slug: "kitas",
+    plainDefinition: "A temporary residence permit for foreigners working or staying in Indonesia, typically valid for 1–2 years.",
+    whyItMatters: [
+      "Foreign staff must hold a valid KITAS to work legally in Indonesia",
+      "Expired KITAS means the employee is working illegally, risking deportation and fines"
+    ],
+    typicalProcessSteps: [
+      "Obtain IMTA (work permit) through employer sponsorship",
+      "Apply for KITAS through immigration",
+      "Complete biometrics and interview",
+      "Receive KITAS card",
+      "Renew before expiry"
+    ],
+    whatToStore: ["KITAS card scan", "IMTA approval letter", "Passport pages with KITAS stamp", "Renewal reminders"],
+    commonPitfalls: ["Missing renewal deadlines", "Not starting the renewal process early enough (allow 2–3 months)"],
+    synonyms: ["stay permit", "work visa", "izin tinggal terbatas"],
+    tags: ["Staff", "Immigration"],
+    lastUpdated: "2026-02-20",
+    isActive: true,
+    translations: termTranslationsMap["kitas"],
+  },
+  {
+    term: "PB1 (Hotel/Accommodation Tax)",
+    slug: "pb1",
+    plainDefinition: "A local tax on accommodation services (including villas) charged to guests and remitted monthly to the local government.",
+    whyItMatters: [
+      "Villa operators must collect PB1 from guests and file/pay monthly",
+      "Non-compliance can result in fines, back-taxes, and operational restrictions"
+    ],
+    typicalProcessSteps: [
+      "Register with local tax office (BPPD/Bapenda)",
+      "Collect tax from guests (typically 10%)",
+      "File SPTPD monthly by the 20th",
+      "Pay collected tax to local government"
+    ],
+    whatToStore: ["SPTPD filing receipts", "Monthly payment proofs", "Tax registration certificate"],
+    commonPitfalls: ["Not collecting from guests and paying out of pocket", "Filing late and incurring penalties"],
+    synonyms: ["pajak hotel", "SPTPD", "accommodation tax", "hotel tax"],
+    tags: ["Tax", "Operations"],
+    lastUpdated: "2026-02-20",
+    isActive: true,
+    translations: termTranslationsMap["pb1"],
+  },
+  {
+    term: "PKWT (Fixed-Term Employment Contract)",
+    slug: "pkwt",
+    plainDefinition: "A fixed-term employment contract in Indonesia, used for temporary or project-based work with defined start and end dates.",
+    whyItMatters: [
+      "Most villa staff are hired under PKWT contracts",
+      "PKWT contracts have legal limits on duration and renewal — exceeding them converts the contract to permanent employment"
+    ],
+    typicalProcessSteps: [
+      "Draft PKWT in Bahasa Indonesia (required by law)",
+      "Include mandatory terms: duration, role, compensation, termination",
+      "Register with local manpower office within 7 days",
+      "Track renewal dates"
+    ],
+    whatToStore: ["Signed PKWT contracts", "Registration receipts", "Renewal/extension records"],
+    commonPitfalls: ["Not writing contracts in Bahasa Indonesia (makes them legally void)", "Exceeding the maximum contract duration without conversion"],
+    synonyms: ["kontrak kerja", "fixed-term contract", "employment agreement"],
+    tags: ["Staff", "Legal"],
+    lastUpdated: "2026-02-20",
+    isActive: true,
+    translations: termTranslationsMap["pkwt"],
+  },
+  {
+    term: "THR (Holiday Allowance)",
+    slug: "thr",
+    plainDefinition: "A mandatory annual bonus (Tunjangan Hari Raya) that employers must pay to employees before major religious holidays.",
+    whyItMatters: [
+      "THR is legally required — failure to pay can result in fines and penalties",
+      "Must be paid at least 7 days before the employee's religious holiday"
+    ],
+    typicalProcessSteps: [
+      "Calculate THR (one month's salary for employees with 12+ months of service)",
+      "Pro-rate for employees with less than 12 months",
+      "Pay at least 7 days before the holiday",
+      "Include in payroll records"
+    ],
+    whatToStore: ["THR calculation records", "Payment receipts", "Employee acknowledgement"],
+    commonPitfalls: ["Paying late (must be 7 days before the holiday)", "Not pro-rating for new employees"],
+    synonyms: ["tunjangan hari raya", "holiday bonus", "religious holiday allowance"],
+    tags: ["Staff", "Compensation"],
+    lastUpdated: "2026-02-20",
+    isActive: true,
+    translations: termTranslationsMap["thr"],
+  },
 ];
 
 const seedWorkflows = [
@@ -477,13 +645,21 @@ const seedWorkflows = [
 ];
 
 export async function seedComplianceTerms() {
-  const existing = await db.select({ id: complianceTerms.id }).from(complianceTerms).limit(1);
-  if (existing.length > 0) {
-    console.log("Compliance terms already seeded, skipping...");
-  } else {
+  const existing = await db.select({ slug: complianceTerms.slug }).from(complianceTerms);
+  const existingSlugs = new Set(existing.map(e => e.slug));
+
+  if (existing.length === 0) {
     console.log("Seeding compliance terms...");
     await db.insert(complianceTerms).values(seedTerms);
     console.log(`Seeded ${seedTerms.length} compliance terms.`);
+  } else {
+    const newTerms = seedTerms.filter(t => !existingSlugs.has(t.slug));
+    if (newTerms.length > 0) {
+      await db.insert(complianceTerms).values(newTerms);
+      console.log(`Seeded ${newTerms.length} new compliance terms.`);
+    } else {
+      console.log("Compliance terms already seeded, skipping...");
+    }
   }
 
   const existingGuides = await db.select({ id: processNavigationGuides.id }).from(processNavigationGuides).limit(1);

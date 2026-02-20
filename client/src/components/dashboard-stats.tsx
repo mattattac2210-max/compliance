@@ -3,7 +3,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/i18n/context";
 import { useUpgradeModal } from "@/components/upgrade-modal";
 import { FileCheck, Clock, AlertTriangle, Lock } from "lucide-react";
-import type { Property, VaultDocument, VaultDocumentTemplate } from "@shared/schema";
+import type { Property, VaultDocument, VaultDocumentTemplate, StaffMember } from "@shared/schema";
 
 export default function DashboardStats() {
   const { user } = useAuth();
@@ -34,6 +34,17 @@ export default function DashboardStats() {
     enabled: !!isPro && !!selectedPropertyId,
   });
 
+  const { data: staffMembers = [] } = useQuery<StaffMember[]>({
+    queryKey: ["/api/staff", selectedPropertyId],
+    queryFn: async () => {
+      if (!selectedPropertyId) return [];
+      const res = await fetch(`/api/staff?propertyId=${selectedPropertyId}`, { credentials: "include" });
+      if (!res.ok) return [];
+      return res.json();
+    },
+    enabled: !!isPro && !!selectedPropertyId,
+  });
+
   const totalTemplates = templates.length;
   const uploadedCount = documents.filter(d => d.status === "uploaded" || d.status === "verified").length;
   const vaultPercent = totalTemplates > 0 ? Math.round((uploadedCount / totalTemplates) * 100) : 0;
@@ -51,7 +62,32 @@ export default function DashboardStats() {
     return new Date(d.expiryDate) <= now;
   }).length;
 
-  const alertCount = expiringCount + expiredCount;
+  let complianceAlerts = 0;
+  const selectedProp = properties.find(p => p.id === selectedPropertyId);
+  if (selectedProp) {
+    if (selectedProp.otaEntityName && selectedProp.entityName &&
+        selectedProp.otaEntityName.toLowerCase().trim() !== selectedProp.entityName.toLowerCase().trim()) {
+      complianceAlerts++;
+    }
+    if (selectedProp.landTitleType === "hgb" && selectedProp.landTitleExpiry) {
+      const diff = Math.ceil((new Date(selectedProp.landTitleExpiry).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+      if (diff < 365 * 2) complianceAlerts++;
+    }
+  }
+  const activeStaff = staffMembers.filter(s => s.isActive);
+  const bpjsGaps = activeStaff.filter(s =>
+    s.bpjsKesehatanStatus === "not_registered" ||
+    s.bpjsKetenagakerjaanStatus === "not_registered"
+  );
+  if (bpjsGaps.length > 0) complianceAlerts++;
+  const kitasExpiring = activeStaff.filter(s => {
+    if (!s.kitasExpiry) return false;
+    const diff = Math.ceil((new Date(s.kitasExpiry).getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diff < 90;
+  });
+  complianceAlerts += kitasExpiring.length;
+
+  const alertCount = expiringCount + expiredCount + complianceAlerts;
 
   const cards = [
     {

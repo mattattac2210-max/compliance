@@ -444,6 +444,278 @@ export const termTranslationsMap: Record<string, { uk: TermTranslation; id: Term
         "Tidak memeriksa apakah zonasi telah direklasifikasi baru-baru ini"
       ]
     }
+  },
+  "banjar": {
+    uk: {
+      term: "Банджар",
+      tags: ["Спільнота", "Балі"],
+      plainDefinition: "Традиційна балійська громадська організація, що керує місцевими справами, церемоніями та взаємними зобов'язаннями у сусідстві.",
+      whyItMatters: [
+        "Оператори вілл на Балі повинні підтримувати добрі стосунки з місцевим банджаром",
+        "Внески та участь у банджарі є соціально обов'язковими"
+      ],
+      typicalProcessSteps: null,
+      whatToStore: ["Записи про знайомство з банджаром", "Квитанції внесків", "Нотатки зустрічей"],
+      commonPitfalls: ["Ігнорування зобов'язань банджару", "Непвідвідування обов'язкових церемоній"]
+    },
+    id: {
+      term: "Banjar",
+      tags: ["Komunitas", "Bali"],
+      plainDefinition: "Organisasi komunitas tradisional Bali yang mengatur urusan lokal, upacara, dan kewajiban bersama di lingkungan.",
+      whyItMatters: [
+        "Operator vila di Bali diharapkan menjaga hubungan baik dengan banjar lokal",
+        "Kontribusi dan partisipasi banjar wajib secara sosial"
+      ],
+      typicalProcessSteps: null,
+      whatToStore: ["Catatan perkenalan banjar", "Bukti kontribusi", "Catatan rapat"],
+      commonPitfalls: ["Mengabaikan kewajiban banjar", "Tidak menghadiri upacara atau rapat yang diwajibkan"]
+    }
+  },
+  "bpjs": {
+    uk: {
+      term: "BPJS (Соціальне страхування)",
+      tags: ["Персонал", "Комплаєнс"],
+      plainDefinition: "Обов'язкова програма соціального страхування Індонезії, що охоплює медичне страхування та трудові виплати для всіх працівників.",
+      whyItMatters: [
+        "Усі роботодавці повинні реєструвати персонал у BPJS Kesehatan та Ketenagakerjaan",
+        "Недотримання може призвести до штрафів та санкцій"
+      ],
+      typicalProcessSteps: [
+        "Зареєструватися як роботодавець у BPJS",
+        "Зареєструвати кожного працівника в обох програмах",
+        "Сплачувати щомісячні внески до 10-го та 15-го числа",
+        "Повідомляти про зміни персоналу протягом 7 днів"
+      ],
+      whatToStore: ["Свідоцтва реєстрації BPJS", "Квитанції щомісячних платежів", "Членські картки працівників"],
+      commonPitfalls: ["Затримка щомісячних платежів", "Нереєстрація нових працівників вчасно"]
+    },
+    id: {
+      term: "BPJS (Jaminan Sosial)",
+      tags: ["Staf", "Kepatuhan"],
+      plainDefinition: "Program jaminan sosial wajib Indonesia yang mencakup asuransi kesehatan dan manfaat ketenagakerjaan untuk semua pekerja.",
+      whyItMatters: [
+        "Semua pemberi kerja wajib mendaftarkan staf di BPJS Kesehatan dan Ketenagakerjaan",
+        "Ketidakpatuhan dapat mengakibatkan denda dan sanksi"
+      ],
+      typicalProcessSteps: [
+        "Mendaftar sebagai pemberi kerja di BPJS",
+        "Mendaftarkan setiap karyawan di kedua program",
+        "Membayar iuran bulanan sebelum tanggal 10 dan 15",
+        "Melaporkan perubahan staf dalam 7 hari"
+      ],
+      whatToStore: ["Sertifikat pendaftaran BPJS", "Bukti pembayaran bulanan", "Kartu anggota karyawan"],
+      commonPitfalls: ["Keterlambatan pembayaran bulanan", "Tidak mendaftarkan karyawan baru tepat waktu"]
+    }
+  },
+  "coretax": {
+    uk: {
+      term: "CoreTax",
+      tags: ["Податки", "Цифрові"],
+      plainDefinition: "Нова інтегрована система податкового адміністрування Індонезії, що замінює старі портали DJP Online.",
+      whyItMatters: [
+        "Усі податкові подання переходять на CoreTax",
+        "CoreTax змінює управління податковими ідентифікаторами (NPWP) та поданнями"
+      ],
+      typicalProcessSteps: null,
+      whatToStore: ["Облікові дані CoreTax", "Підтвердження подань", "Реєстраційні документи"],
+      commonPitfalls: ["Використання застарілого DJP Online", "Неоновлення даних компанії"]
+    },
+    id: {
+      term: "CoreTax",
+      tags: ["Pajak", "Digital"],
+      plainDefinition: "Sistem administrasi pajak terintegrasi baru Indonesia yang menggantikan portal DJP Online lama.",
+      whyItMatters: [
+        "Semua pelaporan pajak beralih ke CoreTax",
+        "CoreTax mengubah cara pengelolaan NPWP dan pelaporan secara digital"
+      ],
+      typicalProcessSteps: null,
+      whatToStore: ["Kredensial login CoreTax", "Konfirmasi pelaporan", "Dokumen registrasi"],
+      commonPitfalls: ["Menggunakan DJP Online yang sudah usang", "Tidak memperbarui data perusahaan"]
+    }
+  },
+  "hgb": {
+    uk: {
+      term: "HGB (Hak Guna Bangunan)",
+      tags: ["Нерухомість", "Юридичні"],
+      plainDefinition: "Обмежене в часі право на будівництво та використання землі в Індонезії, зазвичай на 20–30 років з можливістю продовження.",
+      whyItMatters: [
+        "Більшість операцій вілл з іноземним володінням тримають землю під HGB — воно закінчується і потребує продовження",
+        "Прострочений HGB може поставити під загрозу весь бізнес"
+      ],
+      typicalProcessSteps: [
+        "Перевірити сертифікат HGB на дату закінчення",
+        "Розпочати процес оновлення за 1–2 роки до закінчення",
+        "Подати заявку на оновлення в BPN",
+        "Сплатити збори та податки",
+        "Отримати оновлений сертифікат"
+      ],
+      whatToStore: ["Сертифікат HGB", "Квитанції заявки на оновлення", "Кореспонденція з BPN"],
+      commonPitfalls: ["Затримка з початком оновлення", "Невідстеження дати закінчення"]
+    },
+    id: {
+      term: "HGB (Hak Guna Bangunan)",
+      tags: ["Properti", "Hukum"],
+      plainDefinition: "Hak terbatas waktu untuk membangun dan menggunakan tanah di Indonesia, biasanya diberikan untuk 20-30 tahun dan dapat diperpanjang.",
+      whyItMatters: [
+        "Sebagian besar operasi vila asing memegang tanah di bawah HGB — masa berlakunya habis dan harus diperpanjang",
+        "HGB yang kedaluwarsa dapat membahayakan seluruh operasi"
+      ],
+      typicalProcessSteps: [
+        "Periksa sertifikat HGB untuk tanggal kedaluwarsa",
+        "Mulai proses perpanjangan 1-2 tahun sebelum kedaluwarsa",
+        "Ajukan perpanjangan ke BPN",
+        "Bayar biaya dan pajak",
+        "Terima sertifikat HGB yang diperbarui"
+      ],
+      whatToStore: ["Sertifikat HGB", "Bukti pengajuan perpanjangan", "Korespondensi BPN"],
+      commonPitfalls: ["Menunggu terlalu lama untuk memulai perpanjangan", "Tidak melacak tanggal kedaluwarsa"]
+    }
+  },
+  "kitas": {
+    uk: {
+      term: "KITAS (Дозвіл на тимчасове перебування)",
+      tags: ["Персонал", "Імміграція"],
+      plainDefinition: "Тимчасовий дозвіл на проживання для іноземців, які працюють або перебувають в Індонезії, зазвичай на 1–2 роки.",
+      whyItMatters: [
+        "Іноземний персонал повинен мати дійсний KITAS для легальної роботи",
+        "Прострочений KITAS означає нелегальну роботу з ризиком депортації"
+      ],
+      typicalProcessSteps: [
+        "Отримати IMTA через спонсорство роботодавця",
+        "Подати заявку на KITAS через імміграцію",
+        "Пройти біометрику та співбесіду",
+        "Отримати картку KITAS",
+        "Продовжити до закінчення терміну"
+      ],
+      whatToStore: ["Скан картки KITAS", "Лист схвалення IMTA", "Сторінки паспорта зі штампом"],
+      commonPitfalls: ["Пропуск дедлайнів продовження", "Непочинання процесу вчасно"]
+    },
+    id: {
+      term: "KITAS (Izin Tinggal Terbatas)",
+      tags: ["Staf", "Imigrasi"],
+      plainDefinition: "Izin tinggal sementara bagi warga negara asing yang bekerja atau tinggal di Indonesia, biasanya berlaku 1-2 tahun.",
+      whyItMatters: [
+        "Staf asing harus memiliki KITAS yang valid untuk bekerja secara legal",
+        "KITAS yang kedaluwarsa berarti bekerja secara ilegal dengan risiko deportasi"
+      ],
+      typicalProcessSteps: [
+        "Mendapatkan IMTA melalui sponsor pemberi kerja",
+        "Mengajukan KITAS melalui imigrasi",
+        "Menyelesaikan biometrik dan wawancara",
+        "Menerima kartu KITAS",
+        "Memperpanjang sebelum kedaluwarsa"
+      ],
+      whatToStore: ["Scan kartu KITAS", "Surat persetujuan IMTA", "Halaman paspor dengan stempel"],
+      commonPitfalls: ["Melewatkan tenggat perpanjangan", "Tidak memulai proses cukup awal"]
+    }
+  },
+  "pb1": {
+    uk: {
+      term: "PB1 (Податок на готелі/житло)",
+      tags: ["Податки", "Операції"],
+      plainDefinition: "Місцевий податок на послуги розміщення (включаючи вілли), що стягується з гостей та щомісяця перераховується до місцевого уряду.",
+      whyItMatters: [
+        "Оператори вілл повинні збирати PB1 з гостей та подавати/сплачувати щомісяця",
+        "Недотримання може призвести до штрафів та операційних обмежень"
+      ],
+      typicalProcessSteps: [
+        "Зареєструватися в місцевій податковій службі",
+        "Збирати податок з гостей (зазвичай 10%)",
+        "Подавати SPTPD щомісяця до 20-го",
+        "Сплачувати зібраний податок"
+      ],
+      whatToStore: ["Квитанції подання SPTPD", "Підтвердження щомісячних платежів", "Свідоцтво податкової реєстрації"],
+      commonPitfalls: ["Несплата гостями", "Затримка подання"]
+    },
+    id: {
+      term: "PB1 (Pajak Hotel/Akomodasi)",
+      tags: ["Pajak", "Operasi"],
+      plainDefinition: "Pajak daerah atas jasa akomodasi (termasuk vila) yang dikenakan kepada tamu dan disetor setiap bulan ke pemerintah daerah.",
+      whyItMatters: [
+        "Operator vila wajib memungut PB1 dari tamu dan melaporkan/membayar setiap bulan",
+        "Ketidakpatuhan dapat mengakibatkan denda dan pembatasan operasional"
+      ],
+      typicalProcessSteps: [
+        "Mendaftar di kantor pajak daerah (BPPD/Bapenda)",
+        "Memungut pajak dari tamu (biasanya 10%)",
+        "Melaporkan SPTPD bulanan sebelum tanggal 20",
+        "Membayar pajak yang terkumpul"
+      ],
+      whatToStore: ["Bukti pelaporan SPTPD", "Bukti pembayaran bulanan", "Sertifikat registrasi pajak"],
+      commonPitfalls: ["Tidak memungut dari tamu", "Keterlambatan pelaporan"]
+    }
+  },
+  "pkwt": {
+    uk: {
+      term: "PKWT (Строковий трудовий договір)",
+      tags: ["Персонал", "Юридичні"],
+      plainDefinition: "Строковий трудовий договір в Індонезії для тимчасової або проектної роботи з визначеними датами початку та закінчення.",
+      whyItMatters: [
+        "Більшість персоналу вілл наймається за контрактами PKWT",
+        "Контракти PKWT мають законні обмеження на тривалість"
+      ],
+      typicalProcessSteps: [
+        "Скласти PKWT індонезійською мовою (обов'язково за законом)",
+        "Включити обов'язкові умови",
+        "Зареєструвати в місцевому управлінні праці протягом 7 днів",
+        "Відстежувати дати продовження"
+      ],
+      whatToStore: ["Підписані контракти PKWT", "Квитанції реєстрації", "Записи про продовження"],
+      commonPitfalls: ["Контракт не індонезійською мовою", "Перевищення максимальної тривалості"]
+    },
+    id: {
+      term: "PKWT (Perjanjian Kerja Waktu Tertentu)",
+      tags: ["Staf", "Hukum"],
+      plainDefinition: "Kontrak kerja waktu tertentu di Indonesia untuk pekerjaan sementara atau berbasis proyek dengan tanggal mulai dan berakhir yang ditentukan.",
+      whyItMatters: [
+        "Sebagian besar staf vila dipekerjakan dengan kontrak PKWT",
+        "Kontrak PKWT memiliki batas hukum pada durasi dan perpanjangan"
+      ],
+      typicalProcessSteps: [
+        "Menyusun PKWT dalam Bahasa Indonesia (wajib hukum)",
+        "Menyertakan ketentuan wajib",
+        "Mendaftarkan ke dinas tenaga kerja dalam 7 hari",
+        "Melacak tanggal perpanjangan"
+      ],
+      whatToStore: ["Kontrak PKWT yang ditandatangani", "Bukti pendaftaran", "Catatan perpanjangan"],
+      commonPitfalls: ["Kontrak tidak dalam Bahasa Indonesia", "Melebihi durasi kontrak maksimum"]
+    }
+  },
+  "thr": {
+    uk: {
+      term: "THR (Святкова виплата)",
+      tags: ["Персонал", "Компенсація"],
+      plainDefinition: "Обов'язкова щорічна премія, яку роботодавці повинні виплачувати працівникам перед великими релігійними святами.",
+      whyItMatters: [
+        "THR є юридично обов'язковим — невиплата може призвести до штрафів",
+        "Має бути виплачена щонайменше за 7 днів до свята працівника"
+      ],
+      typicalProcessSteps: [
+        "Розрахувати THR (місячна зарплата для працівників 12+ місяців)",
+        "Пропорційно розрахувати для працівників менше 12 місяців",
+        "Виплатити за 7 днів до свята",
+        "Включити в платіжні відомості"
+      ],
+      whatToStore: ["Записи розрахунку THR", "Квитанції виплат", "Підтвердження працівників"],
+      commonPitfalls: ["Затримка виплати", "Непропорційний розрахунок для нових працівників"]
+    },
+    id: {
+      term: "THR (Tunjangan Hari Raya)",
+      tags: ["Staf", "Kompensasi"],
+      plainDefinition: "Bonus tahunan wajib yang harus dibayarkan pemberi kerja kepada karyawan sebelum hari raya keagamaan besar.",
+      whyItMatters: [
+        "THR diwajibkan secara hukum — kegagalan membayar dapat mengakibatkan denda",
+        "Harus dibayarkan setidaknya 7 hari sebelum hari raya karyawan"
+      ],
+      typicalProcessSteps: [
+        "Menghitung THR (satu bulan gaji untuk karyawan 12+ bulan)",
+        "Prorata untuk karyawan kurang dari 12 bulan",
+        "Membayar 7 hari sebelum hari raya",
+        "Mencatat dalam penggajian"
+      ],
+      whatToStore: ["Catatan perhitungan THR", "Bukti pembayaran", "Tanda terima karyawan"],
+      commonPitfalls: ["Keterlambatan pembayaran", "Tidak menghitung prorata untuk karyawan baru"]
+    }
   }
 };
 
