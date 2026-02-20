@@ -92,7 +92,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
   return (
     <div
       data-testid={`gate-card-${gate.id}`}
-      className={`rounded-[10px] border transition-all duration-200 cursor-pointer ${
+      className={`rounded-[10px] border transition-all duration-200 cursor-pointer min-w-0 overflow-hidden ${
         isOpen
           ? "bg-[var(--accent-tint)]"
           : ""
@@ -103,7 +103,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
       }}
       onClick={onToggle}
     >
-      <div className="flex items-center justify-between gap-4 p-[18px_22px]">
+      <div className="flex items-center justify-between gap-3 p-[14px_14px] md:p-[18px_22px]">
         <div>
           <div
             className="font-heading text-[9px] font-bold tracking-[2.5px] uppercase mb-[5px]"
@@ -118,7 +118,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
         </div>
         <div className="flex items-center gap-[10px] shrink-0">
           <span
-            className="font-heading text-[9px] font-bold tracking-[1px] uppercase py-[4px] px-[10px] rounded whitespace-nowrap"
+            className="font-heading text-[9px] font-bold tracking-[1px] uppercase py-[4px] px-[10px] rounded whitespace-nowrap hidden md:inline"
             style={{
               background: gate.rolePillBg,
               border: `1px solid ${gate.rolePillBorder}`,
@@ -151,7 +151,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
             className="overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="border-t px-[22px] pb-[22px]" style={{ borderColor: "var(--b)" }}>
+            <div className="border-t px-[12px] md:px-[22px] pb-[16px] md:pb-[22px]" style={{ borderColor: "var(--b)" }}>
               <div className="pt-[18px]">
                 <div className="flex items-start gap-3 p-[12px_16px] rounded-[7px] mb-4 bg-[var(--accent-tint)] border border-[var(--accent-tint2)]">
                   <span className="text-[13px] shrink-0 mt-[1px] text-[var(--accent)]">{"\u25C8"}</span>
@@ -279,7 +279,7 @@ function NodeButton({ gate, onClick }: { gate: GateData; onClick: () => void }) 
   return (
     <button
       data-testid={`node-btn-${gate.id}`}
-      className="w-[72px] h-[72px] rounded-full flex flex-col items-center justify-center transition-transform duration-200 hover:scale-[1.08] shrink-0 cursor-pointer"
+      className="w-[44px] h-[44px] md:w-[72px] md:h-[72px] rounded-full flex flex-col items-center justify-center transition-transform duration-200 hover:scale-[1.08] shrink-0 cursor-pointer"
       style={{
         background: "var(--app-node-bg)",
         border: gate.isDashed ? `2px dashed ${gate.borderColor}` : `2px solid ${gate.borderColor}`,
@@ -287,10 +287,10 @@ function NodeButton({ gate, onClick }: { gate: GateData; onClick: () => void }) 
       }}
       onClick={onClick}
     >
-      <span className="font-heading font-black text-[22px] leading-none tracking-[-0.5px]" style={{ color: gate.color }}>
+      <span className="font-heading font-black text-[16px] md:text-[22px] leading-none tracking-[-0.5px]" style={{ color: gate.color }}>
         {gate.num}
       </span>
-      <span className="text-[9px] font-bold tracking-[1.5px] uppercase mt-[3px] opacity-60" style={{ color: gate.borderColor }}>
+      <span className="text-[7px] md:text-[9px] font-bold tracking-[1.5px] uppercase mt-[2px] md:mt-[3px] opacity-60" style={{ color: gate.borderColor }}>
         {gate.abbr}
       </span>
     </button>
@@ -379,10 +379,10 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
         </div>
       </div>
 
-      <div className="relative z-[5] max-w-5xl mx-auto px-6 md:px-10 pb-16">
-        <div className="absolute left-[calc(3.5rem+36px)] top-0 bottom-20 w-[1px] bg-gradient-to-b from-[var(--accent-tint2)] via-[var(--accent-tint2)] to-transparent z-0 max-md:left-[calc(1.25rem+36px)]" />
+      <div className="relative z-[5] max-w-5xl mx-auto px-3 md:px-10 pb-16 overflow-hidden">
+        <div className="absolute left-[calc(0.75rem+24px)] md:left-[calc(3.5rem+36px)] top-0 bottom-20 w-[1px] bg-gradient-to-b from-[var(--accent-tint2)] via-[var(--accent-tint2)] to-transparent z-0" />
 
-        <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] mt-2 relative z-[2]">
+        <div className="grid grid-cols-[48px_1fr] md:grid-cols-[72px_1fr] gap-x-2 md:gap-x-5 items-center mb-[10px] mt-2 relative z-[2]">
           <div />
           <div>
             <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--t3)" }}>
@@ -395,7 +395,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
         {structuralGates.map((gate, i) => (
           <div key={gate.id}>
             <div className="relative z-[2] mb-[6px]">
-              <div className="grid grid-cols-[72px_1fr] gap-x-5 items-start">
+              <div className="grid grid-cols-[48px_1fr] md:grid-cols-[72px_1fr] gap-x-2 md:gap-x-5 items-start">
                 <NodeButton gate={gate} onClick={() => toggleGate(gate.id)} />
                 <GateCard gate={gate} isOpen={openGates.has(gate.id)} onToggle={() => toggleGate(gate.id)} />
               </div>
@@ -404,7 +404,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
             {i === 0 && (
               <>
                 <Connector />
-                <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] relative z-[2]">
+                <div className="grid grid-cols-[48px_1fr] md:grid-cols-[72px_1fr] gap-x-2 md:gap-x-5 items-center mb-[10px] relative z-[2]">
                   <div />
                   <div>
                     <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--t3)" }}>
@@ -420,7 +420,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
 
         <Connector />
 
-        <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] relative z-[2]">
+        <div className="grid grid-cols-[48px_1fr] md:grid-cols-[72px_1fr] gap-x-2 md:gap-x-5 items-center mb-[10px] relative z-[2]">
           <div />
           <div>
             <div className="font-heading text-[9px] font-bold tracking-[3px] uppercase py-1 pl-[2px]" style={{ color: "var(--t3)" }}>
@@ -430,7 +430,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-[72px_1fr] gap-x-5 items-start mb-[6px] relative z-[2]">
+        <div className="grid grid-cols-[48px_1fr] md:grid-cols-[72px_1fr] gap-x-2 md:gap-x-5 items-start mb-[6px] relative z-[2]">
           <div className="flex flex-col items-center gap-[10px] pt-2">
             {parallelGates.map((gate) => (
               <NodeButton key={gate.id} gate={gate} onClick={() => toggleGate(gate.id)} />
@@ -456,7 +456,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
         {lateGates.map((gate, i) => (
           <div key={gate.id}>
             <div className="relative z-[2] mb-[6px]">
-              <div className="grid grid-cols-[72px_1fr] gap-x-5 items-start">
+              <div className="grid grid-cols-[48px_1fr] md:grid-cols-[72px_1fr] gap-x-2 md:gap-x-5 items-start">
                 <NodeButton gate={gate} onClick={() => toggleGate(gate.id)} />
                 <GateCard gate={gate} isOpen={openGates.has(gate.id)} onToggle={() => toggleGate(gate.id)} />
               </div>
@@ -465,7 +465,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
           </div>
         ))}
 
-        <div className="mt-[10px] ml-[92px] max-md:ml-0">
+        <div className="mt-[10px] ml-[50px] md:ml-[92px] max-md:ml-0">
           <div className="bg-gradient-to-br from-[var(--accent-tint)] to-[rgba(34,197,94,0.05)] border rounded-[10px] p-[26px_30px] flex items-center gap-[22px]" style={{ borderColor: "var(--app-border-teal)" }}>
             <span className="text-[32px] shrink-0">{"\u2713"}</span>
             <div>
@@ -479,7 +479,7 @@ export default function ComplianceFlow({ expandGate7 }: ComplianceFlowProps) {
           </div>
         </div>
 
-        <div className="mt-9 ml-[92px] pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic max-md:ml-0" style={{ color: "var(--t3)" }}>
+        <div className="mt-9 ml-0 md:ml-[92px] pl-5 border-l-2 border-l-[rgba(100,116,139,0.25)] text-[12px] font-light leading-[1.7] italic" style={{ color: "var(--t3)" }}>
           {t.flow.disclaimer}
         </div>
       </div>
