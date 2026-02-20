@@ -378,7 +378,10 @@ export default function ComplianceCalendar() {
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="calendar-grid">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", borderBottom: "1px solid var(--b)" }}>
           {t.days.map(d => (
-            <div key={d} style={{ padding: "9px 0", textAlign: "center", fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--t4)" }}>
+            <div
+              key={d}
+              style={{ padding: "9px 0", textAlign: "center", fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--t4)" }}
+              className="text-[#404040] text-[13px]">
               {d}
             </div>
           ))}
