@@ -166,14 +166,9 @@ export default function AlertsPage() {
   return (
     <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--app-bg)" }}>
       <div className="max-w-3xl mx-auto space-y-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-alerts-heading">{t.alerts.heading}</h1>
-            <p className="text-slate-400 text-sm mt-1">{t.alerts.subheading}</p>
-          </div>
-          <Link to="/app" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-alerts-back">
-            {t.alerts.backToApp}
-          </Link>
+        <div>
+          <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-alerts-heading">{t.alerts.heading}</h1>
+          <p className="text-slate-400 text-sm mt-1">{t.alerts.subheading}</p>
         </div>
 
         {alerts.length === 0 ? (

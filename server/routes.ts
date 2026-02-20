@@ -50,7 +50,7 @@ export async function registerRoutes(
     });
 
     req.session.userId = user.id;
-    res.status(201).json({ id: user.id, email: user.email, isAdmin: user.isAdmin });
+    res.status(201).json({ id: user.id, email: user.email, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
   });
 
   app.post("/api/auth/login", async (req, res) => {
@@ -73,7 +73,7 @@ export async function registerRoutes(
 
     await storage.updateUserLastLogin(user.id);
     req.session.userId = user.id;
-    res.json({ id: user.id, email: user.email, isAdmin: user.isAdmin });
+    res.json({ id: user.id, email: user.email, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
   });
 
   app.post("/api/auth/logout", (req, res) => {
@@ -91,7 +91,24 @@ export async function registerRoutes(
     if (!user) {
       return res.status(401).json({ message: "Unauthorized" });
     }
-    res.json({ id: user.id, email: user.email, isAdmin: user.isAdmin });
+    res.json({ id: user.id, email: user.email, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
+  });
+
+  async function requireAdmin(req: Request, res: Response, next: NextFunction) {
+    if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+    const user = await storage.getUserById(req.session.userId);
+    if (!user?.isAdmin) return res.status(403).json({ message: "Forbidden" });
+    next();
+  }
+
+  app.patch("/api/admin/users/:id/pro", requireAuth, requireAdmin, async (req, res) => {
+    const { isPro } = req.body;
+    if (typeof isPro !== "boolean") {
+      return res.status(400).json({ message: "isPro must be a boolean" });
+    }
+    const updated = await storage.updateUserPro(req.params.id, isPro);
+    if (!updated) return res.status(404).json({ message: "User not found" });
+    res.json({ id: updated.id, email: updated.email, isAdmin: updated.isAdmin, isPro: updated.isPro || updated.isAdmin });
   });
 
   app.get("/api/properties", requireAuth, async (req, res) => {

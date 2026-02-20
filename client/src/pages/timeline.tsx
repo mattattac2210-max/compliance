@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/context";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "wouter";
 import type { Property, VaultDocumentTemplate, VaultDocument } from "@shared/schema";
 import { Calendar, Clock, AlertTriangle } from "lucide-react";
 
@@ -166,14 +165,9 @@ export default function TimelinePage() {
   return (
     <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--app-bg)" }}>
       <div className="max-w-3xl mx-auto space-y-6">
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-timeline-heading">{t.timeline.heading}</h1>
-            <p className="text-slate-400 text-sm mt-1">{t.timeline.subheading}</p>
-          </div>
-          <Link to="/app" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-timeline-back">
-            {t.timeline.backToApp}
-          </Link>
+        <div>
+          <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-timeline-heading">{t.timeline.heading}</h1>
+          <p className="text-slate-400 text-sm mt-1">{t.timeline.subheading}</p>
         </div>
 
         <div className="flex gap-2 flex-wrap">

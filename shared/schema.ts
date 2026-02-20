@@ -11,6 +11,8 @@ export const users = pgTable("users", {
   createdAt: text("created_at").notNull().default(sql`now()`),
   lastLogin: text("last_login"),
   isAdmin: boolean("is_admin").notNull().default(false),
+  isPro: boolean("is_pro").notNull().default(false),
+  proGrantedAt: text("pro_granted_at"),
 });
 
 export const insertUserSchema = createInsertSchema(users).omit({
@@ -18,6 +20,8 @@ export const insertUserSchema = createInsertSchema(users).omit({
   createdAt: true,
   lastLogin: true,
   isAdmin: true,
+  isPro: true,
+  proGrantedAt: true,
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

@@ -3,7 +3,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/i18n/context";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "wouter";
 import type { Property } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -191,14 +190,9 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--app-bg)" }}>
       <div className="max-w-4xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-profile-heading">{t.profile.heading}</h1>
-            <p className="text-slate-400 text-sm mt-1">{t.profile.subheading}</p>
-          </div>
-          <Link to="/app" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-back-to-app">
-            {t.profile.backToApp}
-          </Link>
+        <div>
+          <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-profile-heading">{t.profile.heading}</h1>
+          <p className="text-slate-400 text-sm mt-1">{t.profile.subheading}</p>
         </div>
 
         {properties.map(prop => (

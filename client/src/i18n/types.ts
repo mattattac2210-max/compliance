@@ -266,6 +266,45 @@ export interface UITranslations {
     daysLabel: string;
     badgeTooltip: string;
   };
+  upgrade: {
+    proFeature: string;
+    tooltipBody: string;
+    tooltipCta: string;
+    modalTitle: string;
+    modalSubtitle: string;
+    modalFeature1: string;
+    modalFeature1Sub: string;
+    modalFeature2: string;
+    modalFeature2Sub: string;
+    modalFeature3: string;
+    modalFeature3Sub: string;
+    modalFeature4: string;
+    modalFeature4Sub: string;
+    modalFeature4Soon: string;
+    upgradeButton: string;
+    stripeNote: string;
+    comingSoonToast: string;
+    freeLabel: string;
+    proLabel: string;
+  };
+  shell: {
+    activeProperty: string;
+    addProperty: string;
+    vaultCompletion: string;
+    otaDeadlineLabel: string;
+    daysRemaining: string;
+    deadlinePassed: string;
+    signOut: string;
+  };
+  dashboard: {
+    vaultProgress: string;
+    vaultProgressSub: string;
+    expiringDocs: string;
+    expiringDocsSub: string;
+    activeAlerts: string;
+    activeAlertsSub: string;
+    unlockPro: string;
+  };
   landing: {
     heroKicker: string;
     heroHeadline1: string;

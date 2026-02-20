@@ -5,6 +5,7 @@ interface AuthUser {
   id: string;
   email: string;
   isAdmin: boolean;
+  isPro: boolean;
 }
 
 export function useAuth() {

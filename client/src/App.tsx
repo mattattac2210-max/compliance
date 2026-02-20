@@ -5,7 +5,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/i18n/context";
-import { ProtectedRoute } from "@/components/protected-route";
+import { ProtectedRoute, ProRoute } from "@/components/protected-route";
+import { UpgradeModalProvider } from "@/components/upgrade-modal";
+import AppShell from "@/components/app-shell";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import LandingPage from "@/pages/landing";
@@ -22,22 +24,48 @@ function Router() {
     <Switch>
       <Route path="/" component={LandingPage} />
       <Route path="/app">
-        <ProtectedRoute><Home /></ProtectedRoute>
+        <ProtectedRoute>
+          <AppShell pageTitle="Compliance Flow" activeNav="compliance">
+            <Home />
+          </AppShell>
+        </ProtectedRoute>
       </Route>
       <Route path="/admin" component={AdminPage} />
       <Route path="/login" component={LoginPage} />
       <Route path="/register" component={RegisterPage} />
       <Route path="/profile">
-        <ProtectedRoute><ProfilePage /></ProtectedRoute>
+        <ProtectedRoute>
+          <AppShell pageTitle="Profile" activeNav="profile">
+            <ProfilePage />
+          </AppShell>
+        </ProtectedRoute>
       </Route>
       <Route path="/vault">
-        <ProtectedRoute><VaultPage /></ProtectedRoute>
+        <ProtectedRoute>
+          <AppShell pageTitle="Document Vault" activeNav="vault">
+            <ProRoute>
+              <VaultPage />
+            </ProRoute>
+          </AppShell>
+        </ProtectedRoute>
       </Route>
       <Route path="/timeline">
-        <ProtectedRoute><TimelinePage /></ProtectedRoute>
+        <ProtectedRoute>
+          <AppShell pageTitle="Compliance Timeline" activeNav="timeline">
+            <ProRoute>
+              <TimelinePage />
+            </ProRoute>
+          </AppShell>
+        </ProtectedRoute>
       </Route>
       <Route path="/alerts">
-        <ProtectedRoute><AlertsPage /></ProtectedRoute>
+        <ProtectedRoute>
+          <AppShell pageTitle="Alerts" activeNav="alerts">
+            <ProRoute>
+              <AlertsPage />
+            </ProRoute>
+          </AppShell>
+        </ProtectedRoute>
       </Route>
       <Route component={NotFound} />
     </Switch>
@@ -50,8 +78,10 @@ function App() {
       <LanguageProvider>
         <ThemeProvider>
           <TooltipProvider>
-            <Toaster />
-            <Router />
+            <UpgradeModalProvider>
+              <Toaster />
+              <Router />
+            </UpgradeModalProvider>
           </TooltipProvider>
         </ThemeProvider>
       </LanguageProvider>

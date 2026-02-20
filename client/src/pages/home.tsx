@@ -2,10 +2,8 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import GlossarySection from "@/components/glossary";
 import { ProcessNavigation } from "@/components/process-navigation";
-import { ThemeToggle } from "@/components/theme-provider";
-import { useLanguage, LanguageSelector } from "@/i18n/context";
-import { useAuth } from "@/hooks/useAuth";
-import { Link } from "wouter";
+import { useLanguage } from "@/i18n/context";
+import DashboardStats from "@/components/dashboard-stats";
 
 type TabId = "flow" | "audit" | "guide";
 
@@ -340,7 +338,6 @@ export default function Home() {
   const [openGates, setOpenGates] = useState<Set<string>>(new Set());
   const [checkedItems, setCheckedItems] = useState<Map<string, "checked" | "flagged" | "warn">>(new Map());
   const { t, content } = useLanguage();
-  const { user, isAuthenticated, logout } = useAuth();
   const gates = useTranslatedGates();
 
   const translatedAuditSections = useMemo(() => content.auditSections.map((sec, si) => ({
@@ -390,52 +387,9 @@ export default function Home() {
   const lateGates = gates.filter((g) => ["g6", "g7"].includes(g.id));
 
   return (
-    <div className="min-h-screen relative z-[1]">
-      <header className="sticky top-0 z-[200] flex items-center justify-between px-14 py-4 backdrop-blur-[14px] border-b max-md:px-5" style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }} data-testid="header">
-        <div className="font-heading font-black text-[20px] tracking-[2px] text-[#14B8A6]">
-          {t.header.brand}
-          <span className="font-normal text-[10px] tracking-[3px] block mt-[2px] uppercase" style={{ color: "var(--app-text-muted)" }}>
-            {t.header.subtitle}
-          </span>
-        </div>
-        <div className="inline-flex items-center gap-[7px] bg-[rgba(239,68,68,0.08)] border border-[rgba(239,68,68,0.22)] rounded-full py-[6px] px-[14px] font-heading text-[10px] font-bold tracking-[1.5px] uppercase" style={{ color: "var(--app-red-alert-text)" }} data-testid="deadline-pill">
-          <span className="w-[7px] h-[7px] rounded-full bg-[#EF4444] animate-blink shrink-0" />
-          {t.header.deadlinePill}
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-[11px] text-right leading-[1.8] max-md:hidden" style={{ color: "var(--app-text-muted)" }}>
-            {t.header.rightLabel1}<br />{t.header.rightLabel2}
-          </div>
-          <LanguageSelector />
-          <ThemeToggle />
-          {isAuthenticated ? (
-            <div className="flex items-center gap-2">
-              <Link to="/vault" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase text-[#14B8A6] hover:text-[#5EEAD4] transition-colors" data-testid="link-vault">
-                {t.vault.heading}
-              </Link>
-              <Link to="/timeline" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase hover:text-[#5EEAD4] transition-colors" style={{ color: "var(--app-text-muted)" }} data-testid="link-timeline">
-                {t.timeline.heading}
-              </Link>
-              <Link to="/alerts" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase hover:text-[#F59E0B] transition-colors relative" style={{ color: "var(--app-text-muted)" }} data-testid="link-alerts">
-                {t.alerts.heading}
-              </Link>
-              <span className="w-px h-4 mx-1" style={{ background: "var(--app-border)" }} />
-              <Link to="/profile" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase text-[#14B8A6] hover:text-[#5EEAD4] transition-colors" data-testid="link-profile">
-                {t.nav.profile}
-              </Link>
-              <button onClick={() => logout()} className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase hover:text-[#EF4444] transition-colors" style={{ color: "var(--app-text-muted)" }} data-testid="button-logout">
-                {t.nav.logout}
-              </button>
-            </div>
-          ) : (
-            <Link to="/login" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase text-[#14B8A6] hover:text-[#5EEAD4] transition-colors" data-testid="link-login">
-              {t.nav.login}
-            </Link>
-          )}
-        </div>
-      </header>
-
-      <div className="sticky top-[57px] z-[150] backdrop-blur-[14px] border-b px-14 flex max-md:px-5" style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }} data-testid="tab-nav">
+    <div className="relative z-[1]">
+      <DashboardStats />
+      <div className="sticky top-0 z-[150] backdrop-blur-[14px] border-b px-14 flex max-md:px-5" style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }} data-testid="tab-nav">
         {[
           { id: "flow" as const, label: t.tabs.flow },
           { id: "audit" as const, label: t.tabs.audit },

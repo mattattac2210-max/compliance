@@ -203,21 +203,13 @@ export default function VaultPage() {
   return (
     <div className="min-h-screen p-4 md:p-8" style={{ background: "var(--app-bg)" }}>
       <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="flex items-center justify-between flex-wrap gap-4">
-          <div>
-            <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-vault-heading">{t.vault.heading}</h1>
-              <span className="text-[9px] font-heading font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20" data-testid="badge-paid">
-                {t.vault.paidBadge}
-              </span>
-            </div>
-            <p className="text-slate-400 text-sm mt-1">{t.vault.subheading}</p>
-          </div>
-          <Link to="/app" className="text-[#14B8A6] hover:text-[#5EEAD4] text-sm transition-colors" data-testid="link-vault-back">
-            {t.vault.backToApp}
-          </Link>
+        <div className="flex items-center gap-3">
+          <h1 className="text-2xl font-heading font-bold text-white" data-testid="text-vault-heading">{t.vault.heading}</h1>
+          <span className="text-[9px] font-heading font-bold tracking-wider uppercase px-2 py-0.5 rounded-full bg-[#F59E0B]/10 text-[#F59E0B] border border-[#F59E0B]/20" data-testid="badge-paid">
+            {t.vault.paidBadge}
+          </span>
         </div>
+        <p className="text-slate-400 text-sm mt-1">{t.vault.subheading}</p>
 
         {properties.length === 0 ? (
           <div className="text-center py-16">
