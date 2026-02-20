@@ -124,7 +124,13 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
       openUpgradeModal();
       return;
     }
-    navigate(item.href);
+    const [path, qs] = item.href.split("?");
+    if (path === "/app" && location === "/app") {
+      window.history.replaceState(null, "", item.href);
+      window.dispatchEvent(new PopStateEvent("popstate"));
+    } else {
+      navigate(item.href);
+    }
     setSidebarOpen(false);
   };
 
