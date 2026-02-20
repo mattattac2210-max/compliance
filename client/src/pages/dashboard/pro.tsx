@@ -617,23 +617,15 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
             position: "relative",
           }}
         >
-          <div style={{ display: "flex", gap: 32, minWidth: "max-content", position: "relative" }}>
-            <div style={{
-              position: "absolute",
-              top: 28,
-              left: 68,
-              right: 68,
-              height: 2,
-              background: `linear-gradient(to right, ${gradientStops})`,
-              zIndex: 0,
-            }} />
+          <div style={{ display: "flex", gap: 0, minWidth: "max-content", position: "relative", alignItems: "flex-start" }}>
             {gateDocCounts.map((g, i) => {
               const s = gateStatus(g.pct);
               const col = STATUS_COLORS[s];
               const bg = STATUS_BG_ALPHA[s];
+              const nextCol = i < 7 ? STATUS_COLORS[gateStatus(gateDocCounts[i + 1].pct)] : col;
               return (
+                <div key={i} style={{ display: "flex", alignItems: "flex-start", flexShrink: 0 }}>
                 <div
-                  key={i}
                   data-testid={`gate-node-${i}`}
                   style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 1, cursor: "pointer", width: 80, flexShrink: 0 }}
                 >
@@ -686,6 +678,15 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
                       <div style={{ height: "100%", width: `${g.pct}%`, background: col, borderRadius: 2, transition: "width .8s ease" }} />
                     </div>
                   </div>
+                </div>
+                {i < 7 && (
+                  <div style={{ display: "flex", alignItems: "center", height: 56, flexShrink: 0, width: 32 }}>
+                    <svg width="32" height="16" viewBox="0 0 32 16" fill="none" style={{ display: "block" }}>
+                      <line x1="0" y1="8" x2="24" y2="8" stroke={nextCol} strokeWidth="2" strokeLinecap="round" />
+                      <path d="M20 3L27 8L20 13" stroke={nextCol} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                    </svg>
+                  </div>
+                )}
                 </div>
               );
             })}
