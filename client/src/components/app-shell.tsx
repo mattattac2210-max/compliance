@@ -53,9 +53,9 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
     {
       label: "OVERVIEW",
       items: [
-        { key: "compliance", icon: "\u2B21", label: t.tabs.flow.replace(/^.*\s/, "Compliance Flow"), href: "/app", pro: false },
-        { key: "audit", icon: "\u2713", label: t.tabs.audit.replace(/^.*\s/, "Self-Audit"), href: "/app?tab=audit", pro: false },
-        { key: "guide", icon: "\u25C8", label: t.tabs.guide.replace(/^.*\s/, "Guidebook"), href: "/app?tab=guide", pro: false },
+        { key: "compliance", icon: "\u2B21", label: t.tabs.flow, href: "/app", pro: false },
+        { key: "audit", icon: "\u2713", label: t.tabs.audit, href: "/app?tab=audit", pro: false },
+        { key: "guide", icon: "\u25C8", label: t.tabs.guide, href: "/app?tab=guide", pro: false },
       ],
     },
     {
