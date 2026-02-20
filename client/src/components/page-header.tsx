@@ -84,7 +84,7 @@ export default function PageHeader({
           {meta.map((m, i) => (
             <div
               key={i}
-              className="flex items-center gap-1.5 font-mono text-[10px]"
+              className="flex items-center gap-1.5 font-mono text-[11px]"
               style={{ color: "var(--t3)" }}
             >
               <div

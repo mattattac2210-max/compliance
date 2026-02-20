@@ -249,7 +249,7 @@ export default function GlossarySection({ hideHeading = false }: { hideHeading?:
                   <button
                     data-testid={`copy-term-${term.slug}`}
                     onClick={(e) => handleCopy(e, term)}
-                    className="text-[10px] font-bold py-[4px] px-[10px] rounded border transition-colors cursor-pointer hover-elevate"
+                    className="text-[11px] font-bold py-[4px] px-[10px] rounded border transition-colors cursor-pointer hover-elevate"
                     style={{
                       background: "var(--app-expand-bg)",
                       borderColor: "var(--app-border)",
@@ -341,7 +341,7 @@ export default function GlossarySection({ hideHeading = false }: { hideHeading?:
                           </div>
                         )}
 
-                        <div className="text-[10px] mt-3" style={{ color: "var(--app-text-dim)" }}>
+                        <div className="text-[11px] mt-3" style={{ color: "var(--app-text-dim)" }}>
                           {t.glossary.lastUpdated}: {term.lastUpdated}
                         </div>
                       </div>

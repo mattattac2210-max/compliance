@@ -232,7 +232,7 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                         <div className="w-[10px] h-[10px] rounded-full shrink-0" style={{ background: zone.color }} />
                         <div>
                           <span className="font-heading text-[11px] font-bold block" style={{ color: "var(--app-text-bright)" }}>{zone.name}</span>
-                          <span className="text-[10px] block" style={{ color: "var(--app-text-muted)" }}>{zone.status}</span>
+                          <span className="text-[11px] block" style={{ color: "var(--app-text-muted)" }}>{zone.status}</span>
                         </div>
                       </div>
                     ))}

@@ -63,7 +63,7 @@ function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: Retur
                     <GlossaryAwareText text={step.actionDescription} terms={terms} />
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-[10px] text-[10px]" style={{ color: "var(--app-text-muted)" }}>
+                  <div className="flex flex-wrap items-center gap-[10px] text-[11px]" style={{ color: "var(--app-text-muted)" }}>
                     <span className="flex items-center gap-[4px]">
                       <MapPin size={9} style={{ color: "var(--app-text-dim)" }} />
                       {step.whereItGoes}
@@ -76,7 +76,7 @@ function StepTimeline({ steps, terms, t }: { steps: SequenceStep[]; terms: Retur
                   </div>
 
                   {step.notes && (
-                    <div className="mt-[8px] text-[10px] italic leading-[1.5]" style={{ color: "var(--app-text-secondary)" }}>
+                    <div className="mt-[8px] text-[11px] italic leading-[1.5]" style={{ color: "var(--app-text-secondary)" }}>
                       <GlossaryAwareText text={step.notes} terms={terms} />
                     </div>
                   )}
@@ -258,7 +258,7 @@ function WorkflowCard({ guide, terms, lang, t }: { guide: ProcessGuide; terms: R
           <p className="text-[12px] font-light leading-[1.7]" style={{ color: "var(--app-text-secondary)" }}>
             <GlossaryAwareText text={translated.summary} terms={terms} />
           </p>
-          <div className="flex items-center gap-[8px] mt-[8px] text-[10px]" style={{ color: "var(--app-text-muted)" }}>
+          <div className="flex items-center gap-[8px] mt-[8px] text-[11px]" style={{ color: "var(--app-text-muted)" }}>
             <Building size={10} style={{ color: "var(--app-text-dim)" }} />
             <GlossaryAwareText text={translated.authorityHandledBy} terms={terms} />
           </div>
@@ -334,7 +334,7 @@ function WorkflowCard({ guide, terms, lang, t }: { guide: ProcessGuide; terms: R
                 </AnimatePresence>
               </div>
 
-              <div className="mt-[14px] text-[9px]" style={{ color: "var(--app-text-dim)" }}>
+              <div className="mt-[14px] text-[11px]" style={{ color: "var(--app-text-dim)" }}>
                 {t.processNav.lastUpdatedLabel}: {guide.lastUpdated}
               </div>
             </div>
@@ -455,7 +455,7 @@ export function ProcessNavigation() {
       <div className="mt-[20px] bg-[rgba(249,115,22,0.06)] border border-[rgba(249,115,22,0.15)] rounded-[8px] p-[12px_16px]">
         <div className="flex items-start gap-[8px]">
           <AlertTriangle size={12} className="text-[#F97316] shrink-0 mt-[2px]" />
-          <div className="text-[10px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
+          <div className="text-[11px] leading-[1.6]" style={{ color: "var(--app-text-secondary)" }}>
             <strong className="text-[#F97316]">Disclaimer:</strong> {t.processNav.disclaimer}
           </div>
         </div>
