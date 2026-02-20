@@ -426,7 +426,11 @@ export default function Home() {
                 : "border-b-transparent hover:text-[#14B8A6]"
             }`}
             style={activeTab !== tab.id ? { color: "var(--app-text-muted)" } : undefined}
-            onClick={() => setActiveTab(tab.id)}
+            onClick={() => {
+              setActiveTab(tab.id);
+              const contentEl = document.querySelector('[data-testid="app-content"]');
+              if (contentEl) contentEl.scrollTop = 0;
+            }}
           >
             {tab.label}
           </button>
