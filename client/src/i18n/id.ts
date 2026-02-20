@@ -69,7 +69,7 @@ export const id: UITranslations = {
     disclaimer: "Buku panduan ini adalah alat referensi operasional untuk operator vila di Bali. Ini bukan merupakan nasihat hukum, pajak, imigrasi, atau regulasi. Semua jadwal dan estimasi biaya bersifat indikatif dan dapat berubah. Gunakan profesional Indonesia berlisensi untuk semua urusan regulasi.",
   },
   glossary: {
-    heading: "Dekoder Terminologi Kepatuhan",
+    heading: "Terminologi Kepatuhan",
     searchPlaceholder: "Cari istilah...",
     allTags: "Semua",
     whyItMatters: "Mengapa Penting",
@@ -539,7 +539,7 @@ export const id: UITranslations = {
     pageTitleTimeline: "Linimasa Kepatuhan",
     pageTitleAlerts: "Peringatan",
     pageTitleDisclaimers: "Sanggahan",
-    pageTitleGlossary: "Dekoder Terminologi Kepatuhan",
+    pageTitleGlossary: "Terminologi Kepatuhan",
     pageTitleWorkflows: "Alur Kerja Langkah demi Langkah",
   },
   dashboard: {

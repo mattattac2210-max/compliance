@@ -69,7 +69,7 @@ export const en: UITranslations = {
     disclaimer: "This guidebook is an operational reference tool for villa operators in Bali. It does not constitute legal, tax, immigration, or regulatory advice. All timelines and cost estimates are indicative and subject to change. Engage appropriately licensed Indonesian professionals for all regulatory matters.",
   },
   glossary: {
-    heading: "Compliance Terminology Decoder",
+    heading: "Compliance Terminology",
     searchPlaceholder: "Search terms...",
     allTags: "All",
     whyItMatters: "Why It Matters",
@@ -539,7 +539,7 @@ export const en: UITranslations = {
     pageTitleTimeline: "Compliance Timeline",
     pageTitleAlerts: "Alerts",
     pageTitleDisclaimers: "Disclaimers",
-    pageTitleGlossary: "Compliance Terminology Decoder",
+    pageTitleGlossary: "Compliance Terminology",
     pageTitleWorkflows: "Step by Step Workflows",
   },
   dashboard: {
