@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, type ReactNode } from "react";
 import { Link, useLocation, useSearch } from "wouter";
 import { motion, AnimatePresence } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
@@ -7,6 +7,10 @@ import { ThemeToggle } from "@/components/theme-provider";
 import { useAuth } from "@/hooks/useAuth";
 import { useUpgradeModal } from "@/components/upgrade-modal";
 import { SupportModeBanner } from "@/components/support-mode-banner";
+import {
+  Hexagon, CheckCircle, BookOpen, Archive, Clock, AlertTriangle,
+  List, GitBranch, User, Settings, Lock, Menu, LogOut, ChevronLeft, ChevronRight
+} from "lucide-react";
 
 interface AppShellProps {
   children: React.ReactNode;
@@ -81,35 +85,36 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
   const vaultDocCount = vaultSummary ? (vaultSummary.uploaded + vaultSummary.expiring) : 0;
   const alertCount = vaultSummary?.expired ?? 0;
 
+  const iconSize = 16;
   const navSections = useMemo(() => [
     {
       label: "OVERVIEW",
       items: [
-        { key: "compliance", icon: "\u2B21", label: t.tabs.flow, href: "/app", pro: false },
-        { key: "audit", icon: "\u2713", label: t.tabs.audit, href: "/app?tab=audit", pro: false },
-        { key: "guide", icon: "\u25C8", label: t.tabs.guide, href: "/app?tab=guide", pro: false },
+        { key: "compliance", icon: <Hexagon size={iconSize} />, label: t.tabs.flow, href: "/app", pro: false },
+        { key: "audit", icon: <CheckCircle size={iconSize} />, label: t.tabs.audit, href: "/app?tab=audit", pro: false },
+        { key: "guide", icon: <BookOpen size={iconSize} />, label: t.tabs.guide, href: "/app?tab=guide", pro: false },
       ],
     },
     {
       label: "TRACKING",
       items: [
-        { key: "vault", icon: "\u25A1", label: t.nav.vault, href: "/vault", pro: true, badge: isPro ? vaultDocCount : undefined },
-        { key: "timeline", icon: "\u25CE", label: t.nav.timeline, href: "/timeline", pro: true },
-        { key: "alerts", icon: "\u26A0", label: t.nav.alerts, href: "/alerts", pro: true, alertBadge: isPro ? alertCount : undefined },
+        { key: "vault", icon: <Archive size={iconSize} />, label: t.nav.vault, href: "/vault", pro: true, badge: isPro ? vaultDocCount : undefined },
+        { key: "timeline", icon: <Clock size={iconSize} />, label: t.nav.timeline, href: "/timeline", pro: true },
+        { key: "alerts", icon: <AlertTriangle size={iconSize} />, label: t.nav.alerts, href: "/alerts", pro: true, alertBadge: isPro ? alertCount : undefined },
       ],
     },
     {
       label: "REFERENCE",
       items: [
-        { key: "glossary", icon: "\u2261", label: t.glossary.heading, href: "/app?tab=guide&section=glossary", pro: false },
-        { key: "workflows", icon: "\u21B3", label: t.processNav.heading, href: "/app?tab=guide&section=workflows", pro: false },
+        { key: "glossary", icon: <List size={iconSize} />, label: t.glossary.heading, href: "/app?tab=guide&section=glossary", pro: false },
+        { key: "workflows", icon: <GitBranch size={iconSize} />, label: t.processNav.heading, href: "/app?tab=guide&section=workflows", pro: false },
       ],
     },
     {
       label: "ACCOUNT",
       items: [
-        { key: "profile", icon: "\u25CB", label: t.nav.profile, href: "/profile", pro: false },
-        ...(user?.isAdmin ? [{ key: "admin-dashboard", icon: "\u2699", label: t.adminDashboard.heading, href: "/admin-dashboard", pro: false }] : []),
+        { key: "profile", icon: <User size={iconSize} />, label: t.nav.profile, href: "/profile", pro: false },
+        ...(user?.isAdmin ? [{ key: "admin-dashboard", icon: <Settings size={iconSize} />, label: t.adminDashboard.heading, href: "/admin-dashboard", pro: false }] : []),
       ],
     },
   ], [t, isPro, vaultDocCount, alertCount, user?.isAdmin]);
@@ -363,14 +368,15 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                 data-testid="sidebar-signout"
                 style={{
                   background: "transparent", border: "none", cursor: "pointer",
-                  color: "#64748B", fontSize: "16px", padding: "4px",
+                  color: "#64748B", padding: "4px",
                   transition: "color 0.2s",
                   flexShrink: 0,
+                  display: "flex", alignItems: "center",
                 }}
                 onMouseEnter={(e) => (e.currentTarget.style.color = "#EF4444")}
                 onMouseLeave={(e) => (e.currentTarget.style.color = "#64748B")}
               >
-                &#8618;
+                <LogOut size={16} />
               </button>
             </>
           )}
@@ -383,15 +389,11 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           data-testid="sidebar-collapse-toggle"
           style={{
             padding: "10px 0",
-            borderTop: "1px solid rgba(255,255,255,0.07)",
             background: "transparent",
             border: "none",
-            borderTopWidth: "1px",
-            borderTopStyle: "solid",
-            borderTopColor: "rgba(255,255,255,0.07)",
+            borderTop: "1px solid rgba(255,255,255,0.07)",
             cursor: "pointer",
             color: "#64748B",
-            fontSize: "14px",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -402,7 +404,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
           onMouseLeave={(e) => (e.currentTarget.style.color = "#64748B")}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
-          {collapsed ? "\u00BB" : "\u00AB"}
+          {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
       </aside>
 
@@ -426,9 +428,9 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
               className="md:hidden"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               data-testid="sidebar-toggle"
-              style={{ background: "transparent", border: "none", color: "#94A3B8", fontSize: "20px", cursor: "pointer", padding: "4px", marginRight: "8px" }}
+              style={{ background: "transparent", border: "none", color: "#94A3B8", cursor: "pointer", padding: "4px", marginRight: "8px", display: "flex", alignItems: "center" }}
             >
-              &#9776;
+              <Menu size={20} />
             </button>
             <span style={{ fontFamily: "Montserrat", fontSize: "11px", fontWeight: 700, color: "#14B8A6", letterSpacing: "1px" }}>
               DSCVR
@@ -524,7 +526,7 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
       onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.background = "rgba(255,255,255,0.04)"; }}
       onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.background = isActive ? "rgba(20,184,166,0.1)" : "transparent"; }}
     >
-      <span style={{ color: isActive ? "#14B8A6" : "#94A3B8", fontSize: "13px", width: "16px", textAlign: "center", flexShrink: 0 }}>
+      <span style={{ color: isActive ? "#14B8A6" : "#94A3B8", width: "16px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
         {item.icon}
       </span>
       {!collapsed && (
@@ -566,7 +568,7 @@ function NavItem({ item, isActive, collapsed, onClick }: { item: any; isActive: 
   return btn;
 }
 
-function LockedNavItem({ icon, label, collapsed }: { icon: string; label: string; collapsed: boolean }) {
+function LockedNavItem({ icon, label, collapsed }: { icon: ReactNode; label: string; collapsed: boolean }) {
   const [showTooltip, setShowTooltip] = useState(false);
   const { t } = useLanguage();
   const { openUpgradeModal } = useUpgradeModal();
@@ -591,13 +593,13 @@ function LockedNavItem({ icon, label, collapsed }: { icon: string; label: string
         filter: "grayscale(0.3)",
         marginBottom: "2px",
       }}>
-        <span style={{ color: "#64748B", fontSize: "13px", width: "16px", textAlign: "center", flexShrink: 0 }}>{icon}</span>
+        <span style={{ color: "#64748B", width: "16px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>{icon}</span>
         {!collapsed && (
           <>
             <span style={{ fontFamily: "Montserrat", fontSize: "12px", fontWeight: 600, color: "#64748B", flex: 1 }}>
               {label}
             </span>
-            <span style={{ fontSize: "11px" }}>&#128274;</span>
+            <Lock size={12} style={{ color: "#64748B", flexShrink: 0 }} />
           </>
         )}
       </div>
@@ -640,7 +642,7 @@ function LockedNavItem({ icon, label, collapsed }: { icon: string; label: string
 
   if (collapsed) {
     return (
-      <NavTooltip label={`${label} 🔒`}>
+      <NavTooltip label={`${label} (Pro)`}>
         {inner}
       </NavTooltip>
     );
