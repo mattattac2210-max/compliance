@@ -237,7 +237,7 @@ export default function LandingPage() {
                 transition={{ delay: 0.2 }}
                 className="font-heading text-[11px] font-bold tracking-[3px] uppercase text-[#14B8A6]"
               >
-                ◈ {l.heroKicker}
+                {l.heroKicker}
               </motion.p>
               <StaggeredHeadline lines={[l.heroHeadline1, l.heroHeadline2, l.heroHeadline3]} highlightFirst />
               <motion.p
