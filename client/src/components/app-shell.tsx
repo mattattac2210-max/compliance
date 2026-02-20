@@ -184,6 +184,12 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
             transition-all duration-200
             ${sidebarOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
           `}
+          onClick={(e) => {
+            if (!isMobile || !sidebarOpen) return;
+            const el = e.target as HTMLElement;
+            if (el.closest("button, a, [role='button']")) return;
+            setSidebarOpen(false);
+          }}
           style={{
             width: sidebarOpen ? `${EXPANDED_W}px` : `${sidebarW}px`,
             height: "100vh",
