@@ -6,9 +6,13 @@ import {
   type VaultDocumentTemplate,
   type VaultDocument, type InsertVaultDocument,
   type SupportAccessGrant, type AdminAccessLogEntry,
+  type BanjarContribution, type InsertBanjarContribution,
+  type RecurringFiling, type InsertRecurringFiling,
+  type StaffMember, type InsertStaffMember,
   users, complianceTerms, processNavigationGuides, properties,
   vaultDocumentTemplates, vaultDocuments,
   supportAccessGrants, adminAccessLog,
+  banjarContributions, recurringFilings, staffMembers,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, desc, count } from "drizzle-orm";
@@ -58,6 +62,20 @@ export interface IStorage {
   getAccessLog(limit: number, offset: number): Promise<Array<AdminAccessLogEntry & { adminEmail?: string; targetEmail?: string }>>;
   getActiveGrantUserIds(): Promise<string[]>;
   getPropertyCountsByUserIds(): Promise<Map<string, number>>;
+
+  getBanjarContributions(propertyId: string): Promise<BanjarContribution[]>;
+  createBanjarContribution(contrib: InsertBanjarContribution): Promise<BanjarContribution>;
+  deleteBanjarContribution(id: string): Promise<void>;
+
+  getStaffMembers(propertyId: string): Promise<StaffMember[]>;
+  createStaffMember(staff: InsertStaffMember): Promise<StaffMember>;
+  updateStaffMember(id: string, updates: Partial<InsertStaffMember>): Promise<StaffMember | undefined>;
+  deleteStaffMember(id: string): Promise<void>;
+
+  getRecurringFilings(propertyId: string): Promise<RecurringFiling[]>;
+  createRecurringFiling(filing: InsertRecurringFiling): Promise<RecurringFiling>;
+  updateRecurringFiling(id: string, updates: Partial<InsertRecurringFiling>): Promise<RecurringFiling | undefined>;
+  deleteRecurringFiling(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -342,6 +360,64 @@ export class DatabaseStorage implements IStorage {
       .where(eq(properties.isActive, true))
       .groupBy(properties.userId);
     return new Map(rows.map(r => [r.userId, r.count]));
+  }
+
+  async getBanjarContributions(propertyId: string): Promise<BanjarContribution[]> {
+    return db.select().from(banjarContributions)
+      .where(eq(banjarContributions.propertyId, propertyId))
+      .orderBy(desc(banjarContributions.contributionDate));
+  }
+
+  async createBanjarContribution(contrib: InsertBanjarContribution): Promise<BanjarContribution> {
+    const [created] = await db.insert(banjarContributions).values(contrib).returning();
+    return created;
+  }
+
+  async deleteBanjarContribution(id: string): Promise<void> {
+    await db.delete(banjarContributions).where(eq(banjarContributions.id, id));
+  }
+
+  async getStaffMembers(propertyId: string): Promise<StaffMember[]> {
+    return db.select().from(staffMembers)
+      .where(eq(staffMembers.propertyId, propertyId))
+      .orderBy(staffMembers.name);
+  }
+
+  async createStaffMember(staff: InsertStaffMember): Promise<StaffMember> {
+    const [created] = await db.insert(staffMembers).values(staff).returning();
+    return created;
+  }
+
+  async updateStaffMember(id: string, updates: Partial<InsertStaffMember>): Promise<StaffMember | undefined> {
+    const [updated] = await db.update(staffMembers).set(updates).where(eq(staffMembers.id, id)).returning();
+    return updated;
+  }
+
+  async deleteStaffMember(id: string): Promise<void> {
+    await db.delete(staffMembers).where(eq(staffMembers.id, id));
+  }
+
+  async getRecurringFilings(propertyId: string): Promise<RecurringFiling[]> {
+    return db.select().from(recurringFilings)
+      .where(eq(recurringFilings.propertyId, propertyId))
+      .orderBy(recurringFilings.dueDate);
+  }
+
+  async createRecurringFiling(filing: InsertRecurringFiling): Promise<RecurringFiling> {
+    const [created] = await db.insert(recurringFilings).values(filing).returning();
+    return created;
+  }
+
+  async updateRecurringFiling(id: string, updates: Partial<InsertRecurringFiling>): Promise<RecurringFiling | undefined> {
+    const [updated] = await db.update(recurringFilings)
+      .set({ ...updates, updatedAt: new Date().toISOString() })
+      .where(eq(recurringFilings.id, id))
+      .returning();
+    return updated;
+  }
+
+  async deleteRecurringFiling(id: string): Promise<void> {
+    await db.delete(recurringFilings).where(eq(recurringFilings.id, id));
   }
 }
 

@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertComplianceTermSchema, insertProcessGuideSchema, insertPropertySchema, insertVaultDocumentSchema } from "@shared/schema";
+import { insertComplianceTermSchema, insertProcessGuideSchema, insertPropertySchema, insertVaultDocumentSchema, insertBanjarContributionSchema, insertRecurringFilingSchema, insertStaffMemberSchema } from "@shared/schema";
 import { seedComplianceTerms } from "./seed";
 import { seedVaultTemplates } from "./seed-vault";
 import bcrypt from "bcrypt";
@@ -536,6 +536,104 @@ export async function registerRoutes(
     res.setHeader("Content-Type", "text/csv");
     res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
     res.send(csv);
+  });
+
+  // === Banjar contributions ===
+  app.get("/api/banjar-contributions", requireAuth, async (req, res) => {
+    const propertyId = req.query.propertyId as string;
+    if (!propertyId) return res.status(400).json({ message: "propertyId required" });
+    const property = await storage.getPropertyById(propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+    const contributions = await storage.getBanjarContributions(propertyId);
+    res.json(contributions);
+  });
+
+  app.post("/api/banjar-contributions", requireAuth, async (req, res) => {
+    const parsed = insertBanjarContributionSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
+    const property = await storage.getPropertyById(parsed.data.propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+    const contrib = await storage.createBanjarContribution(parsed.data);
+    res.status(201).json(contrib);
+  });
+
+  app.delete("/api/banjar-contributions/:id", requireAuth, async (req, res) => {
+    await storage.deleteBanjarContribution(req.params.id);
+    res.json({ ok: true });
+  });
+
+  // === Staff members ===
+  app.get("/api/staff", requireAuth, async (req, res) => {
+    const propertyId = req.query.propertyId as string;
+    if (!propertyId) return res.status(400).json({ message: "propertyId required" });
+    const property = await storage.getPropertyById(propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+    const staff = await storage.getStaffMembers(propertyId);
+    res.json(staff);
+  });
+
+  app.post("/api/staff", requireAuth, async (req, res) => {
+    const parsed = insertStaffMemberSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
+    const property = await storage.getPropertyById(parsed.data.propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+    const staff = await storage.createStaffMember(parsed.data);
+    res.status(201).json(staff);
+  });
+
+  app.patch("/api/staff/:id", requireAuth, async (req, res) => {
+    const { propertyId, ...body } = req.body;
+    const updated = await storage.updateStaffMember(req.params.id, body);
+    if (!updated) return res.status(404).json({ message: "Staff member not found" });
+    res.json(updated);
+  });
+
+  app.delete("/api/staff/:id", requireAuth, async (req, res) => {
+    await storage.deleteStaffMember(req.params.id);
+    res.json({ ok: true });
+  });
+
+  // === Recurring filings ===
+  app.get("/api/filings", requireAuth, async (req, res) => {
+    const propertyId = req.query.propertyId as string;
+    if (!propertyId) return res.status(400).json({ message: "propertyId required" });
+    const property = await storage.getPropertyById(propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+    const filings = await storage.getRecurringFilings(propertyId);
+    res.json(filings);
+  });
+
+  app.post("/api/filings", requireAuth, async (req, res) => {
+    const parsed = insertRecurringFilingSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
+    const property = await storage.getPropertyById(parsed.data.propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+    const filing = await storage.createRecurringFiling(parsed.data);
+    res.status(201).json(filing);
+  });
+
+  app.patch("/api/filings/:id", requireAuth, async (req, res) => {
+    const { propertyId, ...body } = req.body;
+    const updated = await storage.updateRecurringFiling(req.params.id, body);
+    if (!updated) return res.status(404).json({ message: "Filing not found" });
+    res.json(updated);
+  });
+
+  app.delete("/api/filings/:id", requireAuth, async (req, res) => {
+    await storage.deleteRecurringFiling(req.params.id);
+    res.json({ ok: true });
   });
 
   return httpServer;
