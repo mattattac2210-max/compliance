@@ -135,11 +135,11 @@ export default function ComplianceCalendar() {
 
   const toggleFilter = (f: string) => {
     setFilters(prev => {
-      const next = new Set(prev);
       if (f === "all") return new Set(["all"]);
+      if (prev.has(f)) return prev;
+      const next = new Set(prev);
       next.delete("all");
-      if (next.has(f)) next.delete(f); else next.add(f);
-      if (next.size === 0) return new Set(["all"]);
+      next.add(f);
       return next;
     });
   };
@@ -352,7 +352,7 @@ export default function ComplianceCalendar() {
       <div
         style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginBottom: "14px", alignItems: "center" }}
         data-testid="calendar-filters"
-        className="bg-[#eb0000]">
+        className="bg-[#eb0000] pl-[5px] pr-[5px] pt-[6px] pb-[6px]">
         <span style={{ fontFamily: "var(--font-display)", fontSize: "9px", letterSpacing: "1.5px", color: "var(--t4)", textTransform: "uppercase", marginRight: "3px" }}>{t.filter}</span>
         {FILTER_TYPES.map(f => (
           <button
