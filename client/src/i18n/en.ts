@@ -379,7 +379,7 @@ export const en: UITranslations = {
   },
   landing: {
     heroKicker: "BALI VILLA COMPLIANCE \u00B7 2026",
-    heroHeadline1: "Seven gates stand",
+    heroHeadline1: "Seven barriers stand",
     heroHeadline2: "between your property",
     heroHeadline3: "and OTA delisting.",
     heroSub: "The March 31, 2026 OTA verification deadline is not a bureaucratic formality. It\u2019s an automated system check against OSS. Account manager relationships cannot override a failed system check.",
