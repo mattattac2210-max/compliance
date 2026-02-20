@@ -512,7 +512,7 @@ export default function ComplianceCalendar() {
                         <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "12px", lineHeight: 1.4, color: "var(--txt)" }}>
                           {renderEventIcon(ev.icon, 12)} {ev.title}
                           {isOverdue && <span style={{ fontSize: "9px", color: "var(--danger)", fontFamily: "var(--font-display)", fontWeight: 700, marginLeft: "6px", display: "inline-flex", alignItems: "center", gap: "2px" }}><AlertTriangle style={{ width: 9, height: 9 }} /> {t.overdue}</span>}
-                          {isDueToday && <span style={{ fontSize: "9px", color: "var(--gold)", fontFamily: "var(--font-display)", fontWeight: 700, marginLeft: "6px" }}>{t.dueToday}</span>}
+                          {isDueToday && <span style={{ fontSize: "9px", color: "#FB923C", fontFamily: "var(--font-display)", fontWeight: 700, marginLeft: "6px" }}>{t.dueToday}</span>}
                         </div>
                       </div>
                       <div style={{ fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700, padding: "2px 6px", borderRadius: "10px", whiteSpace: "nowrap", letterSpacing: ".4px", flexShrink: 0, background: `${col}22`, color: col, border: `1px solid ${col}44` }}>

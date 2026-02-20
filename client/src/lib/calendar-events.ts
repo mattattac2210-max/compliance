@@ -27,7 +27,7 @@ export interface CustomEvent {
 
 export const GATE_COLORS: Record<number, string> = {
   0: "#94A3B8", 1: "#14B8A6", 2: "#60A5FA", 3: "#A78BFA",
-  4: "#F59E0B", 5: "#22C55E", 6: "#FCA5A5", 7: "#14B8A6",
+  4: "#F97316", 5: "#22C55E", 6: "#FCA5A5", 7: "#14B8A6",
 };
 
 export const GATE_NAMES: Record<number, string> = {
@@ -36,7 +36,7 @@ export const GATE_NAMES: Record<number, string> = {
 };
 
 export function typeColor(type: string, gate: number): string {
-  if (type === "ops") return "rgba(255,220,80,.9)";
+  if (type === "ops") return "#FB923C";
   if (type === "ota") return "#14B8A6";
   if (type === "banjar") return "#E879F9";
   if (type === "safety") return "#FCA5A5";
