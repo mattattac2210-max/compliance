@@ -381,7 +381,7 @@ export const id: UITranslations = {
     heroKicker: "KEPATUHAN VILLA BALI \u00B7 2026",
     heroHeadline1: "Tujuh gerbang menghalangi",
     heroHeadline2: "villa Anda",
-    heroHeadline3: "dari listing OTA.",
+    heroHeadline3: "dari delisting OTA.",
     heroSub: "Tenggat verifikasi OTA 31 Maret 2026 bukan formalitas birokrasi. Ini adalah pemeriksaan sistem otomatis terhadap OSS. Hubungan dengan manajer akun tidak dapat mengesampingkan kegagalan sistem.",
     ctaPrimary: "Daftar gratis",
     ctaSecondary: "Lihat isinya \u2193",
