@@ -5,15 +5,15 @@ import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/i18n/context";
 import {
   generateEvents, expandCustomEvent, typeColor, GATE_NAMES,
-  FILTER_TYPES, FILTER_LABELS, LEGEND_ITEMS,
+  FILTER_TYPES, getFilterLabels, getLegendItems,
   mapVaultDocs, mapStaffKitas, mapPropertyHgb,
   type CalendarEvent, type CustomEvent,
 } from "@/lib/calendar-events";
 import type { Property, VaultDocumentTemplate, VaultDocument, StaffMember } from "@shared/schema";
 
-const MONTH_NAMES = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-const DAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const COLOR_OPTIONS = ["#14B8A6", "#F59E0B", "#E879F9", "#FCA5A5", "#60A5FA", "#22C55E", "#A78BFA", "#94A3B8", "#FB923C", "#F472B6"];
+
+const LOCALE_MAP: Record<string, string> = { en: "en", uk: "uk", id: "id" };
 
 function loadCustomEvents(): CustomEvent[] {
   try { return JSON.parse(localStorage.getItem("dscvr-cal-custom") || "[]"); } catch { return []; }
@@ -32,7 +32,13 @@ export default function ComplianceCalendar() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const { user } = useAuth();
-  const { language } = useLanguage();
+  const { lang, t: uiT } = useLanguage();
+  const t = uiT.calendarPage;
+  const language = lang;
+  const locale = LOCALE_MAP[lang] || "en";
+
+  const filterLabels = useMemo(() => getFilterLabels(t), [t]);
+  const legendItems = useMemo(() => getLegendItems(t), [t]);
 
   const [curYear, setCurYear] = useState(today.getFullYear());
   const [curMonth, setCurMonth] = useState(today.getMonth());
@@ -214,7 +220,7 @@ export default function ComplianceCalendar() {
     return cells;
   }, [curYear, curMonth]);
 
-  const monthLabel = new Date(curYear, curMonth, 1).toLocaleString("en", { month: "long", year: "numeric" });
+  const monthLabel = new Date(curYear, curMonth, 1).toLocaleString(locale, { month: "long", year: "numeric" });
 
   const detailEvents = useMemo(() => {
     if (!selDate) return [];
@@ -234,8 +240,8 @@ export default function ComplianceCalendar() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px", flexWrap: "wrap", gap: "12px" }}>
         <div>
-          <h1 style={{ fontFamily: "Montserrat", fontWeight: 800, fontSize: "22px", color: "#F1F5F9" }} data-testid="calendar-title">Compliance Calendar</h1>
-          <p style={{ fontSize: "12px", color: "#94A3B8", marginTop: "3px" }}>Every filing, renewal, banjar obligation, safety check & Bali deadline</p>
+          <h1 style={{ fontFamily: "Montserrat", fontWeight: 800, fontSize: "22px", color: "#F1F5F9" }} data-testid="calendar-title">{t.title}</h1>
+          <p style={{ fontSize: "12px", color: "#94A3B8", marginTop: "3px" }}>{t.subtitle}</p>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "7px", flexWrap: "wrap" }}>
           <button
@@ -245,7 +251,7 @@ export default function ComplianceCalendar() {
             onMouseEnter={e => { e.currentTarget.style.borderColor = "#14B8A6"; e.currentTarget.style.color = "#14B8A6"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; e.currentTarget.style.color = "#94A3B8"; }}
           >
-            <ChevronLeft size={14} style={{ display: "inline", verticalAlign: "middle" }} /> Prev
+            <ChevronLeft size={14} style={{ display: "inline", verticalAlign: "middle" }} /> {t.prev}
           </button>
           <div style={{ fontFamily: "Montserrat", fontWeight: 800, fontSize: "16px", minWidth: "165px", textAlign: "center", color: "#F1F5F9" }} data-testid="month-label">
             {monthLabel}
@@ -257,7 +263,7 @@ export default function ComplianceCalendar() {
             onMouseEnter={e => { e.currentTarget.style.borderColor = "#14B8A6"; e.currentTarget.style.color = "#14B8A6"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; e.currentTarget.style.color = "#94A3B8"; }}
           >
-            Next <ChevronRight size={14} style={{ display: "inline", verticalAlign: "middle" }} />
+            {t.next} <ChevronRight size={14} style={{ display: "inline", verticalAlign: "middle" }} />
           </button>
           <button
             onClick={goToday}
@@ -266,7 +272,7 @@ export default function ComplianceCalendar() {
             onMouseEnter={e => { e.currentTarget.style.background = "rgba(20,184,166,0.2)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "rgba(20,184,166,0.12)"; }}
           >
-            Today
+            {t.today}
           </button>
           <button
             onClick={openAddModal}
@@ -275,14 +281,14 @@ export default function ComplianceCalendar() {
             onMouseEnter={e => { e.currentTarget.style.background = "#0fa898"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "#14B8A6"; }}
           >
-            <Plus size={14} /> Add Event
+            <Plus size={14} /> {t.addEvent}
           </button>
         </div>
       </div>
 
       {/* Year strip */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(12, 1fr)", gap: "4px", marginBottom: "14px" }} data-testid="year-strip">
-        {MONTH_NAMES.map((mn, mi) => {
+        {t.months.map((mn, mi) => {
           const mEvts = getEventsForMonth(curYear, mi);
           const types = [...new Set(mEvts.map(e => e.type))];
           return (
@@ -302,9 +308,9 @@ export default function ComplianceCalendar() {
                 {mn}
               </div>
               <div style={{ display: "flex", gap: "2px", justifyContent: "center", flexWrap: "wrap", minHeight: "10px" }}>
-                {types.slice(0, 6).map((t, i) => {
-                  const sample = mEvts.find(e => e.type === t);
-                  return <div key={i} style={{ width: "4px", height: "4px", borderRadius: "50%", background: typeColor(t, sample?.gate ?? 4) }} />;
+                {types.slice(0, 6).map((tp, i) => {
+                  const sample = mEvts.find(e => e.type === tp);
+                  return <div key={i} style={{ width: "4px", height: "4px", borderRadius: "50%", background: typeColor(tp, sample?.gate ?? 4) }} />;
                 })}
               </div>
             </div>
@@ -314,7 +320,7 @@ export default function ComplianceCalendar() {
 
       {/* Filters */}
       <div style={{ display: "flex", gap: "5px", flexWrap: "wrap", marginBottom: "14px", alignItems: "center" }} data-testid="calendar-filters">
-        <span style={{ fontFamily: "Montserrat", fontSize: "9px", letterSpacing: "1.5px", color: "#475569", textTransform: "uppercase", marginRight: "3px" }}>Filter:</span>
+        <span style={{ fontFamily: "Montserrat", fontSize: "9px", letterSpacing: "1.5px", color: "#475569", textTransform: "uppercase", marginRight: "3px" }}>{t.filter}</span>
         {FILTER_TYPES.map(f => (
           <button
             key={f}
@@ -331,7 +337,7 @@ export default function ComplianceCalendar() {
             onMouseEnter={e => { if (!filters.has(f)) { e.currentTarget.style.borderColor = "rgba(255,255,255,0.2)"; e.currentTarget.style.color = "#F1F5F9"; } }}
             onMouseLeave={e => { if (!filters.has(f)) { e.currentTarget.style.borderColor = "rgba(255,255,255,0.07)"; e.currentTarget.style.color = "#94A3B8"; } }}
           >
-            {FILTER_LABELS[f]}
+            {filterLabels[f]}
           </button>
         ))}
       </div>
@@ -339,7 +345,7 @@ export default function ComplianceCalendar() {
       {/* Calendar grid */}
       <div style={{ background: "#0D1B2E", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="calendar-grid">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", borderBottom: "1px solid rgba(255,255,255,0.07)" }}>
-          {DAY_NAMES.map(d => (
+          {t.days.map(d => (
             <div key={d} style={{ padding: "9px 0", textAlign: "center", fontFamily: "Montserrat", fontSize: "9px", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "#475569" }}>
               {d}
             </div>
@@ -402,7 +408,7 @@ export default function ComplianceCalendar() {
                     onClick={e => { e.stopPropagation(); if (!c.outside) setSelDate(cellDate); }}
                     style={{ fontSize: "9px", color: "#475569", fontFamily: "Montserrat", fontWeight: 600, padding: "1px 3px", cursor: "pointer" }}
                   >
-                    +{overflow} more
+                    +{overflow} {t.more}
                   </div>
                 )}
               </div>
@@ -416,23 +422,23 @@ export default function ComplianceCalendar() {
         {!selDate ? (
           <div style={{ padding: "32px 20px", textAlign: "center", color: "#475569" }}>
             <CalIcon size={26} style={{ marginBottom: "8px", opacity: 0.4 }} />
-            <p>Click any day to see compliance events</p>
+            <p>{t.clickDay}</p>
           </div>
         ) : detailEvents.length === 0 ? (
           <>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 17px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#111f34" }}>
               <div>
                 <div style={{ fontFamily: "Montserrat", fontWeight: 800, fontSize: "14px", color: "#F1F5F9" }}>
-                  {selDate.toLocaleDateString("en", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                  {selDate.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                 </div>
-                <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "2px" }}>No events</div>
+                <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "2px" }}>{t.noEvents}</div>
               </div>
               <button onClick={() => setSelDate(null)} data-testid="btn-close-detail" style={{ width: "26px", height: "26px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#94A3B8", fontSize: "14px" }}>
                 <X size={14} />
               </button>
             </div>
             <div style={{ padding: "20px", textAlign: "center", color: "#475569" }}>
-              <p>No filings or deadlines on this date.</p>
+              <p>{t.noFilings}</p>
             </div>
           </>
         ) : (
@@ -440,10 +446,10 @@ export default function ComplianceCalendar() {
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 17px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#111f34" }}>
               <div>
                 <div style={{ fontFamily: "Montserrat", fontWeight: 800, fontSize: "14px", color: "#F1F5F9" }}>
-                  {selDate.toLocaleDateString("en", { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
+                  {selDate.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                 </div>
                 <div style={{ fontSize: "11px", color: "#94A3B8", marginTop: "2px" }}>
-                  {detailEvents.length} event{detailEvents.length !== 1 ? "s" : ""}
+                  {detailEvents.length} {detailEvents.length !== 1 ? t.events : t.event}
                 </div>
               </div>
               <button onClick={() => setSelDate(null)} data-testid="btn-close-detail" style={{ width: "26px", height: "26px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#94A3B8" }}>
@@ -453,7 +459,7 @@ export default function ComplianceCalendar() {
             <div style={{ padding: "10px", display: "flex", flexDirection: "column", gap: "7px", maxHeight: "300px", overflowY: "auto" }}>
               {detailEvents.map(ev => {
                 const col = ev.isCustom ? (ev.customColor || "rgba(255,255,255,.35)") : typeColor(ev.type, ev.gate);
-                const gn = ev.gate >= 0 ? (GATE_NAMES[ev.gate] || "Custom") : "Custom";
+                const gn = ev.gate >= 0 ? (GATE_NAMES[ev.gate] || t.custom) : t.custom;
                 const isFiled = filed.has(ev.id);
                 const isOverdue = ev.daysUntil < 0 && ev.type !== "ops" && ev.type !== "banjar";
                 const isDueToday = ev.daysUntil === 0;
@@ -471,8 +477,8 @@ export default function ComplianceCalendar() {
                       <div style={{ flex: 1 }}>
                         <div style={{ fontFamily: "Montserrat", fontWeight: 700, fontSize: "12px", lineHeight: 1.4, color: "#F1F5F9" }}>
                           {ev.icon} {ev.title}
-                          {isOverdue && <span style={{ fontSize: "9px", color: "#EF4444", fontFamily: "Montserrat", fontWeight: 700, marginLeft: "6px" }}>⚠ OVERDUE</span>}
-                          {isDueToday && <span style={{ fontSize: "9px", color: "#F59E0B", fontFamily: "Montserrat", fontWeight: 700, marginLeft: "6px" }}>DUE TODAY</span>}
+                          {isOverdue && <span style={{ fontSize: "9px", color: "#EF4444", fontFamily: "Montserrat", fontWeight: 700, marginLeft: "6px" }}>⚠ {t.overdue}</span>}
+                          {isDueToday && <span style={{ fontSize: "9px", color: "#F59E0B", fontFamily: "Montserrat", fontWeight: 700, marginLeft: "6px" }}>{t.dueToday}</span>}
                         </div>
                       </div>
                       <div style={{ fontFamily: "Montserrat", fontSize: "9px", fontWeight: 700, padding: "2px 6px", borderRadius: "10px", whiteSpace: "nowrap", letterSpacing: ".4px", flexShrink: 0, background: `${col}22`, color: col, border: `1px solid ${col}44` }}>
@@ -481,14 +487,14 @@ export default function ComplianceCalendar() {
                     </div>
                     <div style={{ fontFamily: "monospace", fontSize: "10px", color: "#475569", marginBottom: "4px" }}>
                       {ev.period}
-                      {ev.recurring && <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "9px", fontFamily: "Montserrat", fontWeight: 700, color: "#475569", padding: "1px 5px", background: "rgba(255,255,255,0.05)", borderRadius: "10px", marginLeft: "6px" }}>↻ Recurring</span>}
+                      {ev.recurring && <span style={{ display: "inline-flex", alignItems: "center", gap: "3px", fontSize: "9px", fontFamily: "Montserrat", fontWeight: 700, color: "#475569", padding: "1px 5px", background: "rgba(255,255,255,0.05)", borderRadius: "10px", marginLeft: "6px" }}>↻ {t.recurring}</span>}
                     </div>
                     <div style={{ fontSize: "11px", color: "#94A3B8", lineHeight: 1.5, marginBottom: "8px" }}>{ev.desc}</div>
                     <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", alignItems: "center" }}>
                       {ev.recurring && (
                         isFiled ? (
                           <span style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", color: "#22C55E", cursor: "default", letterSpacing: ".3px" }}>
-                            ✓ Filed
+                            ✓ {t.filed}
                           </span>
                         ) : (
                           <button
@@ -496,13 +502,13 @@ export default function ComplianceCalendar() {
                             data-testid={`btn-filed-${ev.id}`}
                             style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", cursor: "pointer", letterSpacing: ".3px", transition: "all .15s", border: "1px solid rgba(20,184,166,0.3)", background: "rgba(20,184,166,0.12)", color: "#14B8A6" }}
                           >
-                            Mark as filed
+                            {t.markFiled}
                           </button>
                         )
                       )}
                       {!ev.isCustom && ev.type !== "ops" && (
                         <button style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", cursor: "pointer", letterSpacing: ".3px", transition: "all .15s", border: "1px solid rgba(255,255,255,0.07)", background: "transparent", color: "#94A3B8" }}>
-                          Go to Vault →
+                          {t.goToVault} →
                         </button>
                       )}
                       {ev.isCustom && (
@@ -511,13 +517,13 @@ export default function ComplianceCalendar() {
                             onClick={() => editCustom(ev.id)}
                             style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", cursor: "pointer", letterSpacing: ".3px", transition: "all .15s", border: "1px solid rgba(255,255,255,0.07)", background: "transparent", color: "#94A3B8" }}
                           >
-                            Edit
+                            {t.edit}
                           </button>
                           <button
                             onClick={() => deleteCustom(ev.id)}
                             style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", cursor: "pointer", letterSpacing: ".3px", transition: "all .15s", border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.1)", color: "#EF4444" }}
                           >
-                            Delete
+                            {t.delete}
                           </button>
                         </>
                       )}
@@ -532,7 +538,7 @@ export default function ComplianceCalendar() {
 
       {/* Legend */}
       <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", padding: "10px 14px", background: "#0D1B2E", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "8px" }} data-testid="calendar-legend">
-        {LEGEND_ITEMS.map(li => (
+        {legendItems.map(li => (
           <div key={li.label} style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "10px", color: "#94A3B8", fontFamily: "Montserrat", fontWeight: 600 }}>
             <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: li.color, flexShrink: 0 }} />
             {li.label}
@@ -554,7 +560,7 @@ export default function ComplianceCalendar() {
           >
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "17px 22px", borderBottom: "1px solid rgba(255,255,255,0.07)", background: "#111f34" }}>
               <div style={{ fontFamily: "Montserrat", fontWeight: 800, fontSize: "16px", color: "#F1F5F9" }}>
-                {editId ? "Edit Calendar Event" : "Add Calendar Event"}
+                {editId ? t.editModal : t.addModal}
               </div>
               <button onClick={() => setShowModal(false)} style={{ width: "28px", height: "28px", background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#94A3B8" }}>
                 <X size={15} />
@@ -562,12 +568,12 @@ export default function ComplianceCalendar() {
             </div>
             <div style={{ padding: "18px 22px", display: "flex", flexDirection: "column", gap: "13px" }}>
               <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>Event Title *</label>
+                <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>{t.labelTitle}</label>
                 <input
                   type="text"
                   value={formTitle}
                   onChange={e => setFormTitle(e.target.value)}
-                  placeholder="e.g. Banjar monthly donation, APAR recheck..."
+                  placeholder={t.placeholderTitle}
                   data-testid="input-title"
                   style={{ background: "#111f34", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "7px", padding: "8px 12px", color: "#F1F5F9", fontFamily: "Lato", fontSize: "13px", outline: "none", width: "100%" }}
                   onFocus={e => { e.currentTarget.style.borderColor = "rgba(20,184,166,0.4)"; }}
@@ -576,7 +582,7 @@ export default function ComplianceCalendar() {
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                  <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>Date *</label>
+                  <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>{t.labelDate}</label>
                   <input
                     type="date"
                     value={formDate}
@@ -586,71 +592,66 @@ export default function ComplianceCalendar() {
                   />
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                  <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>Category</label>
+                  <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>{t.labelCategory}</label>
                   <select
                     value={formType}
                     onChange={e => setFormType(e.target.value as CustomEvent["type"])}
                     data-testid="input-type"
                     style={{ background: "#111f34", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "7px", padding: "8px 12px", color: "#F1F5F9", fontFamily: "Lato", fontSize: "13px", outline: "none", width: "100%", cursor: "pointer", appearance: "none" }}
                   >
-                    <option value="custom">Custom</option>
-                    <option value="banjar">Banjar</option>
-                    <option value="safety">Safety</option>
-                    <option value="tax">Tax</option>
-                    <option value="bpjs">BPJS / Staff</option>
-                    <option value="docs">Document</option>
-                    <option value="ops">Operational</option>
-                    <option value="ota">OTA</option>
+                    <option value="custom">{t.catCustom}</option>
+                    <option value="banjar">{t.catBanjar}</option>
+                    <option value="safety">{t.catSafety}</option>
+                    <option value="tax">{t.catTax}</option>
+                    <option value="bpjs">{t.catBpjs}</option>
+                    <option value="docs">{t.catDocument}</option>
+                    <option value="ops">{t.catOperational}</option>
+                    <option value="ota">{t.catOta}</option>
                   </select>
                 </div>
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                  <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>Repeats</label>
+                  <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>{t.labelRepeats}</label>
                   <select
                     value={formRecurring}
                     onChange={e => setFormRecurring(e.target.value as CustomEvent["recurring"])}
                     data-testid="input-recurring"
                     style={{ background: "#111f34", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "7px", padding: "8px 12px", color: "#F1F5F9", fontFamily: "Lato", fontSize: "13px", outline: "none", width: "100%", cursor: "pointer", appearance: "none" }}
                   >
-                    <option value="none">No repeat</option>
-                    <option value="monthly">Monthly</option>
-                    <option value="quarterly">Quarterly</option>
-                    <option value="annual">Annually</option>
+                    <option value="none">{t.noRepeat}</option>
+                    <option value="monthly">{t.monthly}</option>
+                    <option value="quarterly">{t.quarterly}</option>
+                    <option value="annual">{t.annually}</option>
                   </select>
                 </div>
                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                  <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>Gate (optional)</label>
+                  <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>{t.labelGate}</label>
                   <select
                     value={formGate}
                     onChange={e => setFormGate(Number(e.target.value))}
                     data-testid="input-gate"
                     style={{ background: "#111f34", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "7px", padding: "8px 12px", color: "#F1F5F9", fontFamily: "Lato", fontSize: "13px", outline: "none", width: "100%", cursor: "pointer", appearance: "none" }}
                   >
-                    <option value={-1}>No gate</option>
-                    <option value={0}>G0 Foundation</option>
-                    <option value={1}>G1 Zoning</option>
-                    <option value={2}>G2 NIB</option>
-                    <option value={3}>G3 Building</option>
-                    <option value={4}>G4 Tax</option>
-                    <option value={5}>G5 Staff</option>
-                    <option value={6}>G6 Safety</option>
-                    <option value={7}>G7 OTA</option>
+                    <option value={-1}>{t.noGate}</option>
+                    {Object.entries(GATE_NAMES).map(([k, v]) => (
+                      <option key={k} value={k}>{v}</option>
+                    ))}
                   </select>
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>Notes / Description</label>
+                <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>{t.labelNotes}</label>
                 <textarea
                   value={formDesc}
                   onChange={e => setFormDesc(e.target.value)}
-                  placeholder="Amounts, contacts, portal links, what to bring..."
+                  placeholder={t.placeholderNotes}
                   data-testid="input-desc"
                   style={{ background: "#111f34", border: "1px solid rgba(255,255,255,0.07)", borderRadius: "7px", padding: "8px 12px", color: "#F1F5F9", fontFamily: "Lato", fontSize: "13px", outline: "none", width: "100%", resize: "vertical", minHeight: "65px" }}
                 />
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
-                <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>Colour</label>
+                <label style={{ fontFamily: "Montserrat", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "#94A3B8" }}>{t.labelColour}</label>
                 <div style={{ display: "flex", gap: "7px", flexWrap: "wrap" }}>
                   {COLOR_OPTIONS.map(c => (
                     <div
@@ -672,14 +673,14 @@ export default function ComplianceCalendar() {
                 onClick={() => setShowModal(false)}
                 style={{ background: "transparent", border: "1px solid rgba(255,255,255,0.07)", color: "#94A3B8", padding: "8px 18px", borderRadius: "7px", cursor: "pointer", fontFamily: "Montserrat", fontSize: "11px", fontWeight: 700 }}
               >
-                Cancel
+                {t.cancel}
               </button>
               <button
                 onClick={saveEvent}
                 data-testid="btn-save-event"
                 style={{ background: "#14B8A6", border: "none", color: "#07101E", padding: "8px 22px", borderRadius: "7px", cursor: "pointer", fontFamily: "Montserrat", fontSize: "11px", fontWeight: 800 }}
               >
-                Save Event
+                {t.saveEvent}
               </button>
             </div>
           </div>

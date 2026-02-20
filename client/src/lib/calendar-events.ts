@@ -302,6 +302,13 @@ export const FILTER_LABELS: Record<string, string> = {
   safety: "Safety", docs: "Documents", ops: "Operational", ota: "OTA", custom: "Custom",
 };
 
+export function getFilterLabels(t: { filterAll: string; filterTax: string; filterBpjs: string; filterBanjar: string; filterSafety: string; filterDocs: string; filterOps: string; filterOta: string; filterCustom: string }): Record<string, string> {
+  return {
+    all: t.filterAll, tax: t.filterTax, bpjs: t.filterBpjs, banjar: t.filterBanjar,
+    safety: t.filterSafety, docs: t.filterDocs, ops: t.filterOps, ota: t.filterOta, custom: t.filterCustom,
+  };
+}
+
 export const LEGEND_ITEMS = [
   { label: "Tax", color: "#F59E0B" },
   { label: "BPJS/Staff", color: "#22C55E" },
@@ -314,3 +321,18 @@ export const LEGEND_ITEMS = [
   { label: "Overdue", color: "rgba(239,68,68,.8)" },
   { label: "Custom", color: "rgba(255,255,255,.3)" },
 ];
+
+export function getLegendItems(t: { legendTax: string; legendBpjs: string; legendBanjar: string; legendSafety: string; legendCorp: string; legendDocExpiry: string; legendHolidays: string; legendOta: string; legendOverdue: string; legendCustom: string }) {
+  return [
+    { label: t.legendTax, color: "#F59E0B" },
+    { label: t.legendBpjs, color: "#22C55E" },
+    { label: t.legendBanjar, color: "#E879F9" },
+    { label: t.legendSafety, color: "#FCA5A5" },
+    { label: t.legendCorp, color: "#94A3B8" },
+    { label: t.legendDocExpiry, color: "#A78BFA" },
+    { label: t.legendHolidays, color: "rgba(255,220,80,.9)" },
+    { label: t.legendOta, color: "#14B8A6" },
+    { label: t.legendOverdue, color: "rgba(239,68,68,.8)" },
+    { label: t.legendCustom, color: "rgba(255,255,255,.3)" },
+  ];
+}
