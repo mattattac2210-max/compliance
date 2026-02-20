@@ -235,8 +235,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                   onMouseLeave={(e) => (e.currentTarget.style.borderColor = "var(--accent-tint2)")}
                 >
                   <span
-                    style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 700, color: "var(--txt)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                    className="text-[#c9c9c9]">
+                    style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 700, color: "#ffffff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                     {activeProperty.propertyName}{activeProperty.regency ? `, ${activeProperty.regency}` : ""}
                   </span>
                   <span style={{ color: "var(--t3)", fontSize: "10px", flexShrink: 0, marginLeft: "4px" }}>&#9662;</span>
