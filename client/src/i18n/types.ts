@@ -180,6 +180,69 @@ export interface UITranslations {
     logout: string;
     login: string;
   };
+  vault: {
+    heading: string;
+    subheading: string;
+    backToApp: string;
+    gateLabel: string;
+    requiredLabel: string;
+    optionalLabel: string;
+    statusMissing: string;
+    statusUploaded: string;
+    statusExpiring: string;
+    statusExpired: string;
+    expiryLabel: string;
+    uploadedLabel: string;
+    editButton: string;
+    saveButton: string;
+    cancelButton: string;
+    notesLabel: string;
+    notesPlaceholder: string;
+    expiryDateLabel: string;
+    noPropertySelected: string;
+    selectPropertyPrompt: string;
+    completionLabel: string;
+    documentsLabel: string;
+  };
+  timeline: {
+    heading: string;
+    subheading: string;
+    backToApp: string;
+    overdueLabel: string;
+    todayLabel: string;
+    upcomingLabel: string;
+    daysOverdue: string;
+    daysUntil: string;
+    noItems: string;
+    noItemsDesc: string;
+    fixedDeadlinesHeading: string;
+    vaultDeadlinesHeading: string;
+    filterAll: string;
+    filterOverdue: string;
+    filterThisMonth: string;
+    filterNext90: string;
+    fixedSptTahunan: string;
+    fixedPphMonthly: string;
+    fixedPb1Monthly: string;
+    fixedBpjsMonthly: string;
+    fixedOtaDeadline: string;
+    statusLabel: string;
+  };
+  alerts: {
+    heading: string;
+    subheading: string;
+    backToApp: string;
+    allClear: string;
+    allClearDesc: string;
+    markRead: string;
+    overdueSection: string;
+    upcomingSection: string;
+    dismissLabel: string;
+    viewVault: string;
+    viewTimeline: string;
+    daysLabel: string;
+    badgeTooltip: string;
+  };
 }
 
 export interface GateTranslation {

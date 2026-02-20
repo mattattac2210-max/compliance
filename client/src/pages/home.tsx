@@ -410,6 +410,16 @@ export default function Home() {
           <ThemeToggle />
           {isAuthenticated ? (
             <div className="flex items-center gap-2">
+              <Link to="/vault" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase text-[#14B8A6] hover:text-[#5EEAD4] transition-colors" data-testid="link-vault">
+                {t.vault.heading}
+              </Link>
+              <Link to="/timeline" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase hover:text-[#5EEAD4] transition-colors" style={{ color: "var(--app-text-muted)" }} data-testid="link-timeline">
+                {t.timeline.heading}
+              </Link>
+              <Link to="/alerts" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase hover:text-[#F59E0B] transition-colors relative" style={{ color: "var(--app-text-muted)" }} data-testid="link-alerts">
+                {t.alerts.heading}
+              </Link>
+              <span className="w-px h-4 mx-1" style={{ background: "var(--app-border)" }} />
               <Link to="/profile" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase text-[#14B8A6] hover:text-[#5EEAD4] transition-colors" data-testid="link-profile">
                 {t.nav.profile}
               </Link>

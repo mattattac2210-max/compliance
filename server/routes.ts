@@ -1,8 +1,9 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertComplianceTermSchema, insertProcessGuideSchema, insertPropertySchema } from "@shared/schema";
+import { insertComplianceTermSchema, insertProcessGuideSchema, insertPropertySchema, insertVaultDocumentSchema } from "@shared/schema";
 import { seedComplianceTerms } from "./seed";
+import { seedVaultTemplates } from "./seed-vault";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 
@@ -26,6 +27,7 @@ export async function registerRoutes(
   app: Express
 ): Promise<Server> {
   await seedComplianceTerms();
+  await seedVaultTemplates();
 
   app.post("/api/auth/register", async (req, res) => {
     const parsed = registerSchema.safeParse(req.body);
@@ -211,6 +213,121 @@ export async function registerRoutes(
     }
 
     const updated = await storage.updateGuide(req.params.id, parsed.data);
+    res.json(updated);
+  });
+
+  app.get("/api/vault/templates", async (_req, res) => {
+    const templates = await storage.getAllTemplates();
+    res.json(templates);
+  });
+
+  app.get("/api/vault/summary", requireAuth, async (req, res) => {
+    const propertyId = req.query.propertyId as string;
+    if (!propertyId) return res.status(400).json({ message: "propertyId required" });
+
+    const property = await storage.getPropertyById(propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    const templates = await storage.getAllTemplates();
+    const docs = await storage.getVaultDocumentsByProperty(propertyId);
+    const today = new Date();
+    const ninetyDays = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
+
+    const docMap = new Map(docs.map(d => [d.templateId, d]));
+    let uploaded = 0, missing = 0, expiring = 0, expired = 0;
+    const gateStats = new Map<number, { total: number; done: number }>();
+
+    for (const tmpl of templates) {
+      const gs = gateStats.get(tmpl.gateNumber) || { total: 0, done: 0 };
+      if (tmpl.isRequired) gs.total++;
+      const doc = docMap.get(tmpl.id);
+      let status = doc?.status || "missing";
+      if (doc?.expiryDate) {
+        const exp = new Date(doc.expiryDate);
+        if (exp < today) status = "expired";
+        else if (exp < ninetyDays) status = "expiring";
+      }
+      if (status === "uploaded") { uploaded++; if (tmpl.isRequired) gs.done++; }
+      else if (status === "expiring") { expiring++; if (tmpl.isRequired) gs.done++; }
+      else if (status === "expired") { expired++; }
+      else { missing++; }
+      gateStats.set(tmpl.gateNumber, gs);
+    }
+
+    const total = templates.length;
+    const requiredTotal = templates.filter(t => t.isRequired).length;
+    const requiredDone = uploaded + expiring;
+    const completionPct = requiredTotal > 0 ? Math.round((requiredDone / requiredTotal) * 100) : 0;
+    const gateCompletions = Array.from(gateStats.entries()).map(([gateNumber, s]) => ({
+      gateNumber,
+      pct: s.total > 0 ? Math.round((s.done / s.total) * 100) : 100,
+    })).sort((a, b) => a.gateNumber - b.gateNumber);
+
+    res.json({ total, uploaded, missing, expiring, expired, completionPct, gateCompletions });
+  });
+
+  app.get("/api/vault", requireAuth, async (req, res) => {
+    const propertyId = req.query.propertyId as string;
+    if (!propertyId) return res.status(400).json({ message: "propertyId required" });
+
+    const property = await storage.getPropertyById(propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    const docs = await storage.getVaultDocumentsByProperty(propertyId);
+    const today = new Date();
+    const ninetyDays = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
+
+    const computed = docs.map(doc => {
+      let status = doc.status;
+      if (doc.expiryDate) {
+        const exp = new Date(doc.expiryDate);
+        if (exp < today) status = "expired";
+        else if (exp < ninetyDays) status = "expiring";
+      }
+      return { ...doc, status };
+    });
+    res.json(computed);
+  });
+
+  app.post("/api/vault", requireAuth, async (req, res) => {
+    const { propertyId, templateId, status, expiryDate, fileUrl, notes } = req.body;
+    if (!propertyId || !templateId) {
+      return res.status(400).json({ message: "propertyId and templateId required" });
+    }
+
+    const property = await storage.getPropertyById(propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    const doc = await storage.upsertVaultDocument({
+      propertyId,
+      templateId,
+      status: status || "missing",
+      expiryDate: expiryDate || null,
+      uploadedAt: status === "uploaded" ? new Date().toISOString() : null,
+      fileUrl: fileUrl || null,
+      notes: notes || null,
+      updatedAt: new Date().toISOString(),
+    });
+    res.json(doc);
+  });
+
+  app.patch("/api/vault/:id", requireAuth, async (req, res) => {
+    const doc = await storage.getVaultDocumentById(req.params.id);
+    if (!doc) return res.status(404).json({ message: "Document not found" });
+
+    const property = await storage.getPropertyById(doc.propertyId);
+    if (!property || property.userId !== req.session.userId) {
+      return res.status(404).json({ message: "Property not found" });
+    }
+
+    const { propertyId, templateId, ...body } = req.body;
+    const updated = await storage.updateVaultDocument(req.params.id, body);
     res.json(updated);
   });
 

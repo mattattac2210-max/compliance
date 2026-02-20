@@ -12,6 +12,9 @@ import AdminPage from "@/pages/admin";
 import LoginPage from "@/pages/login";
 import RegisterPage from "@/pages/register";
 import ProfilePage from "@/pages/profile";
+import VaultPage from "@/pages/vault";
+import TimelinePage from "@/pages/timeline";
+import AlertsPage from "@/pages/alerts";
 
 function Router() {
   return (
@@ -22,6 +25,15 @@ function Router() {
       <Route path="/register" component={RegisterPage} />
       <Route path="/profile">
         <ProtectedRoute><ProfilePage /></ProtectedRoute>
+      </Route>
+      <Route path="/vault">
+        <ProtectedRoute><VaultPage /></ProtectedRoute>
+      </Route>
+      <Route path="/timeline">
+        <ProtectedRoute><TimelinePage /></ProtectedRoute>
+      </Route>
+      <Route path="/alerts">
+        <ProtectedRoute><AlertsPage /></ProtectedRoute>
       </Route>
       <Route component={NotFound} />
     </Switch>

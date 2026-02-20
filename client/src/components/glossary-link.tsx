@@ -229,11 +229,11 @@ export function GlossaryLink({ term, children }: GlossaryLinkProps) {
 
 interface GlossaryAwareTextProps {
   text: string;
-  terms: ComplianceTerm[];
+  terms?: ComplianceTerm[];
   className?: string;
 }
 
-export function GlossaryAwareText({ text, terms, className }: GlossaryAwareTextProps) {
+export function GlossaryAwareText({ text, terms = [], className }: GlossaryAwareTextProps) {
   const matchData = useMemo(() => {
     const entries: Array<{ pattern: string; term: ComplianceTerm }> = [];
     for (const term of terms) {

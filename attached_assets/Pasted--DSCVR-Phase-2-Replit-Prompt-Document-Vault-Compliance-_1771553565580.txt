@@ -1,0 +1,670 @@
+# DSCVR — Phase 2 Replit Prompt
+
+## Document Vault + Compliance Timeline + Alert Centre
+
+-----
+
+## CONTEXT
+
+You are continuing work on **DSCVR Compliance Navigator**. Phase 1 is complete — the app now has:
+
+- Session-based auth (`/login`, `/register`) with `express-session` + `connect-pg-simple`
+- Property profiles (`/profile`) — users can add/edit/delete villa properties
+- `useAuth()` hook, `ProtectedRoute` component
+- `properties` table in the database
+- i18n keys for `auth`, `profile`, `nav` in EN · UK · ID
+
+**Stack reminder:** React 18 + TypeScript + Vite + Wouter + Express 5 + Drizzle ORM + PostgreSQL + shadcn/ui + Tailwind + Framer Motion. Three languages: `en`, `uk`, `id`. **Never hardcode English strings in JSX.**
+
+-----
+
+## WHAT TO BUILD
+
+Three new standalone pages, each behind `ProtectedRoute`:
+
+|Route      |Page               |Description                                                     |
+|-----------|-------------------|----------------------------------------------------------------|
+|`/vault`   |Document Vault     |Per-gate document checklist with upload status + expiry tracking|
+|`/timeline`|Compliance Timeline|Vertical timeline of all deadlines grouped by month             |
+|`/alerts`  |Alert Centre       |Consolidated feed of overdue + upcoming items                   |
+
+-----
+
+## STEP 1 — Database schema (`shared/schema.ts`)
+
+Add two new tables. Run `npm run db:push` after.
+
+### `vault_document_templates`
+
+Master list of documents required per gate. Seeded, not user-editable.
+
+```typescript
+export const vaultDocumentTemplates = pgTable("vault_document_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  gateNumber: integer("gate_number").notNull(),     // 0–7
+  documentSlug: text("document_slug").notNull().unique(),
+  isRequired: boolean("is_required").notNull().default(true),
+  expiryMonths: integer("expiry_months"),           // null = no expiry / permanent
+  translations: json("translations").$type<Record<string, { name: string; description: string }>>().notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+```
+
+### `vault_documents`
+
+One row per property per template — tracks each document’s status.
+
+```typescript
+export const vaultDocuments = pgTable("vault_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  templateId: varchar("template_id").notNull().references(() => vaultDocumentTemplates.id),
+  status: text("status").notNull().default("missing"),  // missing | uploaded | expiring | expired
+  expiryDate: text("expiry_date"),                      // ISO date string, null if no expiry
+  uploadedAt: text("uploaded_at"),
+  fileUrl: text("file_url"),                            // placeholder for future file upload
+  notes: text("notes"),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+```
+
+Export Zod schemas and types for both tables.
+
+-----
+
+## STEP 2 — Seed vault document templates (`server/seed.ts` or new `server/seed-vault.ts`)
+
+Call this seed function from `routes.ts` alongside `seedComplianceTerms()`. Use upsert on `documentSlug` so re-running is safe.
+
+Seed the following templates (all 3 languages required for `translations`):
+
+### Gate 0 — PT PMA (Foundation)
+
+|slug               |Required|Expiry|EN name                           |
+|-------------------|--------|------|----------------------------------|
+|`akta-pendirian`   |yes     |none  |Notarised Deed (Akta Pendirian)   |
+|`sk-kemenkumham`   |yes     |none  |Ministry Approval (SK Kemenkumham)|
+|`corporate-npwp`   |yes     |none  |Corporate NPWP Certificate        |
+|`bank-confirmation`|yes     |none  |Bank Account Confirmation         |
+
+### Gate 1 — Zoning
+
+|slug              |Required|Expiry|EN name                   |
+|------------------|--------|------|--------------------------|
+|`kkpr-certificate`|yes     |none  |KKPR Zoning Certificate   |
+|`zone-map-extract`|no      |none  |Zone Map Extract (GISTARU)|
+
+### Gate 2 — NIB
+
+|slug                     |Required|Expiry|EN name                       |
+|-------------------------|--------|------|------------------------------|
+|`nib-certificate`        |yes     |none  |NIB Certificate (OSS)         |
+|`nib-verified-screenshot`|yes     |none  |NIB Verified Status Screenshot|
+
+### Gate 3 — Building (SLF/PBG)
+
+|slug                   |Required|Expiry   |EN name                    |
+|-----------------------|--------|---------|---------------------------|
+|`pbg-certificate`      |yes     |none     |PBG Building Approval      |
+|`slf-certificate`      |yes     |60 months|SLF Occupancy Certificate  |
+|`slf-inspection-report`|yes     |none     |SLF Inspection Report      |
+|`as-built-drawings`    |no      |none     |As-Built Technical Drawings|
+
+### Gate 4 — Tax
+
+|slug                |Required|Expiry   |EN name                         |
+|--------------------|--------|---------|--------------------------------|
+|`npwpd-registration`|yes     |none     |NPWPD Registration (e-Palapa)   |
+|`sptpd-latest`      |yes     |1 month  |Latest SPTPD Filing Confirmation|
+|`pph-spt-tahunan`   |yes     |12 months|Annual PPh SPT Tahunan          |
+
+### Gate 5 — Staff
+
+|slug                      |Required|Expiry   |EN name                       |
+|--------------------------|--------|---------|------------------------------|
+|`bpjs-kesehatan-reg`      |yes     |none     |BPJS Kesehatan Registration   |
+|`bpjs-ketenagakerjaan-reg`|yes     |none     |BPJamsostek Registration      |
+|`employment-contracts`    |no      |none     |Staff Employment Contracts    |
+|`kitas-investor`          |no      |12 months|KITAS Investor (if applicable)|
+
+### Gate 6 — Safety
+
+|slug                     |Required|Expiry   |EN name                   |
+|-------------------------|--------|---------|--------------------------|
+|`fire-safety-certificate`|yes     |12 months|Fire Safety Certificate   |
+|`sop-evidence`           |yes     |none     |SOP Execution Evidence Log|
+
+### Gate 7 — OTA
+
+|slug                      |Required|Expiry|EN name                              |
+|--------------------------|--------|------|-------------------------------------|
+|`ota-verification-airbnb` |no      |none  |Airbnb Verification Confirmation     |
+|`ota-verification-booking`|no      |none  |Booking.com Verification Confirmation|
+|`tdup-certificate`        |yes     |none  |TDUP Tourism Business Licence        |
+
+**Translations format** — include all 3 languages for every template:
+
+```typescript
+translations: {
+  en: { name: "SLF Occupancy Certificate", description: "Confirms building is fit for commercial occupation. Renews every 5 years." },
+  uk: { name: "Сертифікат SLF", description: "Підтверджує придатність будівлі для комерційного використання. Поновлюється кожні 5 років." },
+  id: { name: "Sertifikat SLF", description: "Mengonfirmasi bangunan layak untuk hunian komersial. Diperbarui setiap 5 tahun." },
+}
+```
+
+-----
+
+## STEP 3 — API routes (`server/routes.ts`)
+
+All routes require `requireAuth` middleware.
+
+### Vault templates (public reference data)
+
+```
+GET /api/vault/templates
+→ Returns all active templates, ordered by gateNumber
+→ No auth required (public reference)
+```
+
+### Vault documents (per-property, per-user)
+
+```
+GET /api/vault?propertyId=:id
+→ Returns all vault_documents for that property
+→ Verify property belongs to req.session.userId
+→ Auto-computes status: if expiryDate exists and is < today → "expired", < 90 days → "expiring"
+
+POST /api/vault
+→ Body: { propertyId, templateId, status, expiryDate?, fileUrl?, notes? }
+→ Upsert (update if exists for that propertyId+templateId, create if not)
+→ Set updatedAt
+
+PATCH /api/vault/:id
+→ Update status, expiryDate, notes, fileUrl
+→ Verify via property ownership
+
+GET /api/vault/summary?propertyId=:id
+→ Returns: { total, uploaded, missing, expiring, expired, completionPct, gateCompletions: [{gateNumber, pct}] }
+```
+
+### Storage layer additions (`server/storage.ts`)
+
+Add to `IStorage` and `DatabaseStorage`:
+
+```typescript
+getAllTemplates(): Promise<VaultDocumentTemplate[]>
+getVaultDocumentsByProperty(propertyId: string): Promise<VaultDocument[]>
+upsertVaultDocument(doc: UpsertVaultDocument): Promise<VaultDocument>
+updateVaultDocument(id: string, updates: Partial<InsertVaultDocument>): Promise<VaultDocument | undefined>
+```
+
+-----
+
+## STEP 4 — i18n additions
+
+Add to `UITranslations` in `types.ts` and populate in `en.ts`, `uk.ts`, `id.ts`:
+
+```typescript
+vault: {
+  heading: string;
+  subheading: string;
+  backToApp: string;
+  gateLabel: string;        // "Gate"
+  requiredLabel: string;    // "Required"
+  optionalLabel: string;    // "Optional"
+  statusMissing: string;    // "Not uploaded"
+  statusUploaded: string;   // "Uploaded"
+  statusExpiring: string;   // "Expiring soon"
+  statusExpired: string;    // "Expired"
+  expiryLabel: string;      // "Expires"
+  uploadedLabel: string;    // "Uploaded"
+  editButton: string;       // "Update"
+  saveButton: string;       // "Save"
+  cancelButton: string;     // "Cancel"
+  notesLabel: string;       // "Notes"
+  notesPlaceholder: string;
+  expiryDateLabel: string;
+  noPropertySelected: string;
+  selectPropertyPrompt: string;
+  completionLabel: string;  // "% complete"
+  documentsLabel: string;   // "documents"
+};
+timeline: {
+  heading: string;
+  subheading: string;
+  backToApp: string;
+  overdueLabel: string;     // "Overdue"
+  todayLabel: string;       // "Today"
+  upcomingLabel: string;    // "Upcoming"
+  daysOverdue: string;      // "days overdue"
+  daysUntil: string;        // "days"
+  noItems: string;
+  noItemsDesc: string;
+  fixedDeadlinesHeading: string;
+  vaultDeadlinesHeading: string;
+  filterAll: string;
+  filterOverdue: string;
+  filterThisMonth: string;
+  filterNext90: string;
+};
+alerts: {
+  heading: string;
+  subheading: string;
+  backToApp: string;
+  allClear: string;
+  allClearDesc: string;
+  markRead: string;
+  overdueSection: string;   // "Action required"
+  upcomingSection: string;  // "Upcoming"
+  dismissLabel: string;
+  viewVault: string;
+  viewTimeline: string;
+  daysLabel: string;
+  badgeTooltip: string;     // "Active alerts"
+};
+```
+
+**English values:**
+
+```typescript
+vault: {
+  heading: "Document Vault",
+  subheading: "Track and manage compliance documents across all gates",
+  backToApp: "← Back to compliance navigator",
+  gateLabel: "Gate",
+  requiredLabel: "Required",
+  optionalLabel: "Optional",
+  statusMissing: "Not uploaded",
+  statusUploaded: "Uploaded",
+  statusExpiring: "Expiring soon",
+  statusExpired: "Expired",
+  expiryLabel: "Expires",
+  uploadedLabel: "Uploaded",
+  editButton: "Update",
+  saveButton: "Save",
+  cancelButton: "Cancel",
+  notesLabel: "Notes",
+  notesPlaceholder: "Reference number, consultant name, or filing notes…",
+  expiryDateLabel: "Expiry date",
+  noPropertySelected: "Select a property to view its vault",
+  selectPropertyPrompt: "Choose property",
+  completionLabel: "complete",
+  documentsLabel: "documents",
+},
+timeline: {
+  heading: "Compliance Timeline",
+  subheading: "All upcoming and recurring deadlines in one view",
+  backToApp: "← Back to compliance navigator",
+  overdueLabel: "Overdue",
+  todayLabel: "Today",
+  upcomingLabel: "Upcoming",
+  daysOverdue: "days overdue",
+  daysUntil: "days",
+  noItems: "No upcoming deadlines",
+  noItemsDesc: "Add documents with expiry dates in the Vault to populate your timeline.",
+  fixedDeadlinesHeading: "Recurring annual deadlines",
+  vaultDeadlinesHeading: "Document expiry dates",
+  filterAll: "All",
+  filterOverdue: "Overdue",
+  filterThisMonth: "This month",
+  filterNext90: "Next 90 days",
+},
+alerts: {
+  heading: "Alerts",
+  subheading: "Documents and deadlines that need your attention",
+  backToApp: "← Back to compliance navigator",
+  allClear: "All clear",
+  allClearDesc: "No overdue documents or upcoming deadlines in the next 30 days.",
+  markRead: "Dismiss",
+  overdueSection: "Action required",
+  upcomingSection: "Coming up",
+  dismissLabel: "Dismiss",
+  viewVault: "Go to Vault",
+  viewTimeline: "View Timeline",
+  daysLabel: "days",
+  badgeTooltip: "Active alerts",
+},
+```
+
+**Ukrainian values:**
+
+```typescript
+vault: {
+  heading: "Сховище документів",
+  subheading: "Відстежуйте документи відповідності по всіх воротах",
+  backToApp: "← Назад до навігатора",
+  gateLabel: "Ворота",
+  requiredLabel: "Обов'язково",
+  optionalLabel: "Необов'язково",
+  statusMissing: "Не завантажено",
+  statusUploaded: "Завантажено",
+  statusExpiring: "Скоро закінчується",
+  statusExpired: "Прострочено",
+  expiryLabel: "Закінчується",
+  uploadedLabel: "Завантажено",
+  editButton: "Оновити",
+  saveButton: "Зберегти",
+  cancelButton: "Скасувати",
+  notesLabel: "Нотатки",
+  notesPlaceholder: "Номер посилання, ім'я консультанта або нотатки…",
+  expiryDateLabel: "Дата закінчення",
+  noPropertySelected: "Виберіть нерухомість для перегляду сховища",
+  selectPropertyPrompt: "Обрати нерухомість",
+  completionLabel: "виконано",
+  documentsLabel: "документів",
+},
+timeline: {
+  heading: "Часова шкала відповідності",
+  subheading: "Всі наступні та повторювані терміни в одному місці",
+  backToApp: "← Назад до навігатора",
+  overdueLabel: "Прострочено",
+  todayLabel: "Сьогодні",
+  upcomingLabel: "Найближче",
+  daysOverdue: "днів прострочення",
+  daysUntil: "днів",
+  noItems: "Немає майбутніх термінів",
+  noItemsDesc: "Додайте документи з датами закінчення у Сховищі.",
+  fixedDeadlinesHeading: "Щорічні терміни",
+  vaultDeadlinesHeading: "Терміни дії документів",
+  filterAll: "Усі",
+  filterOverdue: "Прострочені",
+  filterThisMonth: "Цього місяця",
+  filterNext90: "Наступні 90 днів",
+},
+alerts: {
+  heading: "Сповіщення",
+  subheading: "Документи та терміни, що потребують уваги",
+  backToApp: "← Назад до навігатора",
+  allClear: "Все гаразд",
+  allClearDesc: "Немає прострочених документів або наближених термінів.",
+  markRead: "Відхилити",
+  overdueSection: "Потрібна дія",
+  upcomingSection: "Найближче",
+  dismissLabel: "Відхилити",
+  viewVault: "Перейти до Сховища",
+  viewTimeline: "Переглянути часову шкалу",
+  daysLabel: "днів",
+  badgeTooltip: "Активні сповіщення",
+},
+```
+
+**Bahasa Indonesia values:**
+
+```typescript
+vault: {
+  heading: "Vault Dokumen",
+  subheading: "Lacak dan kelola dokumen kepatuhan di semua gerbang",
+  backToApp: "← Kembali ke navigator",
+  gateLabel: "Gerbang",
+  requiredLabel: "Wajib",
+  optionalLabel: "Opsional",
+  statusMissing: "Belum diunggah",
+  statusUploaded: "Diunggah",
+  statusExpiring: "Segera kadaluarsa",
+  statusExpired: "Kadaluarsa",
+  expiryLabel: "Kadaluarsa",
+  uploadedLabel: "Diunggah",
+  editButton: "Perbarui",
+  saveButton: "Simpan",
+  cancelButton: "Batal",
+  notesLabel: "Catatan",
+  notesPlaceholder: "Nomor referensi, nama konsultan, atau catatan pengarsipan…",
+  expiryDateLabel: "Tanggal kadaluarsa",
+  noPropertySelected: "Pilih properti untuk melihat vault-nya",
+  selectPropertyPrompt: "Pilih properti",
+  completionLabel: "selesai",
+  documentsLabel: "dokumen",
+},
+timeline: {
+  heading: "Linimasa Kepatuhan",
+  subheading: "Semua tenggat waktu mendatang dan berulang dalam satu tampilan",
+  backToApp: "← Kembali ke navigator",
+  overdueLabel: "Terlambat",
+  todayLabel: "Hari ini",
+  upcomingLabel: "Akan datang",
+  daysOverdue: "hari terlambat",
+  daysUntil: "hari",
+  noItems: "Tidak ada tenggat mendatang",
+  noItemsDesc: "Tambahkan dokumen dengan tanggal kadaluarsa di Vault.",
+  fixedDeadlinesHeading: "Tenggat tahunan berulang",
+  vaultDeadlinesHeading: "Tanggal kadaluarsa dokumen",
+  filterAll: "Semua",
+  filterOverdue: "Terlambat",
+  filterThisMonth: "Bulan ini",
+  filterNext90: "90 hari ke depan",
+},
+alerts: {
+  heading: "Peringatan",
+  subheading: "Dokumen dan tenggat yang memerlukan perhatian Anda",
+  backToApp: "← Kembali ke navigator",
+  allClear: "Semua aman",
+  allClearDesc: "Tidak ada dokumen kadaluarsa atau tenggat dalam 30 hari ke depan.",
+  markRead: "Abaikan",
+  overdueSection: "Tindakan diperlukan",
+  upcomingSection: "Akan datang",
+  dismissLabel: "Abaikan",
+  viewVault: "Buka Vault",
+  viewTimeline: "Lihat Linimasa",
+  daysLabel: "hari",
+  badgeTooltip: "Peringatan aktif",
+},
+```
+
+-----
+
+## STEP 5 — Frontend: Document Vault (`client/src/pages/vault.tsx`)
+
+Protected page. Full DSCVR design language — deep navy bg, teal accents, Montserrat headings, Lato body.
+
+### Layout
+
+**Top section:**
+
+- Back link to `/` using `t.vault.backToApp`
+- Page heading `t.vault.heading` + subheading
+- Property selector dropdown (if user has multiple properties — use a shadcn Select)
+- Overall completion % ring or progress bar (teal, showing % of required docs uploaded)
+
+**Gate sections (accordion, one per gate 0–7):**
+
+- Gate header: gate number badge (coloured to match gate colours from home.tsx), gate title, completion % pill
+- Inside: document rows for each template in that gate
+
+**Gate colours to match home.tsx:**
+
+- Gate 0 (PT PMA): `#94A3B8`
+- Gate 1 (ZONE): `#14B8A6`
+- Gate 2 (NIB): `#60A5FA`
+- Gate 3 (SLF): `#A78BFA`
+- Gate 4 (TAX): `#F59E0B`
+- Gate 5 (STAFF): `#22C55E`
+- Gate 6 (SAFE): `#FCA5A5`
+- Gate 7 (OTA): `#14B8A6`
+
+**Document row layout:**
+
+```
+[status dot] [document name]          [Required/Optional pill]   [Expiry date if set]   [Update button]
+```
+
+Status dot colours:
+
+- `missing` → red `#EF4444`
+- `uploaded` → green `#22C55E`
+- `expiring` → amber `#F59E0B` (pulsing animation)
+- `expired` → red `#EF4444` (brighter, with warning icon)
+
+**Update panel (expands inline on click):**
+
+- Status select: Not uploaded / Uploaded / Expiring soon / Expired
+- Expiry date input (date picker — only show if template has `expiryMonths > 0`)
+- Notes textarea
+- Save / Cancel buttons
+
+### Data logic
+
+```typescript
+// Load templates once (public)
+const { data: templates = [] } = useQuery({ queryKey: ["/api/vault/templates"] });
+
+// Load user's vault docs for selected property
+const { data: vaultDocs = [] } = useQuery({
+  queryKey: ["/api/vault", selectedPropertyId],
+  queryFn: () => fetch(`/api/vault?propertyId=${selectedPropertyId}`).then(r => r.json()),
+  enabled: !!selectedPropertyId,
+});
+
+// Compute status for display:
+// - If vault doc exists → use its status
+// - If no vault doc yet → "missing"
+// - Override: if expiryDate < today → force "expired"
+// - Override: if expiryDate < today + 90 days → force "expiring"
+```
+
+### Auto-status computation (do this on the backend in the GET /api/vault route, not just frontend)
+
+When returning vault documents, compute status dynamically:
+
+```typescript
+const today = new Date();
+const ninetyDays = new Date(today.getTime() + 90 * 24 * 60 * 60 * 1000);
+if (doc.expiryDate) {
+  const expiry = new Date(doc.expiryDate);
+  if (expiry < today) doc.status = "expired";
+  else if (expiry < ninetyDays) doc.status = "expiring";
+}
+```
+
+-----
+
+## STEP 6 — Frontend: Compliance Timeline (`client/src/pages/timeline.tsx`)
+
+Protected page.
+
+### Two data sources combined:
+
+**1. Vault expiry items** — pulled from vault documents that have `expiryDate` set and status is `uploaded`, `expiring`, or `expired`
+
+**2. Fixed annual deadlines** — hardcoded in the component using translation keys. These recur every year regardless of vault status:
+
+```typescript
+const fixedDeadlines = [
+  { id: "tax-spt-tahunan", labelKey: "SPT Tahunan (Annual Corporate Tax)", dayOfYear: { month: 3, day: 30 }, gateNumber: 4, color: "#F59E0B" },
+  { id: "tax-pph-monthly", labelKey: "PPh Monthly Filing (21/23/26)", dayOfMonth: 20, recurring: "monthly", gateNumber: 4, color: "#F59E0B" },
+  { id: "tax-pb1-monthly", labelKey: "PB1 Hotel Tax Filing (SPTPD)", dayOfMonth: 20, recurring: "monthly", gateNumber: 4, color: "#F59E0B" },
+  { id: "bpjs-monthly", labelKey: "BPJS Contributions Due", dayOfMonth: 10, recurring: "monthly", gateNumber: 5, color: "#22C55E" },
+  { id: "ota-deadline", labelKey: "OTA Verification Deadline", date: "2026-03-31", gateNumber: 7, color: "#14B8A6" },
+];
+```
+
+### Layout
+
+- Filter chips at top: All / Overdue / This month / Next 90 days
+- Vertical timeline, grouped by month (month header with teal left border)
+- Each item: coloured gate dot, label, date, days until/overdue badge
+- Overdue items always float to the top in a distinct red-tinted section
+- Empty state if no items match filter
+
+### Item visual:
+
+```
+[●gate dot] [Document / Deadline label]          [Gate badge]   [15 Jan 2026]
+                                                                  [23 days ▲]
+```
+
+Overdue items: red background tint, “X days overdue” badge in red.
+
+-----
+
+## STEP 7 — Frontend: Alert Centre (`client/src/pages/alerts.tsx`)
+
+Protected page. This is the leanest of the three pages.
+
+### Logic
+
+Pull from the same data as timeline but filtered to:
+
+- All **expired** documents (overdue section)
+- All **expiring** documents within 90 days (upcoming section)
+- Fixed deadlines within 30 days (upcoming section)
+
+### Layout
+
+- If zero alerts: full-width “All clear” card with a teal `✓` icon, `t.alerts.allClear`, `t.alerts.allClearDesc`
+- Otherwise:
+  - **“Action required”** section (red-tinted cards) — expired docs + overdue fixed deadlines
+  - **“Coming up”** section (amber-tinted cards) — expiring docs + deadlines within 30 days
+- Each alert card: icon, label, property name, gate badge, date, “Go to Vault” or “View Timeline” link
+- Dismiss button on each card (stores dismissedAlertIds in localStorage keyed by userId — not a DB operation)
+
+### Header badge
+
+Update the header in `home.tsx` to show an alert badge on the Alerts nav link:
+
+- Red circle badge with count of non-dismissed overdue/critical alerts
+- Count computed from vault docs where status = “expired” + fixed deadlines past due
+- Use `useQuery` to fetch this count, refresh every 5 minutes
+
+-----
+
+## STEP 8 — Update App.tsx routing
+
+```typescript
+import VaultPage from "@/pages/vault";
+import TimelinePage from "@/pages/timeline";
+import AlertsPage from "@/pages/alerts";
+
+// Add inside Router:
+<Route path="/vault">
+  <ProtectedRoute><VaultPage /></ProtectedRoute>
+</Route>
+<Route path="/timeline">
+  <ProtectedRoute><TimelinePage /></ProtectedRoute>
+</Route>
+<Route path="/alerts">
+  <ProtectedRoute><AlertsPage /></ProtectedRoute>
+</Route>
+```
+
+-----
+
+## STEP 9 — Update header nav in home.tsx
+
+The header already shows Sign in / Profile / Sign out from Phase 1.
+
+Now add vault, timeline, and alerts links (visible only when logged in):
+
+```
+[DSCVR wordmark]  [deadline pill]  |  Vault  Timeline  Alerts[badge]  |  Profile  Sign out  |  🌐 Lang  ☀️ Theme
+```
+
+- Vault, Timeline, Alerts links use `t.nav.vault`, `t.nav.timeline`, `t.nav.alerts`
+- Alerts link has a small red badge if alert count > 0
+- On mobile: collapse nav links into a hamburger menu or icon row
+- Keep existing language selector and theme toggle on the far right
+
+-----
+
+## CONSTRAINTS
+
+1. **Never hardcode English in JSX** — always `t.vault.*`, `t.timeline.*`, `t.alerts.*`
+1. **Match DSCVR design language exactly** — gate colours, CSS custom properties, Montserrat/Lato fonts, dark navy background, teal accents
+1. **Vault status is computed dynamically** — both backend (on GET) and frontend (for display). The `status` field in the DB is the operator-set status; the displayed status overrides it based on expiry date math
+1. **Do not break Phase 1** — login, register, profile, and all existing compliance flow must continue to work
+1. **Run `npm run db:push`** after schema changes
+1. **GlossaryAwareText** — wrap document names and descriptions in `<GlossaryAwareText>` where applicable, using the existing `useGlossaryTerms()` hook (e.g. “SLF”, “PBG”, “NIB”, “BPJS” should all get hover tooltips)
+1. **Property selector** — if the user has only one property, auto-select it. If they have none, show a prompt with a link to `/profile` to add one first
+1. **Seed is idempotent** — use upsert on `documentSlug` so running the seed multiple times doesn’t create duplicates
+
+-----
+
+## EXPECTED RESULT
+
+After Phase 2 is complete:
+
+- `/vault` — per-gate document checklist, update status + expiry per doc, completion %, 3 languages
+- `/timeline` — vertical timeline combining vault expiry dates + fixed annual tax/BPJS deadlines, 3 languages
+- `/alerts` — consolidated overdue + upcoming alert feed with dismiss, 3 languages
+- Header nav shows Vault / Timeline / Alerts links with alert badge when logged in
+- All existing Phase 1 and pre-Phase 1 features continue to work unchanged
+- Glossary hover tooltips active on compliance terms in vault document names

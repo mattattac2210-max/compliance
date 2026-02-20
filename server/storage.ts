@@ -3,7 +3,10 @@ import {
   type ComplianceTerm, type InsertComplianceTerm,
   type ProcessGuide, type InsertProcessGuide,
   type Property, type InsertProperty,
+  type VaultDocumentTemplate,
+  type VaultDocument, type InsertVaultDocument,
   users, complianceTerms, processNavigationGuides, properties,
+  vaultDocumentTemplates, vaultDocuments,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql } from "drizzle-orm";
@@ -31,6 +34,12 @@ export interface IStorage {
   getGuideById(id: string): Promise<ProcessGuide | undefined>;
   createGuide(guide: InsertProcessGuide): Promise<ProcessGuide>;
   updateGuide(id: string, guide: Partial<InsertProcessGuide>): Promise<ProcessGuide | undefined>;
+
+  getAllTemplates(): Promise<VaultDocumentTemplate[]>;
+  getVaultDocumentsByProperty(propertyId: string): Promise<VaultDocument[]>;
+  upsertVaultDocument(doc: InsertVaultDocument): Promise<VaultDocument>;
+  updateVaultDocument(id: string, updates: Partial<InsertVaultDocument>): Promise<VaultDocument | undefined>;
+  getVaultDocumentById(id: string): Promise<VaultDocument | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -156,6 +165,49 @@ export class DatabaseStorage implements IStorage {
 
   async updateGuide(id: string, updates: Partial<InsertProcessGuide>): Promise<ProcessGuide | undefined> {
     const [updated] = await db.update(processNavigationGuides).set(updates).where(eq(processNavigationGuides.id, id)).returning();
+    return updated;
+  }
+
+  async getAllTemplates(): Promise<VaultDocumentTemplate[]> {
+    return db.select().from(vaultDocumentTemplates)
+      .where(eq(vaultDocumentTemplates.isActive, true))
+      .orderBy(vaultDocumentTemplates.gateNumber);
+  }
+
+  async getVaultDocumentsByProperty(propertyId: string): Promise<VaultDocument[]> {
+    return db.select().from(vaultDocuments)
+      .where(eq(vaultDocuments.propertyId, propertyId));
+  }
+
+  async getVaultDocumentById(id: string): Promise<VaultDocument | undefined> {
+    const [doc] = await db.select().from(vaultDocuments).where(eq(vaultDocuments.id, id));
+    return doc;
+  }
+
+  async upsertVaultDocument(doc: InsertVaultDocument): Promise<VaultDocument> {
+    const existing = await db.select().from(vaultDocuments)
+      .where(and(
+        eq(vaultDocuments.propertyId, doc.propertyId),
+        eq(vaultDocuments.templateId, doc.templateId),
+      ));
+    if (existing.length > 0) {
+      const [updated] = await db.update(vaultDocuments)
+        .set({ ...doc, updatedAt: new Date().toISOString() })
+        .where(eq(vaultDocuments.id, existing[0].id))
+        .returning();
+      return updated;
+    }
+    const [created] = await db.insert(vaultDocuments)
+      .values({ ...doc, updatedAt: new Date().toISOString() })
+      .returning();
+    return created;
+  }
+
+  async updateVaultDocument(id: string, updates: Partial<InsertVaultDocument>): Promise<VaultDocument | undefined> {
+    const [updated] = await db.update(vaultDocuments)
+      .set({ ...updates, updatedAt: new Date().toISOString() })
+      .where(eq(vaultDocuments.id, id))
+      .returning();
     return updated;
   }
 }

@@ -47,6 +47,36 @@ export const insertPropertySchema = createInsertSchema(properties).omit({
 export type InsertProperty = z.infer<typeof insertPropertySchema>;
 export type Property = typeof properties.$inferSelect;
 
+export const vaultDocumentTemplates = pgTable("vault_document_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  gateNumber: integer("gate_number").notNull(),
+  documentSlug: text("document_slug").notNull().unique(),
+  isRequired: boolean("is_required").notNull().default(true),
+  expiryMonths: integer("expiry_months"),
+  translations: json("translations").$type<Record<string, { name: string; description: string }>>().notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+export const insertVaultDocumentTemplateSchema = createInsertSchema(vaultDocumentTemplates).omit({ id: true });
+export type InsertVaultDocumentTemplate = z.infer<typeof insertVaultDocumentTemplateSchema>;
+export type VaultDocumentTemplate = typeof vaultDocumentTemplates.$inferSelect;
+
+export const vaultDocuments = pgTable("vault_documents", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  templateId: varchar("template_id").notNull().references(() => vaultDocumentTemplates.id),
+  status: text("status").notNull().default("missing"),
+  expiryDate: text("expiry_date"),
+  uploadedAt: text("uploaded_at"),
+  fileUrl: text("file_url"),
+  notes: text("notes"),
+  updatedAt: text("updated_at").notNull().default(sql`now()`),
+});
+
+export const insertVaultDocumentSchema = createInsertSchema(vaultDocuments).omit({ id: true });
+export type InsertVaultDocument = z.infer<typeof insertVaultDocumentSchema>;
+export type VaultDocument = typeof vaultDocuments.$inferSelect;
+
 export interface TermTranslation {
   term?: string;
   tags?: string[];
