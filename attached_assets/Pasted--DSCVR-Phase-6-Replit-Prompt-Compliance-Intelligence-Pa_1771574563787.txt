@@ -1,0 +1,1133 @@
+# DSCVR — Phase 6 Replit Prompt
+## Compliance Intelligence Patch
+
+---
+
+## CONTEXT
+
+You are continuing work on **DSCVR Compliance Navigator**. Phases 1–5 are complete:
+- Auth, Property Profile, Document Vault, Timeline, Alert Centre
+- SaaS sidebar layout, Pro gating, Upgrade modal
+- Admin dashboard, Support Access system
+- 31 glossary terms, universal GlossaryAwareText hover system
+
+**Stack:** React 18 + TypeScript + Vite + Wouter + Express 5 + Drizzle ORM + PostgreSQL + shadcn/ui + Tailwind + Framer Motion. Three languages: `en`, `uk`, `id`. **Never hardcode English strings in JSX.**
+
+This phase adds no new pages. It patches existing ones with compliance content that was missing from the original build — based on current regulatory research (Bali 2025/2026). The changes slot into existing infrastructure.
+
+---
+
+## PART A — SCHEMA ADDITIONS (`shared/schema.ts`)
+
+### A1 — Extend `properties` table
+
+Add these columns to the existing `properties` table. **Do not recreate it.**
+
+```typescript
+// Banjar relationship tracking
+banjars: text("banjars"),                   // JSON array of banjar names associated with the property
+banjarIntroDate: text("banjar_intro_date"), // ISO date — when operator first introduced themselves
+banjarNotes: text("banjar_notes"),          // free text notes about relationship status
+
+// Entity structure warning flag
+entityStructure: text("entity_structure").default("pt_pma"), // "pt_pma" | "pt_pmdn" | "individual" | "unknown"
+
+// OTA identity consistency fields
+otaEntityName: text("ota_entity_name"),     // name as it appears on OTA profiles — must match PT PMA name
+otaIdentityChecked: boolean("ota_identity_checked").default(false),
+
+// Land title tracking
+landTitleType: text("land_title_type"),     // "hgb" | "hak_pakai" | "hak_sewa" | "hak_milik" | "unknown"
+landTitleExpiry: text("land_title_expiry"), // ISO date — HGB expiry (typically 30yr, extendable to 80yr)
+```
+
+### A2 — New `banjar_contributions` table
+
+Tracks recurring informal banjar obligations. These are not legal permits but operationally critical.
+
+```typescript
+export const banjarContributions = pgTable("banjar_contributions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  contributionDate: text("contribution_date").notNull(), // ISO date
+  contributionType: text("contribution_type").notNull(), // "monthly_donation" | "ceremony" | "staff_registration" | "other"
+  amount: integer("amount"),                             // IDR amount if applicable
+  description: text("description"),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+```
+
+### A3 — New `recurring_filings` table
+
+Tracks monthly/quarterly tax filings — a separate concept from document expiry. Documents expire once; filings recur forever.
+
+```typescript
+export const recurringFilings = pgTable("recurring_filings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  filingType: text("filing_type").notNull(), // "pb1_sptpd" | "pph21" | "pph_badan_instalment" | "bpjs_kesehatan" | "bpjs_ketenagakerjaan" | "lkpm_quarterly" | "lkpm_annual" | "spt_tahunan" | "pbb_annual" | "thr"
+  periodLabel: text("period_label").notNull(), // e.g. "January 2026", "Q1 2026"
+  dueDate: text("due_date").notNull(),          // ISO date
+  filedDate: text("filed_date"),                // ISO date, null = not yet filed
+  status: text("status").notNull().default("pending"), // "pending" | "filed" | "overdue" | "na"
+  notes: text("notes"),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+```
+
+### A4 — New `staff_members` table
+
+Tracks villa staff for BPJS compliance purposes.
+
+```typescript
+export const staffMembers = pgTable("staff_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  role: text("role"),                                    // e.g. "Villa Manager", "Housekeeper"
+  startDate: text("start_date"),                         // ISO date
+  isActive: boolean("is_active").notNull().default(true),
+  bpjsKesehatanStatus: text("bpjs_kesehatan_status").default("not_registered"), // "not_registered" | "registered" | "active" | "lapsed"
+  bpjsKesehatanMemberId: text("bpjs_kesehatan_member_id"),
+  bpjsKetenagakerjaanStatus: text("bpjs_ketenagakerjaan_status").default("not_registered"),
+  bpjsKetenagakerjaanMemberId: text("bpjs_ketenagakerjaan_member_id"),
+  thrDue: boolean("thr_due").default(false),             // flagged true before THR period
+  kitas: text("kitas"),                                  // KITAS number if foreign staff
+  kitasExpiry: text("kitas_expiry"),                     // ISO date if applicable
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+});
+```
+
+Run `npm run db:push` after all schema changes.
+
+---
+
+## PART B — VAULT DOCUMENT TEMPLATES (`server/seed-vault.ts`)
+
+Add the following new document templates to the existing seed. Use upsert on `documentSlug` — safe to re-run.
+
+### Gate 0 additions — Land & Title (Pre-foundation due diligence)
+
+```typescript
+{
+  gateNumber: 0,
+  documentSlug: "land-title-certificate",
+  isRequired: true,
+  expiryMonths: null, // HGB expires but is a property-level field, tracked separately
+  translations: {
+    en: {
+      name: "Land Title Certificate (HGB or Hak Pakai)",
+      description: "The official land title document. PT PMA companies hold HGB (Hak Guna Bangunan). Foreign individuals with KITAS may hold Hak Pakai for residential use only — Hak Pakai cannot be used for commercial rental income. Hak Sewa (leasehold) is a private contract, not a state title."
+    },
+    uk: {
+      name: "Свідоцтво на право землі (HGB або Hak Pakai)",
+      description: "Офіційний документ права на землю. Компанії PT PMA тримають HGB. Іноземні фізичні особи з KITAS можуть тримати Hak Pakai лише для проживання — не для комерційної оренди."
+    },
+    id: {
+      name: "Sertifikat Hak Tanah (HGB atau Hak Pakai)",
+      description: "Dokumen hak tanah resmi. PT PMA memegang HGB (Hak Guna Bangunan). Orang asing dengan KITAS dapat memegang Hak Pakai untuk hunian saja — tidak untuk pendapatan sewa komersial."
+    }
+  }
+},
+{
+  gateNumber: 0,
+  documentSlug: "notary-title-search",
+  isRequired: true,
+  expiryMonths: null,
+  translations: {
+    en: {
+      name: "Notary Title Search (Clean Title Certificate)",
+      description: "A certified search by a licensed PPAT notary confirming the land has no mortgage, debt claim, lien, or shared ownership dispute. Must be obtained before any purchase or long-term lease. This is separate from the title certificate itself."
+    },
+    uk: {
+      name: "Нотаріальна перевірка титулу (Чистий титул)",
+      description: "Засвідчена перевірка ліцензованим нотаріусом PPAT, що підтверджує відсутність іпотеки, боргових претензій або спірного права власності на земельну ділянку."
+    },
+    id: {
+      name: "Pemeriksaan Sertifikat oleh Notaris PPAT",
+      description: "Pemeriksaan bersertifikat oleh notaris PPAT berlisensi yang mengonfirmasi bahwa tanah tidak memiliki hipotek, klaim utang, atau sengketa kepemilikan bersama."
+    }
+  }
+},
+{
+  gateNumber: 0,
+  documentSlug: "road-access-proof",
+  isRequired: true,
+  expiryMonths: null,
+  translations: {
+    en: {
+      name: "Road Access Confirmation",
+      description: "Official confirmation that the land parcel has registered road access. Land without formally registered access can become legally unusable regardless of all other licences being in order. Check before purchase — access disputes are extremely difficult to resolve after the fact."
+    },
+    uk: {
+      name: "Підтвердження доступу до дороги",
+      description: "Офіційне підтвердження зареєстрованого дорожнього доступу до земельної ділянки. Земля без зареєстрованого доступу може стати юридично непридатною незалежно від інших ліцензій."
+    },
+    id: {
+      name: "Konfirmasi Akses Jalan",
+      description: "Konfirmasi resmi bahwa bidang tanah memiliki akses jalan yang terdaftar. Tanah tanpa akses yang terdaftar secara resmi dapat menjadi tidak dapat digunakan secara hukum meskipun semua izin lain sudah lengkap."
+    }
+  }
+},
+{
+  gateNumber: 0,
+  documentSlug: "banjar-introduction-record",
+  isRequired: false,
+  expiryMonths: null,
+  translations: {
+    en: {
+      name: "Banjar Introduction Record",
+      description: "Record of formal introduction to the local banjar (community governance unit). Not a legal permit, but operationally essential — banjar complaints can trigger inspections even on a fully licensed property. New operators should introduce themselves to the Kelian Dinas before commencing operations."
+    },
+    uk: {
+      name: "Запис про знайомство з Банджаром",
+      description: "Запис про офіційне знайомство з місцевим Банджаром. Не є юридичним дозволом, але операційно обов'язковий — скарги Банджару можуть ініціювати перевірку навіть повністю ліцензованого об'єкта."
+    },
+    id: {
+      name: "Catatan Perkenalan ke Banjar",
+      description: "Catatan perkenalan resmi ke banjar setempat. Bukan izin hukum, tetapi penting secara operasional — pengaduan banjar dapat memicu inspeksi bahkan pada properti yang sepenuhnya berizin."
+    }
+  }
+},
+```
+
+### Gate 0 additions — Surat Keterangan Domisili
+
+```typescript
+{
+  gateNumber: 0,
+  documentSlug: "surat-keterangan-domisili",
+  isRequired: true,
+  expiryMonths: 12,
+  translations: {
+    en: {
+      name: "Surat Keterangan Domisili (SKD)",
+      description: "Domicile letter issued by the local banjar confirming the company's registered address. Required for business registration, OSS address verification, and KITAS-related administrative processes. Must match the address on all other documents — mismatches cause OSS and OTA verification failures. Renews annually."
+    },
+    uk: {
+      name: "Лист про доміциль (SKD)",
+      description: "Лист про доміциль, виданий місцевим Банджаром для підтвердження зареєстрованої адреси компанії. Необхідний для реєстрації бізнесу та процесів KITAS. Повинен відповідати адресі в усіх інших документах — невідповідності спричиняють помилки верифікації OSS та OTA."
+    },
+    id: {
+      name: "Surat Keterangan Domisili (SKD)",
+      description: "Surat domisili yang dikeluarkan oleh banjar setempat yang mengonfirmasi alamat terdaftar perusahaan. Diperlukan untuk pendaftaran usaha dan proses terkait KITAS. Harus sesuai dengan alamat pada semua dokumen lain — ketidakcocokan menyebabkan kegagalan verifikasi OSS dan OTA."
+    }
+  }
+},
+```
+
+### Gate 4 additions — Tax filings
+
+```typescript
+{
+  gateNumber: 4,
+  documentSlug: "npwpd-registration",
+  isRequired: true,
+  expiryMonths: null,
+  translations: {
+    en: {
+      name: "NPWPD Registration (Local Tax ID)",
+      description: "Regional tax identification number issued by the local Bapenda (district tax office). Separate from the national NPWP. Required to file PB1 hotel tax (SPTPD). In Badung regency, registered via e-Palapa. The NPWPD number must match the regency where the property is located — one NPWPD per regency."
+    },
+    uk: {
+      name: "Реєстрація NPWPD (місцевий податковий номер)",
+      description: "Регіональний податковий ідентифікаційний номер, виданий місцевим Bapenda. Окремий від національного NPWP. Необхідний для подання податку на готелі PB1 (SPTPD)."
+    },
+    id: {
+      name: "Pendaftaran NPWPD (Nomor Pajak Daerah)",
+      description: "Nomor identifikasi pajak daerah yang dikeluarkan oleh Bapenda setempat. Terpisah dari NPWP nasional. Diperlukan untuk mengajukan pajak hotel PB1 (SPTPD). Di Kabupaten Badung, didaftarkan melalui e-Palapa."
+    }
+  }
+},
+{
+  gateNumber: 4,
+  documentSlug: "pbb-commercial-rate-confirmation",
+  isRequired: false,
+  expiryMonths: null,
+  translations: {
+    en: {
+      name: "PBB Commercial Rate Confirmation",
+      description: "Confirmation that the property's Land and Building Tax (PBB — Pajak Bumi dan Bangunan) is registered and paid at commercial rates, not residential rates. Commercial villas paying residential PBB rates are a known tax audit trigger. Annual obligation — keep the most recent payment receipt."
+    },
+    uk: {
+      name: "Підтвердження комерційної ставки PBB",
+      description: "Підтвердження, що земельний та будівельний податок сплачується за комерційними ставками, а не за житловими. Комерційні вілли, що сплачують PBB за житловими ставками, є відомим тригером податкової перевірки."
+    },
+    id: {
+      name: "Konfirmasi Tarif PBB Komersial",
+      description: "Konfirmasi bahwa Pajak Bumi dan Bangunan (PBB) properti terdaftar dan dibayarkan dengan tarif komersial, bukan tarif residensial. Villa komersial yang membayar PBB dengan tarif residensial adalah pemicu audit pajak yang diketahui."
+    }
+  }
+},
+```
+
+### Gate 5 additions — Staff & employment
+
+```typescript
+{
+  gateNumber: 5,
+  documentSlug: "bpjs-monthly-payment-current",
+  isRequired: true,
+  expiryMonths: 1,
+  translations: {
+    en: {
+      name: "BPJS Contributions — Current Month Receipt",
+      description: "Payment receipt for the current month's BPJS Kesehatan and BPJamsostek contributions. Due by the 10th of each month. In 2026, BPJS compliance is digitally monitored and linked to operational licence renewals. Employer contributes approximately 6.24–7.74% of salary; employee contributes 4%. Keep the most recent receipt in the vault."
+    },
+    uk: {
+      name: "Квитанція BPJS — поточний місяць",
+      description: "Квитанція про оплату внесків BPJS Kesehatan та BPJamsostek за поточний місяць. Строк — до 10-го числа кожного місяця."
+    },
+    id: {
+      name: "Bukti Pembayaran BPJS — Bulan Berjalan",
+      description: "Bukti pembayaran iuran BPJS Kesehatan dan BPJamsostek bulan berjalan. Jatuh tempo setiap tanggal 10. Pada 2026, kepatuhan BPJS dipantau secara digital dan terkait dengan perpanjangan izin operasional."
+    }
+  }
+},
+{
+  gateNumber: 5,
+  documentSlug: "thr-payment-record",
+  isRequired: true,
+  expiryMonths: 13,
+  translations: {
+    en: {
+      name: "THR Payment Record (Religious Holiday Bonus)",
+      description: "Tunjangan Hari Raya — mandatory annual religious holiday bonus equal to one month's salary. For Muslim staff: due before Eid al-Fitr. For other staff: due before their relevant religious holiday. Late or non-payment is a labour dispute trigger and attracts fines. Keep the disbursement record signed by each staff member."
+    },
+    uk: {
+      name: "Запис про виплату THR (релігійна надбавка)",
+      description: "Tunjangan Hari Raya — обов'язкова річна релігійна надбавка у розмірі місячної зарплати. Для мусульман: до Ід аль-Фітр. Для інших: до відповідного релігійного свята. Невиплата є підставою для трудового спору."
+    },
+    id: {
+      name: "Bukti Pembayaran THR",
+      description: "Tunjangan Hari Raya — bonus hari raya tahunan wajib sebesar satu bulan gaji. Untuk karyawan Muslim: sebelum Idul Fitri. Untuk karyawan lain: sebelum hari raya agama mereka. Keterlambatan atau tidak membayar adalah pemicu sengketa tenaga kerja."
+    }
+  }
+},
+{
+  gateNumber: 5,
+  documentSlug: "apoa-guest-registration",
+  isRequired: true,
+  expiryMonths: null,
+  translations: {
+    en: {
+      name: "APOA Guest Registration System Access",
+      description: "APOA is the police guest registration system. Licensed villas are required to register guests. Hotels do this automatically via integrated systems; villa operators must set up APOA access manually and ensure each guest is registered. Failure to register guests is an immigration compliance issue, separate from hospitality licensing."
+    },
+    uk: {
+      name: "Доступ до системи реєстрації гостей APOA",
+      description: "APOA — система реєстрації гостей поліції. Ліцензовані вілли зобов'язані реєструвати гостей. Невиконання є порушенням імміграційного законодавства."
+    },
+    id: {
+      name: "Akses Sistem Registrasi Tamu APOA",
+      description: "APOA adalah sistem registrasi tamu polisi. Villa berlisensi wajib mendaftarkan tamu. Kegagalan mendaftarkan tamu merupakan masalah kepatuhan imigrasi, terpisah dari perizinan perhotelan."
+    }
+  }
+},
+```
+
+---
+
+## PART C — RECURRING FILINGS SEED (`server/seed-recurring-filings.ts`)
+
+Create a new seed file. Call it from `routes.ts` alongside other seed functions. Use upsert on `filingType` + `periodLabel` per property — or simply seed the filing schedule definitions as a static config (not per-property rows) and generate per-property rows lazily when the user accesses the Timeline.
+
+### Preferred approach: Static filing schedule config
+
+Rather than seeding per-property database rows, define a static schedule config in the frontend that generates timeline items programmatically. This keeps the database clean.
+
+Add to `client/src/lib/filing-schedule.ts`:
+
+```typescript
+export interface FilingScheduleItem {
+  filingType: string;
+  labelKey: string;      // used for i18n
+  gateNumber: number;
+  gateColor: string;
+  cadence: "monthly" | "quarterly" | "annual";
+  dueDayOfMonth?: number;    // for monthly
+  dueMonths?: number[];      // for annual/quarterly (month numbers, 1-based)
+  dueDayInMonth?: number;    // day of month for quarterly/annual due dates
+  note?: string;
+}
+
+export const FILING_SCHEDULE: FilingScheduleItem[] = [
+  // Monthly — Gate 4 Tax
+  {
+    filingType: "pb1_sptpd",
+    labelKey: "filing.pb1Sptpd",
+    gateNumber: 4,
+    gateColor: "#F59E0B",
+    cadence: "monthly",
+    dueDayOfMonth: 20,
+  },
+  {
+    filingType: "pph21_monthly",
+    labelKey: "filing.pph21Monthly",
+    gateNumber: 4,
+    gateColor: "#F59E0B",
+    cadence: "monthly",
+    dueDayOfMonth: 20,
+  },
+  // Monthly — Gate 5 Staff
+  {
+    filingType: "bpjs_kesehatan",
+    labelKey: "filing.bpjsKesehatan",
+    gateNumber: 5,
+    gateColor: "#22C55E",
+    cadence: "monthly",
+    dueDayOfMonth: 10,
+  },
+  {
+    filingType: "bpjs_ketenagakerjaan",
+    labelKey: "filing.bpjsKetenagakerjaan",
+    gateNumber: 5,
+    gateColor: "#22C55E",
+    cadence: "monthly",
+    dueDayOfMonth: 10,
+  },
+  // Quarterly — Gate 0 Corporate
+  {
+    filingType: "lkpm_quarterly",
+    labelKey: "filing.lkpmQuarterly",
+    gateNumber: 0,
+    gateColor: "#94A3B8",
+    cadence: "quarterly",
+    dueMonths: [4, 7, 10, 1], // April, July, October, January (Q1–Q4 reports)
+    dueDayInMonth: 10,
+  },
+  // Annual
+  {
+    filingType: "spt_tahunan",
+    labelKey: "filing.sptTahunan",
+    gateNumber: 4,
+    gateColor: "#F59E0B",
+    cadence: "annual",
+    dueMonths: [4],
+    dueDayInMonth: 30,
+  },
+  {
+    filingType: "pbb_annual",
+    labelKey: "filing.pbbAnnual",
+    gateNumber: 4,
+    gateColor: "#F59E0B",
+    cadence: "annual",
+    dueMonths: [9], // September typical in Bali
+    dueDayInMonth: 30,
+  },
+  {
+    filingType: "thr",
+    labelKey: "filing.thr",
+    gateNumber: 5,
+    gateColor: "#22C55E",
+    cadence: "annual",
+    dueMonths: [3], // Approximate — exact date shifts with Islamic calendar
+    dueDayInMonth: 1,
+  },
+  {
+    filingType: "ota_deadline",
+    labelKey: "filing.otaDeadline",
+    gateNumber: 7,
+    gateColor: "#14B8A6",
+    cadence: "annual",
+    dueMonths: [3],
+    dueDayInMonth: 31,
+  },
+];
+
+/**
+ * Generate concrete due dates from the schedule for the next N months from today.
+ */
+export function generateUpcomingFilings(monthsAhead = 3): Array<{
+  filingType: string;
+  labelKey: string;
+  gateNumber: number;
+  gateColor: string;
+  dueDate: Date;
+  isOverdue: boolean;
+  daysUntil: number;
+}> {
+  const today = new Date();
+  const cutoff = new Date(today);
+  cutoff.setMonth(cutoff.getMonth() + monthsAhead);
+
+  const results: ReturnType<typeof generateUpcomingFilings> = [];
+
+  for (const item of FILING_SCHEDULE) {
+    if (item.cadence === "monthly" && item.dueDayOfMonth) {
+      // Generate one per month for the window
+      const cursor = new Date(today.getFullYear(), today.getMonth(), item.dueDayOfMonth);
+      if (cursor < today) cursor.setMonth(cursor.getMonth() + 1);
+      while (cursor <= cutoff) {
+        const daysUntil = Math.floor((cursor.getTime() - today.getTime()) / 86400000);
+        results.push({
+          filingType: item.filingType,
+          labelKey: item.labelKey,
+          gateNumber: item.gateNumber,
+          gateColor: item.gateColor,
+          dueDate: new Date(cursor),
+          isOverdue: cursor < today,
+          daysUntil,
+        });
+        cursor.setMonth(cursor.getMonth() + 1);
+      }
+    } else if (item.cadence === "quarterly" && item.dueMonths && item.dueDayInMonth) {
+      for (const month of item.dueMonths) {
+        const year = month <= today.getMonth() + 1 ? today.getFullYear() + 1 : today.getFullYear();
+        const dueDate = new Date(year, month - 1, item.dueDayInMonth);
+        if (dueDate >= today && dueDate <= cutoff) {
+          results.push({
+            filingType: item.filingType,
+            labelKey: item.labelKey,
+            gateNumber: item.gateNumber,
+            gateColor: item.gateColor,
+            dueDate,
+            isOverdue: false,
+            daysUntil: Math.floor((dueDate.getTime() - today.getTime()) / 86400000),
+          });
+        }
+      }
+    } else if (item.cadence === "annual" && item.dueMonths && item.dueDayInMonth) {
+      for (const month of item.dueMonths) {
+        let year = today.getFullYear();
+        const dueDate = new Date(year, month - 1, item.dueDayInMonth);
+        if (dueDate < today) dueDate.setFullYear(year + 1);
+        if (dueDate <= cutoff) {
+          results.push({
+            filingType: item.filingType,
+            labelKey: item.labelKey,
+            gateNumber: item.gateNumber,
+            gateColor: item.gateColor,
+            dueDate,
+            isOverdue: false,
+            daysUntil: Math.floor((dueDate.getTime() - today.getTime()) / 86400000),
+          });
+        }
+      }
+    }
+  }
+
+  return results.sort((a, b) => a.dueDate.getTime() - b.dueDate.getTime());
+}
+```
+
+---
+
+## PART D — API ROUTES (`server/routes.ts`)
+
+Add these routes. All require `requireAuth`.
+
+### Banjar contributions
+
+```
+GET  /api/banjar?propertyId=:id
+     → Return all banjar_contributions for property, ordered by contributionDate desc
+
+POST /api/banjar
+     → Body: { propertyId, contributionDate, contributionType, amount?, description? }
+     → Create and return new row
+
+DELETE /api/banjar/:id
+     → Soft-delete or hard-delete — verify property ownership first
+```
+
+### Staff members
+
+```
+GET    /api/staff?propertyId=:id
+       → Return all active staff for property
+
+POST   /api/staff
+       → Body: { propertyId, name, role?, startDate?, bpjsKesehatanStatus?, bpjsKetenagakerjaanStatus?, kitas?, kitasExpiry? }
+
+PATCH  /api/staff/:id
+       → Update any staff fields. Verify property ownership.
+
+DELETE /api/staff/:id
+       → Set isActive = false (soft delete)
+```
+
+### Recurring filings
+
+```
+GET    /api/filings?propertyId=:id
+       → Return all recurring_filings for property, ordered by dueDate
+
+POST   /api/filings
+       → Body: { propertyId, filingType, periodLabel, dueDate, status? }
+       → Used to mark a generated filing as filed
+
+PATCH  /api/filings/:id
+       → Update status, filedDate, notes
+```
+
+### Property updates (extend existing PATCH /api/properties/:id)
+
+The existing PATCH handler should now also accept and save the new property fields:
+- `entityStructure`, `otaEntityName`, `otaIdentityChecked`
+- `landTitleType`, `landTitleExpiry`
+- `banjars`, `banjarIntroDate`, `banjarNotes`
+
+---
+
+## PART E — STORAGE LAYER (`server/storage.ts`)
+
+Add to `IStorage` interface and `DatabaseStorage`:
+
+```typescript
+// Banjar
+getBanjarContributions(propertyId: string): Promise<BanjarContribution[]>;
+createBanjarContribution(contribution: InsertBanjarContribution): Promise<BanjarContribution>;
+deleteBanjarContribution(id: string): Promise<void>;
+
+// Staff
+getStaffByProperty(propertyId: string): Promise<StaffMember[]>;
+createStaffMember(staff: InsertStaffMember): Promise<StaffMember>;
+updateStaffMember(id: string, updates: Partial<InsertStaffMember>): Promise<StaffMember | undefined>;
+softDeleteStaffMember(id: string): Promise<void>;
+
+// Recurring filings
+getFilingsByProperty(propertyId: string): Promise<RecurringFiling[]>;
+createFiling(filing: InsertRecurringFiling): Promise<RecurringFiling>;
+updateFiling(id: string, updates: Partial<InsertRecurringFiling>): Promise<RecurringFiling | undefined>;
+```
+
+---
+
+## PART F — COMPLIANCE FLOW UPDATES (`client/src/pages/home.tsx`)
+
+### F1 — Gate 0 alert block additions
+
+In the Gate 0 (PT PMA/Foundation) expanded section, add a new **danger alert block** after the existing alerts:
+
+```
+⚠ PT PMDN vs PT PMA — Critical Structure Check
+
+In most practical enforcement scenarios, standalone villas intended for short-term rental 
+require a PT PMDN (domestic company) structure to obtain the required tourism licence — 
+not a PT PMA. A PT PMA frequently cannot obtain short-term rental licences under current 
+local interpretation. Verify your intended operational structure with a licensed local 
+consultant before committing to a PT PMA setup.
+```
+
+Render using the existing danger `alert-block` style. All text via i18n key `t.gates.ptpmnWarning`.
+
+### F2 — Gate 0 new DSCVR role description
+
+In Gate 0's `dscvrRoleDesc` (the "What DSCVR tracks" pill/label), add to the existing text:
+```
+Stores land title type + expiry, title search confirmation, road access proof, banjar introduction record, and SKD (domicile letter). Flags HGB expiry dates.
+```
+Update via i18n content keys — do not hardcode.
+
+### F3 — Gate 1 (Zoning) alert block addition
+
+Add an info block:
+```
+ℹ Road Access Check
+
+Land zone confirmation via KKPR does not verify road access. A separate check at the 
+land registry (BPN) is required to confirm the parcel has formally registered road access. 
+Landlocked parcels have been found fully zoned for pariwisata with no legal road access.
+```
+i18n key: `t.gates.roadAccessWarning`
+
+### F4 — Gate 5 (Staff) alert block additions
+
+Add two new alert blocks to Gate 5:
+
+**Warning block:**
+```
+▲ BPJS Compliance Now Digitally Monitored
+
+From 2026, BPJS Kesehatan and BPJamsostek contributions are cross-referenced against 
+operational licence data in real time. Missing contributions can now affect permit renewals. 
+Contributions are due by the 10th of each month.
+```
+i18n key: `t.gates.bpjsMonitoring`
+
+**Info block:**
+```
+ℹ THR — Mandatory Religious Holiday Bonus
+
+All employees are entitled to THR (Tunjangan Hari Raya) — one full month's salary paid 
+before their primary religious holiday. For Muslim staff: before Eid al-Fitr. For Balinese 
+Hindu staff: the timing shifts with the Balinese calendar. Late payment triggers formal 
+labour complaints and fines.
+```
+i18n key: `t.gates.thrRequirement`
+
+**Info block:**
+```
+ℹ Banjar Engagement
+
+The banjar (local community governance unit) has informal but real power to trigger 
+inspections and create operational friction. Monthly contributions, ceremony participation, 
+and staff registration with the banjar are not legally required but are considered 
+essential practice. DSCVR tracks banjar engagement in the property profile.
+```
+i18n key: `t.gates.banjarEngagement`
+
+### F5 — Gate 7 (OTA) alert block addition
+
+Add a danger alert block:
+```
+⚠ OTA Identity Consistency Check
+
+Your entity name, address, and licence reference numbers must be identical across: 
+NIB certificate, TDUP, OTA account profile, and all submitted verification documents. 
+Even minor spelling differences (e.g. "PT" vs "P.T.") cause platform verification failure. 
+Standardise your identity before submitting — fixing it after submission causes significant delays.
+```
+i18n key: `t.gates.otaIdentityWarning`
+
+---
+
+## PART G — PROFILE PAGE UPDATES (`client/src/pages/profile.tsx`)
+
+Add four new sections to the property profile page. Each collapses behind an expand toggle to keep the page clean.
+
+### G1 — Entity Structure Section
+
+Below the existing NIB/KBLI fields, add:
+
+**Entity structure select:**
+```
+Legal Structure: [PT PMA ▾] [PT PMDN] [Individual (Hak Pakai)] [Unknown/To confirm]
+```
+- If `pt_pmdn` selected: show green info note "PT PMDN is the more common operational structure for short-term rental licences in Bali."
+- If `pt_pma` selected: show amber warning "Confirm with a local consultant that PT PMA is viable for your KBLI and rental model before proceeding."
+- i18n keys: `t.profile.entityStructure`, `t.profile.entityStructurePtPmaNota`, `t.profile.entityStructurePtPmdnNote`
+
+**Land title section:**
+```
+Land Title Type: [HGB ▾] [Hak Pakai] [Hak Sewa] [Unknown]
+HGB Expiry Date: [date picker — only show if HGB selected]
+```
+- Amber alert if HGB expiry within 12 months: "HGB expiring soon — renewal required before licence applications."
+
+### G2 — OTA Identity Section
+
+```
+OTA Listing Name (as shown on platforms): [text input]
+☐ Confirmed: name matches PT PMA name exactly on all platforms
+```
+- Red alert if `otaEntityName` is set but `otaIdentityChecked` is false: "OTA identity not yet verified — confirm entity name matches across all platforms."
+- i18n keys: `t.profile.otaIdentity`, `t.profile.otaIdentityChecked`, `t.profile.otaIdentityMismatchWarning`
+
+### G3 — Banjar Section
+
+Expandable accordion within the property card.
+
+**Header fields:**
+```
+Banjar Name(s): [text input — comma-separated if multiple]
+Introduction Date: [date picker]
+Notes: [textarea]
+```
+
+**Contribution log table:**
+```
+Date       | Type              | Amount (IDR) | Notes | [Delete]
+2026-01-15 | Monthly donation  | 500,000      |       | ×
+2025-12-01 | Ceremony          | —            | Melaspas blessing for renovation | ×
+```
+
+**"+ Add contribution" button** — inline form:
+```
+Date: [date picker]
+Type: [Monthly donation | Ceremony | Staff registration | Other]
+Amount (IDR): [number input, optional]
+Description: [text input]
+[Save] [Cancel]
+```
+
+i18n keys: `t.profile.banjar.*` — full set covering all labels.
+
+### G4 — Staff & BPJS Section
+
+Expandable accordion within the property card.
+
+**Staff table:**
+```
+Name         | Role          | BPJS-K       | BPJamsostek  | KITAS    | [Edit] [Remove]
+Ketut Ari    | Housekeeper   | ● Active     | ● Active     | —        |
+James Miller | Villa Manager | ● Active     | ● Active     | 12/2026  |
+```
+Status dots: green = Active, amber = Registered (not confirmed current), red = Not registered / Lapsed.
+
+**"+ Add staff member" button** — inline form with all fields from the `staff_members` schema.
+
+**Summary line above table:**
+```
+3 staff · BPJS-K: 3/3 active · BPJamsostek: 3/3 active · THR: 1 due this season
+```
+
+i18n keys: `t.profile.staff.*` — full set.
+
+---
+
+## PART H — TIMELINE PAGE UPDATES (`client/src/pages/timeline.tsx`)
+
+### H1 — Replace hardcoded fixed deadlines with filing schedule
+
+The current `fixedDeadlines` array in timeline.tsx is replaced with items generated from `generateUpcomingFilings()` (from `client/src/lib/filing-schedule.ts`).
+
+```typescript
+import { generateUpcomingFilings } from "@/lib/filing-schedule";
+
+// Replace hardcoded fixedDeadlines:
+const filingItems = generateUpcomingFilings(3); // next 3 months
+
+// Merge with vault expiry items as before
+const allItems = [...vaultExpiryItems, ...filingItems.map(f => ({
+  id: f.filingType + "-" + f.dueDate.toISOString(),
+  label: t.filing[f.labelKey.replace("filing.", "")] ?? f.filingType,
+  date: f.dueDate,
+  gateNumber: f.gateNumber,
+  color: f.gateColor,
+  isRecurring: true,
+  isOverdue: f.isOverdue,
+  daysUntil: f.daysUntil,
+}))];
+```
+
+### H2 — Add "Recurring Filings" filter chip
+
+Alongside the existing filter chips (All / Overdue / This month / Next 90 days), add:
+```
+[Recurring filings] [Document expiry]
+```
+These filter the type of item shown. i18n key: `t.timeline.recurringFilings`, `t.timeline.documentExpiry`.
+
+### H3 — Visual distinction for recurring vs one-time items
+
+Recurring filing items use a slightly different row style — add a small `↻` icon before the label to indicate recurrence.
+
+```
+[↻ ● gate dot] [PB1 Hotel Tax Filing — February 2026]    [Gate 4]  [20 Feb 2026]
+                                                                      [8 days]
+```
+
+---
+
+## PART I — ALERTS PAGE UPDATES (`client/src/pages/alerts.tsx`)
+
+### I1 — Add recurring filing alerts
+
+Pull overdue recurring filings into the "Action required" section. Items where `dueDate < today` and `status !== "filed"`.
+
+Add a third section — **"Due soon (filings)"** — amber-tinted, for recurring filings due within 14 days (tighter window than document expiry, since filings have hard legal deadlines):
+
+```
+[↻] PB1 Hotel Tax Filing (SPTPD)     Gate 4     Due in 6 days — 20 Feb 2026
+[↻] BPJS Contributions                Gate 5     Due in 6 days — 10 Feb 2026
+```
+
+### I2 — BPJS staff compliance alert
+
+If any staff member has `bpjsKesehatanStatus !== "active"` or `bpjsKetenagakerjaanStatus !== "active"`, surface a warning alert:
+
+```
+⚠ Staff BPJS compliance gap detected
+[N] staff member(s) not fully enrolled in BPJS. Go to Profile → Staff →
+```
+
+### I3 — OTA identity alert
+
+If `property.otaEntityName` is set but `property.otaIdentityChecked === false`, surface:
+
+```
+⚠ OTA identity not verified
+Your OTA listing name has not been confirmed to match your PT PMA name.
+Mismatches cause verification failure. → Go to Profile
+```
+
+### I4 — HGB expiry alert
+
+If `property.landTitleType === "hgb"` and `property.landTitleExpiry` is within 365 days, surface:
+
+```
+⚠ HGB expiring within 12 months
+Land title renewal required — begin process early, renewal takes 3–6 months.
+```
+
+---
+
+## PART J — GLOSSARY TERMS ADDITIONS (`server/seed.ts`)
+
+Add these 8 new terms. Seed is additive — do not modify existing 31 terms.
+
+---
+
+### 1. Banjar
+- slug: `banjar`
+- definition: The hyperlocal community governance unit in Bali — smaller than a village, typically covering a few hundred families. The banjar is administered by a Kelian Dinas and operates outside the formal government licensing system but holds significant informal authority.
+- why: Banjar complaints can trigger inspections and operational interference even on a fully licensed property. Monthly contributions, ceremony participation, and staff registration with the banjar are considered essential practice for maintaining operational peace. New villa operators should formally introduce themselves to the Kelian Dinas before commencing operations.
+- store: Introduction record and date, contribution log, ceremony records (Melaspas, Mecaru)
+- pitfalls: Ignoring banjar relationship entirely; failing to notify banjar of building work or operational changes; not introducing new foreign operators to banjar head
+- synonyms: ["community association", "village ward", "banjar adat", "Kelian Dinas"]
+- tags: ["Community", "Local"]
+
+### 2. Surat Keterangan Domisili (SKD)
+- slug: `surat-keterangan-domisili`
+- definition: A domicile letter issued by the local banjar confirming a company's or individual's registered address. Required for OSS registration, business address verification, and KITAS-related administrative processes.
+- why: The address on the SKD must match the address on all other documents — NIB, NPWP, TDUP. Mismatches are the most common cause of OSS and OTA platform verification failures.
+- steps: Attend banjar office with property documents, KITAS/passport → Banjar head interviews and issues SKD → Submit to kelurahan for official stamp → Valid for address-tied purposes
+- store: SKD original or certified copy, issue date, renewal reminder
+- pitfalls: SKD address not matching NIB/NPWP address; SKD expired (annual renewal); not updating SKD after address change
+- synonyms: ["domicile letter", "address letter", "SKD", "surat domisili", "Letter of Domicile"]
+- tags: ["Documents", "Local", "Corporate"]
+
+### 3. PPAT (Notaris Tanah)
+- slug: `ppat-notaris-tanah`
+- definition: Pejabat Pembuat Akta Tanah — a special category of licensed notary specifically authorised to handle land transaction documentation in Indonesia. Different from a general notary.
+- why: All land title transfers, HGB issuances, and notary title searches related to land must be handled by a PPAT. Using a general notary for land transactions is invalid. Verify PPAT accreditation before engaging.
+- store: PPAT engagement letter, accreditation number, title search report, any land transaction deeds
+- pitfalls: Using a general notary instead of a PPAT; not verifying PPAT accreditation; PPAT issuing clean title certificate without physical inspection of the land registry
+- synonyms: ["land notary", "PPAT notary", "notary PPAT", "land deed official"]
+- tags: ["Legal", "Documents", "Zoning"]
+
+### 4. Hak Milik (SHM)
+- slug: `hak-milik-shm`
+- definition: Sertifikat Hak Milik — freehold title, the strongest form of land ownership in Indonesia. Available to Indonesian citizens only. Foreign nationals and foreign-owned companies (PT PMA) cannot hold Hak Milik. Any arrangement where a foreigner holds Hak Milik through a nominee Indonesian citizen is legally invalid and subject to forfeiture.
+- why: Foreign operators must understand that Hak Milik is not available to them or their PT PMA. The correct title for PT PMA land is HGB. Nominee Hak Milik arrangements have been prosecuted — the foreigner has no legal recourse if the nominee claims the land.
+- store: If purchasing/inheriting a villa: confirm title type. HGB certificate if correctly held. Legal opinion from PPAT.
+- pitfalls: Purchasing a villa under a nominee Hak Milik arrangement; not converting Hak Milik to HGB before PT PMA takes ownership
+- synonyms: ["freehold", "SHM", "freehold title", "full ownership", "Hak Milik freehold"]
+- tags: ["Zoning", "Legal"]
+
+### 5. Hak Pakai
+- slug: `hak-pakai`
+- definition: Right-to-Use title — available to foreign individuals holding a KITAS or KITAP for a single residential property with a minimum value of approximately IDR 5 billion. Cannot be used for commercial rental income. PT PMA entities use HGB, not Hak Pakai.
+- why: Foreign operators sometimes believe Hak Pakai allows them to run a rental villa without a PT PMA. It does not — Hak Pakai is for personal residence only. Commercial rental income from a Hak Pakai property is not permitted and creates tax and immigration liability.
+- store: Hak Pakai certificate, KITAS confirming eligibility, legal opinion
+- pitfalls: Using Hak Pakai for commercial rental operations; not understanding the distinction between personal residential use and commercial hospitality
+- synonyms: ["right to use", "right of use", "use title", "Hak Pakai certificate"]
+- tags: ["Zoning", "Legal"]
+
+### 6. PT PMDN
+- slug: `pt-pmdn`
+- definition: Perseroan Terbatas Penanaman Modal Dalam Negeri — a domestic limited liability company. In practice, the PT PMDN is increasingly the preferred operational entity for short-term villa rental licences in Bali, as local licensing authorities apply PT PMA restrictions to certain hospitality KBLI codes.
+- why: Many villa operators are surprised to learn that PT PMA cannot always obtain short-term rental tourism licences under current local interpretation and enforcement. A PT PMDN with appropriate foreign investment structured correctly may be required as the operating entity. This distinction is critical before committing to a company structure.
+- store: Akta Pendirian (domestic), SK Kemenkumham, NPWP, NIB under PT PMDN entity
+- pitfalls: Assuming PT PMA is always the correct structure for villa operations; not verifying the licensing pathway for the specific KBLI before incorporating; conflating ownership structure with operational structure
+- synonyms: ["domestic company", "Indonesian company", "PMDN entity", "local PT"]
+- tags: ["Corporate", "Legal"]
+
+### 7. PBB (Pajak Bumi dan Bangunan)
+- slug: `pbb-pajak-bumi-bangunan`
+- definition: Land and Building Tax — an annual local tax assessed on the ownership of land and buildings. Commercial properties pay at commercial rates, which are significantly higher than residential rates.
+- why: Commercial villas paying PBB at residential rates are a common tax audit trigger. This gap is actively targeted by Bali tax authorities. The property must be registered at the correct commercial rate from the moment it begins commercial operations.
+- steps: Confirm current PBB classification with local Bapenda → If residential, apply for reclassification to commercial → Pay annual PBB by the deadline (typically September in Bali) → Retain payment receipts
+- store: PBB payment receipt (current year), classification confirmation, any reclassification correspondence
+- pitfalls: Continuing to pay residential PBB after commencing commercial operations; missing the annual payment deadline; not updating PBB classification after renovations that increase property value
+- synonyms: ["land tax", "building tax", "property tax", "pajak bumi", "PBB"]
+- tags: ["Tax"]
+
+### 8. THR (Tunjangan Hari Raya)
+- slug: `thr-tunjangan-hari-raya`
+- definition: The mandatory annual religious holiday bonus for all employees in Indonesia — equal to one month's salary. For Muslim employees: paid before Eid al-Fitr. For non-Muslim employees: paid before their primary religious holiday (Nyepi for Balinese Hindu, Christmas for Christian staff, etc.).
+- why: THR is a legal obligation under Indonesian employment law, not a discretionary bonus. Late payment or non-payment constitutes an employment law violation and generates formal labour complaints. In the villa sector, THR disputes with housekeeper and maintenance staff are common and disruptive.
+- steps: Calculate one month's gross salary per employee → Disburse at least 7 days before the relevant religious holiday → Obtain signed receipt from each employee → Report to Disnaker if required
+- store: Disbursement records signed by each employee, payroll confirmation, any Disnaker reporting
+- pitfalls: Not paying THR for part-time or fixed-term staff who qualify; paying after the holiday (still a violation even if paid late); not keeping signed receipts
+- synonyms: ["holiday bonus", "religious bonus", "hari raya bonus", "THR allowance"]
+- tags: ["Staff", "Employment"]
+
+---
+
+Provide full UK and ID translations for all 8 new terms in `server/seed-translations.ts`, following the exact same structure as existing entries.
+
+---
+
+## PART K — i18n ADDITIONS
+
+Add all new keys to `types.ts`, `en.ts`, `uk.ts`, `id.ts`. Never hardcode English in JSX.
+
+### New keys under `t.gates`:
+
+```typescript
+gates: {
+  // ... existing keys ...
+  ptpmnWarning: string;       // Gate 0 alert
+  roadAccessWarning: string;  // Gate 1 alert
+  bpjsMonitoring: string;     // Gate 5 alert
+  thrRequirement: string;     // Gate 5 alert
+  banjarEngagement: string;   // Gate 5 info
+  otaIdentityWarning: string; // Gate 7 alert
+}
+```
+
+### New keys under `t.filing`:
+
+```typescript
+filing: {
+  pb1Sptpd: string;              // "PB1 Hotel Tax Filing (SPTPD)"
+  pph21Monthly: string;          // "PPh 21 Monthly Filing"
+  bpjsKesehatan: string;         // "BPJS Kesehatan Contributions"
+  bpjsKetenagakerjaan: string;   // "BPJamsostek Contributions"
+  lkpmQuarterly: string;         // "LKPM Investment Report (Quarterly)"
+  sptTahunan: string;            // "SPT Tahunan (Annual Corporate Tax)"
+  pbbAnnual: string;             // "PBB — Land & Building Tax (Annual)"
+  thr: string;                   // "THR — Religious Holiday Bonus Due"
+  otaDeadline: string;           // "OTA Verification Deadline"
+}
+```
+
+### New keys under `t.profile`:
+
+```typescript
+profile: {
+  // ... existing keys ...
+  entityStructure: string;
+  entityStructureLabel: string;
+  entityStructurePtPmaNote: string;
+  entityStructurePtPmdnNote: string;
+  landTitle: string;
+  landTitleType: string;
+  landTitleExpiry: string;
+  landTitleExpiryWarning: string;
+  otaIdentity: string;
+  otaEntityName: string;
+  otaIdentityChecked: string;
+  otaIdentityMismatchWarning: string;
+  banjar: string;
+  banjarName: string;
+  banjarIntroDate: string;
+  banjarNotes: string;
+  banjarContributions: string;
+  banjarAddContribution: string;
+  banjarContributionDate: string;
+  banjarContributionType: string;
+  banjarContributionAmount: string;
+  banjarContributionDescription: string;
+  banjarTypeMonthly: string;
+  banjarTypeCeremony: string;
+  banjarTypeStaffReg: string;
+  banjarTypeOther: string;
+  staff: string;
+  staffName: string;
+  staffRole: string;
+  staffStartDate: string;
+  staffBpjsKesehatan: string;
+  staffBpjsKetenagakerjaan: string;
+  staffKitas: string;
+  staffKitasExpiry: string;
+  staffAddMember: string;
+  staffBpjsActive: string;
+  staffBpjsRegistered: string;
+  staffBpjsNotRegistered: string;
+  staffBpjsLapsed: string;
+  staffThrDue: string;
+  staffSummary: string;           // "{n} staff · BPJS-K: {k}/{n} active"
+}
+```
+
+### New keys under `t.timeline`:
+
+```typescript
+timeline: {
+  // ... existing keys ...
+  recurringFilings: string;
+  documentExpiry: string;
+  recurring: string;             // "Recurring"
+}
+```
+
+### New keys under `t.alerts`:
+
+```typescript
+alerts: {
+  // ... existing keys ...
+  dueSoonFilings: string;        // "Due soon — filings"
+  bpjsGap: string;              // "Staff BPJS compliance gap"
+  bpjsGapDesc: string;
+  otaIdentityAlert: string;
+  otaIdentityAlertDesc: string;
+  hgbExpiryAlert: string;
+  hgbExpiryAlertDesc: string;
+}
+```
+
+Provide full translations for all new keys in `uk.ts` and `id.ts`.
+
+---
+
+## PART L — EXISTING VAULT TEMPLATE UPDATES (SEED)
+
+Update these **existing** vault document template descriptions (upsert on slug — safe):
+
+### `sptpd-latest` (Gate 4)
+Update description to clarify cadence:
+```
+EN: "Monthly SPTPD filing confirmation. Due by the 20th of each month for the previous month's hotel tax collected. Requires NPWPD registration in the correct regency. Late filing attracts penalties from day 1."
+```
+
+### `bpjs-monthly-payment-current` (Gate 5 — new template added in Part B)
+Already defined above.
+
+### `employment-contracts` (Gate 5)
+Update description:
+```
+EN: "Signed employment contracts for all staff. Indonesian employment law requires written contracts distinguishing fixed-term (PKWT) from indefinite-term (PKWTT) arrangements. PKWT contracts have strict rules on duration and renewal — violations result in automatic conversion to PKWTT."
+```
+
+---
+
+## CONSTRAINTS
+
+1. **Never hardcode English in JSX** — all new strings use translation keys
+2. **Do not break Phases 1–5** — all existing features must continue to work unchanged
+3. **Run `npm run db:push`** after schema additions
+4. **Seed is additive** — do not modify or remove existing 31 terms or existing vault templates
+5. **Banjar section is non-legal but included** — frame it consistently as "operational best practice" not a government permit requirement. Never say "legally required" for banjar items.
+6. **PT PMDN warning is factual** — phrase it as "verify with a local consultant" not as a definitive legal ruling. The reality on the ground varies by regency and KBLI.
+7. **Filing schedule generates items client-side** — no database rows for recurring filing schedule definitions. Only the `recurring_filings` table rows (user-marked as filed) live in the database.
+8. **GlossaryAwareText** — wrap all new compliance terms in existing vault descriptions, alert blocks, and timeline labels using the existing `GlossaryAwareText` component. New terms added (banjar, SKD, PPAT, HGB, Hak Pakai, PT PMDN, PBB, THR) should all trigger glossary hovers wherever they appear.
+9. **OTA identity consistency check** — surface the OTA identity mismatch warning prominently. This is one of the highest-frequency causes of OTA verification failure in 2026.
+
+---
+
+## EXPECTED RESULT
+
+After Phase 6 is complete:
+
+**Compliance flow (home.tsx):**
+- Gate 0 shows PT PMDN warning alert block
+- Gate 1 shows road access warning
+- Gate 5 shows BPJS monitoring warning, THR requirement info, banjar engagement info
+- Gate 7 shows OTA identity consistency warning
+
+**Vault (/vault):**
+- Gate 0: 3 new documents (land title, title search, road access proof, banjar introduction record, SKD)
+- Gate 4: NPWPD registration + PBB commercial rate confirmation
+- Gate 5: BPJS monthly payment receipt, THR record, APOA guest registration
+
+**Timeline (/timeline):**
+- All recurring filings generated from schedule (monthly PB1, PPh21, BPJS; quarterly LKPM; annual SPT, PBB, THR, OTA deadline)
+- Filter chip for Recurring Filings vs Document Expiry
+- Recurring items visually distinct with ↻ icon
+
+**Alerts (/alerts):**
+- Overdue recurring filings surfaced in action-required section
+- Filings due within 14 days in "Due soon" section
+- BPJS staff compliance gap alert
+- OTA identity mismatch alert
+- HGB expiry within 12 months alert
+
+**Profile (/profile):**
+- Entity structure field with PT PMDN/PT PMA guidance
+- Land title type + HGB expiry date
+- OTA entity name + identity confirmed checkbox
+- Banjar section with contribution log
+- Staff & BPJS section with per-staff status table
+
+**Glossary:**
+- 8 new terms: Banjar, SKD, PPAT, Hak Milik, Hak Pakai, PT PMDN, PBB, THR
+- Full EN/UK/ID translations for all 8
+- All new terms trigger hover tooltips across the app
+
+**i18n:**
+- All new strings in all 3 languages
+- `t.gates.*`, `t.filing.*`, `t.profile.banjar.*`, `t.profile.staff.*`, `t.timeline.*`, `t.alerts.*` fully populated

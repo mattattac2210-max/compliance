@@ -64,6 +64,14 @@ export const properties = pgTable("properties", {
   isActive: boolean("is_active").notNull().default(true),
   createdAt: text("created_at").notNull().default(sql`now()`),
   updatedAt: text("updated_at").notNull().default(sql`now()`),
+  banjars: text("banjars"),
+  banjarIntroDate: text("banjar_intro_date"),
+  banjarNotes: text("banjar_notes"),
+  entityStructure: text("entity_structure").default("pt_pma"),
+  otaEntityName: text("ota_entity_name"),
+  otaIdentityChecked: boolean("ota_identity_checked").default(false),
+  landTitleType: text("land_title_type"),
+  landTitleExpiry: text("land_title_expiry"),
 });
 
 export const insertPropertySchema = createInsertSchema(properties).omit({
@@ -194,3 +202,54 @@ export const insertProcessGuideSchema = createInsertSchema(processNavigationGuid
 
 export type InsertProcessGuide = z.infer<typeof insertProcessGuideSchema>;
 export type ProcessGuide = typeof processNavigationGuides.$inferSelect;
+
+export const banjarContributions = pgTable("banjar_contributions", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  contributionDate: text("contribution_date").notNull(),
+  contributionType: text("contribution_type").notNull(),
+  amount: integer("amount"),
+  description: text("description"),
+  createdAt: text("created_at").notNull().default(sql`now()`),
+});
+
+export const insertBanjarContributionSchema = createInsertSchema(banjarContributions).omit({ id: true, createdAt: true });
+export type InsertBanjarContribution = z.infer<typeof insertBanjarContributionSchema>;
+export type BanjarContribution = typeof banjarContributions.$inferSelect;
+
+export const recurringFilings = pgTable("recurring_filings", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  filingType: text("filing_type").notNull(),
+  periodLabel: text("period_label").notNull(),
+  dueDate: text("due_date").notNull(),
+  filedDate: text("filed_date"),
+  status: text("status").notNull().default("pending"),
+  notes: text("notes"),
+  updatedAt: text("updated_at").notNull().default(sql`now()`),
+});
+
+export const insertRecurringFilingSchema = createInsertSchema(recurringFilings).omit({ id: true });
+export type InsertRecurringFiling = z.infer<typeof insertRecurringFilingSchema>;
+export type RecurringFiling = typeof recurringFilings.$inferSelect;
+
+export const staffMembers = pgTable("staff_members", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  propertyId: varchar("property_id").notNull().references(() => properties.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  role: text("role"),
+  startDate: text("start_date"),
+  isActive: boolean("is_active").notNull().default(true),
+  bpjsKesehatanStatus: text("bpjs_kesehatan_status").default("not_registered"),
+  bpjsKesehatanMemberId: text("bpjs_kesehatan_member_id"),
+  bpjsKetenagakerjaanStatus: text("bpjs_ketenagakerjaan_status").default("not_registered"),
+  bpjsKetenagakerjaanMemberId: text("bpjs_ketenagakerjaan_member_id"),
+  thrDue: boolean("thr_due").default(false),
+  kitas: text("kitas"),
+  kitasExpiry: text("kitas_expiry"),
+  createdAt: text("created_at").notNull().default(sql`now()`),
+});
+
+export const insertStaffMemberSchema = createInsertSchema(staffMembers).omit({ id: true, createdAt: true });
+export type InsertStaffMember = z.infer<typeof insertStaffMemberSchema>;
+export type StaffMember = typeof staffMembers.$inferSelect;
