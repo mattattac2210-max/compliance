@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useSearch } from "wouter";
 import GlossarySection from "@/components/glossary";
 import { ProcessNavigation } from "@/components/process-navigation";
 import { useLanguage } from "@/i18n/context";
@@ -334,11 +335,20 @@ function NodeButton({ gate, onClick }: { gate: GateData; onClick: () => void }) 
 }
 
 export default function Home() {
-  const [activeTab, setActiveTab] = useState<TabId>("flow");
+  const searchString = useSearch();
+  const tabParam = new URLSearchParams(searchString).get("tab");
+  const initialTab: TabId = (tabParam === "audit" || tabParam === "guide") ? tabParam : "flow";
+  const [activeTab, setActiveTab] = useState<TabId>(initialTab);
   const [openGates, setOpenGates] = useState<Set<string>>(new Set());
   const [checkedItems, setCheckedItems] = useState<Map<string, "checked" | "flagged" | "warn">>(new Map());
   const { t, content } = useLanguage();
   const gates = useTranslatedGates();
+
+  useEffect(() => {
+    const param = new URLSearchParams(searchString).get("tab");
+    if (param === "audit" || param === "guide") setActiveTab(param);
+    else if (!param) setActiveTab("flow");
+  }, [searchString]);
 
   const translatedAuditSections = useMemo(() => content.auditSections.map((sec, si) => ({
     num: auditNums[si],
