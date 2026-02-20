@@ -126,6 +126,60 @@ export interface UITranslations {
     ukrainian: string;
     bahasa: string;
   };
+  auth: {
+    loginTitle: string;
+    registerTitle: string;
+    emailLabel: string;
+    emailPlaceholder: string;
+    passwordLabel: string;
+    passwordPlaceholder: string;
+    confirmPasswordLabel: string;
+    confirmPasswordPlaceholder: string;
+    loginButton: string;
+    registerButton: string;
+    registerLink: string;
+    loginLink: string;
+    logoutButton: string;
+    emailRequired: string;
+    emailInvalid: string;
+    passwordRequired: string;
+    passwordMinLength: string;
+    passwordMismatch: string;
+    loginError: string;
+    registerError: string;
+    emailTaken: string;
+  };
+  profile: {
+    heading: string;
+    subheading: string;
+    propertyNameLabel: string;
+    propertyNamePlaceholder: string;
+    entityNameLabel: string;
+    entityNamePlaceholder: string;
+    nibLabel: string;
+    nibPlaceholder: string;
+    addressLabel: string;
+    addressPlaceholder: string;
+    regencyLabel: string;
+    kbliLabel: string;
+    addProperty: string;
+    editProperty: string;
+    saveProperty: string;
+    cancelLabel: string;
+    deleteProperty: string;
+    confirmDelete: string;
+    noProperties: string;
+    noPropertiesDesc: string;
+    backToApp: string;
+  };
+  nav: {
+    profile: string;
+    vault: string;
+    timeline: string;
+    alerts: string;
+    logout: string;
+    login: string;
+  };
 }
 
 export interface GateTranslation {

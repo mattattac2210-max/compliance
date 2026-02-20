@@ -1,11 +1,26 @@
-import { type User, type InsertUser, type ComplianceTerm, type InsertComplianceTerm, type ProcessGuide, type InsertProcessGuide, complianceTerms, processNavigationGuides } from "@shared/schema";
+import {
+  type User, type InsertUser,
+  type ComplianceTerm, type InsertComplianceTerm,
+  type ProcessGuide, type InsertProcessGuide,
+  type Property, type InsertProperty,
+  users, complianceTerms, processNavigationGuides, properties,
+} from "@shared/schema";
 import { db } from "./db";
-import { eq, sql } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUserLastLogin(id: string): Promise<void>;
+
+  getPropertiesByUserId(userId: string): Promise<Property[]>;
+  getPropertyById(id: string): Promise<Property | undefined>;
+  createProperty(property: InsertProperty): Promise<Property>;
+  updateProperty(id: string, updates: Partial<InsertProperty>): Promise<Property | undefined>;
+  softDeleteProperty(id: string): Promise<void>;
+
   getAllTerms(activeOnly?: boolean): Promise<ComplianceTerm[]>;
   getTermBySlug(slug: string): Promise<ComplianceTerm | undefined>;
   getTermById(id: string): Promise<ComplianceTerm | undefined>;
@@ -20,21 +35,57 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getUser(id: string): Promise<User | undefined> {
-    const { users } = await import("@shared/schema");
     const [user] = await db.select().from(users).where(eq(users.id, id));
     return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const { users } = await import("@shared/schema");
     const [user] = await db.select().from(users).where(eq(users.username, username));
     return user;
   }
 
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.email, email));
+    return user;
+  }
+
   async createUser(insertUser: InsertUser): Promise<User> {
-    const { users } = await import("@shared/schema");
     const [user] = await db.insert(users).values(insertUser).returning();
     return user;
+  }
+
+  async updateUserLastLogin(id: string): Promise<void> {
+    await db.update(users).set({ lastLogin: new Date().toISOString() }).where(eq(users.id, id));
+  }
+
+  async getPropertiesByUserId(userId: string): Promise<Property[]> {
+    return db.select().from(properties)
+      .where(and(eq(properties.userId, userId), eq(properties.isActive, true)))
+      .orderBy(properties.createdAt);
+  }
+
+  async getPropertyById(id: string): Promise<Property | undefined> {
+    const [property] = await db.select().from(properties).where(eq(properties.id, id));
+    return property;
+  }
+
+  async createProperty(property: InsertProperty): Promise<Property> {
+    const [created] = await db.insert(properties).values(property).returning();
+    return created;
+  }
+
+  async updateProperty(id: string, updates: Partial<InsertProperty>): Promise<Property | undefined> {
+    const [updated] = await db.update(properties)
+      .set({ ...updates, updatedAt: new Date().toISOString() })
+      .where(eq(properties.id, id))
+      .returning();
+    return updated;
+  }
+
+  async softDeleteProperty(id: string): Promise<void> {
+    await db.update(properties)
+      .set({ isActive: false, updatedAt: new Date().toISOString() })
+      .where(eq(properties.id, id));
   }
 
   async getAllTerms(activeOnly = true): Promise<ComplianceTerm[]> {

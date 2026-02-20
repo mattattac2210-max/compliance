@@ -1,0 +1,659 @@
+# DSCVR — Phase 1 Replit Prompt
+
+## Auth (Login / Register) + Property Profile
+
+-----
+
+## CONTEXT
+
+You are working on **DSCVR Compliance Navigator** — a Bali villa compliance tracking app built with:
+
+- React 18 + TypeScript + Vite (frontend)
+- Express 5 + TypeScript + tsx (backend)
+- PostgreSQL + Drizzle ORM (database)
+- shadcn/ui + Tailwind CSS + Framer Motion (UI)
+- Wouter (routing)
+- Three languages: English (`en`), Ukrainian (`uk`), Bahasa Indonesia (`id`) — **ALL new UI strings must be added to all three language files simultaneously. Never hardcode English strings in JSX.**
+
+The app currently has:
+
+- `/` — main compliance flow page (home.tsx)
+- `/admin` — glossary term admin page (admin.tsx)
+- `shared/schema.ts` — Drizzle schema with `users`, `compliance_terms`, `process_navigation_guides` tables
+- `server/storage.ts` — DatabaseStorage class with IStorage interface
+- `server/routes.ts` — API routes
+- `client/src/i18n/` — context.tsx, types.ts, en.ts, uk.ts, id.ts, en-content.ts, uk-content.ts, id-content.ts
+- `client/src/App.tsx` — Router with wouter Switch/Route
+
+**`express-session`, `connect-pg-simple`, `passport`, and `passport-local` are already in package.json — just need wiring up.**
+
+-----
+
+## WHAT TO BUILD
+
+### Step 1 — Extend database schema (`shared/schema.ts`)
+
+Extend the existing `users` table — **do not recreate it, just add columns**:
+
+- `email` — `text`, unique, not null
+- `createdAt` — `text` (ISO date string), not null, default `new Date().toISOString()`
+- `lastLogin` — `text` (ISO date string), nullable
+- `isAdmin` — `boolean`, not null, default `false`
+
+Keep existing `id`, `username`, `password` columns — do not remove them. Set `username` to nullable or give it a default since we’re switching to email-based auth.
+
+Add a new `properties` table:
+
+```typescript
+export const properties = pgTable("properties", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  propertyName: text("property_name").notNull(),
+  entityName: text("entity_name").notNull(), // PT PMA company name
+  nib: text("nib"),                           // Business ID number
+  address: text("address"),
+  regency: text("regency"),                   // Badung, Gianyar, etc.
+  kbli: text("kbli"),                         // e.g. 55193
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: text("created_at").notNull().default(new Date().toISOString()),
+  updatedAt: text("updated_at").notNull().default(new Date().toISOString()),
+});
+```
+
+Export Zod insert schemas and types for both updated `users` and new `properties`.
+
+After editing schema, run: `npm run db:push`
+
+-----
+
+### Step 2 — Wire up sessions (`server/index.ts`)
+
+Add session middleware **before** `registerRoutes`. Use `connect-pg-simple` with the existing `DATABASE_URL`:
+
+```typescript
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
+import { pool } from "./db"; // export the pg Pool from db.ts
+
+const PgSession = connectPgSimple(session);
+
+app.use(session({
+  store: new PgSession({
+    pool,
+    tableName: "sessions",
+    createTableIfMissing: true,
+  }),
+  secret: process.env.SESSION_SECRET || "dscvr-dev-secret-change-in-production",
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: process.env.NODE_ENV === "production",
+    httpOnly: true,
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  },
+}));
+```
+
+Also extend `express-session` types so `req.session.userId` works:
+
+```typescript
+// In server/index.ts or a server/types.ts file
+declare module "express-session" {
+  interface SessionData {
+    userId: string;
+  }
+}
+```
+
+Export the `pool` from `server/db.ts` — the current db.ts likely only exports `db` (the Drizzle instance). Add:
+
+```typescript
+import { Pool } from "pg";
+export const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+```
+
+-----
+
+### Step 3 — Auth API routes (`server/routes.ts`)
+
+Add these routes **before** the existing `/api/terms` routes. Use `bcrypt` for password hashing (install if not present: `npm install bcrypt @types/bcrypt`).
+
+**Middleware:**
+
+```typescript
+function requireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!req.session.userId) return res.status(401).json({ message: "Unauthorized" });
+  next();
+}
+```
+
+**Routes:**
+
+`POST /api/auth/register`
+
+- Body: `{ email: string, password: string }`
+- Validate: email format, password min 8 chars
+- Check email not already in use
+- Hash password with `bcrypt.hash(password, 10)`
+- Create user, set `req.session.userId = user.id`
+- Return `{ id, email, isAdmin }` (never return password)
+
+`POST /api/auth/login`
+
+- Body: `{ email: string, password: string }`
+- Find user by email, verify password with `bcrypt.compare`
+- Update `lastLogin` timestamp
+- Set `req.session.userId = user.id`
+- Return `{ id, email, isAdmin }`
+
+`POST /api/auth/logout`
+
+- Destroy session
+- Return `{ ok: true }`
+
+`GET /api/auth/me`
+
+- If session exists, return `{ id, email, isAdmin }`
+- If not, return 401
+
+**Properties routes (all require `requireAuth`):**
+
+`GET /api/properties`
+
+- Return all properties for `req.session.userId` where `isActive = true`
+
+`POST /api/properties`
+
+- Body: `{ propertyName, entityName, nib?, address?, regency?, kbli? }`
+- Create property with `userId = req.session.userId`
+- Return created property
+
+`PATCH /api/properties/:id`
+
+- Verify property belongs to `req.session.userId`
+- Update fields, set `updatedAt`
+- Return updated property
+
+`DELETE /api/properties/:id`
+
+- Verify ownership, set `isActive = false` (soft delete)
+- Return `{ ok: true }`
+
+-----
+
+### Step 4 — Storage layer (`server/storage.ts`)
+
+Add to `IStorage` interface and `DatabaseStorage`:
+
+```typescript
+// Users
+getUserByEmail(email: string): Promise<User | undefined>;
+updateUserLastLogin(id: string): Promise<void>;
+
+// Properties  
+getPropertiesByUserId(userId: string): Promise<Property[]>;
+getPropertyById(id: string): Promise<Property | undefined>;
+createProperty(property: InsertProperty): Promise<Property>;
+updateProperty(id: string, property: Partial<InsertProperty>): Promise<Property | undefined>;
+softDeleteProperty(id: string): Promise<void>;
+```
+
+-----
+
+### Step 5 — i18n additions
+
+Add these keys to **all three files** — `en.ts`, `uk.ts`, `id.ts` — inside the `UITranslations` type and each language object:
+
+**In `types.ts`, add to `UITranslations`:**
+
+```typescript
+auth: {
+  loginTitle: string;
+  registerTitle: string;
+  emailLabel: string;
+  emailPlaceholder: string;
+  passwordLabel: string;
+  passwordPlaceholder: string;
+  confirmPasswordLabel: string;
+  confirmPasswordPlaceholder: string;
+  loginButton: string;
+  registerButton: string;
+  registerLink: string;
+  loginLink: string;
+  logoutButton: string;
+  emailRequired: string;
+  emailInvalid: string;
+  passwordRequired: string;
+  passwordMinLength: string;
+  passwordMismatch: string;
+  loginError: string;
+  registerError: string;
+  emailTaken: string;
+};
+profile: {
+  heading: string;
+  subheading: string;
+  propertyNameLabel: string;
+  propertyNamePlaceholder: string;
+  entityNameLabel: string;
+  entityNamePlaceholder: string;
+  nibLabel: string;
+  nibPlaceholder: string;
+  addressLabel: string;
+  addressPlaceholder: string;
+  regencyLabel: string;
+  kbliLabel: string;
+  addProperty: string;
+  editProperty: string;
+  saveProperty: string;
+  cancelLabel: string;
+  deleteProperty: string;
+  confirmDelete: string;
+  noProperties: string;
+  noPropertiesDesc: string;
+  backToApp: string;
+};
+nav: {
+  profile: string;
+  vault: string;
+  timeline: string;
+  alerts: string;
+  logout: string;
+  login: string;
+};
+```
+
+**English values (`en.ts`):**
+
+```typescript
+auth: {
+  loginTitle: "Sign in to DSCVR",
+  registerTitle: "Create your account",
+  emailLabel: "Email address",
+  emailPlaceholder: "you@example.com",
+  passwordLabel: "Password",
+  passwordPlaceholder: "Min. 8 characters",
+  confirmPasswordLabel: "Confirm password",
+  confirmPasswordPlaceholder: "Repeat your password",
+  loginButton: "Sign in",
+  registerButton: "Create account",
+  registerLink: "Don't have an account? Register",
+  loginLink: "Already have an account? Sign in",
+  logoutButton: "Sign out",
+  emailRequired: "Email is required",
+  emailInvalid: "Enter a valid email address",
+  passwordRequired: "Password is required",
+  passwordMinLength: "Password must be at least 8 characters",
+  passwordMismatch: "Passwords do not match",
+  loginError: "Invalid email or password",
+  registerError: "Registration failed — please try again",
+  emailTaken: "An account with this email already exists",
+},
+profile: {
+  heading: "Property Profile",
+  subheading: "Manage the villa properties linked to your account",
+  propertyNameLabel: "Villa name",
+  propertyNamePlaceholder: "e.g. Villa Kerti",
+  entityNameLabel: "PT PMA entity name",
+  entityNamePlaceholder: "e.g. PT Kerti Bali Utama",
+  nibLabel: "NIB (Business ID)",
+  nibPlaceholder: "13-digit NIB from OSS",
+  addressLabel: "Property address",
+  addressPlaceholder: "Street, village, regency",
+  regencyLabel: "Regency",
+  kbliLabel: "KBLI code",
+  addProperty: "+ Add property",
+  editProperty: "Edit",
+  saveProperty: "Save property",
+  cancelLabel: "Cancel",
+  deleteProperty: "Remove",
+  confirmDelete: "Remove this property from your account?",
+  noProperties: "No properties yet",
+  noPropertiesDesc: "Add your first villa property to start tracking compliance.",
+  backToApp: "← Back to compliance navigator",
+},
+nav: {
+  profile: "Profile",
+  vault: "Vault",
+  timeline: "Timeline",
+  alerts: "Alerts",
+  logout: "Sign out",
+  login: "Sign in",
+},
+```
+
+**Ukrainian values (`uk.ts`):**
+
+```typescript
+auth: {
+  loginTitle: "Увійдіть до DSCVR",
+  registerTitle: "Створіть обліковий запис",
+  emailLabel: "Електронна пошта",
+  emailPlaceholder: "ви@приклад.com",
+  passwordLabel: "Пароль",
+  passwordPlaceholder: "Мін. 8 символів",
+  confirmPasswordLabel: "Підтвердіть пароль",
+  confirmPasswordPlaceholder: "Повторіть пароль",
+  loginButton: "Увійти",
+  registerButton: "Створити обліковий запис",
+  registerLink: "Немає облікового запису? Зареєструватись",
+  loginLink: "Вже є обліковий запис? Увійти",
+  logoutButton: "Вийти",
+  emailRequired: "Електронна пошта обов'язкова",
+  emailInvalid: "Введіть дійсну адресу електронної пошти",
+  passwordRequired: "Пароль обов'язковий",
+  passwordMinLength: "Пароль повинен містити щонайменше 8 символів",
+  passwordMismatch: "Паролі не збігаються",
+  loginError: "Невірна електронна пошта або пароль",
+  registerError: "Реєстрація не вдалася — спробуйте ще раз",
+  emailTaken: "Обліковий запис із цією поштою вже існує",
+},
+profile: {
+  heading: "Профіль нерухомості",
+  subheading: "Керуйте вілами, пов'язаними з вашим обліковим записом",
+  propertyNameLabel: "Назва вілли",
+  propertyNamePlaceholder: "напр. Villa Kerti",
+  entityNameLabel: "Назва юридичної особи PT PMA",
+  entityNamePlaceholder: "напр. PT Kerti Bali Utama",
+  nibLabel: "NIB (ідентифікаційний номер бізнесу)",
+  nibPlaceholder: "13-значний NIB з OSS",
+  addressLabel: "Адреса нерухомості",
+  addressPlaceholder: "Вулиця, село, округ",
+  regencyLabel: "Округ",
+  kbliLabel: "Код KBLI",
+  addProperty: "+ Додати нерухомість",
+  editProperty: "Редагувати",
+  saveProperty: "Зберегти нерухомість",
+  cancelLabel: "Скасувати",
+  deleteProperty: "Видалити",
+  confirmDelete: "Видалити цю нерухомість з вашого облікового запису?",
+  noProperties: "Поки немає нерухомості",
+  noPropertiesDesc: "Додайте свою першу вілла, щоб розпочати відстеження відповідності.",
+  backToApp: "← Назад до навігатора відповідності",
+},
+nav: {
+  profile: "Профіль",
+  vault: "Сховище",
+  timeline: "Часова шкала",
+  alerts: "Сповіщення",
+  logout: "Вийти",
+  login: "Увійти",
+},
+```
+
+**Bahasa Indonesia values (`id.ts`):**
+
+```typescript
+auth: {
+  loginTitle: "Masuk ke DSCVR",
+  registerTitle: "Buat akun Anda",
+  emailLabel: "Alamat email",
+  emailPlaceholder: "anda@contoh.com",
+  passwordLabel: "Kata sandi",
+  passwordPlaceholder: "Min. 8 karakter",
+  confirmPasswordLabel: "Konfirmasi kata sandi",
+  confirmPasswordPlaceholder: "Ulangi kata sandi",
+  loginButton: "Masuk",
+  registerButton: "Buat akun",
+  registerLink: "Belum punya akun? Daftar",
+  loginLink: "Sudah punya akun? Masuk",
+  logoutButton: "Keluar",
+  emailRequired: "Email wajib diisi",
+  emailInvalid: "Masukkan alamat email yang valid",
+  passwordRequired: "Kata sandi wajib diisi",
+  passwordMinLength: "Kata sandi harus minimal 8 karakter",
+  passwordMismatch: "Kata sandi tidak cocok",
+  loginError: "Email atau kata sandi tidak valid",
+  registerError: "Pendaftaran gagal — coba lagi",
+  emailTaken: "Akun dengan email ini sudah ada",
+},
+profile: {
+  heading: "Profil Properti",
+  subheading: "Kelola villa yang terhubung ke akun Anda",
+  propertyNameLabel: "Nama villa",
+  propertyNamePlaceholder: "mis. Villa Kerti",
+  entityNameLabel: "Nama entitas PT PMA",
+  entityNamePlaceholder: "mis. PT Kerti Bali Utama",
+  nibLabel: "NIB (Nomor Induk Berusaha)",
+  nibPlaceholder: "NIB 13 digit dari OSS",
+  addressLabel: "Alamat properti",
+  addressPlaceholder: "Jalan, desa, kabupaten",
+  regencyLabel: "Kabupaten",
+  kbliLabel: "Kode KBLI",
+  addProperty: "+ Tambah properti",
+  editProperty: "Edit",
+  saveProperty: "Simpan properti",
+  cancelLabel: "Batal",
+  deleteProperty: "Hapus",
+  confirmDelete: "Hapus properti ini dari akun Anda?",
+  noProperties: "Belum ada properti",
+  noPropertiesDesc: "Tambahkan villa pertama Anda untuk mulai melacak kepatuhan.",
+  backToApp: "← Kembali ke navigator kepatuhan",
+},
+nav: {
+  profile: "Profil",
+  vault: "Vault",
+  timeline: "Linimasa",
+  alerts: "Peringatan",
+  logout: "Keluar",
+  login: "Masuk",
+},
+```
+
+-----
+
+### Step 6 — Frontend: Auth pages
+
+#### `client/src/hooks/useAuth.ts`
+
+```typescript
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+
+interface AuthUser {
+  id: string;
+  email: string;
+  isAdmin: boolean;
+}
+
+export function useAuth() {
+  const queryClient = useQueryClient();
+
+  const { data: user, isLoading } = useQuery<AuthUser | null>({
+    queryKey: ["/api/auth/me"],
+    queryFn: async () => {
+      try {
+        const res = await fetch("/api/auth/me");
+        if (res.status === 401) return null;
+        return res.json();
+      } catch {
+        return null;
+      }
+    },
+    retry: false,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const logoutMutation = useMutation({
+    mutationFn: () => apiRequest("POST", "/api/auth/logout"),
+    onSuccess: () => {
+      queryClient.setQueryData(["/api/auth/me"], null);
+      queryClient.invalidateQueries();
+    },
+  });
+
+  return {
+    user: user ?? null,
+    isLoading,
+    isAuthenticated: !!user,
+    logout: logoutMutation.mutate,
+  };
+}
+```
+
+#### `client/src/components/protected-route.tsx`
+
+```typescript
+import { useAuth } from "@/hooks/useAuth";
+import { Redirect } from "wouter";
+
+export function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { isAuthenticated, isLoading } = useAuth();
+  if (isLoading) return (
+    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--app-bg)" }}>
+      <div className="text-[#14B8A6] font-heading text-sm tracking-widest uppercase animate-pulse">Loading…</div>
+    </div>
+  );
+  if (!isAuthenticated) return <Redirect to="/login" />;
+  return <>{children}</>;
+}
+```
+
+#### `client/src/pages/login.tsx`
+
+Full login page. Style it **exactly matching the DSCVR design language**:
+
+- Background: `var(--app-bg)` (#07101E), grid overlay as per existing CSS
+- Centered card with `var(--app-panel)` background, teal border accent `#14B8A6`
+- DSCVR wordmark at top of the card (Montserrat, bold, teal)
+- Form fields use existing shadcn `Input` component styled to match dark theme
+- Submit button: full-width, teal background `#14B8A6`, dark text, Montserrat font
+- Error messages in red `#EF4444`
+- Language selector in top-right corner (reuse the existing `LanguageSelector` component)
+- Theme toggle top-right (reuse `ThemeToggle`)
+- All text via `t.auth.*` keys
+- On success: redirect to `/` using wouter `useLocation`
+
+```typescript
+import { useState } from "react";
+import { useLocation } from "wouter";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { motion } from "framer-motion";
+import { apiRequest } from "@/lib/queryClient";
+import { useLanguage, LanguageSelector } from "@/i18n/context";
+import { ThemeToggle } from "@/components/theme-provider";
+
+export default function LoginPage() {
+  const [, navigate] = useLocation();
+  const { t } = useLanguage();
+  const queryClient = useQueryClient();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const loginMutation = useMutation({
+    mutationFn: (data: { email: string; password: string }) =>
+      apiRequest("POST", "/api/auth/login", data),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["/api/auth/me"] });
+      navigate("/");
+    },
+    onError: () => setError(t.auth.loginError),
+  });
+
+  // Render the styled login card here
+  // Use the DSCVR design tokens, teal accents, Montserrat headings, Lato body
+  // Include link to /register
+}
+```
+
+#### `client/src/pages/register.tsx`
+
+Same design as login. Additional `confirmPassword` field. Validate client-side before submitting (passwords match, min length). On success: redirect to `/profile` so they immediately add their first property.
+
+-----
+
+### Step 7 — Frontend: Profile page (`client/src/pages/profile.tsx`)
+
+Protected page behind `ProtectedRoute`.
+
+**Layout:**
+
+- Header matches existing DSCVR header style (reuse the header component or replicate the pattern from home.tsx)
+- Back link to `/` using `t.profile.backToApp`
+- Hero section: heading `t.profile.heading`, subheading `t.profile.subheading`
+- Property cards grid (1 col mobile, 2 col desktop)
+- “+ Add property” button
+
+**Property card shows:**
+
+- Villa name (large, Montserrat)
+- Entity name (teal, smaller)
+- NIB badge if set
+- Regency + KBLI code pills
+- Edit button → inline edit form (expand the card)
+- Remove button → confirm dialog
+
+**Add/Edit form (inline, inside card or in a modal):**
+
+- Fields: propertyName (required), entityName (required), nib, address, regency (select), kbli (select)
+- Regency options: Badung, Gianyar, Denpasar, Tabanan, Klungkung, Karangasem, Buleleng, Jembrana, Bangli
+- KBLI options: 55193 — Villa, 55194 — Pondok Wisata, 55199 — Akomodasi lainnya
+- Save / Cancel buttons
+- All labels via `t.profile.*`
+
+**Data fetching:**
+
+```typescript
+const { data: properties = [], isLoading } = useQuery({
+  queryKey: ["/api/properties"],
+});
+```
+
+-----
+
+### Step 8 — Update App.tsx routing
+
+```typescript
+import LoginPage from "@/pages/login";
+import RegisterPage from "@/pages/register";
+import ProfilePage from "@/pages/profile";
+import { ProtectedRoute } from "@/components/protected-route";
+
+// Inside Router:
+<Route path="/login" component={LoginPage} />
+<Route path="/register" component={RegisterPage} />
+<Route path="/profile">
+  <ProtectedRoute><ProfilePage /></ProtectedRoute>
+</Route>
+```
+
+-----
+
+### Step 9 — Update header nav in home.tsx
+
+The existing header in `home.tsx` has the DSCVR wordmark, deadline pill, and language/theme selectors. Update it to also show:
+
+- If **not logged in**: a “Sign in” link (→ `/login`) styled as a small outlined button in teal
+- If **logged in**: user email (truncated), a “Profile” link (→ `/profile`), and “Sign out” button
+- Use `useAuth()` hook
+- All labels via `t.nav.*`
+
+Keep the existing header layout — just add the auth controls on the right side before the language selector.
+
+-----
+
+## CONSTRAINTS
+
+1. **Never hardcode English strings in JSX** — always use `t.something.key`
+1. **Match DSCVR design language exactly**: deep navy bg (#07101E), teal accent (#14B8A6), Montserrat headings, Lato body, CSS custom properties for theming
+1. **Do not break any existing functionality** — the compliance flow, audit, guide tabs, glossary, and admin page must all continue to work unchanged
+1. **Session secret**: add `SESSION_SECRET` to Replit Secrets panel. The code should work with a fallback dev value but log a warning if it’s missing
+1. **Run `npm run db:push`** after all schema changes to sync the database
+1. **bcrypt** — install if not already present: `npm install bcrypt @types/bcrypt`
+1. **Error handling** — all API routes should return consistent `{ message: string }` error objects. Frontend shows these in the UI, never console.log only
+1. **Passwords** — never return password hash from any API endpoint
+
+-----
+
+## EXPECTED RESULT
+
+After this phase is complete:
+
+- `/login` — styled login page, 3 languages, redirects to `/` on success
+- `/register` — styled register page, 3 languages, redirects to `/profile` on success
+- `/profile` — protected page showing user’s properties, full CRUD, 3 languages
+- Header shows Sign in / Profile / Sign out depending on auth state
+- All existing pages continue to work for unauthenticated users (compliance flow is public)
+- Sessions persist for 7 days
+- Database has `sessions`, extended `users`, and `properties` tables

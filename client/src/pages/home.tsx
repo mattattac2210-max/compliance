@@ -4,6 +4,8 @@ import GlossarySection from "@/components/glossary";
 import { ProcessNavigation } from "@/components/process-navigation";
 import { ThemeToggle } from "@/components/theme-provider";
 import { useLanguage, LanguageSelector } from "@/i18n/context";
+import { useAuth } from "@/hooks/useAuth";
+import { Link } from "wouter";
 
 type TabId = "flow" | "audit" | "guide";
 
@@ -338,6 +340,7 @@ export default function Home() {
   const [openGates, setOpenGates] = useState<Set<string>>(new Set());
   const [checkedItems, setCheckedItems] = useState<Map<string, "checked" | "flagged" | "warn">>(new Map());
   const { t, content } = useLanguage();
+  const { user, isAuthenticated, logout } = useAuth();
   const gates = useTranslatedGates();
 
   const translatedAuditSections = useMemo(() => content.auditSections.map((sec, si) => ({
@@ -405,6 +408,20 @@ export default function Home() {
           </div>
           <LanguageSelector />
           <ThemeToggle />
+          {isAuthenticated ? (
+            <div className="flex items-center gap-2">
+              <Link to="/profile" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase text-[#14B8A6] hover:text-[#5EEAD4] transition-colors" data-testid="link-profile">
+                {t.nav.profile}
+              </Link>
+              <button onClick={() => logout()} className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase hover:text-[#EF4444] transition-colors" style={{ color: "var(--app-text-muted)" }} data-testid="button-logout">
+                {t.nav.logout}
+              </button>
+            </div>
+          ) : (
+            <Link to="/login" className="text-[10px] font-heading font-bold tracking-[1.5px] uppercase text-[#14B8A6] hover:text-[#5EEAD4] transition-colors" data-testid="link-login">
+              {t.nav.login}
+            </Link>
+          )}
         </div>
       </header>
 
