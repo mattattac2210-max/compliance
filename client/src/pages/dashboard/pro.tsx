@@ -423,8 +423,8 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
             </svg>
           </h1>
           <p data-testid="text-property-subtitle" style={{ fontSize: 13, color: "var(--t2)" }}>
-            {selectedProperty?.propertyName ?? selectedProperty?.entityName ?? ""}
-            {selectedProperty?.regency ? `, ${selectedProperty.regency}` : ""}
+            {selectedProperty?.entityName ?? selectedProperty?.propertyName ?? ""}
+            {selectedProperty?.regency ? ` \u00b7 ${selectedProperty.regency}` : ""}
             {" \u00b7 Here's your compliance overview for today"}
           </p>
         </div>
@@ -451,33 +451,31 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
       >
         {[
           {
-            Icon: AlertTriangle, iconColor: "#EF4444", iconBg: "rgba(239,68,68,0.08)",
+            icon: <AlertTriangle className="w-5 h-5" style={{ color: "#EF4444" }} />,
             num: alertCount, numColor: "#EF4444",
             label: "Active Alerts",
-            sub: `${expiredDocs.length} overdue \u00b7 ${expiringDocs.length} due this week`,
+            sub: `${expiringDocs.length + expiredDocs.length} expiring + ${complianceAlerts} compliance`,
             barColor: "#EF4444", barPct: Math.min(alertCount * 10, 100),
           },
           {
-            Icon: FileCheck, iconColor: "#D97706", iconBg: "rgba(217,119,6,0.08)",
+            icon: <FileCheck className="w-5 h-5" style={{ color: "#D97706" }} />,
             num: `${vaultPercent}%`, numColor: "#D97706",
             label: "Vault Complete",
             sub: `${uploadedCount} of ${totalTemplates} documents`,
             barColor: "#D97706", barPct: vaultPercent,
           },
           {
-            Icon: CheckCircle, iconColor: "#16A34A", iconBg: "rgba(22,163,74,0.08)",
+            icon: <CheckCircle className="w-5 h-5" style={{ color: "#16A34A" }} />,
             num: gatesComplete, numColor: "#16A34A",
             label: "Gates Complete",
-            sub: `${gatesComplete} of 8 gates fully compliant`,
+            sub: `${gatesComplete} of 8 at 100%`,
             barColor: "#16A34A", barPct: (gatesComplete / 8) * 100,
           },
           {
-            Icon: Calendar, iconColor: "#2563EB", iconBg: "rgba(37,99,235,0.08)",
+            icon: <Calendar className="w-5 h-5" style={{ color: "#2563EB" }} />,
             num: filingsDueThisMonth.length, numColor: "#D97706",
             label: "Events This Month",
-            sub: filingsDueThisMonth.length > 0
-              ? `Next: ${filingsDueThisMonth[0].labelKey.toUpperCase()} due ${filingsDueThisMonth[0].dayOfMonth}th`
-              : "No filings due this month",
+            sub: `${filingsDueThisMonth.length} filings due before month end`,
             barColor: "#2563EB", barPct: Math.min(filingsDueThisMonth.length * 15, 100),
           },
         ].map((card, idx) => (
@@ -488,7 +486,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
               background: "var(--surface)",
               border: "1px solid var(--b)",
               borderRadius: 12,
-              padding: "20px 20px 22px",
+              padding: "18px 20px",
               boxShadow: "var(--shadow)",
               position: "relative",
               overflow: "hidden",
@@ -498,22 +496,15 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
             onMouseEnter={e => (e.currentTarget.style.boxShadow = "var(--shadow-md)")}
             onMouseLeave={e => (e.currentTarget.style.boxShadow = "var(--shadow)")}
           >
+            <div style={{ marginBottom: 10 }}>{card.icon}</div>
             <div style={{
-              width: 36, height: 36, borderRadius: 8,
-              display: "flex", alignItems: "center", justifyContent: "center",
-              background: card.iconBg,
-              marginBottom: 14,
-            }}>
-              <card.Icon className="w-[18px] h-[18px]" style={{ color: card.iconColor }} />
-            </div>
-            <div style={{
-              fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 30,
-              color: card.numColor, lineHeight: 1, marginBottom: 5,
+              fontFamily: "var(--font-display)", fontWeight: 900, fontSize: 28,
+              color: card.numColor, lineHeight: 1, marginBottom: 4,
             }}>{card.num}</div>
-            <div style={{ fontSize: 12, color: "var(--txt)", fontWeight: 700, fontFamily: "var(--font-body)", letterSpacing: 0.2, marginBottom: 3 }}>
+            <div style={{ fontSize: 11, color: "var(--t2)", fontWeight: 700, fontFamily: "var(--font-body)", letterSpacing: 0.2 }}>
               {card.label}
             </div>
-            <div style={{ fontSize: 11, color: "var(--t3)", lineHeight: 1.4 }}>{card.sub}</div>
+            <div style={{ fontSize: 10, color: "var(--t3)", marginTop: 3 }}>{card.sub}</div>
             <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 3, background: "var(--bg)" }}>
               <div style={{ height: "100%", width: `${card.barPct}%`, background: card.barColor, borderRadius: "0 2px 2px 0", transition: "width .8s ease" }} />
             </div>
@@ -530,16 +521,16 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
         style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10, marginBottom: 24 }}
       >
         {[
-          { icon: <Upload className="w-4 h-4" />, sub: "Documents", label: "Upload Document", href: "/vault", accent: "var(--accent)" },
-          { icon: <Calendar className="w-4 h-4" />, sub: "Deadlines", label: "View Calendar", href: "/calendar", accent: "#14B8A6" },
-          { icon: <ClipboardCheck className="w-4 h-4" />, sub: "Compliance", label: "Run Self-Audit", action: onOpenAudit, accent: "#16A34A" },
-          { icon: <Landmark className="w-4 h-4" />, sub: "Intelligence", label: "Check Regulations", href: "/disclaimers", accent: "#94A3B8" },
+          { icon: <Upload className="w-4 h-4" />, sub: "Document Vault", label: "Upload Document", href: "/vault" },
+          { icon: <Calendar className="w-4 h-4" />, sub: "Compliance Dates", label: "View Calendar", href: "/calendar" },
+          { icon: <ClipboardCheck className="w-4 h-4" />, sub: "Compliance Check", label: "Run Self-Audit", action: onOpenAudit },
+          { icon: <Landmark className="w-4 h-4" />, sub: "Legal Database", label: "Check Regulations", href: "/disclaimers" },
         ].map((qa, idx) => {
           const cardStyle: React.CSSProperties = {
             background: "var(--qa-bg)",
             border: "1px solid var(--b)",
             borderRadius: 10,
-            padding: "20px 16px",
+            padding: "18px 16px",
             cursor: "pointer",
             transition: "all .18s",
             boxShadow: "var(--shadow-sm)",
@@ -551,24 +542,20 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
           const inner = (
             <>
               <div style={{
-                position: "absolute", top: 0, left: 0, bottom: 0, width: 3,
-                background: qa.accent, borderRadius: "10px 0 0 10px",
-              }} />
-              <div style={{
                 width: 36, height: 36, background: "var(--accent-tint)",
                 border: "1px solid var(--b)", borderRadius: 8,
                 display: "flex", alignItems: "center", justifyContent: "center",
-                marginBottom: 30, color: "var(--t2)",
+                marginBottom: 28, color: "var(--t2)",
               }}>
                 {qa.icon}
               </div>
-              <div style={{ fontSize: 10, color: "var(--t3)", marginBottom: 4, fontWeight: 500, letterSpacing: 0.3 }}>{qa.sub}</div>
+              <div style={{ fontSize: 10, color: "var(--t3)", marginBottom: 3 }}>{qa.sub}</div>
               <div style={{
-                fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 13,
+                fontFamily: "var(--font-body)", fontWeight: 600, fontSize: 12,
                 color: "var(--txt)", display: "flex", alignItems: "center", justifyContent: "space-between",
               }}>
                 {qa.label}
-                <ArrowRight className="w-3.5 h-3.5" style={{ color: qa.accent, opacity: 0.8, transition: "transform .18s" }} />
+                <ArrowRight className="w-3 h-3" style={{ color: "var(--accent)", opacity: 0.7, transition: "transform .18s" }} />
               </div>
             </>
           );
@@ -634,7 +621,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
           padding: "14px 20px 12px", borderBottom: "1px solid var(--b)", flexWrap: "wrap", gap: 8,
         }}>
           <div style={{ fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 13, color: "var(--txt)" }}>
-            8-Gate Compliance Chain{selectedProperty ? ` \u2014 ${selectedProperty.propertyName}${selectedProperty.regency ? `, ${selectedProperty.regency}` : ""}` : ""}
+            Gate Progress Pipeline
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
             {[
