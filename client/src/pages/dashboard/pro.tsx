@@ -621,8 +621,8 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
             <div style={{
               position: "absolute",
               top: 28,
-              left: 28,
-              right: 28,
+              left: 68,
+              right: 68,
               height: 2,
               background: `linear-gradient(to right, ${gradientStops})`,
               zIndex: 0,
