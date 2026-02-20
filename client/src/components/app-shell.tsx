@@ -428,6 +428,9 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
             justifyContent: "space-between",
             padding: "0 24px",
             flexShrink: 0,
+            position: "relative",
+            zIndex: 100,
+            overflow: "visible",
           }}
           data-testid="topbar"
         >
