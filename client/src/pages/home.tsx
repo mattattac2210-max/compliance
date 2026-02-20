@@ -411,7 +411,7 @@ export default function Home() {
   return (
     <div className="relative z-[1]">
       <DashboardStats />
-      <div className="sticky top-0 z-[150] backdrop-blur-[14px] border-b px-14 flex max-md:px-5" style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }} data-testid="tab-nav">
+      <div className="sticky top-0 z-[150] backdrop-blur-[14px] border-b px-6 md:px-10 flex" style={{ background: "var(--app-header-bg)", borderColor: "var(--app-border)" }} data-testid="tab-nav">
         {[
           { id: "flow" as const, label: t.tabs.flow },
           { id: "audit" as const, label: t.tabs.audit },
@@ -435,7 +435,7 @@ export default function Home() {
 
       {activeTab === "flow" && (
         <div>
-          <div className="relative z-[5] max-w-[1000px] mx-auto pt-14 pb-11 px-14 max-md:px-5">
+          <div className="relative z-[5] max-w-5xl mx-auto pt-10 pb-8 px-6 md:px-10">
             <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[#0D9488] mb-[18px] flex items-center gap-3">
               <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
               {t.flow.tagline}
@@ -483,7 +483,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="relative z-[5] max-w-[1000px] mx-auto px-14 pb-20 max-md:px-5">
+          <div className="relative z-[5] max-w-5xl mx-auto px-6 md:px-10 pb-16">
             <div className="absolute left-[calc(3.5rem+36px)] top-0 bottom-20 w-[1px] bg-gradient-to-b from-[rgba(20,184,166,0.5)] via-[rgba(20,184,166,0.2)] to-transparent z-0 max-md:left-[calc(1.25rem+36px)]" />
 
             <div className="grid grid-cols-[72px_1fr] gap-x-5 items-center mb-[10px] mt-2 relative z-[2]">
@@ -592,7 +592,7 @@ export default function Home() {
 
       {activeTab === "audit" && (
         <div>
-          <div className="relative z-[5] max-w-[1000px] mx-auto pt-14 pb-11 px-14 max-md:px-5">
+          <div className="relative z-[5] max-w-5xl mx-auto pt-10 pb-8 px-6 md:px-10">
             <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[#0D9488] mb-[18px] flex items-center gap-3">
               <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
               {t.audit.tagline}
@@ -606,7 +606,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="relative z-[5] max-w-[1000px] mx-auto px-14 pb-20 max-md:px-5">
+          <div className="relative z-[5] max-w-5xl mx-auto px-6 md:px-10 pb-16">
             <div className="flex gap-[10px] items-start p-[20px_24px] rounded-[10px] mb-10 bg-[rgba(239,68,68,0.05)] border border-[rgba(239,68,68,0.15)]" data-testid="audit-alert">
               <span className="text-[28px] shrink-0">{"\u26A0"}</span>
               <div>
@@ -717,7 +717,7 @@ export default function Home() {
 
       {activeTab === "guide" && (
         <div>
-          <div className="relative z-[5] max-w-[1000px] mx-auto pt-14 pb-11 px-14 max-md:px-5">
+          <div className="relative z-[5] max-w-5xl mx-auto pt-10 pb-8 px-6 md:px-10">
             <div className="font-heading text-[10px] font-bold tracking-[4px] uppercase text-[#0D9488] mb-[18px] flex items-center gap-3">
               <span className="block w-[28px] h-[1px] bg-[#0D9488] shrink-0" />
               {t.guide.tagline}
@@ -731,7 +731,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="relative z-[5] max-w-[1000px] mx-auto px-14 pb-20 max-md:px-5">
+          <div className="relative z-[5] max-w-5xl mx-auto px-6 md:px-10 pb-16">
             <div className="grid grid-cols-2 gap-[14px] mb-12 max-md:grid-cols-1">
               {translatedGuideCards.map((card) => (
                 <div
