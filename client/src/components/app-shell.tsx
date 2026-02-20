@@ -236,7 +236,7 @@ export default function AppShell({ children, pageTitle, activeNav }: AppShellPro
                 >
                   <span
                     style={{ fontFamily: "var(--font-display)", fontSize: "13px", fontWeight: 700, color: "var(--txt)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
-                    className="text-[#ffffff]">
+                    className="text-[#9c9c9c]">
                     {activeProperty.propertyName}{activeProperty.regency ? `, ${activeProperty.regency}` : ""}
                   </span>
                   <span style={{ color: "var(--t3)", fontSize: "10px", flexShrink: 0, marginLeft: "4px" }}>&#9662;</span>
