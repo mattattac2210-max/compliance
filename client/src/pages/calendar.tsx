@@ -134,14 +134,7 @@ export default function ComplianceCalendar() {
   }, [allEvents]);
 
   const toggleFilter = (f: string) => {
-    setFilters(prev => {
-      if (f === "all") return new Set(["all"]);
-      if (prev.has(f)) return prev;
-      const next = new Set(prev);
-      next.delete("all");
-      next.add(f);
-      return next;
-    });
+    setFilters(new Set([f]));
   };
 
   const changeMonth = (delta: number) => {
