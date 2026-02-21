@@ -305,6 +305,18 @@ export interface UITranslations {
     legendCustom: string;
     months: string[];
     days: string[];
+    viewMonth: string;
+    viewWeek: string;
+    viewList: string;
+    viewCategory: string;
+    viewTimeline: string;
+    dueSoon: string;
+    daysAgo: string;
+    inDays: string;
+    tomorrow: string;
+    yesterday: string;
+    upcoming: string;
+    noEventsInPeriod: string;
   };
   disclaimers: {
     eyebrow: string;

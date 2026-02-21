@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalIcon, Check, AlertTriangle, RefreshCw, ArrowRight, Hexagon, FileText, Shield, Zap, Droplets, Recycle, Trash2, BookUser, UserCheck, ClipboardList, Landmark, CalendarDays, BarChart3, DollarSign, Flower2, Star, Waves, Handshake, Flame, FlameKindling } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalIcon, Check, AlertTriangle, RefreshCw, ArrowRight, Hexagon, FileText, Shield, Zap, Droplets, Recycle, Trash2, BookUser, UserCheck, ClipboardList, Landmark, CalendarDays, BarChart3, DollarSign, Flower2, Star, Waves, Handshake, Flame, FlameKindling, List, Grid3X3, LayoutList, Tag, Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/i18n/context";
 import {
@@ -45,6 +45,16 @@ function renderEventIcon(icon: string, size: number = 9) {
   return iconMap[icon] || <span style={{ fontSize: size }}>{icon}</span>;
 }
 
+type ViewMode = "month" | "week" | "list" | "category" | "timeline";
+
+const VIEW_ICONS: Record<ViewMode, React.ReactNode> = {
+  month: <Grid3X3 size={13} />,
+  week: <CalendarDays size={13} />,
+  list: <LayoutList size={13} />,
+  category: <Tag size={13} />,
+  timeline: <Clock size={13} />,
+};
+
 const LOCALE_MAP: Record<string, string> = { en: "en", uk: "uk", id: "id" };
 
 function loadCustomEvents(): CustomEvent[] {
@@ -72,6 +82,7 @@ export default function ComplianceCalendar() {
   const filterLabels = useMemo(() => getFilterLabels(t), [t]);
   const legendItems = useMemo(() => getLegendItems(t), [t]);
 
+  const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [curYear, setCurYear] = useState(today.getFullYear());
   const [curMonth, setCurMonth] = useState(today.getMonth());
   const [selDate, setSelDate] = useState<Date | null>(null);
@@ -132,6 +143,46 @@ export default function ComplianceCalendar() {
   const getEventsForMonth = useCallback((y: number, m: number) => {
     return allEvents.filter(ev => ev.date.getFullYear() === y && ev.date.getMonth() === m);
   }, [allEvents]);
+
+  const filteredMonthEvents = useMemo(() => {
+    let evts = allEvents.filter(ev => ev.date.getFullYear() === curYear && ev.date.getMonth() === curMonth);
+    if (!filters.has("all")) {
+      evts = evts.filter(ev => filters.has(ev.type) || (filters.has("custom") && ev.isCustom));
+    }
+    return evts.sort((a, b) => a.date.getTime() - b.date.getTime());
+  }, [allEvents, curYear, curMonth, filters]);
+
+  const weekDays = useMemo(() => {
+    const d = selDate || new Date(curYear, curMonth, today.getMonth() === curMonth && today.getFullYear() === curYear ? today.getDate() : 1);
+    const day = d.getDay();
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - ((day + 6) % 7));
+    const days: Date[] = [];
+    for (let i = 0; i < 7; i++) {
+      const dd = new Date(monday);
+      dd.setDate(monday.getDate() + i);
+      days.push(dd);
+    }
+    return days;
+  }, [selDate, curYear, curMonth, today]);
+
+  const categoryGroups = useMemo(() => {
+    const groups: Record<string, CalendarEvent[]> = {};
+    for (const ev of filteredMonthEvents) {
+      const key = ev.isCustom ? "custom" : ev.type;
+      if (!groups[key]) groups[key] = [];
+      groups[key].push(ev);
+    }
+    return groups;
+  }, [filteredMonthEvents]);
+
+  const viewLabels: Record<ViewMode, string> = {
+    month: t.viewMonth,
+    week: t.viewWeek,
+    list: t.viewList,
+    category: t.viewCategory,
+    timeline: t.viewTimeline,
+  };
 
   const toggleFilter = (f: string) => {
     setFilters(new Set([f]));
@@ -374,8 +425,41 @@ export default function ComplianceCalendar() {
           );
         })}
       </div>
-      {/* Calendar grid */}
-      <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="calendar-grid">
+      {/* View mode switcher */}
+      <div
+        style={{
+          display: "flex", gap: "4px", marginBottom: "14px",
+          background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "10px",
+          padding: "5px",
+        }}
+        data-testid="view-switcher"
+      >
+        {(["month", "week", "list", "category", "timeline"] as ViewMode[]).map(vm => {
+          const active = viewMode === vm;
+          return (
+            <button
+              key={vm}
+              data-testid={`view-${vm}`}
+              onClick={() => setViewMode(vm)}
+              style={{
+                flex: 1, padding: "7px 10px", borderRadius: "7px",
+                border: "none",
+                background: active ? "var(--accent)" : "transparent",
+                color: active ? "var(--bg)" : "var(--t2)",
+                fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, letterSpacing: ".3px",
+                cursor: "pointer", transition: "all .15s",
+                display: "flex", alignItems: "center", justifyContent: "center", gap: "5px",
+              }}
+              onMouseEnter={e => { if (!active) { e.currentTarget.style.background = "var(--b)"; e.currentTarget.style.color = "var(--txt)"; } }}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--t2)"; } }}
+            >
+              {VIEW_ICONS[vm]} {viewLabels[vm]}
+            </button>
+          );
+        })}
+      </div>
+      {/* Calendar grid (Month view) */}
+      {viewMode === "month" && <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="calendar-grid">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", borderBottom: "1px solid var(--b)" }}>
           {t.days.map(d => (
             <div
@@ -451,9 +535,9 @@ export default function ComplianceCalendar() {
             );
           })}
         </div>
-      </div>
-      {/* Detail panel */}
-      <div id="cal-detail-panel" style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="detail-panel">
+      </div>}
+      {/* Detail panel (month view only) */}
+      {viewMode === "month" && <div id="cal-detail-panel" style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="detail-panel">
         {!selDate ? (
           <div style={{ padding: "32px 20px", textAlign: "center", color: "var(--t4)" }}>
             <CalIcon size={26} style={{ marginBottom: "8px", opacity: 0.4 }} />
@@ -569,7 +653,280 @@ export default function ComplianceCalendar() {
             </div>
           </>
         )}
-      </div>
+      </div>}
+      {/* Week view */}
+      {viewMode === "week" && (
+        <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="week-view">
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 0 }}>
+            {weekDays.map((wd, wi) => {
+              const isToday = wd.getTime() === today.getTime();
+              const dayEvts = getEventsForDay(wd.getFullYear(), wd.getMonth(), wd.getDate());
+              return (
+                <div
+                  key={wi}
+                  style={{
+                    borderRight: wi < 6 ? "1px solid var(--b)" : undefined,
+                    minHeight: "260px", display: "flex", flexDirection: "column",
+                  }}
+                >
+                  <div style={{
+                    padding: "10px 8px", borderBottom: "1px solid var(--b)",
+                    background: isToday ? "var(--accent-tint)" : "var(--surface2)",
+                    textAlign: "center",
+                  }}>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "var(--t4)", marginBottom: "2px" }}>
+                      {t.days[wi]}
+                    </div>
+                    <div style={{
+                      fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "18px",
+                      color: isToday ? "var(--accent)" : "var(--txt)",
+                    }}>
+                      {wd.getDate()}
+                    </div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: "9px", color: "var(--t4)" }}>
+                      {t.months[wd.getMonth()]}
+                    </div>
+                  </div>
+                  <div style={{ padding: "6px 4px", flex: 1, display: "flex", flexDirection: "column", gap: "3px", overflowY: "auto" }}>
+                    {dayEvts.length === 0 && (
+                      <div style={{ fontSize: "9px", color: "var(--t4)", textAlign: "center", padding: "8px 0", fontFamily: "var(--font-display)" }}>—</div>
+                    )}
+                    {dayEvts.map(ev => {
+                      const col = ev.isCustom ? (ev.customColor || "rgba(255,255,255,.35)") : typeColor(ev.type, ev.gate);
+                      const isFiled = filed.has(ev.id);
+                      return (
+                        <div
+                          key={ev.id}
+                          onClick={() => { setSelDate(wd); setViewMode("month"); }}
+                          style={{
+                            fontSize: "9px", fontFamily: "var(--font-display)", fontWeight: 600,
+                            padding: "4px 5px", borderRadius: "4px", borderLeft: `2px solid ${col}`,
+                            background: `${col}18`, color: col,
+                            cursor: "pointer", opacity: isFiled ? 0.5 : 1,
+                            overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap",
+                          }}
+                        >
+                          {renderEventIcon(ev.icon)} {ev.short}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+      {/* List view */}
+      {viewMode === "list" && (
+        <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="list-view">
+          {filteredMonthEvents.length === 0 ? (
+            <div style={{ padding: "40px 20px", textAlign: "center", color: "var(--t4)", fontFamily: "var(--font-display)" }}>
+              <LayoutList size={28} style={{ marginBottom: "8px", opacity: 0.4 }} />
+              <p>{t.noEventsInPeriod}</p>
+            </div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column" }}>
+              {filteredMonthEvents.map((ev, idx) => {
+                const col = ev.isCustom ? (ev.customColor || "rgba(255,255,255,.35)") : typeColor(ev.type, ev.gate);
+                const gn = ev.gate >= 0 ? (GATE_NAMES[ev.gate] || t.custom) : t.custom;
+                const isFiled = filed.has(ev.id);
+                const isOverdue = ev.daysUntil < 0 && ev.type !== "ops";
+                const isDueToday = ev.daysUntil === 0;
+                const dayLabel = ev.date.toLocaleDateString(locale, { weekday: "short", day: "numeric", month: "short" });
+                return (
+                  <div
+                    key={ev.id + "-" + idx}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "12px",
+                      padding: "12px 16px",
+                      borderBottom: idx < filteredMonthEvents.length - 1 ? "1px solid var(--b)" : undefined,
+                      borderLeft: `3px solid ${col}`,
+                      background: isOverdue ? "rgba(239,68,68,0.04)" : "transparent",
+                      opacity: isFiled ? 0.55 : 1,
+                      transition: "background .1s", cursor: "pointer",
+                    }}
+                    onMouseEnter={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.08)" : "var(--b)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.04)" : "transparent"; }}
+                    onClick={() => { setSelDate(ev.date); setViewMode("month"); }}
+                  >
+                    <div style={{ minWidth: "56px", textAlign: "center", flexShrink: 0 }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "16px", color: isDueToday ? "var(--accent)" : "var(--txt)" }}>
+                        {ev.date.getDate()}
+                      </div>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 600, color: "var(--t4)", textTransform: "uppercase", letterSpacing: ".5px" }}>
+                        {dayLabel.split(",")[0]}
+                      </div>
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "12px", color: "var(--txt)", display: "flex", alignItems: "center", gap: "5px" }}>
+                        {renderEventIcon(ev.icon, 11)} {ev.title}
+                        {isOverdue && <span style={{ fontSize: "9px", color: "var(--danger)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "2px" }}><AlertTriangle style={{ width: 9, height: 9 }} /> {t.overdue}</span>}
+                        {isDueToday && <span style={{ fontSize: "9px", color: "#FB923C", fontWeight: 700 }}>{t.dueToday}</span>}
+                      </div>
+                      <div style={{ fontSize: "10px", color: "var(--t4)", fontFamily: "monospace", marginTop: "2px" }}>{ev.period}</div>
+                    </div>
+                    <div style={{
+                      fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700,
+                      padding: "2px 8px", borderRadius: "10px", whiteSpace: "nowrap",
+                      background: `${col}22`, color: col, border: `1px solid ${col}44`,
+                      flexShrink: 0,
+                    }}>
+                      {gn}
+                    </div>
+                    {ev.recurring && (
+                      <div style={{ flexShrink: 0 }}>
+                        <RefreshCw size={11} style={{ color: "var(--t4)" }} />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+      {/* Category view */}
+      {viewMode === "category" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginBottom: "12px" }} data-testid="category-view">
+          {Object.keys(categoryGroups).length === 0 ? (
+            <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", padding: "40px 20px", textAlign: "center", color: "var(--t4)", fontFamily: "var(--font-display)" }}>
+              <Tag size={28} style={{ marginBottom: "8px", opacity: 0.4 }} />
+              <p>{t.noEventsInPeriod}</p>
+            </div>
+          ) : (
+            Object.entries(categoryGroups).map(([catKey, evts]) => {
+              const sampleEv = evts[0];
+              const catCol = sampleEv ? (sampleEv.isCustom ? (sampleEv.customColor || "#94A3B8") : typeColor(sampleEv.type, sampleEv.gate)) : "var(--t4)";
+              const catLabel = filterLabels[catKey] || catKey;
+              return (
+                <div key={catKey} style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden" }}>
+                  <div style={{
+                    padding: "10px 16px", borderBottom: "1px solid var(--b)", background: "var(--surface2)",
+                    display: "flex", alignItems: "center", gap: "8px",
+                  }}>
+                    <div style={{ width: "10px", height: "10px", borderRadius: "50%", background: catCol, flexShrink: 0 }} />
+                    <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "13px", color: "var(--txt)", flex: 1 }}>
+                      {catLabel}
+                    </div>
+                    <div style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, color: "var(--t4)", background: "var(--b)", padding: "2px 8px", borderRadius: "10px" }}>
+                      {evts.length}
+                    </div>
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    {evts.map((ev, idx) => {
+                      const col = ev.isCustom ? (ev.customColor || "rgba(255,255,255,.35)") : typeColor(ev.type, ev.gate);
+                      const isFiled = filed.has(ev.id);
+                      const isOverdue = ev.daysUntil < 0 && ev.type !== "ops";
+                      const dayLabel = ev.date.toLocaleDateString(locale, { day: "numeric", month: "short" });
+                      return (
+                        <div
+                          key={ev.id + "-" + idx}
+                          style={{
+                            display: "flex", alignItems: "center", gap: "10px",
+                            padding: "9px 16px",
+                            borderBottom: idx < evts.length - 1 ? "1px solid var(--b)" : undefined,
+                            opacity: isFiled ? 0.55 : 1,
+                            cursor: "pointer", transition: "background .1s",
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "var(--b)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
+                          onClick={() => { setSelDate(ev.date); setViewMode("month"); }}
+                        >
+                          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "11px", color: isOverdue ? "var(--danger)" : "var(--t2)", minWidth: "48px", flexShrink: 0 }}>
+                            {dayLabel}
+                          </div>
+                          <div style={{ flex: 1, fontFamily: "var(--font-display)", fontWeight: 600, fontSize: "11px", color: "var(--txt)", display: "flex", alignItems: "center", gap: "4px" }}>
+                            {renderEventIcon(ev.icon, 10)} {ev.short}
+                            {isOverdue && <AlertTriangle style={{ width: 9, height: 9, color: "var(--danger)" }} />}
+                          </div>
+                          {ev.recurring && <RefreshCw size={10} style={{ color: "var(--t4)", flexShrink: 0 }} />}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+      )}
+      {/* Timeline view */}
+      {viewMode === "timeline" && (
+        <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px", padding: "20px 16px" }} data-testid="timeline-view">
+          {filteredMonthEvents.length === 0 ? (
+            <div style={{ textAlign: "center", color: "var(--t4)", padding: "20px 0", fontFamily: "var(--font-display)" }}>
+              <Clock size={28} style={{ marginBottom: "8px", opacity: 0.4 }} />
+              <p>{t.noEventsInPeriod}</p>
+            </div>
+          ) : (
+            <div style={{ position: "relative", paddingLeft: "28px" }}>
+              <div style={{ position: "absolute", left: "10px", top: 0, bottom: 0, width: "2px", background: "var(--b)" }} />
+              {(() => {
+                let lastDateStr = "";
+                return filteredMonthEvents.map((ev, idx) => {
+                  const col = ev.isCustom ? (ev.customColor || "rgba(255,255,255,.35)") : typeColor(ev.type, ev.gate);
+                  const dateStr = ev.date.toLocaleDateString(locale, { day: "numeric", month: "short", weekday: "short" });
+                  const showDateHeader = dateStr !== lastDateStr;
+                  lastDateStr = dateStr;
+                  const isOverdue = ev.daysUntil < 0 && ev.type !== "ops";
+                  const isDueToday = ev.daysUntil === 0;
+                  const isFiled = filed.has(ev.id);
+                  const gn = ev.gate >= 0 ? (GATE_NAMES[ev.gate] || t.custom) : t.custom;
+
+                  return (
+                    <div key={ev.id + "-" + idx} style={{ marginBottom: idx < filteredMonthEvents.length - 1 ? "4px" : 0 }}>
+                      {showDateHeader && (
+                        <div style={{ position: "relative", marginBottom: "8px", marginTop: idx > 0 ? "16px" : 0 }}>
+                          <div style={{
+                            position: "absolute", left: "-24px", top: "2px",
+                            width: "10px", height: "10px", borderRadius: "50%",
+                            background: isDueToday ? "var(--accent)" : isOverdue ? "var(--danger)" : "var(--t4)",
+                            border: "2px solid var(--surface)",
+                          }} />
+                          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "12px", color: isDueToday ? "var(--accent)" : isOverdue ? "var(--danger)" : "var(--txt)", letterSpacing: ".3px" }}>
+                            {dateStr}
+                            {isDueToday && <span style={{ fontSize: "9px", color: "var(--accent)", marginLeft: "6px", fontWeight: 700 }}>{t.dueToday}</span>}
+                          </div>
+                        </div>
+                      )}
+                      <div
+                        style={{
+                          padding: "8px 12px", borderRadius: "8px",
+                          borderLeft: `3px solid ${col}`,
+                          background: isOverdue ? "rgba(239,68,68,0.05)" : "var(--surface2)",
+                          opacity: isFiled ? 0.55 : 1,
+                          cursor: "pointer", transition: "background .1s",
+                          marginLeft: "4px",
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = "var(--b)"; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.05)" : "var(--surface2)"; }}
+                        onClick={() => { setSelDate(ev.date); setViewMode("month"); }}
+                      >
+                        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "2px" }}>
+                          <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "11px", color: "var(--txt)", flex: 1, display: "flex", alignItems: "center", gap: "4px" }}>
+                            {renderEventIcon(ev.icon, 11)} {ev.title}
+                            {isOverdue && <span style={{ fontSize: "9px", color: "var(--danger)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "2px" }}><AlertTriangle style={{ width: 9, height: 9 }} /> {t.overdue}</span>}
+                          </div>
+                          <div style={{
+                            fontFamily: "var(--font-display)", fontSize: "8px", fontWeight: 700,
+                            padding: "1px 6px", borderRadius: "8px",
+                            background: `${col}22`, color: col, border: `1px solid ${col}44`,
+                            whiteSpace: "nowrap", flexShrink: 0,
+                          }}>
+                            {gn}
+                          </div>
+                        </div>
+                        <div style={{ fontSize: "10px", color: "var(--t4)", fontFamily: "monospace" }}>{ev.period}</div>
+                      </div>
+                    </div>
+                  );
+                });
+              })()}
+            </div>
+          )}
+        </div>
+      )}
       {/* Legend */}
       <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", padding: "10px 14px", background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "8px" }} data-testid="calendar-legend">
         {legendItems.map(li => (
