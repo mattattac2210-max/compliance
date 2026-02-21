@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalIcon, Check, AlertTriangle, RefreshCw, ArrowRight, Hexagon, FileText, Shield, Zap, Droplets, Recycle, Trash2, BookUser, UserCheck, ClipboardList, Landmark, CalendarDays, BarChart3, DollarSign, Flower2, Star, Waves, Handshake, Flame, FlameKindling, List, Grid3X3, LayoutList, Tag, Clock, Pencil, CalendarCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
@@ -92,6 +92,12 @@ export default function ComplianceCalendar() {
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [tappedEvent, setTappedEvent] = useState<CalendarEvent | null>(null);
+  const [dragEvent, setDragEvent] = useState<CalendarEvent | null>(null);
+  const [dragOverCell, setDragOverCell] = useState<string | null>(null);
+  const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clickCount = useRef(0);
+  const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const clickedEvRef = useRef<CalendarEvent | null>(null);
 
   const [formTitle, setFormTitle] = useState("");
   const [formDate, setFormDate] = useState("");
@@ -254,10 +260,53 @@ export default function ComplianceCalendar() {
     setTappedEvent(null);
   };
 
-  const handleEventTap = (ev: CalendarEvent, e: React.MouseEvent) => {
+  const handleEventClick = (ev: CalendarEvent, e: React.MouseEvent) => {
     e.stopPropagation();
-    setTappedEvent(ev);
+    if (dragEvent) return;
+    clickCount.current++;
+    clickedEvRef.current = ev;
+    if (clickCount.current === 1) {
+      clickTimer.current = setTimeout(() => {
+        if (clickCount.current === 1) setTappedEvent(clickedEvRef.current);
+        clickCount.current = 0;
+      }, 250);
+    } else if (clickCount.current === 2) {
+      if (clickTimer.current) clearTimeout(clickTimer.current);
+      clickCount.current = 0;
+      if (ev.isCustom) { editCustom(ev.id); } else { setTappedEvent(ev); }
+    }
   };
+
+  const handleEventPointerDown = (ev: CalendarEvent, e: React.PointerEvent) => {
+    if (!ev.isCustom) return;
+    const target = e.currentTarget as HTMLElement;
+    longPressTimer.current = setTimeout(() => {
+      setDragEvent(ev);
+      target.style.opacity = "0.6";
+      target.style.transform = "scale(1.05)";
+    }, 500);
+  };
+
+  const handleEventPointerUp = () => {
+    if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
+  };
+
+  const handleEventPointerLeave = () => {
+    if (longPressTimer.current) { clearTimeout(longPressTimer.current); longPressTimer.current = null; }
+  };
+
+  const handleCellDrop = (year: number, month: number, day: number) => {
+    if (!dragEvent || !dragEvent.isCustom) { setDragEvent(null); setDragOverCell(null); return; }
+    const newDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const baseId = dragEvent.id.includes("-") ? dragEvent.id.replace(/-\d{4}-\d{2}$/, "") : dragEvent.id;
+    const next = customEvs.map(c => (c.id === baseId || c.id === dragEvent.id) ? { ...c, date: newDate } : c);
+    setCustomEvs(next);
+    saveCustomEvents(next);
+    setDragEvent(null);
+    setDragOverCell(null);
+  };
+
+  const cancelDrag = () => { setDragEvent(null); setDragOverCell(null); };
 
   const saveEvent = () => {
     if (!formTitle.trim() || !formDate) return;
@@ -471,6 +520,32 @@ export default function ComplianceCalendar() {
           );
         })}
       </div>
+      {dragEvent && (
+        <div
+          data-testid="drag-banner"
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px",
+            padding: "8px 14px", marginBottom: "8px", borderRadius: "8px",
+            background: "var(--accent-tint)", border: "1px solid var(--accent)",
+            fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, color: "var(--accent)",
+          }}
+        >
+          <span style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <ArrowRight size={13} /> Moving: {dragEvent.short} — click a date cell to drop
+          </span>
+          <button
+            onClick={cancelDrag}
+            data-testid="btn-cancel-drag"
+            style={{
+              background: "transparent", border: "1px solid var(--accent)", borderRadius: "5px",
+              padding: "3px 10px", cursor: "pointer", fontFamily: "var(--font-display)",
+              fontSize: "10px", fontWeight: 700, color: "var(--accent)",
+            }}
+          >
+            {t.cancel}
+          </button>
+        </div>
+      )}
       {/* Calendar grid (Month view) */}
       {viewMode === "month" && <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="calendar-grid">
         <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", borderBottom: "1px solid var(--b)" }}>
@@ -496,19 +571,30 @@ export default function ComplianceCalendar() {
             return (
               <div
                 key={idx}
-                onClick={() => !c.outside && setSelDate(cellDate)}
+                onClick={() => {
+                  if (dragEvent && !c.outside) { handleCellDrop(c.y, c.m, c.d); return; }
+                  if (!c.outside) setSelDate(cellDate);
+                }}
                 data-testid={`cell-${c.y}-${c.m}-${c.d}`}
                 className="min-h-[60px] md:min-h-[88px]"
                 style={{
                   borderRight: (idx + 1) % 7 !== 0 ? "1px solid var(--b)" : undefined,
                   borderBottom: "1px solid var(--b)",
-                  padding: "5px 4px", cursor: c.outside ? "default" : "pointer",
-                  transition: "background .1s", overflow: "hidden",
+                  padding: "5px 4px", cursor: dragEvent ? (c.outside ? "not-allowed" : "copy") : c.outside ? "default" : "pointer",
+                  transition: "background .15s", overflow: "hidden",
                   opacity: c.outside ? 0.3 : 1,
-                  background: isSel ? "var(--accent-tint)" : hasOverdue ? "rgba(239,68,68,0.04)" : "transparent",
+                  background: dragOverCell === `${c.y}-${c.m}-${c.d}` && !c.outside
+                    ? "var(--accent-tint)"
+                    : isSel ? "var(--accent-tint)" : hasOverdue ? "rgba(239,68,68,0.04)" : "transparent",
                 }}
-                onMouseEnter={e => { if (!c.outside && !isSel) e.currentTarget.style.background = "var(--b)"; }}
-                onMouseLeave={e => { if (!c.outside && !isSel) e.currentTarget.style.background = hasOverdue ? "rgba(239,68,68,0.04)" : "transparent"; }}
+                onMouseEnter={e => {
+                  if (dragEvent && !c.outside) { setDragOverCell(`${c.y}-${c.m}-${c.d}`); }
+                  if (!dragEvent && !c.outside && !isSel) e.currentTarget.style.background = "var(--b)";
+                }}
+                onMouseLeave={e => {
+                  if (dragOverCell === `${c.y}-${c.m}-${c.d}`) setDragOverCell(null);
+                  if (!dragEvent && !c.outside && !isSel) e.currentTarget.style.background = hasOverdue ? "rgba(239,68,68,0.04)" : "transparent";
+                }}
               >
                 <div style={{
                   fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "12px", color: isToday ? "var(--bg)" : "var(--t2)",
@@ -520,16 +606,23 @@ export default function ComplianceCalendar() {
                 {visible.map(ev => {
                   const col = ev.isCustom ? (ev.customColor || "rgba(255,255,255,.35)") : typeColor(ev.type, ev.gate);
                   const isFiled = filed.has(ev.id);
+                  const isDragging = dragEvent?.id === ev.id;
                   return (
                     <div
                       key={ev.id}
-                      onClick={e => handleEventTap(ev, e)}
+                      onClick={e => handleEventClick(ev, e)}
+                      onPointerDown={e => handleEventPointerDown(ev, e)}
+                      onPointerUp={handleEventPointerUp}
+                      onPointerLeave={handleEventPointerLeave}
                       style={{
                         display: "flex", alignItems: "center", gap: "2px", fontSize: "9px", fontFamily: "var(--font-display)", fontWeight: 600,
                         padding: "1px 4px", borderRadius: "3px", marginBottom: "2px", borderLeft: `2px solid ${col}`,
                         whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "100%",
-                        cursor: "pointer", letterSpacing: ".2px", transition: "opacity .1s",
-                        background: `${col}18`, color: col, opacity: isFiled ? 0.5 : 1,
+                        cursor: dragEvent ? "grabbing" : "pointer", letterSpacing: ".2px", transition: "opacity .15s, transform .15s, box-shadow .15s",
+                        background: isDragging ? `${col}40` : `${col}18`, color: col, opacity: isDragging ? 0.7 : isFiled ? 0.5 : 1,
+                        boxShadow: isDragging ? `0 0 8px ${col}66` : "none",
+                        transform: isDragging ? "scale(1.05)" : "scale(1)",
+                        touchAction: "none", userSelect: "none",
                       }}
                     >
                       {isFiled ? <><Check style={{ width: 9, height: 9, display: "inline", verticalAlign: "middle" }} />{" "}</> : <>{renderEventIcon(ev.icon)}{" "}</>}{ev.short}
@@ -710,7 +803,7 @@ export default function ComplianceCalendar() {
                       return (
                         <div
                           key={ev.id}
-                          onClick={e => handleEventTap(ev, e)}
+                          onClick={e => handleEventClick(ev, e)}
                           style={{
                             fontSize: "9px", fontFamily: "var(--font-display)", fontWeight: 600,
                             padding: "4px 5px", borderRadius: "4px", borderLeft: `2px solid ${col}`,
@@ -761,7 +854,7 @@ export default function ComplianceCalendar() {
                     }}
                     onMouseEnter={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.08)" : "var(--b)"; }}
                     onMouseLeave={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.04)" : "transparent"; }}
-                    onClick={e => handleEventTap(ev, e)}
+                    onClick={e => handleEventClick(ev, e)}
                   >
                     <div style={{ minWidth: "56px", textAlign: "center", flexShrink: 0 }}>
                       <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "16px", color: isDueToday ? "var(--accent)" : "var(--txt)" }}>
@@ -844,7 +937,7 @@ export default function ComplianceCalendar() {
                           }}
                           onMouseEnter={e => { e.currentTarget.style.background = "var(--b)"; }}
                           onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
-                          onClick={e => handleEventTap(ev, e)}
+                          onClick={e => handleEventClick(ev, e)}
                         >
                           <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "11px", color: isOverdue ? "var(--danger)" : "var(--t2)", minWidth: "48px", flexShrink: 0 }}>
                             {dayLabel}
@@ -914,7 +1007,7 @@ export default function ComplianceCalendar() {
                         }}
                         onMouseEnter={e => { e.currentTarget.style.background = "var(--b)"; }}
                         onMouseLeave={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.05)" : "var(--surface2)"; }}
-                        onClick={e => handleEventTap(ev, e)}
+                        onClick={e => handleEventClick(ev, e)}
                       >
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "2px" }}>
                           <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "11px", color: "var(--txt)", flex: 1, display: "flex", alignItems: "center", gap: "4px" }}>
