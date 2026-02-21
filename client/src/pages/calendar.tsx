@@ -431,6 +431,7 @@ export default function ComplianceCalendar() {
           display: "flex", gap: "4px", marginBottom: "14px",
           background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "10px",
           padding: "5px",
+          overflowX: "auto", WebkitOverflowScrolling: "touch",
         }}
         data-testid="view-switcher"
       >
@@ -442,7 +443,7 @@ export default function ComplianceCalendar() {
               data-testid={`view-${vm}`}
               onClick={() => setViewMode(vm)}
               style={{
-                flex: 1, padding: "7px 10px", borderRadius: "7px",
+                flex: "0 0 auto", minWidth: "90px", padding: "7px 10px", borderRadius: "7px",
                 border: "none",
                 background: active ? "var(--accent)" : "transparent",
                 color: active ? "var(--bg)" : "var(--t2)",
