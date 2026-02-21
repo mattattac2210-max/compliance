@@ -369,7 +369,7 @@ export default function ComplianceCalendar() {
         </div>
       </div>
       {/* Year strip */}
-      <div className="grid grid-cols-6 md:grid-cols-12 gap-1 mb-3.5" data-testid="year-strip">
+      <div style={{ display: "flex", gap: "4px", marginBottom: "14px", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }} data-testid="year-strip">
         {t.months.map((mn, mi) => {
           const mEvts = getEventsForMonth(curYear, mi);
           const types = [...new Set(mEvts.map(e => e.type))];
@@ -381,7 +381,8 @@ export default function ComplianceCalendar() {
               style={{
                 background: mi === curMonth ? "var(--accent-tint)" : "var(--surface)",
                 border: `1px solid ${mi === curMonth ? "var(--accent)" : "var(--b)"}`,
-                borderRadius: "6px", padding: "5px 3px", textAlign: "center", cursor: "pointer", transition: "all .15s",
+                borderRadius: "6px", padding: "5px 6px", textAlign: "center", cursor: "pointer", transition: "all .15s",
+                flex: "0 0 auto", minWidth: "52px",
               }}
               onMouseEnter={e => { if (mi !== curMonth) e.currentTarget.style.borderColor = "var(--accent-tint2)"; }}
               onMouseLeave={e => { if (mi !== curMonth) e.currentTarget.style.borderColor = "var(--b)"; }}
