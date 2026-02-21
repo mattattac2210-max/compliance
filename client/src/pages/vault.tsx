@@ -638,15 +638,13 @@ export default function VaultPage() {
                                       </SelectContent>
                                     </Select>
                                   </div>
-                                  {(tmpl.expiryMonths && tmpl.expiryMonths > 0) && (
-                                    <div className="space-y-1">
-                                      <Label className="text-slate-400 text-xs">{t.vault.expiryDateLabel}</Label>
-                                      <Input type="date" value={editForm.expiryDate} onChange={e => setEditForm(f => ({ ...f, expiryDate: e.target.value }))}
-                                        className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs h-8"
-                                        data-testid={`input-expiry-${tmpl.documentSlug}`}
-                                      />
-                                    </div>
-                                  )}
+                                  <div className="space-y-1">
+                                    <Label className="text-slate-400 text-xs">{t.vault.expiryDateLabel}</Label>
+                                    <Input type="date" value={editForm.expiryDate} onChange={e => setEditForm(f => ({ ...f, expiryDate: e.target.value }))}
+                                      className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs h-8"
+                                      data-testid={`input-expiry-${tmpl.documentSlug}`}
+                                    />
+                                  </div>
                                   <div className="space-y-1 md:col-span-full">
                                     <Label className="text-slate-400 text-xs">{t.vault.notesLabel}</Label>
                                     <Textarea value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))}
@@ -779,14 +777,13 @@ export default function VaultPage() {
                                                 </SelectContent>
                                               </Select>
                                             </div>
-                                            {(tmpl.expiryMonths && tmpl.expiryMonths > 0) && (
-                                              <div className="space-y-1">
-                                                <Label className="text-slate-400 text-xs">{t.vault.expiryDateLabel}</Label>
-                                                <Input type="date" value={editForm.expiryDate} onChange={e => setEditForm(f => ({ ...f, expiryDate: e.target.value }))}
-                                                  className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs h-8"
-                                                />
-                                              </div>
-                                            )}
+                                            <div className="space-y-1">
+                                              <Label className="text-slate-400 text-xs">{t.vault.expiryDateLabel}</Label>
+                                              <Input type="date" value={editForm.expiryDate} onChange={e => setEditForm(f => ({ ...f, expiryDate: e.target.value }))}
+                                                className="bg-[var(--surface2)] border-[var(--accent-tint)] text-white text-xs h-8"
+                                                data-testid={`input-expiry-gate-${tmpl.documentSlug}`}
+                                              />
+                                            </div>
                                             <div className="space-y-1 md:col-span-full">
                                               <Label className="text-slate-400 text-xs">{t.vault.notesLabel}</Label>
                                               <Textarea value={editForm.notes} onChange={e => setEditForm(f => ({ ...f, notes: e.target.value }))}
