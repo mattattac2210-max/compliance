@@ -370,50 +370,56 @@ export default function ComplianceCalendar() {
   return (
     <div className="p-4 md:px-[26px] md:py-[22px]" data-testid="calendar-page">
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "16px", flexWrap: "wrap", gap: "12px" }}>
-        <div>
-          <h1 style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "22px", color: "var(--txt)" }} data-testid="calendar-title">{t.title}</h1>
-          <p style={{ fontSize: "12px", color: "var(--t2)", marginTop: "3px" }}>{t.subtitle}</p>
+      <div style={{ marginBottom: "16px" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "8px", marginBottom: "10px" }}>
+          <div style={{ minWidth: 0 }}>
+            <h1 className="text-lg md:text-[22px]" style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "var(--txt)" }} data-testid="calendar-title">{t.title}</h1>
+            <p className="text-[11px] md:text-xs" style={{ color: "var(--t2)", marginTop: "2px" }}>{t.subtitle}</p>
+          </div>
+          <button
+            onClick={openAddModal}
+            data-testid="btn-add-event"
+            className="text-[10px] md:text-[11px] px-3 md:px-4 py-[7px]"
+            style={{ background: "var(--accent)", border: "none", color: "var(--bg)", borderRadius: "7px", cursor: "pointer", fontFamily: "var(--font-display)", fontWeight: 800, transition: "all .15s", display: "flex", alignItems: "center", gap: "4px", whiteSpace: "nowrap", flexShrink: 0 }}
+            onMouseEnter={e => { e.currentTarget.style.background = "var(--accent2)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "var(--accent)"; }}
+          >
+            <Plus size={14} /> <span className="hidden sm:inline">{t.addEvent}</span>
+          </button>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "7px", flexWrap: "wrap" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", justifyContent: "center" }}>
           <button
             onClick={() => changeMonth(-1)}
             data-testid="btn-prev-month"
-            style={{ background: "var(--surface)", border: "1px solid var(--b)", color: "var(--t2)", padding: "7px 12px", borderRadius: "7px", cursor: "pointer", fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 700, transition: "all .15s" }}
+            className="px-2.5 md:px-3 py-[6px]"
+            style={{ background: "var(--surface)", border: "1px solid var(--b)", color: "var(--t2)", borderRadius: "7px", cursor: "pointer", fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 700, transition: "all .15s", flexShrink: 0 }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--b)"; e.currentTarget.style.color = "var(--t2)"; }}
           >
-            <ChevronLeft size={14} style={{ display: "inline", verticalAlign: "middle" }} /> {t.prev}
+            <ChevronLeft size={14} />
           </button>
-          <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "16px", minWidth: "165px", textAlign: "center", color: "var(--txt)" }} data-testid="month-label">
+          <div className="text-sm md:text-base min-w-[140px] md:min-w-[165px]" style={{ fontFamily: "var(--font-display)", fontWeight: 800, textAlign: "center", color: "var(--txt)" }} data-testid="month-label">
             {monthLabel}
           </div>
           <button
             onClick={() => changeMonth(1)}
             data-testid="btn-next-month"
-            style={{ background: "var(--surface)", border: "1px solid var(--b)", color: "var(--t2)", padding: "7px 12px", borderRadius: "7px", cursor: "pointer", fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 700, transition: "all .15s" }}
+            className="px-2.5 md:px-3 py-[6px]"
+            style={{ background: "var(--surface)", border: "1px solid var(--b)", color: "var(--t2)", borderRadius: "7px", cursor: "pointer", fontFamily: "var(--font-display)", fontSize: "12px", fontWeight: 700, transition: "all .15s", flexShrink: 0 }}
             onMouseEnter={e => { e.currentTarget.style.borderColor = "var(--accent)"; e.currentTarget.style.color = "var(--accent)"; }}
             onMouseLeave={e => { e.currentTarget.style.borderColor = "var(--b)"; e.currentTarget.style.color = "var(--t2)"; }}
           >
-            {t.next} <ChevronRight size={14} style={{ display: "inline", verticalAlign: "middle" }} />
+            <ChevronRight size={14} />
           </button>
           <button
             onClick={goToday}
             data-testid="btn-today"
-            style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)", color: "var(--accent)", padding: "7px 14px", borderRadius: "7px", cursor: "pointer", fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, transition: "all .15s" }}
+            className="text-[10px] md:text-[11px] px-2.5 md:px-3.5 py-[6px]"
+            style={{ background: "var(--accent-tint)", border: "1px solid var(--accent-tint2)", color: "var(--accent)", borderRadius: "7px", cursor: "pointer", fontFamily: "var(--font-display)", fontWeight: 700, transition: "all .15s", flexShrink: 0 }}
             onMouseEnter={e => { e.currentTarget.style.background = "var(--accent-tint2)"; }}
             onMouseLeave={e => { e.currentTarget.style.background = "var(--accent-tint)"; }}
           >
             {t.today}
-          </button>
-          <button
-            onClick={openAddModal}
-            data-testid="btn-add-event"
-            style={{ background: "var(--accent)", border: "none", color: "var(--bg)", padding: "7px 16px", borderRadius: "7px", cursor: "pointer", fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 800, transition: "all .15s", display: "flex", alignItems: "center", gap: "4px" }}
-            onMouseEnter={e => { e.currentTarget.style.background = "var(--accent2)"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "var(--accent)"; }}
-          >
-            <Plus size={14} /> {t.addEvent}
           </button>
         </div>
       </div>
@@ -451,14 +457,15 @@ export default function ComplianceCalendar() {
       </div>
       {/* Filters */}
       <div
+        className="gap-2 md:gap-2 px-3 md:px-3.5 py-2.5"
         style={{
-          display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "14px", alignItems: "center",
+          display: "flex", marginBottom: "14px", alignItems: "center",
           background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "10px",
-          padding: "10px 14px",
+          overflowX: "auto", WebkitOverflowScrolling: "touch" as any, scrollbarWidth: "none",
         }}
         data-testid="calendar-filters"
       >
-        <span style={{ fontFamily: "var(--font-display)", fontSize: "9px", letterSpacing: "1.5px", color: "var(--t3)", textTransform: "uppercase", marginRight: "4px", fontWeight: 700 }}>{t.filter}</span>
+        <span style={{ fontFamily: "var(--font-display)", fontSize: "9px", letterSpacing: "1.5px", color: "var(--t3)", textTransform: "uppercase", marginRight: "4px", fontWeight: 700, flexShrink: 0 }}>{t.filter}</span>
         {FILTER_TYPES.map(f => {
           const active = filters.has(f);
           return (
@@ -472,7 +479,7 @@ export default function ComplianceCalendar() {
                 background: active ? "var(--accent)" : "transparent",
                 color: active ? "#ffffff" : "var(--t2)",
                 fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, letterSpacing: ".3px",
-                cursor: "pointer", transition: "all .15s",
+                cursor: "pointer", transition: "all .15s", whiteSpace: "nowrap", flexShrink: 0,
               }}
               onMouseEnter={e => { if (!active) { e.currentTarget.style.borderColor = "var(--accent-tint2)"; e.currentTarget.style.color = "var(--txt)"; } }}
               onMouseLeave={e => { if (!active) { e.currentTarget.style.borderColor = "var(--b)"; e.currentTarget.style.color = "var(--t2)"; } }}
@@ -552,8 +559,8 @@ export default function ComplianceCalendar() {
           {t.days.map(d => (
             <div
               key={d}
-              style={{ padding: "9px 0", textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 700, letterSpacing: "1.5px", textTransform: "uppercase", color: "var(--t4)" }}
-              className="text-[#404040] text-[10px] md:text-[13px]">
+              className="text-[8px] md:text-[11px] py-1.5 md:py-2.5"
+              style={{ textAlign: "center", fontFamily: "var(--font-display)", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "var(--t4)" }}>
               {d}
             </div>
           ))}
@@ -651,14 +658,14 @@ export default function ComplianceCalendar() {
           </div>
         ) : detailEvents.length === 0 ? (
           <>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 17px", borderBottom: "1px solid var(--b)", background: "var(--surface2)" }}>
-              <div>
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "14px", color: "var(--txt)" }}>
+            <div className="px-3 py-2.5 md:px-4 md:py-3" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", borderBottom: "1px solid var(--b)", background: "var(--surface2)" }}>
+              <div style={{ minWidth: 0 }}>
+                <div className="text-xs md:text-sm" style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "var(--txt)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {selDate.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                 </div>
                 <div style={{ fontSize: "11px", color: "var(--t2)", marginTop: "2px" }}>{t.noEvents}</div>
               </div>
-              <button onClick={() => setSelDate(null)} data-testid="btn-close-detail" style={{ width: "26px", height: "26px", background: "var(--b)", border: "1px solid var(--b)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--t2)", fontSize: "14px" }}>
+              <button onClick={() => setSelDate(null)} data-testid="btn-close-detail" style={{ width: "26px", height: "26px", background: "var(--b)", border: "1px solid var(--b)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--t2)", fontSize: "14px", flexShrink: 0 }}>
                 <X size={14} />
               </button>
             </div>
@@ -668,16 +675,16 @@ export default function ComplianceCalendar() {
           </>
         ) : (
           <>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "13px 17px", borderBottom: "1px solid var(--b)", background: "var(--surface2)" }}>
-              <div>
-                <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "14px", color: "var(--txt)" }}>
+            <div className="px-3 py-2.5 md:px-4 md:py-3" style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "8px", borderBottom: "1px solid var(--b)", background: "var(--surface2)" }}>
+              <div style={{ minWidth: 0 }}>
+                <div className="text-xs md:text-sm" style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: "var(--txt)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                   {selDate.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
                 </div>
                 <div style={{ fontSize: "11px", color: "var(--t2)", marginTop: "2px" }}>
                   {detailEvents.length} {detailEvents.length !== 1 ? t.events : t.event}
                 </div>
               </div>
-              <button onClick={() => setSelDate(null)} data-testid="btn-close-detail" style={{ width: "26px", height: "26px", background: "var(--b)", border: "1px solid var(--b)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--t2)" }}>
+              <button onClick={() => setSelDate(null)} data-testid="btn-close-detail" style={{ width: "26px", height: "26px", background: "var(--b)", border: "1px solid var(--b)", borderRadius: "6px", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "var(--t2)", flexShrink: 0 }}>
                 <X size={14} />
               </button>
             </div>
@@ -763,16 +770,18 @@ export default function ComplianceCalendar() {
       {/* Week view */}
       {viewMode === "week" && (
         <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "12px", overflow: "hidden", marginBottom: "12px" }} data-testid="week-view">
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 0 }}>
+          <div style={{ display: "flex", overflowX: "auto", WebkitOverflowScrolling: "touch" as any, scrollbarWidth: "none" }}>
             {weekDays.map((wd, wi) => {
               const isToday = wd.getTime() === today.getTime();
               const dayEvts = getEventsForDay(wd.getFullYear(), wd.getMonth(), wd.getDate());
               return (
                 <div
                   key={wi}
+                  className="min-w-[120px] md:min-w-0"
                   style={{
                     borderRight: wi < 6 ? "1px solid var(--b)" : undefined,
                     minHeight: "260px", display: "flex", flexDirection: "column",
+                    flex: "1 0 0%",
                   }}
                 >
                   <div style={{
@@ -843,9 +852,9 @@ export default function ComplianceCalendar() {
                 return (
                   <div
                     key={ev.id + "-" + idx}
+                    className="gap-2.5 md:gap-3 px-3 md:px-4 py-2.5 md:py-3"
                     style={{
-                      display: "flex", alignItems: "center", gap: "12px",
-                      padding: "12px 16px",
+                      display: "flex", alignItems: "center",
                       borderBottom: idx < filteredMonthEvents.length - 1 ? "1px solid var(--b)" : undefined,
                       borderLeft: `3px solid ${col}`,
                       background: isOverdue ? "rgba(239,68,68,0.04)" : "transparent",
@@ -856,8 +865,8 @@ export default function ComplianceCalendar() {
                     onMouseLeave={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.04)" : "transparent"; }}
                     onClick={e => handleEventClick(ev, e)}
                   >
-                    <div style={{ minWidth: "56px", textAlign: "center", flexShrink: 0 }}>
-                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "16px", color: isDueToday ? "var(--accent)" : "var(--txt)" }}>
+                    <div className="min-w-[44px] md:min-w-[56px]" style={{ textAlign: "center", flexShrink: 0 }}>
+                      <div className="text-sm md:text-base" style={{ fontFamily: "var(--font-display)", fontWeight: 800, color: isDueToday ? "var(--accent)" : "var(--txt)" }}>
                         {ev.date.getDate()}
                       </div>
                       <div style={{ fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 600, color: "var(--t4)", textTransform: "uppercase", letterSpacing: ".5px" }}>
@@ -865,8 +874,8 @@ export default function ComplianceCalendar() {
                       </div>
                     </div>
                     <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "12px", color: "var(--txt)", display: "flex", alignItems: "center", gap: "5px" }}>
-                        {renderEventIcon(ev.icon, 11)} {ev.title}
+                      <div className="text-[11px] md:text-xs" style={{ fontFamily: "var(--font-display)", fontWeight: 700, color: "var(--txt)", display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
+                        {renderEventIcon(ev.icon, 11)} <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{ev.title}</span>
                         {isOverdue && <span style={{ fontSize: "9px", color: "var(--danger)", fontWeight: 700, display: "inline-flex", alignItems: "center", gap: "2px" }}><AlertTriangle style={{ width: 9, height: 9 }} /> {t.overdue}</span>}
                         {isDueToday && <span style={{ fontSize: "9px", color: "#FB923C", fontWeight: 700 }}>{t.dueToday}</span>}
                       </div>
@@ -1034,9 +1043,9 @@ export default function ComplianceCalendar() {
         </div>
       )}
       {/* Legend */}
-      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", padding: "10px 14px", background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "8px" }} data-testid="calendar-legend">
+      <div className="gap-2.5 md:gap-3 px-3 md:px-3.5 py-2.5" style={{ display: "flex", overflowX: "auto", WebkitOverflowScrolling: "touch" as any, scrollbarWidth: "none", background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "8px" }} data-testid="calendar-legend">
         {legendItems.map(li => (
-          <div key={li.label} style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "10px", color: "var(--t2)", fontFamily: "var(--font-display)", fontWeight: 600 }}>
+          <div key={li.label} style={{ display: "flex", alignItems: "center", gap: "5px", fontSize: "10px", color: "var(--t2)", fontFamily: "var(--font-display)", fontWeight: 600, whiteSpace: "nowrap", flexShrink: 0 }}>
             <div style={{ width: "7px", height: "7px", borderRadius: "50%", background: li.color, flexShrink: 0 }} />
             {li.label}
           </div>
@@ -1045,12 +1054,14 @@ export default function ComplianceCalendar() {
       {/* Add/Edit Modal */}
       {showModal && (
         <div
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(4px)", zIndex: 100, display: "flex", alignItems: "center", justifyContent: "center", padding: "20px" }}
+          className="p-3 md:p-5"
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", backdropFilter: "blur(4px)", zIndex: 100, display: "flex", alignItems: "flex-end", justifyContent: "center" }}
           onClick={() => setShowModal(false)}
           data-testid="event-modal-overlay"
         >
           <div
-            style={{ background: "var(--surface)", border: "1px solid var(--accent-tint2)", borderRadius: "14px", width: "100%", maxWidth: "490px", overflow: "hidden", boxShadow: "0 24px 80px rgba(0,0,0,0.6)" }}
+            className="max-h-[90vh] md:max-h-[85vh] rounded-t-2xl md:rounded-xl sm:mb-auto sm:mt-auto"
+            style={{ background: "var(--surface)", border: "1px solid var(--accent-tint2)", width: "100%", maxWidth: "490px", overflow: "hidden", overflowY: "auto", boxShadow: "0 24px 80px rgba(0,0,0,0.6)" }}
             onClick={e => e.stopPropagation()}
             data-testid="event-modal"
           >
@@ -1076,7 +1087,7 @@ export default function ComplianceCalendar() {
                   onBlur={e => { e.currentTarget.style.borderColor = "var(--b)"; }}
                 />
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                   <label style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "var(--t2)" }}>{t.labelDate}</label>
                   <input
@@ -1106,7 +1117,7 @@ export default function ComplianceCalendar() {
                   </select>
                 </div>
               </div>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
                   <label style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, letterSpacing: "1px", textTransform: "uppercase", color: "var(--t2)" }}>{t.labelRepeats}</label>
                   <select
@@ -1187,16 +1198,17 @@ export default function ComplianceCalendar() {
         <div
           data-testid="event-detail-overlay"
           onClick={() => setTappedEvent(null)}
+          className="p-3 md:p-4 items-end sm:items-center"
           style={{
             position: "fixed", inset: 0, background: "rgba(0,0,0,.55)",
-            zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center",
-            padding: "16px",
+            zIndex: 1000, display: "flex", justifyContent: "center",
           }}
         >
           <div
             onClick={e => e.stopPropagation()}
+            className="rounded-t-2xl sm:rounded-xl"
             style={{
-              background: "var(--surface)", borderRadius: "14px", width: "100%", maxWidth: "400px",
+              background: "var(--surface)", width: "100%", maxWidth: "400px",
               border: "1px solid var(--b)", overflow: "hidden",
               boxShadow: "0 20px 60px rgba(0,0,0,.4)",
             }}
