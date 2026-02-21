@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalIcon, Check, AlertTriangle, RefreshCw, ArrowRight, Hexagon, FileText, Shield, Zap, Droplets, Recycle, Trash2, BookUser, UserCheck, ClipboardList, Landmark, CalendarDays, BarChart3, DollarSign, Flower2, Star, Waves, Handshake, Flame, FlameKindling, List, Grid3X3, LayoutList, Tag, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalIcon, Check, AlertTriangle, RefreshCw, ArrowRight, Hexagon, FileText, Shield, Zap, Droplets, Recycle, Trash2, BookUser, UserCheck, ClipboardList, Landmark, CalendarDays, BarChart3, DollarSign, Flower2, Star, Waves, Handshake, Flame, FlameKindling, List, Grid3X3, LayoutList, Tag, Clock, Pencil, CalendarCheck } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/i18n/context";
 import {
@@ -91,6 +91,7 @@ export default function ComplianceCalendar() {
   const [customEvs, setCustomEvs] = useState<CustomEvent[]>(loadCustomEvents);
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
+  const [tappedEvent, setTappedEvent] = useState<CalendarEvent | null>(null);
 
   const [formTitle, setFormTitle] = useState("");
   const [formDate, setFormDate] = useState("");
@@ -250,6 +251,12 @@ export default function ComplianceCalendar() {
     const next = customEvs.filter(c => c.id !== baseId && c.id !== id);
     setCustomEvs(next);
     saveCustomEvents(next);
+    setTappedEvent(null);
+  };
+
+  const handleEventTap = (ev: CalendarEvent, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTappedEvent(ev);
   };
 
   const saveEvent = () => {
@@ -515,7 +522,7 @@ export default function ComplianceCalendar() {
                   return (
                     <div
                       key={ev.id}
-                      onClick={e => { e.stopPropagation(); if (!c.outside) setSelDate(cellDate); }}
+                      onClick={e => handleEventTap(ev, e)}
                       style={{
                         display: "flex", alignItems: "center", gap: "2px", fontSize: "9px", fontFamily: "var(--font-display)", fontWeight: 600,
                         padding: "1px 4px", borderRadius: "3px", marginBottom: "2px", borderLeft: `2px solid ${col}`,
@@ -702,7 +709,7 @@ export default function ComplianceCalendar() {
                       return (
                         <div
                           key={ev.id}
-                          onClick={() => { setSelDate(wd); setViewMode("month"); }}
+                          onClick={e => handleEventTap(ev, e)}
                           style={{
                             fontSize: "9px", fontFamily: "var(--font-display)", fontWeight: 600,
                             padding: "4px 5px", borderRadius: "4px", borderLeft: `2px solid ${col}`,
@@ -753,7 +760,7 @@ export default function ComplianceCalendar() {
                     }}
                     onMouseEnter={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.08)" : "var(--b)"; }}
                     onMouseLeave={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.04)" : "transparent"; }}
-                    onClick={() => { setSelDate(ev.date); setViewMode("month"); }}
+                    onClick={e => handleEventTap(ev, e)}
                   >
                     <div style={{ minWidth: "56px", textAlign: "center", flexShrink: 0 }}>
                       <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "16px", color: isDueToday ? "var(--accent)" : "var(--txt)" }}>
@@ -836,7 +843,7 @@ export default function ComplianceCalendar() {
                           }}
                           onMouseEnter={e => { e.currentTarget.style.background = "var(--b)"; }}
                           onMouseLeave={e => { e.currentTarget.style.background = "transparent"; }}
-                          onClick={() => { setSelDate(ev.date); setViewMode("month"); }}
+                          onClick={e => handleEventTap(ev, e)}
                         >
                           <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "11px", color: isOverdue ? "var(--danger)" : "var(--t2)", minWidth: "48px", flexShrink: 0 }}>
                             {dayLabel}
@@ -906,7 +913,7 @@ export default function ComplianceCalendar() {
                         }}
                         onMouseEnter={e => { e.currentTarget.style.background = "var(--b)"; }}
                         onMouseLeave={e => { e.currentTarget.style.background = isOverdue ? "rgba(239,68,68,0.05)" : "var(--surface2)"; }}
-                        onClick={() => { setSelDate(ev.date); setViewMode("month"); }}
+                        onClick={e => handleEventTap(ev, e)}
                       >
                         <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "2px" }}>
                           <div style={{ fontFamily: "var(--font-display)", fontWeight: 700, fontSize: "11px", color: "var(--txt)", flex: 1, display: "flex", alignItems: "center", gap: "4px" }}>
@@ -1078,6 +1085,161 @@ export default function ComplianceCalendar() {
                 {t.saveEvent}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {tappedEvent && (
+        <div
+          data-testid="event-detail-overlay"
+          onClick={() => setTappedEvent(null)}
+          style={{
+            position: "fixed", inset: 0, background: "rgba(0,0,0,.55)",
+            zIndex: 1000, display: "flex", alignItems: "center", justifyContent: "center",
+            padding: "16px",
+          }}
+        >
+          <div
+            onClick={e => e.stopPropagation()}
+            style={{
+              background: "var(--surface)", borderRadius: "14px", width: "100%", maxWidth: "400px",
+              border: "1px solid var(--b)", overflow: "hidden",
+              boxShadow: "0 20px 60px rgba(0,0,0,.4)",
+            }}
+          >
+            {(() => {
+              const ev = tappedEvent;
+              const col = ev.isCustom ? (ev.customColor || "rgba(255,255,255,.35)") : typeColor(ev.type, ev.gate);
+              const isFiled = filed.has(ev.id);
+              const isOverdue = ev.daysUntil < 0 && ev.type !== "ops";
+              const isDueToday = ev.daysUntil === 0;
+              const gn = ev.gate >= 1 && ev.gate <= 7 ? GATE_NAMES[ev.gate - 1] : "";
+              const dateStr = ev.date.toLocaleDateString(locale, { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+              return (
+                <>
+                  <div style={{ padding: "16px 20px 12px", display: "flex", alignItems: "flex-start", gap: "12px", borderBottom: "1px solid var(--b)" }}>
+                    <div style={{ width: "4px", borderRadius: "2px", background: col, alignSelf: "stretch", flexShrink: 0 }} />
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "15px", color: "var(--txt)", marginBottom: "4px", display: "flex", alignItems: "center", gap: "6px" }}>
+                        {renderEventIcon(ev.icon, 15)} {ev.title}
+                      </div>
+                      <div style={{ fontFamily: "var(--font-display)", fontSize: "11px", color: "var(--t3)", marginBottom: "6px" }}>
+                        <CalendarCheck size={11} style={{ display: "inline", verticalAlign: "middle", marginRight: "4px" }} />
+                        {dateStr}
+                      </div>
+                      <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", alignItems: "center" }}>
+                        {gn && (
+                          <span style={{
+                            fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700,
+                            padding: "2px 8px", borderRadius: "10px",
+                            background: `${col}22`, color: col, border: `1px solid ${col}44`,
+                          }}>
+                            {gn}
+                          </span>
+                        )}
+                        {ev.recurring && (
+                          <span style={{
+                            fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 600,
+                            padding: "2px 8px", borderRadius: "10px", color: "var(--t3)",
+                            background: "var(--b)", display: "inline-flex", alignItems: "center", gap: "3px",
+                          }}>
+                            <RefreshCw size={9} /> {t.recurring}
+                          </span>
+                        )}
+                        {isFiled && (
+                          <span style={{
+                            fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 600,
+                            padding: "2px 8px", borderRadius: "10px", color: "#22c55e",
+                            background: "rgba(34,197,94,0.1)", display: "inline-flex", alignItems: "center", gap: "3px",
+                          }}>
+                            <Check size={9} /> {t.filed}
+                          </span>
+                        )}
+                        {isOverdue && (
+                          <span style={{
+                            fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700,
+                            padding: "2px 8px", borderRadius: "10px", color: "var(--danger)",
+                            background: "rgba(239,68,68,0.1)", display: "inline-flex", alignItems: "center", gap: "3px",
+                          }}>
+                            <AlertTriangle size={9} /> {t.overdue}
+                          </span>
+                        )}
+                        {isDueToday && (
+                          <span style={{
+                            fontFamily: "var(--font-display)", fontSize: "9px", fontWeight: 700,
+                            padding: "2px 8px", borderRadius: "10px", color: "#FB923C",
+                            background: "rgba(251,146,60,0.1)",
+                          }}>
+                            {t.dueToday}
+                          </span>
+                        )}
+                      </div>
+                      {ev.period && (
+                        <div style={{ fontFamily: "monospace", fontSize: "10px", color: "var(--t4)", marginTop: "6px" }}>
+                          {ev.period}
+                        </div>
+                      )}
+                    </div>
+                    <button
+                      data-testid="btn-close-detail"
+                      onClick={() => setTappedEvent(null)}
+                      style={{ background: "transparent", border: "none", cursor: "pointer", color: "var(--t4)", padding: "2px", flexShrink: 0 }}
+                    >
+                      <X size={16} />
+                    </button>
+                  </div>
+                  <div style={{ padding: "10px 16px 14px", display: "flex", flexWrap: "wrap", gap: "8px" }}>
+                    <button
+                      data-testid="btn-toggle-filed"
+                      onClick={() => {
+                        const next = new Set(filed);
+                        if (next.has(ev.id)) next.delete(ev.id);
+                        else next.add(ev.id);
+                        setFiled(next);
+                        localStorage.setItem("dscvr_cal_filed", JSON.stringify([...next]));
+                      }}
+                      style={{
+                        display: "inline-flex", alignItems: "center", gap: "5px",
+                        fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700,
+                        padding: "7px 14px", borderRadius: "7px", cursor: "pointer",
+                        border: "1px solid var(--b)", color: isFiled ? "var(--t3)" : "#22c55e",
+                        background: isFiled ? "transparent" : "rgba(34,197,94,0.08)",
+                      }}
+                    >
+                      <Check size={12} /> {isFiled ? t.unmarkFiled : t.markFiled}
+                    </button>
+                    {ev.isCustom && (
+                      <>
+                        <button
+                          data-testid="btn-edit-event"
+                          onClick={() => { editCustom(ev.id); setTappedEvent(null); }}
+                          style={{
+                            display: "inline-flex", alignItems: "center", gap: "5px",
+                            fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700,
+                            padding: "7px 14px", borderRadius: "7px", cursor: "pointer",
+                            border: "1px solid var(--b)", color: "var(--accent)", background: "transparent",
+                          }}
+                        >
+                          <Pencil size={12} /> {t.edit}
+                        </button>
+                        <button
+                          data-testid="btn-delete-event"
+                          onClick={() => { deleteCustom(ev.id); }}
+                          style={{
+                            display: "inline-flex", alignItems: "center", gap: "5px",
+                            fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700,
+                            padding: "7px 14px", borderRadius: "7px", cursor: "pointer",
+                            border: "1px solid rgba(239,68,68,0.3)", color: "var(--danger)", background: "rgba(239,68,68,0.06)",
+                          }}
+                        >
+                          <Trash2 size={12} /> {t.delete}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}

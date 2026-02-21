@@ -276,6 +276,10 @@ export interface UITranslations {
     noGate: string;
     cancel: string;
     saveEvent: string;
+    eventDetails: string;
+    unmarkFiled: string;
+    changeDate: string;
+    close: string;
     catCustom: string;
     catBanjar: string;
     catSafety: string;
