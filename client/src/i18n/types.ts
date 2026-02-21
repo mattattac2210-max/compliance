@@ -279,6 +279,8 @@ export interface UITranslations {
     eventDetails: string;
     unmarkFiled: string;
     changeDate: string;
+    removeEvent: string;
+    confirmRemoveEvent: string;
     close: string;
     catCustom: string;
     catBanjar: string;

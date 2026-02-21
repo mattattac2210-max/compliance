@@ -291,6 +291,8 @@ export const id: UITranslations = {
     eventDetails: "Detail Acara",
     unmarkFiled: "Batalkan tanda dilaporkan",
     changeDate: "Ubah Tanggal",
+    removeEvent: "Hapus",
+    confirmRemoveEvent: "Hapus acara ini dari kalender Anda?",
     close: "Tutup",
     cancel: "Batal",
     saveEvent: "Simpan Acara",

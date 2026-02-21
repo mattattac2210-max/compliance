@@ -69,6 +69,18 @@ function loadFiled(): Set<string> {
 function saveFiled(s: Set<string>) {
   localStorage.setItem("dscvr-cal-filed", JSON.stringify([...s]));
 }
+function loadDateOverrides(): Record<string, string> {
+  try { return JSON.parse(localStorage.getItem("dscvr-cal-date-overrides") || "{}"); } catch { return {}; }
+}
+function saveDateOverrides(o: Record<string, string>) {
+  localStorage.setItem("dscvr-cal-date-overrides", JSON.stringify(o));
+}
+function loadDismissed(): Set<string> {
+  try { return new Set(JSON.parse(localStorage.getItem("dscvr-cal-dismissed") || "[]")); } catch { return new Set(); }
+}
+function saveDismissed(s: Set<string>) {
+  localStorage.setItem("dscvr-cal-dismissed", JSON.stringify([...s]));
+}
 
 export default function ComplianceCalendar() {
   const today = new Date();
@@ -89,6 +101,10 @@ export default function ComplianceCalendar() {
   const [filters, setFilters] = useState<Set<string>>(new Set(["all"]));
   const [filed, setFiled] = useState<Set<string>>(loadFiled);
   const [customEvs, setCustomEvs] = useState<CustomEvent[]>(loadCustomEvents);
+  const [dateOverrides, setDateOverrides] = useState<Record<string, string>>(loadDateOverrides);
+  const [dismissed, setDismissed] = useState<Set<string>>(loadDismissed);
+  const [datePickerEventId, setDatePickerEventId] = useState<string | null>(null);
+  const [datePickerValue, setDatePickerValue] = useState("");
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [highlightEventId, setHighlightEventId] = useState<string | null>(null);
@@ -110,16 +126,24 @@ export default function ComplianceCalendar() {
   }, [dragEvent]);
 
   const handleTouchEnd = useCallback(() => {
-    if (!dragEvent || !dragOverCell || !dragEvent.isCustom) { setDragEvent(null); setDragOverCell(null); return; }
+    if (!dragEvent || !dragOverCell) { setDragEvent(null); setDragOverCell(null); return; }
     const parts = dragOverCell.split("-").map(Number);
     if (parts.length === 3) {
       const newDate = `${parts[0]}-${String(parts[1] + 1).padStart(2, "0")}-${String(parts[2]).padStart(2, "0")}`;
-      const baseId = dragEvent.id.includes("-") ? dragEvent.id.replace(/-\d{4}-\d{2}$/, "") : dragEvent.id;
-      setCustomEvs(prev => {
-        const next = prev.map(c => (c.id === baseId || c.id === dragEvent.id) ? { ...c, date: newDate } : c);
-        saveCustomEvents(next);
-        return next;
-      });
+      if (dragEvent.isCustom) {
+        const baseId = dragEvent.id.includes("-") ? dragEvent.id.replace(/-\d{4}-\d{2}$/, "") : dragEvent.id;
+        setCustomEvs(prev => {
+          const next = prev.map(c => (c.id === baseId || c.id === dragEvent.id) ? { ...c, date: newDate } : c);
+          saveCustomEvents(next);
+          return next;
+        });
+      } else {
+        setDateOverrides(prev => {
+          const next = { ...prev, [dragEvent.id]: newDate };
+          saveDateOverrides(next);
+          return next;
+        });
+      }
     }
     setDragEvent(null);
     setDragOverCell(null);
@@ -162,8 +186,20 @@ export default function ComplianceCalendar() {
     const vaultEvents = mapVaultDocs(vaultDocs, templates, language);
     const kitasEvents = mapStaffKitas(staffMembers, language);
     const hgbEvents = mapPropertyHgb(properties, language);
-    return [...baseEvents, ...expanded, ...vaultEvents, ...kitasEvents, ...hgbEvents];
-  }, [baseEvents, customEvs, curYear, vaultDocs, templates, staffMembers, properties, language]);
+    let events = [...baseEvents, ...expanded, ...vaultEvents, ...kitasEvents, ...hgbEvents];
+    events = events.filter(ev => !dismissed.has(ev.id));
+    events = events.map(ev => {
+      const override = dateOverrides[ev.id];
+      if (override) {
+        const [y, m, d] = override.split("-").map(Number);
+        const newDate = new Date(y, m - 1, d);
+        newDate.setHours(0, 0, 0, 0);
+        return { ...ev, date: newDate, daysUntil: Math.floor((newDate.getTime() - new Date(new Date().setHours(0, 0, 0, 0)).getTime()) / 86400000) };
+      }
+      return ev;
+    });
+    return events;
+  }, [baseEvents, customEvs, curYear, vaultDocs, templates, staffMembers, properties, language, dismissed, dateOverrides]);
 
   const getEventsForDay = useCallback((y: number, m: number, d: number) => {
     let evts = allEvents.filter(ev => ev.date.getFullYear() === y && ev.date.getMonth() === m && ev.date.getDate() === d);
@@ -230,6 +266,7 @@ export default function ComplianceCalendar() {
     setCurYear(y);
     setSelDate(null);
     setHighlightEventId(null);
+    setDatePickerEventId(null);
   };
 
   const goToday = () => {
@@ -289,6 +326,36 @@ export default function ComplianceCalendar() {
     setHighlightEventId(null);
   };
 
+  const dismissEvent = (id: string) => {
+    if (!confirm(t.confirmRemoveEvent)) return;
+    const next = new Set(dismissed);
+    next.add(id);
+    setDismissed(next);
+    saveDismissed(next);
+    setHighlightEventId(null);
+  };
+
+  const openDatePicker = (id: string, currentDate: Date) => {
+    setDatePickerEventId(id);
+    const y = currentDate.getFullYear();
+    const m = String(currentDate.getMonth() + 1).padStart(2, "0");
+    const d = String(currentDate.getDate()).padStart(2, "0");
+    setDatePickerValue(`${y}-${m}-${d}`);
+  };
+
+  const applyDateOverride = () => {
+    if (!datePickerEventId || !datePickerValue) return;
+    const next = { ...dateOverrides, [datePickerEventId]: datePickerValue };
+    setDateOverrides(next);
+    saveDateOverrides(next);
+    const [y, m, d] = datePickerValue.split("-").map(Number);
+    setSelDate(new Date(y, m - 1, d));
+    setCurYear(y);
+    setCurMonth(m - 1);
+    setDatePickerEventId(null);
+    setDatePickerValue("");
+  };
+
   const handleEventClick = (ev: CalendarEvent, e: React.MouseEvent) => {
     e.stopPropagation();
     if (dragEvent) return;
@@ -306,7 +373,6 @@ export default function ComplianceCalendar() {
   };
 
   const handleEventPointerDown = (ev: CalendarEvent, e: React.PointerEvent) => {
-    if (!ev.isCustom) return;
     const target = e.currentTarget as HTMLElement;
     longPressTimer.current = setTimeout(() => {
       setDragEvent(ev);
@@ -324,12 +390,18 @@ export default function ComplianceCalendar() {
   };
 
   const handleCellDrop = (year: number, month: number, day: number) => {
-    if (!dragEvent || !dragEvent.isCustom) { setDragEvent(null); setDragOverCell(null); return; }
+    if (!dragEvent) { setDragEvent(null); setDragOverCell(null); return; }
     const newDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    const baseId = dragEvent.id.includes("-") ? dragEvent.id.replace(/-\d{4}-\d{2}$/, "") : dragEvent.id;
-    const next = customEvs.map(c => (c.id === baseId || c.id === dragEvent.id) ? { ...c, date: newDate } : c);
-    setCustomEvs(next);
-    saveCustomEvents(next);
+    if (dragEvent.isCustom) {
+      const baseId = dragEvent.id.includes("-") ? dragEvent.id.replace(/-\d{4}-\d{2}$/, "") : dragEvent.id;
+      const next = customEvs.map(c => (c.id === baseId || c.id === dragEvent.id) ? { ...c, date: newDate } : c);
+      setCustomEvs(next);
+      saveCustomEvents(next);
+    } else {
+      const next = { ...dateOverrides, [dragEvent.id]: newDate };
+      setDateOverrides(next);
+      saveDateOverrides(next);
+    }
     setDragEvent(null);
     setDragOverCell(null);
   };
@@ -785,23 +857,54 @@ export default function ComplianceCalendar() {
                         </button>
                       )}
                       {ev.isCustom && (
-                        <>
-                          <button
-                            onClick={() => editCustom(ev.id)}
-                            data-testid={`btn-edit-${ev.id}`}
-                            style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", cursor: "pointer", letterSpacing: ".3px", transition: "all .15s", border: "1px solid var(--b)", background: "transparent", color: "var(--accent)", display: "inline-flex", alignItems: "center", gap: "4px" }}
-                          >
-                            <Pencil style={{ width: 10, height: 10 }} /> {t.edit}
-                          </button>
-                          <button
-                            onClick={() => deleteCustom(ev.id)}
-                            data-testid={`btn-delete-${ev.id}`}
-                            style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", cursor: "pointer", letterSpacing: ".3px", transition: "all .15s", border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.1)", color: "var(--danger)", display: "inline-flex", alignItems: "center", gap: "4px" }}
-                          >
-                            <Trash2 style={{ width: 10, height: 10 }} /> {t.delete}
-                          </button>
-                        </>
+                        <button
+                          onClick={() => editCustom(ev.id)}
+                          data-testid={`btn-edit-${ev.id}`}
+                          style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", cursor: "pointer", letterSpacing: ".3px", transition: "all .15s", border: "1px solid var(--b)", background: "transparent", color: "var(--accent)", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                        >
+                          <Pencil style={{ width: 10, height: 10 }} /> {t.edit}
+                        </button>
                       )}
+                      {datePickerEventId === ev.id ? (
+                        <div style={{ display: "flex", alignItems: "center", gap: "4px", flexWrap: "wrap" }}>
+                          <input
+                            type="date"
+                            value={datePickerValue}
+                            onChange={e => setDatePickerValue(e.target.value)}
+                            data-testid={`date-input-${ev.id}`}
+                            style={{ fontFamily: "var(--font-display)", fontSize: "10px", padding: "3px 6px", borderRadius: "4px", border: "1px solid var(--accent)", background: "var(--surface)", color: "var(--txt)", outline: "none" }}
+                          />
+                          <button
+                            onClick={applyDateOverride}
+                            data-testid={`btn-save-date-${ev.id}`}
+                            style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: "4px 8px", borderRadius: "5px", cursor: "pointer", border: "1px solid rgba(34,197,94,0.3)", background: "rgba(34,197,94,0.1)", color: "var(--grn)", display: "inline-flex", alignItems: "center", gap: "3px" }}
+                          >
+                            <Check style={{ width: 10, height: 10 }} />
+                          </button>
+                          <button
+                            onClick={() => setDatePickerEventId(null)}
+                            data-testid={`btn-cancel-date-${ev.id}`}
+                            style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: "4px 8px", borderRadius: "5px", cursor: "pointer", border: "1px solid var(--b)", background: "transparent", color: "var(--t2)", display: "inline-flex", alignItems: "center", gap: "3px" }}
+                          >
+                            <X style={{ width: 10, height: 10 }} />
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => openDatePicker(ev.id, ev.date)}
+                          data-testid={`btn-change-date-${ev.id}`}
+                          style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", cursor: "pointer", letterSpacing: ".3px", transition: "all .15s", border: "1px solid var(--b)", background: "transparent", color: "var(--accent)", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                        >
+                          <CalendarDays style={{ width: 10, height: 10 }} /> {t.changeDate}
+                        </button>
+                      )}
+                      <button
+                        onClick={() => ev.isCustom ? deleteCustom(ev.id) : dismissEvent(ev.id)}
+                        data-testid={`btn-delete-${ev.id}`}
+                        style={{ fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700, padding: "4px 10px", borderRadius: "5px", cursor: "pointer", letterSpacing: ".3px", transition: "all .15s", border: "1px solid rgba(239,68,68,0.2)", background: "rgba(239,68,68,0.1)", color: "var(--danger)", display: "inline-flex", alignItems: "center", gap: "4px" }}
+                      >
+                        <Trash2 style={{ width: 10, height: 10 }} /> {ev.isCustom ? t.delete : t.removeEvent}
+                      </button>
                     </div>
                   </div>
                 );

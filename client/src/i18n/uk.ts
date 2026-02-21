@@ -291,6 +291,8 @@ export const uk: UITranslations = {
     eventDetails: "Деталі події",
     unmarkFiled: "Зняти позначку подано",
     changeDate: "Змінити дату",
+    removeEvent: "Видалити",
+    confirmRemoveEvent: "Видалити цю подію з вашого календаря?",
     close: "Закрити",
     cancel: "Скасувати",
     saveEvent: "Зберегти подію",

@@ -291,6 +291,8 @@ export const en: UITranslations = {
     eventDetails: "Event Details",
     unmarkFiled: "Unmark filed",
     changeDate: "Change Date",
+    removeEvent: "Remove",
+    confirmRemoveEvent: "Remove this event from your calendar?",
     close: "Close",
     cancel: "Cancel",
     saveEvent: "Save Event",
