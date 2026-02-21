@@ -428,14 +428,15 @@ export default function ComplianceCalendar() {
       {/* View mode switcher */}
       <div
         style={{
-          display: "flex", gap: "4px", marginBottom: "14px",
-          background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "10px",
-          padding: "5px",
+          display: "flex", marginBottom: "14px",
+          background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "8px",
+          overflow: "hidden",
           overflowX: "auto", WebkitOverflowScrolling: "touch",
+          boxShadow: "0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04)",
         }}
         data-testid="view-switcher"
       >
-        {(["month", "week", "list", "category", "timeline"] as ViewMode[]).map(vm => {
+        {(["month", "week", "list", "category", "timeline"] as ViewMode[]).map((vm, idx) => {
           const active = viewMode === vm;
           return (
             <button
@@ -443,16 +444,19 @@ export default function ComplianceCalendar() {
               data-testid={`view-${vm}`}
               onClick={() => setViewMode(vm)}
               style={{
-                flex: "0 0 auto", minWidth: "90px", padding: "7px 10px", borderRadius: "7px",
+                flex: "0 0 auto", minWidth: "80px", padding: "7px 12px",
                 border: "none",
-                background: active ? "var(--accent)" : "transparent",
-                color: active ? "var(--bg)" : "var(--t2)",
-                fontFamily: "var(--font-display)", fontSize: "11px", fontWeight: 700, letterSpacing: ".3px",
+                borderRight: idx < 4 ? "1px solid var(--b)" : "none",
+                background: active ? "var(--accent)" : "none",
+                color: active ? "#fff" : "var(--t2)",
+                fontFamily: "var(--font-display)", fontSize: "10px", fontWeight: 700,
+                letterSpacing: ".3px", textTransform: "uppercase",
                 cursor: "pointer", transition: "all .15s",
                 display: "flex", alignItems: "center", justifyContent: "center", gap: "5px",
+                whiteSpace: "nowrap",
               }}
               onMouseEnter={e => { if (!active) { e.currentTarget.style.background = "var(--b)"; e.currentTarget.style.color = "var(--txt)"; } }}
-              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "var(--t2)"; } }}
+              onMouseLeave={e => { if (!active) { e.currentTarget.style.background = "none"; e.currentTarget.style.color = "var(--t2)"; } }}
             >
               {VIEW_ICONS[vm]} {viewLabels[vm]}
             </button>
