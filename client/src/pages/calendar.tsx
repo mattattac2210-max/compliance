@@ -430,8 +430,8 @@ export default function ComplianceCalendar() {
         style={{
           display: "flex", marginBottom: "14px",
           background: "var(--surface)", border: "1px solid var(--b)", borderRadius: "8px",
-          overflow: "hidden",
-          overflowX: "auto", WebkitOverflowScrolling: "touch",
+          overflowX: "auto", overflowY: "hidden",
+          WebkitOverflowScrolling: "touch",
           boxShadow: "0 1px 3px rgba(0,0,0,0.07), 0 4px 16px rgba(0,0,0,0.04)",
         }}
         data-testid="view-switcher"
