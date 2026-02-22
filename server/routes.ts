@@ -2,7 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertComplianceTermSchema, insertProcessGuideSchema, insertPropertySchema, insertVaultDocumentSchema, insertBanjarContributionSchema, insertRecurringFilingSchema, insertStaffMemberSchema, insertCalendarEventTemplateSchema } from "@shared/schema";
-import { seedComplianceTerms } from "./seed";
+import { seedComplianceTerms, seedAdminUser } from "./seed";
 import { seedVaultTemplates } from "./seed-vault";
 import { seedCalendarEventTemplates } from "./seed-calendar-templates";
 import bcrypt from "bcrypt";
@@ -52,6 +52,7 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
+  await seedAdminUser();
   await seedComplianceTerms();
   await seedVaultTemplates();
   await seedCalendarEventTemplates();

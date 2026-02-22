@@ -1,7 +1,32 @@
 import { db } from "./db";
 import { eq } from "drizzle-orm";
-import { complianceTerms, processNavigationGuides } from "@shared/schema";
+import { complianceTerms, processNavigationGuides, users } from "@shared/schema";
 import { termTranslationsMap, guideTranslationsMap } from "./seed-translations";
+import bcrypt from "bcrypt";
+
+export async function seedAdminUser() {
+  const adminEmail = process.env.ADMIN_EMAIL || "admin@dscvr.app";
+  const adminPassword = process.env.ADMIN_PASSWORD || (process.env.NODE_ENV === "production" ? "" : "Admin2026");
+
+  if (!adminPassword) {
+    console.log("Skipping admin seed: set ADMIN_EMAIL and ADMIN_PASSWORD env vars in production.");
+    return;
+  }
+
+  const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, adminEmail)).limit(1);
+  if (existing.length > 0) {
+    return;
+  }
+  const hashedPassword = await bcrypt.hash(adminPassword, 10);
+  await db.insert(users).values({
+    email: adminEmail,
+    password: hashedPassword,
+    firstName: "Admin",
+    isAdmin: true,
+    isPro: true,
+  });
+  console.log(`Admin user seeded: ${adminEmail}`);
+}
 
 const seedTerms = [
   {
