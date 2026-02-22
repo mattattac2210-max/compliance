@@ -45,7 +45,7 @@ export default function LandingPage() {
         </div>
         <div className="nav-r">
           <Link to="/login"><button className="btn-out" data-testid="button-signin">Sign in</button></Link>
-          <Link to="/register"><button className="btn-red" data-testid="button-get-pro-nav">Get Pro — no lock-in</button></Link>
+          <Link to="/register"><button className="btn-red" data-testid="button-get-pro-nav">Sign up for free</button></Link>
         </div>
       </nav>
 
@@ -57,7 +57,7 @@ export default function LandingPage() {
             <h1 className="h1">Indonesian compliance is<br /><em>genuinely complex.</em><br />We made it manageable.</h1>
             <p className="h-sub">Tax filings across 8+ portals, monthly community obligations, annual safety certificates, OTA platform requirements — all while Indonesia transitions to new digital systems. DSCVR tracks all of it and tells you what to do next.</p>
             <div className="h-btns">
-              <Link to="/register"><button className="btn-hp" data-testid="button-get-pro-hero">Get Pro — no lock-in</button></Link>
+              <Link to="/register"><button className="btn-hp" data-testid="button-get-pro-hero">Sign up for free</button></Link>
               <Link to="/how-it-works"><button className="btn-hs" data-testid="button-how-it-works-hero">See how it works →</button></Link>
             </div>
             <p className="h-fine">Free account always available — gate overview and regulations, forever free. Pro unlocks the full platform: calendar, alerts, vault, tracking. Month-to-month, no lock-in, cancel anytime.</p>
@@ -229,7 +229,7 @@ export default function LandingPage() {
               <h2 className="sh2 w" style={{ marginBottom: "8px" }}>Everything you need.<br />One subscription.</h2>
               <p className="sp w">Month-to-month. No lock-in. Cancel anytime. Here's exactly what Pro gives you.</p>
             </div>
-            <Link to="/register"><button className="btn-hp" style={{ whiteSpace: "nowrap", flexShrink: 0 }} data-testid="button-get-pro-features">Get Pro — no lock-in →</button></Link>
+            <Link to="/register"><button className="btn-hp" style={{ whiteSpace: "nowrap", flexShrink: 0 }} data-testid="button-get-pro-features">Sign up for free →</button></Link>
           </div>
 
           <div className="ftabs">
@@ -442,7 +442,7 @@ export default function LandingPage() {
                 <div className="t-item inc"><CheckGreenSvg /> Regulatory change notifications — auto-updated</div>
               </div>
               <div className="t-cta">
-                <Link to="/register"><button className="t-btn tb" data-testid="button-get-pro-pricing">Get Pro — no lock-in →</button></Link>
+                <Link to="/register"><button className="t-btn tb" data-testid="button-get-pro-pricing">Sign up for free →</button></Link>
                 <div className="t-note">IDR 450,000 per month. Cancel anytime from your account.</div>
               </div>
             </div>
@@ -465,7 +465,7 @@ export default function LandingPage() {
                 <div className="t-item inc"><CheckSvg /> Priority support via WhatsApp</div>
               </div>
               <div className="t-cta">
-                <Link to="/register"><button className="t-btn pb" data-testid="button-get-pro-plus">Get Pro+ — no lock-in</button></Link>
+                <Link to="/register"><button className="t-btn pb" data-testid="button-get-pro-plus">Sign up for free</button></Link>
                 <div className="t-note">IDR 850,000 per month. Cancel anytime from your account.</div>
               </div>
             </div>

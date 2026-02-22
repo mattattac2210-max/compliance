@@ -112,7 +112,7 @@ export default function HowItWorksPage() {
             <button className="btn-out" data-testid="button-sign-in">Sign in</button>
           </Link>
           <Link to="/register">
-            <button className="btn-red" data-testid="button-get-pro">Get Pro &mdash; no lock-in</button>
+            <button className="btn-red" data-testid="button-get-pro">Sign up for free</button>
           </Link>
         </div>
       </nav>
