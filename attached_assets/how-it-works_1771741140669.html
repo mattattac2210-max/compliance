@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How It Works — DSCVR Compliance Navigator</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Serif:ital,wght@0,400;0,700;0,900;1,700&family=IBM+Plex+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F8FA;--white:#fff;--navy:#0F1923;--navy2:#162030;--navy3:#1D2A38;
+  --red:#E8192C;--red2:#C8121F;
+  --txt:#0F1923;--t2:#374151;--t3:#6B7280;--t4:#9CA3AF;--t5:#D1D5DB;
+  --b:rgba(0,0,0,.08);--b2:rgba(0,0,0,.04);
+  --grn:#16A34A;--gold:#D97706;--blue:#2563EB;--purple:#7C3AED;
+  --sh:0 1px 3px rgba(0,0,0,.07),0 4px 16px rgba(0,0,0,.04);
+  --sh2:0 8px 32px rgba(0,0,0,.12);
+  --dk-hi:#FFFFFF;--dk-body:rgba(255,255,255,.72);--dk-sub:rgba(255,255,255,.48);
+  --dk-muted:rgba(255,255,255,.32);--dk-b:rgba(255,255,255,.1);--dk-b2:rgba(255,255,255,.06);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--txt);font-family:'IBM Plex Sans',sans-serif;font-size:15px;line-height:1.6;overflow-x:hidden;}
+
+/* NAV */
+.nav{height:60px;background:var(--white);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;padding:0 40px;position:sticky;top:0;z-index:100;box-shadow:var(--sh);}
+.logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.lm{width:32px;height:32px;background:var(--red);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff;flex-shrink:0;}
+.lt{font-family:'IBM Plex Serif',serif;font-weight:900;font-size:19px;color:var(--navy);}
+.ls{font-size:7px;letter-spacing:3px;color:var(--t4);text-transform:uppercase;margin-top:1px;}
+.nav-links{display:flex;gap:24px;}
+.nav-link{font-size:12px;font-weight:600;color:var(--t3);cursor:pointer;transition:color .15s;text-decoration:none;}
+.nav-link:hover,.nav-link.ac{color:var(--red);}
+.nav-r{display:flex;gap:8px;}
+.btn-out{background:none;border:1px solid var(--b);color:var(--t2);padding:7px 15px;border-radius:7px;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all .15s;}
+.btn-out:hover{border-color:var(--red);color:var(--red);}
+.btn-red{background:var(--red);color:#fff;padding:8px 18px;border-radius:7px;font-size:12px;font-weight:800;cursor:pointer;border:none;font-family:inherit;transition:background .15s;}
+.btn-red:hover{background:var(--red2);}
+
+/* PAGE HEADER */
+.ph{background:var(--navy);padding:56px 40px 48px;}
+.ph-inner{max-width:1060px;margin:0 auto;}
+.ph-breadcrumb{display:flex;align-items:center;gap:8px;margin-bottom:20px;font-size:11px;}
+.ph-breadcrumb a{color:var(--dk-muted);text-decoration:none;transition:color .15s;}
+.ph-breadcrumb a:hover{color:var(--dk-body);}
+.ph-breadcrumb-sep{color:var(--dk-muted);}
+.ph-breadcrumb-current{color:var(--dk-sub);}
+.ph-tag{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:rgba(232,25,44,.8);margin-bottom:10px;}
+.ph-h1{font-family:'IBM Plex Serif',serif;font-weight:900;font-size:38px;color:var(--dk-hi);line-height:1.1;margin-bottom:12px;}
+.ph-sub{font-size:14px;color:var(--dk-body);line-height:1.8;max-width:560px;margin-bottom:28px;}
+/* Step progress bar */
+.ph-progress{display:flex;gap:0;background:rgba(255,255,255,.04);border:1px solid var(--dk-b2);border-radius:8px;overflow:hidden;}
+.ph-step{flex:1;padding:10px 14px;text-align:center;cursor:pointer;border-right:1px solid var(--dk-b2);transition:background .15s;text-decoration:none;}
+.ph-step:last-child{border-right:none;}
+.ph-step:hover{background:rgba(255,255,255,.06);}
+.ph-step.ac{background:rgba(232,25,44,.16);}
+.ph-step-n{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--dk-muted);}
+.ph-step.ac .ph-step-n{color:rgba(232,25,44,.9);}
+.ph-step-l{font-size:10px;font-weight:700;color:var(--dk-muted);margin-top:2px;}
+.ph-step.ac .ph-step-l{color:var(--dk-body);}
+
+/* MAIN LAYOUT */
+.hiw-wrap{max-width:1060px;margin:0 auto;padding:0 40px;}
+.section{padding:56px 0;}
+.section.white{background:var(--white);}
+.section.dark{background:var(--navy);}
+.section.grey{background:var(--bg);}
+
+.ey{font-size:9px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--red);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.ey::before{content:'';width:16px;height:2px;background:var(--red);border-radius:1px;flex-shrink:0;}
+.ey.w{color:rgba(232,25,44,.8);}
+.ey.w::before{background:rgba(232,25,44,.8);}
+.sh2{font-family:'IBM Plex Serif',serif;font-weight:900;font-size:28px;line-height:1.18;color:var(--txt);margin-bottom:10px;}
+.sh2.w{color:var(--dk-hi);}
+.sp{font-size:13.5px;color:var(--t2);line-height:1.85;}
+.sp.w{color:var(--dk-body);}
+
+/* STEP BLOCK */
+.step-block{display:grid;grid-template-columns:68px 1fr;gap:28px;align-items:start;margin-bottom:56px;padding-bottom:56px;border-bottom:1px solid var(--b);}
+.step-block:last-child{border-bottom:none;margin-bottom:0;padding-bottom:0;}
+.step-block.rev{grid-template-columns:1fr 68px;}
+.step-num-col{display:flex;flex-direction:column;align-items:center;gap:0;padding-top:4px;}
+.step-n{font-family:'IBM Plex Mono',monospace;font-size:36px;font-weight:600;line-height:1;color:var(--red);opacity:.25;}
+.step-line{width:1px;background:var(--b);flex:1;min-height:40px;margin-top:8px;}
+.step-content{}
+.step-head{display:flex;align-items:center;gap:12px;margin-bottom:10px;}
+.step-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.step-title{font-family:'IBM Plex Serif',serif;font-weight:900;font-size:22px;color:var(--txt);}
+.step-body{font-size:13px;color:var(--t2);line-height:1.85;margin-bottom:16px;}
+.step-detail{background:var(--white);border:1px solid var(--b);border-radius:10px;overflow:hidden;margin-top:16px;}
+.step-detail.dark{background:var(--navy2);border-color:var(--dk-b);}
+.sd-bar{height:26px;background:rgba(0,0,0,.03);border-bottom:1px solid var(--b);display:flex;align-items:center;gap:5px;padding:0 10px;}
+.sd-bar.dk{background:rgba(255,255,255,.03);border-bottom-color:var(--dk-b2);}
+.sd-dot{width:6px;height:6px;border-radius:50%;}
+.sd-title{font-size:9px;font-weight:700;color:var(--t4);letter-spacing:.5px;margin-left:5px;}
+.sd-title.dk{color:var(--dk-muted);}
+.sd-body{padding:14px;}
+
+/* Bullet list */
+.blist{display:flex;flex-direction:column;gap:7px;}
+.bitem{display:flex;align-items:flex-start;gap:9px;font-size:12.5px;color:var(--t2);line-height:1.55;}
+.bitem svg{flex-shrink:0;color:var(--red);margin-top:1px;}
+.bitem strong{color:var(--txt);}
+
+/* Feature pill row */
+.pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.pill{font-size:10px;font-weight:700;padding:4px 11px;border-radius:20px;}
+
+/* Note box */
+.note{background:rgba(232,25,44,.05);border:1px solid rgba(232,25,44,.14);border-radius:8px;padding:12px 14px;margin-top:12px;}
+.note-txt{font-size:12px;color:var(--t2);line-height:1.65;}
+.note-txt strong{color:var(--txt);}
+
+/* Free/Pro badge */
+.free-badge{display:inline-flex;align-items:center;gap:5px;background:var(--bg);border:1px solid var(--b);color:var(--t3);font-size:9px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:20px;text-transform:uppercase;}
+.pro-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(232,25,44,.08);border:1px solid rgba(232,25,44,.18);color:var(--red);font-size:9px;font-weight:700;letter-spacing:.5px;padding:3px 9px;border-radius:20px;text-transform:uppercase;}
+
+/* Gate map */
+.gate-map{display:flex;flex-direction:column;gap:6px;}
+.gate-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:7px;border:1px solid transparent;}
+.gate-row.free{background:rgba(37,99,235,.04);border-color:rgba(37,99,235,.1);}
+.gate-row.pro-g{background:var(--white);border-color:var(--b);}
+.gate-row.active{background:rgba(232,25,44,.04);border-color:rgba(232,25,44,.14);}
+.gate-badge{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;font-family:'IBM Plex Mono',monospace;flex-shrink:0;}
+.gate-info{flex:1;}
+.gate-name{font-size:12px;font-weight:700;color:var(--txt);}
+.gate-desc{font-size:11px;color:var(--t3);margin-top:1px;}
+.gate-access{font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;flex-shrink:0;}
+
+/* Alert routing diagram */
+.routing-diagram{display:flex;flex-direction:column;gap:8px;}
+.route-row{display:flex;align-items:center;gap:8px;padding:8px 12px;background:var(--white);border:1px solid var(--b);border-radius:8px;}
+.route-from{font-size:11px;font-weight:700;color:var(--txt);flex:1;}
+.route-arrow{color:var(--t4);font-size:10px;}
+.route-to{display:flex;gap:5px;flex-wrap:wrap;}
+.route-chip{font-size:9px;font-weight:700;padding:3px 8px;border-radius:12px;}
+
+/* Vault structure */
+.vault-cats{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.vault-cat{background:var(--bg);border:1px solid var(--b);border-radius:8px;padding:10px 12px;}
+.vc-head{font-size:10px;font-weight:700;color:var(--txt);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.vc-item{font-size:11px;color:var(--t3);padding:3px 0;border-bottom:1px solid var(--b2);display:flex;align-items:center;gap:5px;}
+.vc-item:last-child{border-bottom:none;}
+.vc-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0;}
+
+/* Timeline viz */
+.tl{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:14px;align-items:flex-start;}
+.tl-left{display:flex;flex-direction:column;align-items:center;gap:0;flex-shrink:0;width:20px;}
+.tl-dot{width:12px;height:12px;border-radius:50%;border:2px solid;flex-shrink:0;}
+.tl-conn{width:1px;flex:1;min-height:24px;}
+.tl-body{padding-bottom:20px;flex:1;}
+.tl-label{font-size:11px;font-weight:700;color:var(--txt);margin-bottom:3px;}
+.tl-sub{font-size:11px;color:var(--t3);line-height:1.5;}
+
+/* FAQ */
+.faq-list{display:flex;flex-direction:column;gap:8px;margin-top:24px;}
+.faq-item{background:var(--white);border:1px solid var(--b);border-radius:9px;overflow:hidden;}
+.faq-q{display:flex;align-items:center;gap:10px;padding:13px 16px;cursor:pointer;user-select:none;transition:background .15s;}
+.faq-q:hover{background:var(--bg);}
+.faq-qtxt{font-weight:700;font-size:13px;color:var(--txt);flex:1;}
+.faq-arr{color:var(--t4);transition:transform .2s;flex-shrink:0;}
+.faq-arr.open{transform:rotate(180deg);}
+.faq-a{display:none;padding:0 16px 14px;border-top:1px solid var(--b2);}
+.faq-a.open{display:block;}
+.faq-a p{font-size:13px;color:var(--t2);line-height:1.8;margin-top:11px;}
+
+/* CTA BAND */
+.cta-band{background:var(--red);padding:48px 40px;text-align:center;}
+.cta-h{font-family:'IBM Plex Serif',serif;font-weight:900;font-size:28px;color:#fff;margin-bottom:10px;}
+.cta-sub{font-size:13.5px;color:rgba(255,255,255,.75);margin-bottom:24px;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.7;}
+.cta-btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;}
+.cta-btn-w{background:#fff;color:var(--red);padding:12px 26px;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;border:none;font-family:inherit;transition:all .15s;}
+.cta-btn-w:hover{background:rgba(255,255,255,.9);transform:translateY(-1px);}
+.cta-btn-o{background:rgba(255,255,255,.12);color:#fff;padding:11px 22px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:1px solid rgba(255,255,255,.2);font-family:inherit;transition:all .15s;}
+.cta-btn-o:hover{background:rgba(255,255,255,.2);}
+
+/* Footer */
+.footer{background:var(--navy);padding:28px 40px;text-align:center;}
+.footer-nav{display:flex;justify-content:center;gap:20px;margin-bottom:14px;}
+.footer-link{font-size:11px;color:var(--dk-sub);text-decoration:none;cursor:pointer;transition:color .15s;}
+.footer-link:hover{color:var(--dk-hi);}
+.footer-txt{font-size:10.5px;color:var(--dk-muted);line-height:1.8;max-width:680px;margin:0 auto;}
+.footer-txt a{color:var(--dk-sub);text-decoration:underline;cursor:pointer;}
+
+@media(max-width:860px){
+  .nav-links,.ph-progress,.vault-cats{display:none;}
+  .step-block,.step-block.rev{grid-template-columns:1fr;}
+  .step-num-col{display:none;}
+  .hiw-wrap,.ph,.footer,.section,.cta-band{padding-left:20px;padding-right:20px;}
+  .ph-h1{font-size:26px;}
+  .routing-diagram,.gate-map{gap:6px;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <a class="logo" href="index.html">
+    <div class="lm">D</div>
+    <div><div class="lt">DSCVR</div><div class="ls">Compliance Navigator</div></div>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link ac" href="how-it-works.html">How it works</a>
+    <a class="nav-link" href="index.html#features">Features</a>
+    <a class="nav-link" href="index.html#pricing">Pricing</a>
+  </div>
+  <div class="nav-r">
+    <button class="btn-out">Sign in</button>
+    <button class="btn-red">Get Pro — no lock-in</button>
+  </div>
+</nav>
+
+<!-- PAGE HEADER -->
+<div class="ph">
+  <div class="ph-inner">
+    <div class="ph-breadcrumb">
+      <a href="index.html">DSCVR</a>
+      <span class="ph-breadcrumb-sep">›</span>
+      <span class="ph-breadcrumb-current">How it works</span>
+    </div>
+    <div class="ph-tag">Platform walkthrough</div>
+    <h1 class="ph-h1">From zero to fully compliant.<br>Here's exactly how.</h1>
+    <p class="ph-sub">A step-by-step guide to using DSCVR — from creating your account through to live alerts, document management, and staying ahead of regulatory changes.</p>
+    <div class="ph-progress">
+      <a class="ph-step ac" href="#step1"><div class="ph-step-n">01</div><div class="ph-step-l">Register &amp; set up</div></a>
+      <a class="ph-step" href="#step2"><div class="ph-step-n">02</div><div class="ph-step-l">Map your property</div></a>
+      <a class="ph-step" href="#step3"><div class="ph-step-n">03</div><div class="ph-step-l">See your gates</div></a>
+      <a class="ph-step" href="#step4"><div class="ph-step-n">04</div><div class="ph-step-l">Go Pro</div></a>
+      <a class="ph-step" href="#step5"><div class="ph-step-n">05</div><div class="ph-step-l">Alerts &amp; vault</div></a>
+      <a class="ph-step" href="#step6"><div class="ph-step-n">06</div><div class="ph-step-l">Regulatory intel</div></a>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ STEPS ══════════ -->
+<div class="section white" id="step1">
+  <div class="hiw-wrap">
+
+    <!-- Step 01 -->
+    <div class="step-block">
+      <div class="step-num-col"><div class="step-n">01</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-head">
+          <div class="step-icon" style="background:rgba(37,99,235,.1)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#2563EB" stroke-width="1.5"><circle cx="9" cy="6" r="3"/><path d="M2 16c0-3.87 3.13-7 7-7s7 3.13 7 7"/></svg>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+              <span class="step-title">Register &amp; set up your account</span>
+              <span class="free-badge">Free</span>
+            </div>
+          </div>
+        </div>
+        <p class="step-body">Creating a DSCVR account takes under 2 minutes. Enter your email and password — that's it. No credit card required. Your free account gives you permanent access to the gate overview and regulations hub. You can stay on the free account as long as you like.</p>
+        <div class="blist">
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span>Register with email — no credit card, no trial timer, no expiry</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span>Set your preferred language — English, Indonesian, or Ukrainian</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span>Your free account is permanent — gate overview and regulations hub never lock</span></div>
+        </div>
+        <div class="note">
+          <p class="note-txt"><strong>Free vs Pro:</strong> The free account is designed to help you understand your compliance picture before committing to anything. It shows you the compliance landscape in full — what's required, which gates apply to you, what each term means. Pro unlocks tracking, deadlines, alerts and documents.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 02 -->
+    <div class="step-block" id="step2">
+      <div class="step-num-col"><div class="step-n">02</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-head">
+          <div class="step-icon" style="background:rgba(124,58,237,.1)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#7C3AED" stroke-width="1.5"><rect x="2" y="3" width="14" height="12" rx="2"/><line x1="2" y1="7" x2="16" y2="7"/><line x1="6" y1="3" x2="6" y2="7"/><line x1="12" y1="3" x2="12" y2="7"/></svg>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+              <span class="step-title">Map your property</span>
+              <span class="free-badge">Free</span>
+            </div>
+          </div>
+        </div>
+        <p class="step-body">Tell DSCVR about your property — type, regency, number of staff, OTA listings, and current permit status. This takes about 5 minutes. DSCVR uses this information to determine exactly which compliance obligations apply to you, filtered for your property type and regency.</p>
+        <div class="blist">
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>Property type</strong> — commercial villa, homestay, boutique resort. Affects which licenses apply.</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>Regency</strong> — Badung, Gianyar, Denpasar, or elsewhere. Local taxes and permit requirements differ.</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>Staff count</strong> — determines BPJS thresholds and THR calculation approach</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>OTA listings</strong> — which platforms (Airbnb, Booking.com, etc) triggers OTA verification requirements</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>Current status</strong> — which permits you already hold. DSCVR starts your gate map from where you are now.</span></div>
+        </div>
+
+        <div class="step-detail" style="margin-top:18px;">
+          <div class="sd-bar"><div class="sd-dot" style="background:#FF5F57"></div><div class="sd-dot" style="background:#FFBD2E"></div><div class="sd-dot" style="background:#28CA41"></div><span class="sd-title">PROPERTY PROFILE — Villa Kerti, Badung</span></div>
+          <div class="sd-body">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="background:var(--bg);border:1px solid var(--b);border-radius:7px;padding:10px 12px;">
+                <div style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t4);margin-bottom:5px;">Property</div>
+                <div style="font-size:12px;font-weight:700;color:var(--txt);">Commercial Villa</div>
+                <div style="font-size:11px;color:var(--t3);margin-top:2px;">Badung Regency</div>
+              </div>
+              <div style="background:var(--bg);border:1px solid var(--b);border-radius:7px;padding:10px 12px;">
+                <div style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t4);margin-bottom:5px;">Staff</div>
+                <div style="font-size:12px;font-weight:700;color:var(--txt);">4 employees</div>
+                <div style="font-size:11px;color:var(--t3);margin-top:2px;">BPJS required</div>
+              </div>
+              <div style="background:var(--bg);border:1px solid var(--b);border-radius:7px;padding:10px 12px;">
+                <div style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t4);margin-bottom:5px;">OTA Listings</div>
+                <div style="font-size:12px;font-weight:700;color:var(--txt);">3 platforms</div>
+                <div style="font-size:11px;color:var(--t3);margin-top:2px;">Airbnb · Booking · Agoda</div>
+              </div>
+              <div style="background:rgba(232,25,44,.04);border:1px solid rgba(232,25,44,.12);border-radius:7px;padding:10px 12px;">
+                <div style="font-size:9px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t4);margin-bottom:5px;">Compliance events/yr</div>
+                <div style="font-size:12px;font-weight:700;color:var(--red);">127</div>
+                <div style="font-size:11px;color:var(--t3);margin-top:2px;">Tracked by DSCVR</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 03 -->
+    <div class="step-block" id="step3">
+      <div class="step-num-col"><div class="step-n">03</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-head">
+          <div class="step-icon" style="background:rgba(22,163,74,.1)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#16A34A" stroke-width="1.5"><path d="M3 9l4 4 8-8"/><circle cx="9" cy="9" r="7.5"/></svg>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+              <span class="step-title">See your compliance gates</span>
+              <span class="free-badge">Free</span>
+            </div>
+          </div>
+        </div>
+        <p class="step-body">DSCVR maps your entire compliance journey into 8 sequential gates — from entity registration through to OTA platform verification. The free account shows you the full gate structure: what each gate requires, where you currently sit, and what's blocking you. Progress tracking and detailed blocking-item analysis require Pro.</p>
+
+        <div class="gate-map" style="margin-top:16px;">
+          <div class="gate-row free">
+            <div class="gate-badge" style="background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.3);color:#16A34A;border:1.5px solid;">G0</div>
+            <div class="gate-info"><div class="gate-name">Foundation</div><div class="gate-desc">NPWP, PT or CV entity, bank account structure</div></div>
+            <span class="gate-access" style="background:rgba(37,99,235,.08);color:var(--blue);">Free view</span>
+          </div>
+          <div class="gate-row free">
+            <div class="gate-badge" style="background:rgba(22,163,74,.12);border-color:rgba(22,163,74,.3);color:#16A34A;border:1.5px solid;">G1</div>
+            <div class="gate-info"><div class="gate-name">Zoning &amp; Land</div><div class="gate-desc">RTRW zoning check, Sertifikat Hak Sewa, IMB/PBG</div></div>
+            <span class="gate-access" style="background:rgba(37,99,235,.08);color:var(--blue);">Free view</span>
+          </div>
+          <div class="gate-row free">
+            <div class="gate-badge" style="background:rgba(217,119,6,.12);border-color:rgba(217,119,6,.3);color:var(--gold);border:1.5px solid;">G2</div>
+            <div class="gate-info"><div class="gate-name">NIB &amp; OSS Registration</div><div class="gate-desc">NIB via OSS, KBLI classification, NIB verification (Mar 2026 deadline)</div></div>
+            <span class="gate-access" style="background:rgba(37,99,235,.08);color:var(--blue);">Free view</span>
+          </div>
+          <div class="gate-row pro-g">
+            <div class="gate-badge" style="background:rgba(124,58,237,.1);border-color:rgba(124,58,237,.25);color:var(--purple);border:1.5px solid;">G3</div>
+            <div class="gate-info"><div class="gate-name">Building &amp; SLF</div><div class="gate-desc">PBG building permit, SLF operational certificate, construction compliance</div></div>
+            <span class="gate-access" style="background:rgba(232,25,44,.07);color:var(--red);">Pro tracking</span>
+          </div>
+          <div class="gate-row pro-g">
+            <div class="gate-badge" style="background:rgba(217,119,6,.1);border-color:rgba(217,119,6,.22);color:var(--gold);border:1.5px solid;">G4</div>
+            <div class="gate-info"><div class="gate-name">Tax &amp; LKPM</div><div class="gate-desc">CoreTax registration, PB1 hotel tax, monthly filing schedule, LKPM quarterly</div></div>
+            <span class="gate-access" style="background:rgba(232,25,44,.07);color:var(--red);">Pro tracking</span>
+          </div>
+          <div class="gate-row pro-g">
+            <div class="gate-badge" style="background:rgba(22,163,74,.1);border-color:rgba(22,163,74,.22);color:var(--grn);border:1.5px solid;">G5</div>
+            <div class="gate-info"><div class="gate-name">Staff &amp; BPJS</div><div class="gate-desc">BPJS Kesehatan, BPJamsostek, payroll, THR obligations</div></div>
+            <span class="gate-access" style="background:rgba(232,25,44,.07);color:var(--red);">Pro tracking</span>
+          </div>
+          <div class="gate-row pro-g">
+            <div class="gate-badge" style="background:rgba(232,25,44,.1);border-color:rgba(232,25,44,.22);color:var(--red);border:1.5px solid;">G6</div>
+            <div class="gate-info"><div class="gate-name">Safety Certificates</div><div class="gate-desc">DAMKAR fire safety, monthly APAR, pool, electrical, water quality</div></div>
+            <span class="gate-access" style="background:rgba(232,25,44,.07);color:var(--red);">Pro tracking</span>
+          </div>
+          <div class="gate-row" style="background:rgba(37,99,235,.05);border-color:rgba(37,99,235,.14);">
+            <div class="gate-badge" style="background:rgba(37,99,235,.12);border-color:rgba(37,99,235,.3);color:var(--blue);border:1.5px solid;">G7</div>
+            <div class="gate-info"><div class="gate-name">OTA Verified</div><div class="gate-desc">Airbnb, Booking.com, Agoda, Vrbo — all require NIB + permit confirmation</div></div>
+            <span class="gate-access" style="background:rgba(37,99,235,.08);color:var(--blue);">Goal state</span>
+          </div>
+        </div>
+
+        <div class="note" style="margin-top:14px;">
+          <p class="note-txt"><strong>Free account shows:</strong> all gate names, what each requires, your current status. <strong>Pro unlocks:</strong> progress percentages, blocking item detail, vault integration that auto-updates gate completion when documents are uploaded.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 04 -->
+    <div class="step-block" id="step4">
+      <div class="step-num-col"><div class="step-n">04</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-head">
+          <div class="step-icon" style="background:rgba(232,25,44,.1)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#E8192C" stroke-width="1.5"><path d="M9 2L11.5 7H16.5L12.5 10.5L14 16L9 12.5L4 16L5.5 10.5L1.5 7H6.5L9 2Z"/></svg>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+              <span class="step-title">Upgrade to Pro</span>
+              <span class="pro-badge">Pro</span>
+            </div>
+          </div>
+        </div>
+        <p class="step-body">When you're ready to move from seeing your compliance picture to actively managing it, upgrade to Pro. No lock-in: you pay month-to-month and can cancel anytime from your account settings. Your data — property, vault, calendar — stays exactly as you left it if you ever pause and restart.</p>
+        <div class="blist">
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>IDR 450,000/month</strong> for a single property. No setup fees, no annual commitment.</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>IDR 850,000/month</strong> for Pro+ — up to 10 properties, unlimited staff, cross-property dashboard.</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span>Cancel anytime from Account Settings. No cancellation fees, no retention calls.</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span>Your compliance calendar pre-populates immediately — 120+ events loaded on upgrade.</span></div>
+        </div>
+        <div class="pill-row">
+          <div class="pill" style="background:rgba(22,163,74,.08);color:#14532D;border:1px solid rgba(22,163,74,.18);">✓ Calendar unlocked</div>
+          <div class="pill" style="background:rgba(22,163,74,.08);color:#14532D;border:1px solid rgba(22,163,74,.18);">✓ Alerts active</div>
+          <div class="pill" style="background:rgba(22,163,74,.08);color:#14532D;border:1px solid rgba(22,163,74,.18);">✓ Vault enabled</div>
+          <div class="pill" style="background:rgba(22,163,74,.08);color:#14532D;border:1px solid rgba(22,163,74,.18);">✓ Gate tracking live</div>
+          <div class="pill" style="background:rgba(22,163,74,.08);color:#14532D;border:1px solid rgba(22,163,74,.18);">✓ Staff routing</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 05 -->
+    <div class="step-block" id="step5">
+      <div class="step-num-col"><div class="step-n">05</div><div class="step-line"></div></div>
+      <div class="step-content">
+        <div class="step-head">
+          <div class="step-icon" style="background:rgba(217,119,6,.1)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#D97706" stroke-width="1.5"><path d="M9 2C6.24 2 4 4.24 4 7c0 3.5 5 9 5 9s5-5.5 5-9c0-2.76-2.24-5-5-5z"/><circle cx="9" cy="7" r="1.5"/></svg>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+              <span class="step-title">Set up alerts &amp; your document vault</span>
+              <span class="pro-badge">Pro</span>
+            </div>
+          </div>
+        </div>
+        <p class="step-body">After upgrading, spend 10 minutes on the two most impactful setup steps: configuring who gets which alerts, and uploading any documents you already have. Both will immediately change how well your compliance is covered.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t4);margin-bottom:10px;">Alert routing — assign by obligation type</div>
+            <div class="routing-diagram">
+              <div class="route-row"><div class="route-from">Tax filings (PB1, PPh, SPT)</div><div class="route-arrow">→</div><div class="route-to"><span class="route-chip" style="background:rgba(217,119,6,.1);color:#92400E;border:1px solid rgba(217,119,6,.2);">Accountant</span></div></div>
+              <div class="route-row"><div class="route-from">APAR &amp; fire checks</div><div class="route-arrow">→</div><div class="route-to"><span class="route-chip" style="background:rgba(22,163,74,.1);color:#14532D;border:1px solid rgba(22,163,74,.2);">Caretaker</span></div></div>
+              <div class="route-row"><div class="route-from">BPJS contributions</div><div class="route-arrow">→</div><div class="route-to"><span class="route-chip" style="background:rgba(22,163,74,.1);color:#14532D;border:1px solid rgba(22,163,74,.2);">Manager</span><span class="route-chip" style="background:rgba(217,119,6,.1);color:#92400E;border:1px solid rgba(217,119,6,.2);">Accountant</span></div></div>
+              <div class="route-row"><div class="route-from">Banjar contributions</div><div class="route-arrow">→</div><div class="route-to"><span class="route-chip" style="background:rgba(124,58,237,.1);color:#4C1D95;border:1px solid rgba(124,58,237,.2);">Villa Manager</span></div></div>
+              <div class="route-row"><div class="route-from">All overdue items</div><div class="route-arrow">→</div><div class="route-to"><span class="route-chip" style="background:rgba(232,25,44,.1);color:#991B1B;border:1px solid rgba(232,25,44,.2);">Owner</span></div></div>
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:var(--t3);line-height:1.55;">Staff receive alerts via app, email, or WhatsApp/SMS — no app install required for WhatsApp. They confirm completion on their phone, optionally uploading a receipt photo.</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--t4);margin-bottom:10px;">Vault — upload what you already have</div>
+            <div class="vault-cats">
+              <div class="vault-cat">
+                <div class="vc-head"><span style="color:var(--red);">●</span> Safety</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--red);"></div>DAMKAR cert</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--red);"></div>APAR logbook</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--red);"></div>Electrical cert</div>
+              </div>
+              <div class="vault-cat">
+                <div class="vc-head"><span style="color:var(--gold);">●</span> Tax</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--gold);"></div>PB1 receipts</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--gold);"></div>CoreTax filings</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--gold);"></div>SPT confirmation</div>
+              </div>
+              <div class="vault-cat">
+                <div class="vc-head"><span style="color:var(--grn);">●</span> Permits</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--grn);"></div>NIB certificate</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--grn);"></div>SLF certificate</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--grn);"></div>IMB/PBG copy</div>
+              </div>
+              <div class="vault-cat">
+                <div class="vc-head"><span style="color:var(--blue);">●</span> BPJS</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--blue);"></div>Monthly receipts</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--blue);"></div>Enrollment certs</div>
+                <div class="vc-item"><div class="vc-dot" style="background:var(--blue);"></div>Staff records</div>
+              </div>
+            </div>
+            <div style="margin-top:10px;font-size:11px;color:var(--t3);line-height:1.55;">Each upload is linked to its gate and compliance event. Missing documents show as gaps. When Satpol PP visits, everything is on your phone in one place.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 06 -->
+    <div class="step-block" id="step6">
+      <div class="step-num-col"><div class="step-n">06</div></div>
+      <div class="step-content">
+        <div class="step-head">
+          <div class="step-icon" style="background:rgba(232,25,44,.1)">
+            <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="#E8192C" stroke-width="1.5"><path d="M9 1.5L16 5.5v5c0 4.5-3.5 7-7 7.5C5.5 17.5 2 15 2 10.5v-5L9 1.5z"/></svg>
+          </div>
+          <div>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+              <span class="step-title">Stay ahead — regulatory intelligence</span>
+              <span class="pro-badge">Pro</span>
+            </div>
+          </div>
+        </div>
+        <p class="step-body">Indonesia's regulatory environment is actively changing. CoreTax replaced eFiling in 2025. OSS NIB verification requirements have evolved. OTA platform requirements shifted ahead of the March 2026 deadline. DSCVR monitors government portals and regulatory sources, and notifies you when anything that affects your property changes — before the deadline hits.</p>
+        <div class="blist">
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>Government portal monitoring</strong> — OSS, CoreTax, eDabu, e-Palapa and more watched daily</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>Region-filtered alerts</strong> — Badung notices go to Badung operators only. No noise from irrelevant regencies.</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>Calendar auto-adjusts</strong> — when a deadline moves, your compliance calendar shifts automatically</span></div>
+          <div class="bitem"><svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="2,6 4.5,8.5 10,3"/></svg> <span><strong>In-plain-English summaries</strong> — what changed, what it means for you, what you need to do</span></div>
+        </div>
+
+        <div class="tl" style="margin-top:18px;">
+          <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot" style="border-color:var(--red);background:rgba(232,25,44,.12);"></div><div class="tl-conn" style="background:var(--b);"></div></div>
+            <div class="tl-body"><div class="tl-label">Change detected — CoreTax maintenance scheduled</div><div class="tl-sub">System detects announcement on DJP portal. Affects PPh 21 and PPh 25 filing window for March 5–6.</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot" style="border-color:var(--gold);background:rgba(217,119,6,.12);"></div><div class="tl-conn" style="background:var(--b);"></div></div>
+            <div class="tl-body"><div class="tl-label">Admin reviews and approves</div><div class="tl-sub">DSCVR team verifies the change, drafts plain-English notification, determines affected operators.</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot" style="border-color:var(--blue);background:rgba(37,99,235,.12);"></div><div class="tl-conn" style="background:var(--b);"></div></div>
+            <div class="tl-body"><div class="tl-label">You receive a notification</div><div class="tl-sub">In-app alert (and email if enabled): "CoreTax maintenance March 5–6 — your PPh deadlines have been adjusted."</div></div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-left"><div class="tl-dot" style="border-color:var(--grn);background:rgba(22,163,74,.12);"></div></div>
+            <div class="tl-body"><div class="tl-label">Calendar adjusts automatically</div><div class="tl-sub">Your PPh 21 deadline shifts to March 7. Your accountant's alert updates. No action required from you.</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div><!-- /wrap -->
+</div>
+
+<!-- ══════════ FAQ ══════════ -->
+<div class="section grey">
+  <div style="max-width:720px;margin:0 auto;padding:0 40px;">
+    <div class="ey">Common questions</div>
+    <h2 class="sh2">Before you start</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="faqTog(this)">
+          <span class="faq-qtxt">Is the free account really free forever — or does it expire?</span>
+          <svg class="faq-arr" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3,5 7,9 11,5"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>Yes, genuinely free forever. The free account gives you the gate overview and regulations hub with no expiry and no payment method required. We don't run free trials that flip to paid — the free tier is a separate, permanent account type.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="faqTog(this)">
+          <span class="faq-qtxt">What happens if I cancel Pro — do I lose my data?</span>
+          <svg class="faq-arr" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3,5 7,9 11,5"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>No. If you cancel Pro, your account reverts to the free tier. Your property profile, gate status, and vault documents remain intact. You lose access to the calendar, alerts, and active tracking — but nothing is deleted. If you resubscribe, everything is exactly as you left it.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="faqTog(this)">
+          <span class="faq-qtxt">My property is in Gianyar, not Badung — does DSCVR still apply?</span>
+          <svg class="faq-arr" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3,5 7,9 11,5"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>Yes. DSCVR covers all regencies in Bali — Badung, Gianyar, Denpasar, Tabanan, Karangasem, and others. Some local tax rates and permit specifics differ by regency (PB1 for example is set locally). When you map your property you specify your regency, and DSCVR applies the correct rates and requirements. Regulatory alerts are also region-filtered.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="faqTog(this)">
+          <span class="faq-qtxt">I have a property manager who handles compliance — is DSCVR still useful?</span>
+          <svg class="faq-arr" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3,5 7,9 11,5"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>Very useful, actually — DSCVR is designed for this scenario. You add your property manager as a staff member and route relevant obligations directly to them via WhatsApp or email. You get confirmation notifications when they mark tasks complete and upload receipts. You maintain oversight without needing to be the one doing the work. This is how most Pro users operate.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="faqTog(this)">
+          <span class="faq-qtxt">DSCVR says I'm missing documents — does that mean I'm non-compliant?</span>
+          <svg class="faq-arr" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3,5 7,9 11,5"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>Not necessarily. DSCVR tracks what you've uploaded to the vault, and flags gaps based on that. You may well have a document that simply hasn't been uploaded yet. The flag means "DSCVR can't verify this" — not that the document doesn't exist. Upload what you have and the flag clears. DSCVR is a tracking platform, not an enforcement authority — it doesn't know about documents that exist outside the vault.</p>
+        </div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="faqTog(this)">
+          <span class="faq-qtxt">Will DSCVR file things or deal with government portals on my behalf?</span>
+          <svg class="faq-arr" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><polyline points="3,5 7,9 11,5"/></svg>
+        </div>
+        <div class="faq-a">
+          <p>No. DSCVR is a compliance information and tracking platform — we tell you what needs to be done, when, how, and on which portal. We don't file on your behalf, access your government accounts, or interact with any portal in your name. All filings are done by you or your accountant, using the portal links and plain-language guides DSCVR provides. We keep the manual burden low — but the actual submission stays with you.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CTA BAND -->
+<div class="cta-band">
+  <h2 class="cta-h">Ready to get on top of it?</h2>
+  <p class="cta-sub">Create your free account in under 2 minutes. See exactly where you stand before committing to anything. No credit card required.</p>
+  <div class="cta-btns">
+    <button class="cta-btn-w">Create free account — no card needed</button>
+    <button class="cta-btn-o" onclick="window.location.href='index.html#pricing'">See pricing →</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div class="footer">
+  <div class="footer-nav">
+    <a class="footer-link" href="how-it-works.html">How it works</a>
+    <a class="footer-link" href="index.html#features">Features</a>
+    <a class="footer-link" href="index.html#pricing">Pricing</a>
+    <a class="footer-link" href="#">Sign in</a>
+  </div>
+  <p class="footer-txt">DSCVR is a compliance information and tracking platform, not a licensed legal or tax advisory service. Information reflects our best understanding of current Indonesian regulations applicable to Bali villa operators and is subject to change. Always verify critical obligations with official sources or a qualified advisor. <a>Full disclaimer →</a></p>
+</div>
+
+<script>
+function faqTog(q){
+  const item=q.closest('.faq-item');
+  const a=item.querySelector('.faq-a');
+  const arr=q.querySelector('.faq-arr');
+  const open=a.classList.contains('open');
+  a.classList.toggle('open',!open);
+  if(arr)arr.classList.toggle('open',!open);
+}
+</script>
+</body>
+</html>

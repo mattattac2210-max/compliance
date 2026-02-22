@@ -24,11 +24,13 @@ import CalendarPage from "@/pages/calendar";
 import DisclaimersPage from "@/pages/disclaimers";
 import GlossaryPage from "@/pages/glossary";
 import WorkflowsPage from "@/pages/workflows";
+import HowItWorksPage from "@/pages/how-it-works";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/how-it-works" component={HowItWorksPage} />
       <Route path="/app">
         <ProtectedRoute>
           <AppShell pageTitle="dashboard" activeNav="compliance">
