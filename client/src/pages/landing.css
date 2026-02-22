@@ -304,11 +304,11 @@
 .lp .ph-step.ac .ph-step-l{color:var(--dk-body);}
 
 /* Floating sticky progress bar */
-.lp .ph-progress-float{
+.ph-progress-float{
   position:fixed;
   top:60px;
   left:0;right:0;
-  z-index:101;
+  z-index:9999;
   display:flex;gap:0;
   background:var(--navy);
   border-bottom:1px solid var(--dk-b);
