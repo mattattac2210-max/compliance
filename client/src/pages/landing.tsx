@@ -14,10 +14,6 @@ const ArrowSvg = ({ open }: { open: boolean }) => (
   <svg className={`ct-arr${open ? " open" : ""}`} width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.6"><polyline points="3,5 7,9 11,5" /></svg>
 );
 
-const DocIconSvg = () => (
-  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,.5)" strokeWidth="1.2"><path d="M3 1.5h4l3 3V11a.5.5 0 0 1-.5.5H3A.5.5 0 0 1 2.5 11V2A.5.5 0 0 1 3 1.5z" /></svg>
-);
-
 const DocIconSvg2 = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="rgba(255,255,255,.55)" strokeWidth="1.2"><path d="M3 1.5h4l3 3V11a.5.5 0 0 1-.5.5H3A.5.5 0 0 1 2.5 11V2A.5.5 0 0 1 3 1.5z" /></svg>
 );
@@ -78,89 +74,6 @@ export default function LandingPage() {
           </div>
         </div>
 
-        {/* UI TEASER STRIP */}
-        <div className="preview-strip">
-          <div className="ps-lbl"><span>Pro features</span> — preview what you unlock</div>
-          <div className="ps-scroll">
-            {/* Calendar */}
-            <div className="pw wide">
-              <div className="pw-bar">
-                <div className="pw-dot" style={{ background: "#FF5F57" }} /><div className="pw-dot" style={{ background: "#FFBD2E" }} /><div className="pw-dot" style={{ background: "#28CA41" }} />
-                <span className="pw-title">Compliance Calendar — Feb 2026</span>
-              </div>
-              <div className="pw-body">
-                <div style={{ display: "flex", gap: "3px", marginBottom: "7px", flexWrap: "wrap" }}>
-                  <span className="cf ac">All</span><span className="cf in">Tax</span><span className="cf in">BPJS</span><span className="cf in">Safety</span><span className="cf in">Banjar</span><span className="cf in">OTA</span>
-                </div>
-                <div className="cal-grid-f">
-                  <div className="cdh">MON</div><div className="cdh">TUE</div><div className="cdh">WED</div><div className="cdh">THU</div><div className="cdh">FRI</div><div className="cdh">SAT</div><div className="cdh">SUN</div>
-                  <div className="cc2 om"><div className="cn2">27</div></div><div className="cc2 om"><div className="cn2">28</div></div><div className="cc2 om"><div className="cn2">29</div></div><div className="cc2 om"><div className="cn2">30</div></div><div className="cc2 om"><div className="cn2">31</div></div>
-                  <div className="cc2"><div className="cn2">1</div><div className="ce2" style={{ background: "rgba(219,39,119,.15)", borderLeftColor: "#DB2777", color: "#F9A8D4" }}>Iuran Banjar</div></div>
-                  <div className="cc2"><div className="cn2">2</div></div>
-                  <div className="cc2"><div className="cn2">3</div></div><div className="cc2"><div className="cn2">4</div></div><div className="cc2"><div className="cn2">5</div></div><div className="cc2"><div className="cn2">6</div></div><div className="cc2"><div className="cn2">7</div></div><div className="cc2"><div className="cn2">8</div></div><div className="cc2"><div className="cn2">9</div></div>
-                  <div className="cc2"><div className="cn2">10</div><div className="ce2" style={{ background: "rgba(22,163,74,.14)", borderLeftColor: "#16A34A", color: "#86EFAC" }}>BPJS Kes.</div><div className="ce2" style={{ background: "rgba(22,163,74,.14)", borderLeftColor: "#16A34A", color: "#86EFAC" }}>BPJS Jam.</div></div>
-                  <div className="cc2"><div className="cn2">11</div></div><div className="cc2"><div className="cn2">12</div></div><div className="cc2"><div className="cn2">13</div></div><div className="cc2"><div className="cn2">14</div></div>
-                  <div className="cc2"><div className="cn2">15</div><div className="ce2" style={{ background: "rgba(217,119,6,.16)", borderLeftColor: "#D97706", color: "#FCD34D" }}>PPh 25</div></div>
-                  <div className="cc2"><div className="cn2">16</div></div><div className="cc2"><div className="cn2">17</div></div><div className="cc2"><div className="cn2">18</div></div><div className="cc2"><div className="cn2">19</div></div>
-                  <div className="cc2 td"><div className="cn2">20</div><div className="ce2" style={{ background: "rgba(217,119,6,.22)", borderLeftColor: "#D97706", color: "#FCD34D" }}>PB1 Tax</div><div className="ce2" style={{ background: "rgba(217,119,6,.22)", borderLeftColor: "#D97706", color: "#FCD34D" }}>PPh 21</div></div>
-                  <div className="cc2"><div className="cn2">21</div></div><div className="cc2"><div className="cn2">22</div></div><div className="cc2"><div className="cn2">23</div></div><div className="cc2"><div className="cn2">24</div></div><div className="cc2"><div className="cn2">25</div></div><div className="cc2"><div className="cn2">26</div></div><div className="cc2"><div className="cn2">27</div></div><div className="cc2"><div className="cn2">28</div></div>
-                  <div className="cc2 om"><div className="cn2">1</div></div><div className="cc2 om"><div className="cn2">2</div></div>
-                </div>
-              </div>
-            </div>
-
-            {/* Alerts */}
-            <div className="pw med">
-              <div className="pw-bar">
-                <div className="pw-dot" style={{ background: "#FF5F57" }} /><div className="pw-dot" style={{ background: "#FFBD2E" }} /><div className="pw-dot" style={{ background: "#28CA41" }} />
-                <span className="pw-title">Alerts — 5 active</span>
-              </div>
-              <div className="pw-body">
-                <div className="ma-lbl">Overdue — 2</div>
-                <div className="ma-item cr"><div className="ma-dot cr" /><div style={{ flex: 1 }}><div className="ma-t">APAR Monthly Check</div><div className="ma-s">18 days overdue — log in SOP Evidence Book</div></div><div className="ma-due">Feb 1</div></div>
-                <div className="ma-item cr"><div className="ma-dot cr" /><div style={{ flex: 1 }}><div className="ma-t">BPJS Kesehatan</div><div className="ma-s">8 days overdue — pay via eDabu</div></div><div className="ma-due">Feb 10</div></div>
-                <div className="ma-lbl">Due today — 2</div>
-                <div className="ma-item wa"><div className="ma-dot wa" /><div style={{ flex: 1 }}><div className="ma-t">PB1 Hotel Tax</div><div className="ma-s">Prior month revenue — file via e-Palapa</div></div><div className="ma-due">Feb 20</div></div>
-                <div className="ma-item wa"><div className="ma-dot wa" /><div style={{ flex: 1 }}><div className="ma-t">PPh 21 Payroll Tax</div><div className="ma-s">Employee income tax — file via CoreTax</div></div><div className="ma-due">Feb 20</div></div>
-                <div className="ma-lbl">This week — 1</div>
-                <div className="ma-item bl"><div className="ma-dot bl" /><div style={{ flex: 1 }}><div className="ma-t">NIB Verified Status Check</div><div className="ma-s">Log into OSS — required for G2</div></div><div className="ma-due">Feb 23</div></div>
-              </div>
-            </div>
-
-            {/* Vault (blurred) */}
-            <div className="pw sm">
-              <div className="pw-bar">
-                <div className="pw-dot" style={{ background: "#FF5F57" }} /><div className="pw-dot" style={{ background: "#FFBD2E" }} /><div className="pw-dot" style={{ background: "#28CA41" }} />
-                <span className="pw-title">Document Vault</span>
-              </div>
-              <div className="pw-body">
-                <div className="mv-item"><div className="mv-ic"><DocIconSvg /></div><div className="mv-name">DAMKAR_cert_2025.pdf</div><span className="mv-tag" style={{ background: "rgba(232,25,44,.18)", color: "#FCA5A5" }}>Safety</span><div className="mv-date">Jan 8</div></div>
-                <div className="mv-item"><div className="mv-ic"><DocIconSvg /></div><div className="mv-name">NIB_OSS_verified.pdf</div><span className="mv-tag" style={{ background: "rgba(22,163,74,.18)", color: "#86EFAC" }}>Docs</span><div className="mv-date">Dec 14</div></div>
-                <div className="mv-item"><div className="mv-ic"><DocIconSvg /></div><div className="mv-name">PB1_Jan2026_receipt.pdf</div><span className="mv-tag" style={{ background: "rgba(217,119,6,.18)", color: "#FCD34D" }}>Tax</span><div className="mv-date">Feb 3</div></div>
-                <div className="mv-item"><div className="mv-ic"><DocIconSvg /></div><div className="mv-name">SLF_certificate.pdf</div><span className="mv-tag" style={{ background: "rgba(124,58,237,.18)", color: "#C4B5FD" }}>Docs</span><div className="mv-date">Nov 22</div></div>
-              </div>
-              <div className="pw-lock"><div className="pw-lock-badge">Pro feature</div><div className="pw-lock-txt">Upload &amp; link certificates to compliance events</div></div>
-            </div>
-
-            {/* Gates teaser */}
-            <div className="pw sm">
-              <div className="pw-bar">
-                <div className="pw-dot" style={{ background: "#FF5F57" }} /><div className="pw-dot" style={{ background: "#FFBD2E" }} /><div className="pw-dot" style={{ background: "#28CA41" }} />
-                <span className="pw-title">Compliance Gates</span>
-              </div>
-              <div className="pw-body">
-                <div className="mg-row"><div className="mg-badge dn">G0</div><div className="mg-name">Foundation</div><div className="mg-pct dn">100%</div></div>
-                <div className="mg-row"><div className="mg-badge dn">G1</div><div className="mg-name">Zoning &amp; Land</div><div className="mg-pct dn">100%</div></div>
-                <div className="mg-row" style={{ background: "rgba(217,119,6,.08)" }}><div className="mg-badge wn">G2</div><div className="mg-name">NIB &amp; OSS</div><div className="mg-pct wn">60%</div></div>
-                <div className="mg-row"><div className="mg-badge lk">G3</div><div className="mg-name">Building &amp; SLF</div><div className="mg-pct lk">—</div></div>
-                <div className="mg-row"><div className="mg-badge lk">G4</div><div className="mg-name">Tax &amp; LKPM</div><div className="mg-pct lk">—</div></div>
-                <div className="mg-row"><div className="mg-badge lk">G5</div><div className="mg-name">Staff &amp; BPJS</div><div className="mg-pct lk">—</div></div>
-                <div className="mg-row"><div className="mg-badge lk">G6</div><div className="mg-name">Safety Certs</div><div className="mg-pct lk">—</div></div>
-                <div className="mg-row" style={{ background: "rgba(37,99,235,.08)" }}><div className="mg-badge" style={{ background: "rgba(37,99,235,.18)", borderColor: "rgba(37,99,235,.4)", color: "#93C5FD" }}>G7</div><div className="mg-name" style={{ color: "#93C5FD" }}>OTA Verified</div><div className="mg-pct" style={{ color: "#93C5FD" }}>Goal</div></div>
-              </div>
-            </div>
-          </div>
-        </div>
       </div>
 
       {/* PROBLEM */}
