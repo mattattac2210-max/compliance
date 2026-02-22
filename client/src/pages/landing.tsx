@@ -229,7 +229,7 @@ export default function LandingPage() {
               <h2 className="sh2 w" style={{ marginBottom: "8px" }}>Everything you need.<br />One subscription.</h2>
               <p className="sp w">Month-to-month. No lock-in. Cancel anytime. Here's exactly what Pro gives you.</p>
             </div>
-            <Link to="/register"><button className="btn-hp" style={{ whiteSpace: "nowrap", flexShrink: 0 }} data-testid="button-get-pro-features">Sign up for free →</button></Link>
+            <Link to="/register"><button className="btn-hp" style={{ whiteSpace: "nowrap", flexShrink: 0 }} data-testid="button-get-pro-features">Stay Updated — no lock-in</button></Link>
           </div>
 
           <div className="ftabs">
