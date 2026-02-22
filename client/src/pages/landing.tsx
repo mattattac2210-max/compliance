@@ -442,7 +442,7 @@ export default function LandingPage() {
                 <div className="t-item inc"><CheckGreenSvg /> Regulatory change notifications — auto-updated</div>
               </div>
               <div className="t-cta">
-                <Link to="/register"><button className="t-btn tb" data-testid="button-get-pro-pricing">Sign up for free →</button></Link>
+                <Link to="/register"><button className="t-btn tb" data-testid="button-get-pro-pricing">Stay Updated — no lock-in →</button></Link>
                 <div className="t-note">IDR 450,000 per month. Cancel anytime from your account.</div>
               </div>
             </div>
@@ -465,7 +465,7 @@ export default function LandingPage() {
                 <div className="t-item inc"><CheckSvg /> Priority support via WhatsApp</div>
               </div>
               <div className="t-cta">
-                <Link to="/register"><button className="t-btn pb" data-testid="button-get-pro-plus">Sign up for free</button></Link>
+                <Link to="/register"><button className="t-btn pb" data-testid="button-get-pro-plus">Stay Updated — no lock-in</button></Link>
                 <div className="t-note">IDR 850,000 per month. Cancel anytime from your account.</div>
               </div>
             </div>
