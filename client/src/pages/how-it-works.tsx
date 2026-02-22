@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "wouter";
 import "./landing.css";
 
@@ -46,9 +46,20 @@ const FAQ_ITEMS = [
   },
 ];
 
+const STEP_COLORS: Record<string, string> = {
+  step1: "#2563EB",
+  step2: "#7C3AED",
+  step3: "#16A34A",
+  step4: "#E8192C",
+  step5: "#D97706",
+  step6: "#E8192C",
+};
+
 export default function HowItWorksPage() {
   const [activeStep, setActiveStep] = useState("step1");
   const [openFaq, setOpenFaq] = useState<Record<number, boolean>>({});
+  const [isFloating, setIsFloating] = useState(false);
+  const phEndRef = useRef<HTMLDivElement>(null);
 
   const toggleFaq = useCallback((idx: number) => {
     setOpenFaq((prev) => ({ ...prev, [idx]: !prev[idx] }));
@@ -64,12 +75,25 @@ export default function HowItWorksPage() {
           }
         }
       },
-      { rootMargin: "-30% 0px -60% 0px", threshold: 0 }
+      { rootMargin: "-80px 0px -60% 0px", threshold: 0 }
     );
     stepIds.forEach((id) => {
       const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const sentinel = phEndRef.current;
+    if (!sentinel) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsFloating(!entry.isIntersecting);
+      },
+      { threshold: 0 }
+    );
+    observer.observe(sentinel);
     return () => observer.disconnect();
   }, []);
 
@@ -110,7 +134,7 @@ export default function HowItWorksPage() {
           <div className="ph-tag">Platform walkthrough</div>
           <h1 className="ph-h1">From zero to fully compliant.<br />Here&rsquo;s exactly how.</h1>
           <p className="ph-sub">A step-by-step guide to using DSCVR &mdash; from creating your account through to live alerts, document management, and staying ahead of regulatory changes.</p>
-          <div className="ph-progress" data-testid="step-progress-bar">
+          <div className="ph-progress" data-testid="step-progress-bar-inline">
             {STEPS.map((s) => (
               <a
                 key={s.id}
@@ -125,6 +149,27 @@ export default function HowItWorksPage() {
             ))}
           </div>
         </div>
+      </div>
+      <div ref={phEndRef} style={{ height: 0 }} />
+
+      {/* FLOATING STEP PROGRESS BAR */}
+      <div
+        className={`ph-progress-float${isFloating ? " visible" : ""}`}
+        style={{ "--step-accent": STEP_COLORS[activeStep] || "#E8192C" } as React.CSSProperties}
+        data-testid="step-progress-bar"
+      >
+        {STEPS.map((s) => (
+          <a
+            key={s.id}
+            className={`ph-step${activeStep === s.id ? " ac" : ""}`}
+            href={`#${s.id}`}
+            onClick={() => setActiveStep(s.id)}
+            data-testid={`step-float-${s.id}`}
+          >
+            <div className="ph-step-n">{s.num}</div>
+            <div className="ph-step-l">{s.label}</div>
+          </a>
+        ))}
       </div>
 
       {/* STEPS */}
