@@ -584,6 +584,23 @@ export async function registerRoutes(
     res.json({ active: true, targetUserId: req.session.supportUserId, targetEmail: targetUser?.email });
   });
 
+  // === Platform health endpoint ===
+  app.get("/api/admin/platform-health", requireAuth, requireAdmin, async (_req, res) => {
+    const uptime = process.uptime();
+    const hours = Math.floor(uptime / 3600);
+    const mins = Math.floor((uptime % 3600) / 60);
+    const mem = process.memoryUsage();
+    res.json({
+      status: "healthy" as const,
+      uptime: `${hours}h ${mins}m`,
+      cpu: undefined,
+      memory: Math.round(mem.rss / 1024 / 1024),
+      memoryMax: Math.round(mem.heapTotal / 1024 / 1024),
+      requestsLastHour: undefined,
+      deploy: undefined,
+    });
+  });
+
   // === Admin access log ===
   app.get("/api/admin/access-log", requireAuth, requireAdmin, async (req, res) => {
     const limit = Math.min(parseInt(req.query.limit as string) || 50, 200);

@@ -18,6 +18,7 @@ import {
   TrendingUp, Filter, Globe, MapPin,
 } from "lucide-react";
 
+// ── Types ──────────────────────────────────────────────────────────────────
 interface AdminUser {
   id: string;
   email: string;
@@ -52,38 +53,40 @@ interface PlatformHealth {
   error?: string;
 }
 
+// ── Intelligence data ──────────────────────────────────────────────────────
 const INTEL_ITEMS = [
   {
     id: "1",
     source: "DJP / CoreTax",
     url: "https://pajak.go.id",
-    title: "CoreTax portal scheduled maintenance \u2014 March 5\u20136",
+    title: "CoreTax portal scheduled maintenance — March 5–6",
     summary: "DJP has announced a 36-hour maintenance window. The filing portal will be offline.",
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
     severity: "medium",
     regions: ["all"],
     gate: 4,
     status: "pending",
-    whatChanged: "Maintenance banner added to CoreTax homepage. Page hash changed from a9f2c1 \u2192 b74d3e. New element: <div class=\"maintenance-notice\"> detecting scheduled downtime 2026-03-05T00:00 to 2026-03-06T12:00 WITA.",
+    // Diff detail
+    whatChanged: "Maintenance banner added to CoreTax homepage. Page hash changed from a9f2c1 → b74d3e. New element: <div class=\"maintenance-notice\"> detecting scheduled downtime 2026-03-05T00:00 to 2026-03-06T12:00 WITA.",
     affected: ["PPh 21 monthly filing (due 10th)", "PPh 25 installment (due 15th)", "PPN monthly return (due 20th)"],
     suggestedActions: [
-      "Push alert to all Pro users with Gate 4 obligations due March 5\u201320",
+      "Push alert to all Pro users with Gate 4 obligations due March 5–20",
       "Advise users to file PPh 21 and PPh 25 before March 4",
-      "Add calendar event: CoreTax offline March 5\u20136",
+      "Add calendar event: CoreTax offline March 5–6",
     ],
   },
   {
     id: "2",
     source: "OSS / BKPM",
     url: "https://oss.go.id",
-    title: "NIB verification checklist updated \u2014 new photo requirement",
+    title: "NIB verification checklist updated — new photo requirement",
     summary: "OSS updated KBLI 55193 verification. New frontage photo requirement detected.",
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 8).toISOString(),
     severity: "high",
     regions: ["Badung", "Gianyar", "Denpasar"],
     gate: 2,
     status: "pending",
-    whatChanged: "OSS KBLI 55193 verification page hash changed from 3c8a12 \u2192 f91b44. New required upload field added: 'Foto tampak depan properti (maks 2MB, format JPG/PNG)'. Previously 6 required documents, now 7.",
+    whatChanged: "OSS KBLI 55193 verification page hash changed from 3c8a12 → f91b44. New required upload field added: 'Foto tampak depan properti (maks 2MB, format JPG/PNG)'. Previously 6 required documents, now 7.",
     affected: ["All operators with pending NIB verification", "New PT PMA applicants in Badung/Gianyar/Denpasar", "Operators updating existing NIB"],
     suggestedActions: [
       "Notify all Pro users in affected regencies with Gate 2 incomplete",
@@ -95,17 +98,17 @@ const INTEL_ITEMS = [
     id: "3",
     source: "Badung Regency",
     url: "https://badungkab.go.id",
-    title: "PB1 hotel tax rate confirmed unchanged \u2014 Q2 2026",
+    title: "PB1 hotel tax rate confirmed unchanged — Q2 2026",
     summary: "Badung Regency website updated with Q2 2026 tax schedule. Rate remains 10%.",
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString(),
     severity: "low",
     regions: ["Badung"],
     gate: 4,
     status: "approved",
-    whatChanged: "Q2 2026 PB1 schedule PDF replaced on Badung e-Gov portal. Hash changed from 2d1f09 \u2192 8a3c77. Content comparison: tax rate unchanged at 10%. Filing deadlines unchanged (20th of following month). No new requirements identified.",
+    whatChanged: "Q2 2026 PB1 schedule PDF replaced on Badung e-Gov portal. Hash changed from 2d1f09 → 8a3c77. Content comparison: tax rate unchanged at 10%. Filing deadlines unchanged (20th of following month). No new requirements identified.",
     affected: ["Villa operators in Badung with PB1 obligations"],
     suggestedActions: [
-      "No urgent action required \u2014 confirmation only",
+      "No urgent action required — confirmation only",
       "Update compliance terms last-verified date for PB1 Badung",
     ],
   },
@@ -113,7 +116,7 @@ const INTEL_ITEMS = [
     id: "4",
     source: "BPJS Kesehatan",
     url: "https://bpjs-kesehatan.go.id",
-    title: "eDabu portal upgrade \u2014 new NPWP authentication flow",
+    title: "eDabu portal upgrade — new NPWP authentication flow",
     summary: "eDabu login redesigned. NPWP-based re-authentication now required.",
     detectedAt: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString(),
     severity: "medium",
@@ -140,6 +143,7 @@ const MONITORED_SITES = [
   { name: "Satpol PP Badung", url: "satpolpp.badungkab.go.id", status: "unknown", lastCheck: "1d ago", gate: 6, changeId: null },
 ];
 
+// ── Helpers ────────────────────────────────────────────────────────────────
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
@@ -157,6 +161,7 @@ function fmtDate(iso: string | null, short = false) {
     : { day: "numeric", month: "short", year: "numeric" });
 }
 
+// ── Chart colours ──────────────────────────────────────────────────────────
 const C = {
   accent: "#E8192C",
   pro: "#D97706",
@@ -166,6 +171,7 @@ const C = {
   t3: "#64748B",
 };
 
+// ── Shared UI ──────────────────────────────────────────────────────────────
 function KPI({ label, value, sub, icon, color = C.accent, trend, large }: {
   label: string; value: string | number; sub?: string;
   icon: React.ReactNode; color?: string;
@@ -176,7 +182,7 @@ function KPI({ label, value, sub, icon, color = C.accent, trend, large }: {
       background: "var(--surface)", border: "1px solid var(--b)",
       borderRadius: 12, padding: "18px 20px",
       display: "flex", flexDirection: "column", gap: 10,
-    }} data-testid={`kpi-${label.toLowerCase().replace(/\s+/g, "-")}`}>
+    }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)" }}>{label}</span>
         <div style={{ width: 30, height: 30, borderRadius: 8, background: `${color}18`, display: "flex", alignItems: "center", justifyContent: "center", color }}>
@@ -236,6 +242,7 @@ const CHART_TOOLTIP_STYLE = {
   color: "var(--txt)",
 };
 
+// ── Overview Tab ───────────────────────────────────────────────────────────
 function OverviewTab({ users }: { users: AdminUser[] }) {
   const total = users.length;
   const pro = users.filter(u => u.isPro).length;
@@ -244,9 +251,11 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
   const withProp = users.filter(u => u.propertyCount > 0).length;
   const convRate = total > 0 ? Math.round((pro / total) * 100) : 0;
 
+  // Build daily signup data from real user createdAt timestamps
   const signupByDay = useMemo(() => {
     const map = new Map<string, { date: string; signups: number; proTotal: number }>();
     const now = new Date();
+    // initialise last 30 days
     for (let i = 29; i >= 0; i--) {
       const d = new Date(now);
       d.setDate(d.getDate() - i);
@@ -265,6 +274,7 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
     return Array.from(map.values());
   }, [users]);
 
+  // Running total for cumulative chart
   const cumulativeData = useMemo(() => {
     let totalRun = 0, proRun = 0;
     return signupByDay.map(d => {
@@ -274,11 +284,13 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
     });
   }, [signupByDay]);
 
+  // Plan breakdown for pie
   const planData = [
     { name: "Pro", value: pro, color: C.pro },
     { name: "Free", value: free, color: C.free },
   ];
 
+  // Activity distribution
   const activityData = [
     { name: "Active 7d", value: activeWeek, color: C.green },
     { name: "Active 30d", value: users.filter(u => u.lastLogin && Date.now() - new Date(u.lastLogin).getTime() < 30 * 86400000).length - activeWeek, color: "#60A5FA" },
@@ -290,6 +302,7 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      {/* KPIs */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 12 }}>
         <KPI label="Total Users" value={total} icon={<Users size={15} />} color={C.accent} large />
         <KPI label="Pro Members" value={pro} sub={`${convRate}% conversion rate`} icon={<Crown size={15} />} color={C.pro} trend="up" />
@@ -298,8 +311,9 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
         <KPI label="With Property" value={withProp} sub="completed onboarding" icon={<Building2 size={15} />} color={C.purple} />
       </div>
 
+      {/* Growth chart */}
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, padding: "20px 20px 12px" }}>
-        <SectionHead label="User Growth \u2014 Last 30 Days" />
+        <SectionHead label="User Growth — Last 30 Days" />
         <ResponsiveContainer width="100%" height={180}>
           <AreaChart data={cumulativeData} margin={{ top: 4, right: 4, bottom: 0, left: -20 }}>
             <defs>
@@ -322,6 +336,7 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
         </ResponsiveContainer>
       </div>
 
+      {/* Daily signups + pie charts */}
       <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr 1fr", gap: 16 }}>
         <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, padding: "20px 20px 12px" }}>
           <SectionHead label="Daily Signups" />
@@ -363,6 +378,7 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
         </div>
       </div>
 
+      {/* Recent + At Risk */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, padding: 18 }}>
           <SectionHead label="Recent Signups" />
@@ -387,7 +403,7 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, padding: 18 }}>
-          <SectionHead label="At Risk \u2014 Pro, Inactive 14d+" badge={atRisk.length} />
+          <SectionHead label="At Risk — Pro, Inactive 14d+" badge={atRisk.length} />
           {atRisk.length === 0 ? (
             <div style={{ display: "flex", alignItems: "center", gap: 6, color: C.green, fontSize: 12 }}>
               <CheckCircle size={14} /> All Pro users active recently
@@ -411,6 +427,7 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
   );
 }
 
+// ── Customers Tab ──────────────────────────────────────────────────────────
 function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUserId: string }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "pro" | "free" | "inactive">("all");
@@ -434,6 +451,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
     return true;
   });
 
+  // Onboarding funnel chart
   const funnelData = [
     { stage: "Registered", value: users.length },
     { stage: "Has Property", value: users.filter(u => u.propertyCount > 0).length },
@@ -443,6 +461,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Funnel */}
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, padding: "18px 20px 12px" }}>
         <SectionHead label="Onboarding Funnel" />
         <ResponsiveContainer width="100%" height={130}>
@@ -456,6 +475,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
         </ResponsiveContainer>
       </div>
 
+      {/* Filters + table */}
       <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
         <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
           <Search size={13} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--t3)" }} />
@@ -463,7 +483,6 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by email..."
-            data-testid="input-search-customers"
             style={{
               width: "100%", paddingLeft: 30, paddingRight: 10, paddingTop: 8, paddingBottom: 8,
               background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 8,
@@ -472,7 +491,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
           />
         </div>
         {(["all", "pro", "free", "inactive"] as const).map(f => (
-          <button key={f} onClick={() => setFilter(f)} data-testid={`button-filter-${f}`} style={{
+          <button key={f} onClick={() => setFilter(f)} style={{
             padding: "7px 14px", borderRadius: 8, fontSize: 11, fontWeight: 700, cursor: "pointer",
             border: "1px solid", textTransform: "capitalize",
             borderColor: filter === f ? "var(--accent)" : "var(--b)",
@@ -486,7 +505,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
 
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, overflow: "hidden" }}>
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }} data-testid="table-customers">
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--b)" }}>
                 {["Email", "Plan", "Properties", "Last Login", "Joined", "Actions"].map(h => (
@@ -500,7 +519,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
               {filtered.map(u => {
                 const isInactive = !u.lastLogin || Date.now() - new Date(u.lastLogin).getTime() > 7 * 86400000;
                 return (
-                  <tr key={u.id} style={{ borderBottom: "1px solid var(--b)" }} data-testid={`row-customer-${u.id}`}>
+                  <tr key={u.id} style={{ borderBottom: "1px solid var(--b)" }}>
                     <td style={{ padding: "10px 14px", fontWeight: 600, color: "var(--txt)" }}>
                       {u.email}
                       {u.id === currentUserId && <span style={{ fontSize: 9, color: "var(--t3)", marginLeft: 4 }}>(you)</span>}
@@ -512,7 +531,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
                         : <span style={{ background: "var(--b2)", color: "var(--t3)", fontSize: 10, fontWeight: 700, padding: "2px 8px", borderRadius: 4 }}>FREE</span>}
                     </td>
                     <td style={{ padding: "10px 14px", color: u.propertyCount > 0 ? "var(--txt)" : "var(--t4)" }}>
-                      {u.propertyCount > 0 ? u.propertyCount : "\u2014"}
+                      {u.propertyCount > 0 ? u.propertyCount : "—"}
                     </td>
                     <td style={{ padding: "10px 14px" }}>
                       <span style={{ color: isInactive ? "#EF4444" : C.green, fontSize: 11 }}>
@@ -528,7 +547,6 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
                           <button
                             onClick={() => toggleProMutation.mutate({ id: u.id, isPro: !u.isPro })}
                             disabled={toggleProMutation.isPending}
-                            data-testid={`button-toggle-pro-${u.id}`}
                             style={{
                               padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer", border: "1px solid",
                               borderColor: u.isPro ? "rgba(239,68,68,0.3)" : "rgba(217,119,6,0.3)",
@@ -541,7 +559,6 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
                           {u.hasSupportAccess && (
                             <button
                               onClick={() => enterSupportMutation.mutate(u.id)}
-                              data-testid={`button-view-as-${u.id}`}
                               style={{ padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer", border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: C.green }}
                             >
                               View as
@@ -564,6 +581,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
   );
 }
 
+// ── Intelligence Tab ───────────────────────────────────────────────────────
 function IntelligenceTab() {
   const [intel, setIntel] = useState(INTEL_ITEMS);
   const [expanded, setExpanded] = useState<string | null>(null);
@@ -578,15 +596,16 @@ function IntelligenceTab() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      {/* Monitored Sites Grid */}
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, padding: 18 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Radio size={14} style={{ color: "var(--accent)" }} />
-            <SectionHead label={`Government Site Monitor \u2014 ${MONITORED_SITES.filter(s => s.status === "ok").length}/${MONITORED_SITES.length} clear`} />
+            <SectionHead label={`Government Site Monitor — ${MONITORED_SITES.filter(s => s.status === "ok").length}/${MONITORED_SITES.length} clear`} />
           </div>
           <div style={{ display: "flex", gap: 6 }}>
             {(["all", "changed", "ok"] as const).map(f => (
-              <button key={f} onClick={() => setSiteFilter(f)} data-testid={`button-site-filter-${f}`} style={{
+              <button key={f} onClick={() => setSiteFilter(f)} style={{
                 padding: "4px 10px", borderRadius: 6, fontSize: 10, fontWeight: 700, cursor: "pointer",
                 border: "1px solid", textTransform: "capitalize",
                 borderColor: siteFilter === f ? "var(--accent)" : "var(--b)",
@@ -619,7 +638,7 @@ function IntelligenceTab() {
                 <div style={{ fontSize: 10, color: "var(--t3)" }}>Gate {site.gate} · {site.lastCheck}</div>
                 {site.status === "changed" && (
                   <div style={{ fontSize: 10, color: "#D97706", fontWeight: 700, marginTop: 4 }}>
-                    {linkedIntel ? `${linkedIntel.status === "sent" ? "\u2713 Sent" : linkedIntel.status === "approved" ? "\u2713 Approved" : "! Needs review"} \u2014 click to view` : "Change detected"}
+                    {linkedIntel ? `${linkedIntel.status === "sent" ? "✓ Sent" : linkedIntel.status === "approved" ? "✓ Approved" : "! Needs review"} — click to view` : "Change detected"}
                   </div>
                 )}
               </div>
@@ -628,16 +647,18 @@ function IntelligenceTab() {
         </div>
       </div>
 
+      {/* Intelligence Feed */}
       <div>
         <SectionHead label="Regulatory Intelligence Feed" badge={pending} />
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {intel.map(item => {
             const isExpanded = expanded === item.id;
             return (
-              <div key={item.id} data-testid={`intel-item-${item.id}`} style={{
+              <div key={item.id} style={{
                 background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12,
                 overflow: "hidden", opacity: item.status === "dismissed" ? 0.45 : 1,
               }}>
+                {/* Header — always visible */}
                 <div
                   onClick={() => setExpanded(isExpanded ? null : item.id)}
                   style={{ padding: 18, cursor: "pointer" }}
@@ -652,25 +673,27 @@ function IntelligenceTab() {
                       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                         <Globe size={10} style={{ color: "var(--t3)" }} />
                         <span style={{ fontSize: 10, color: "var(--t3)" }}>{item.source}</span>
-                        <span style={{ color: "var(--t4)" }}>\u00b7</span>
+                        <span style={{ color: "var(--t4)" }}>·</span>
                         <span style={{ fontSize: 10, color: "var(--t3)" }}>Gate {item.gate}</span>
-                        <span style={{ color: "var(--t4)" }}>\u00b7</span>
+                        <span style={{ color: "var(--t4)" }}>·</span>
                         <MapPin size={10} style={{ color: "var(--t3)" }} />
                         <span style={{ fontSize: 10, color: "var(--t3)" }}>{item.regions.includes("all") ? "All regions" : item.regions.join(", ")}</span>
-                        <span style={{ color: "var(--t4)" }}>\u00b7</span>
+                        <span style={{ color: "var(--t4)" }}>·</span>
                         <Clock size={10} style={{ color: "var(--t3)" }} />
                         <span style={{ fontSize: 10, color: "var(--t3)" }}>{timeAgo(item.detectedAt)}</span>
                       </div>
                       <p style={{ fontSize: 12, color: "var(--t2)", lineHeight: 1.6, margin: "8px 0 0" }}>{item.summary}</p>
                     </div>
                     <span style={{ fontSize: 11, color: "var(--t3)", flexShrink: 0, marginTop: 2 }}>
-                      {isExpanded ? "\u25b2" : "\u25bc"}
+                      {isExpanded ? "▲" : "▼"}
                     </span>
                   </div>
                 </div>
 
+                {/* Expanded diagnosis */}
                 {isExpanded && (
                   <div style={{ borderTop: "1px solid var(--b)", background: "var(--bg2)" }}>
+                    {/* What Changed */}
                     <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--b)" }}>
                       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", marginBottom: 8 }}>
                         What Changed
@@ -684,6 +707,7 @@ function IntelligenceTab() {
                       </div>
                     </div>
 
+                    {/* What's Affected */}
                     <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--b)" }}>
                       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", marginBottom: 8 }}>
                         What's Affected
@@ -698,6 +722,7 @@ function IntelligenceTab() {
                       </div>
                     </div>
 
+                    {/* Suggested Actions */}
                     <div style={{ padding: "14px 18px", borderBottom: item.status !== "dismissed" ? "1px solid var(--b)" : undefined }}>
                       <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", marginBottom: 8 }}>
                         Suggested Actions
@@ -712,10 +737,11 @@ function IntelligenceTab() {
                       </div>
                     </div>
 
+                    {/* Action Buttons */}
                     {(item.status === "pending" || item.status === "approved") && (
                       <div style={{ padding: "12px 18px", display: "flex", gap: 8, flexWrap: "wrap" }}>
                         {item.status === "pending" && (
-                          <button onClick={() => approve(item.id)} data-testid={`button-approve-${item.id}`} style={{
+                          <button onClick={() => approve(item.id)} style={{
                             padding: "6px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
                             border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: C.green,
                             display: "flex", alignItems: "center", gap: 5,
@@ -723,7 +749,7 @@ function IntelligenceTab() {
                             <Check size={11} /> Approve
                           </button>
                         )}
-                        <button onClick={() => send(item.id)} data-testid={`button-send-${item.id}`} style={{
+                        <button onClick={() => send(item.id)} style={{
                           padding: "6px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
                           border: "1px solid rgba(37,99,235,0.3)", background: "rgba(37,99,235,0.08)", color: "#3B82F6",
                           display: "flex", alignItems: "center", gap: 5,
@@ -731,7 +757,7 @@ function IntelligenceTab() {
                           <Send size={11} /> {item.status === "pending" ? "Approve & Send" : "Send to Users"}
                         </button>
                         {item.status === "pending" && (
-                          <button onClick={() => dismiss(item.id)} data-testid={`button-dismiss-${item.id}`} style={{
+                          <button onClick={() => dismiss(item.id)} style={{
                             padding: "6px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
                             border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
                             display: "flex", alignItems: "center", gap: 5,
@@ -759,6 +785,7 @@ function IntelligenceTab() {
   );
 }
 
+// ── Platform Tab ───────────────────────────────────────────────────────────
 function PlatformTab({ users }: { users: AdminUser[] }) {
   const { data: health } = useQuery<PlatformHealth>({
     queryKey: ["/api/admin/platform-health"],
@@ -769,6 +796,7 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
     queryKey: ["/api/admin/access-log"],
   });
 
+  // Build mock historical data for charts (replace with real Render API data via proxy)
   const cpuHistory = useMemo(() => {
     return Array.from({ length: 24 }, (_, i) => ({
       hour: `${23 - i}h ago`,
@@ -800,35 +828,35 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
     {
       label: "API Service",
       value: health?.status === "healthy" ? "Healthy" : health?.status === "degraded" ? "Degraded" : "Unknown",
-      sub: health?.uptime ? `Uptime: ${health.uptime}` : "Checking...",
+      sub: health?.uptime ? `Uptime: ${health.uptime}` : "Render · Singapore",
       color: health?.status === "healthy" ? C.green : "#D97706",
       icon: <Server size={14} />,
     },
     {
       label: "Database",
       value: "Connected",
-      sub: `${users.length} users \u00b7 PostgreSQL`,
+      sub: `${users.length} users · PostgreSQL 18`,
       color: C.green,
       icon: <Database size={14} />,
     },
     {
       label: "File Storage",
       value: "Local Disk",
-      sub: "\u26a0 Migrate to Supabase Storage",
+      sub: "⚠ Migrate to Supabase Storage",
       color: "#D97706",
       icon: <MemoryStick size={14} />,
     },
     {
       label: "Notifications",
       value: "Not Live",
-      sub: "\u26a0 Alerts UI only \u2014 no delivery yet",
+      sub: "⚠ Alerts UI only — no delivery yet",
       color: "#EF4444",
       icon: <Wifi size={14} />,
     },
     {
       label: "Last Deploy",
-      value: health?.deploy ? new Date(health.deploy.finishedAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" }) : "\u2014",
-      sub: health?.deploy?.status || "Checking...",
+      value: health?.deploy ? new Date(health.deploy.finishedAt).toLocaleDateString("en-AU", { day: "numeric", month: "short" }) : "—",
+      sub: health?.deploy?.status || "Checking Render API...",
       color: C.green,
       icon: <Zap size={14} />,
     },
@@ -836,9 +864,10 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
+      {/* Health cards */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: 12 }}>
         {healthCards.map(card => (
-          <div key={card.label} data-testid={`health-${card.label.toLowerCase().replace(/\s+/g, "-")}`} style={{
+          <div key={card.label} style={{
             background: "var(--surface)", border: `1px solid ${card.color}28`,
             borderRadius: 12, padding: "16px 18px",
           }}>
@@ -854,11 +883,12 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
         ))}
       </div>
 
+      {/* CPU + Memory + Requests charts */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
         <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, padding: "18px 18px 10px" }}>
-          <SectionHead label="CPU & Memory \u2014 24h" />
+          <SectionHead label="CPU & Memory — 24h (from Render API)" />
           <div style={{ fontSize: 10, color: "#D97706", marginBottom: 8 }}>
-            \u26a0 Simulated data \u2014 add RENDER_API_KEY for live metrics
+            ⚠ Add RENDER_API_KEY env var to enable live data
           </div>
           <ResponsiveContainer width="100%" height={150}>
             <LineChart data={cpuHistory} margin={{ top: 0, right: 4, bottom: 0, left: -20 }}>
@@ -873,9 +903,9 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
         </div>
 
         <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, padding: "18px 18px 10px" }}>
-          <SectionHead label="HTTP Requests \u2014 7 Days" />
+          <SectionHead label="HTTP Requests — 7 Days" />
           <div style={{ fontSize: 10, color: "#D97706", marginBottom: 8 }}>
-            \u26a0 Simulated data \u2014 add RENDER_API_KEY for live metrics
+            ⚠ Add RENDER_API_KEY env var to enable live data
           </div>
           <ResponsiveContainer width="100%" height={150}>
             <BarChart data={requestHistory} margin={{ top: 0, right: 4, bottom: 0, left: -20 }}>
@@ -890,6 +920,7 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
         </div>
       </div>
 
+      {/* Access log */}
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, overflow: "hidden" }}>
         <div style={{ padding: "12px 18px", borderBottom: "1px solid var(--b)" }}>
           <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase", color: "var(--t3)" }}>
@@ -900,7 +931,7 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
           <div style={{ padding: 32, textAlign: "center", color: "var(--t3)", fontSize: 12 }}>No actions logged yet</div>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }} data-testid="table-action-log">
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--b)" }}>
                   {["Time", "Admin", "Action", "Target"].map(h => (
@@ -912,7 +943,7 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
               </thead>
               <tbody>
                 {logEntries.slice(0, 30).map(entry => (
-                  <tr key={entry.id} style={{ borderBottom: "1px solid var(--b)" }} data-testid={`row-log-${entry.id}`}>
+                  <tr key={entry.id} style={{ borderBottom: "1px solid var(--b)" }}>
                     <td style={{ padding: "8px 14px", color: "var(--t3)", fontSize: 11, whiteSpace: "nowrap" }}>
                       {new Date(entry.timestamp).toLocaleString("en-AU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                     </td>
@@ -943,6 +974,7 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
   );
 }
 
+// ── Main ───────────────────────────────────────────────────────────────────
 export default function AdminControlRoom() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
@@ -972,6 +1004,7 @@ export default function AdminControlRoom() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--txt)" }}>
+      {/* Top bar */}
       <div style={{
         height: 56, background: "var(--sidebar)", borderBottom: "1px solid rgba(255,255,255,0.07)",
         display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -988,7 +1021,7 @@ export default function AdminControlRoom() {
           <div style={{ width: 1, height: 22, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
           <div style={{ display: "flex", gap: 2, overflow: "auto" }}>
             {TABS.map(t => (
-              <button key={t.key} onClick={() => setTab(t.key)} data-testid={`tab-${t.key}`} style={{
+              <button key={t.key} onClick={() => setTab(t.key)} style={{
                 padding: "5px 12px", borderRadius: 7, fontSize: 11, fontWeight: 700, cursor: "pointer",
                 border: "none", display: "flex", alignItems: "center", gap: 5,
                 background: tab === t.key ? "rgba(255,255,255,0.12)" : "transparent",
@@ -1008,7 +1041,7 @@ export default function AdminControlRoom() {
             ))}
           </div>
         </div>
-        <button onClick={() => navigate("/app")} data-testid="button-back-to-app" style={{
+        <button onClick={() => navigate("/app")} style={{
           padding: "5px 12px", borderRadius: 7, fontSize: 11, fontWeight: 700, cursor: "pointer",
           border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.06)",
           color: "rgba(255,255,255,0.55)", display: "flex", alignItems: "center", gap: 5, flexShrink: 0,
@@ -1017,6 +1050,7 @@ export default function AdminControlRoom() {
         </button>
       </div>
 
+      {/* Content */}
       <div style={{ maxWidth: 1280, margin: "0 auto", padding: "28px 20px" }}>
         {isLoading ? (
           <div style={{ textAlign: "center", padding: 80, color: "var(--t3)", fontSize: 13 }}>Loading...</div>
