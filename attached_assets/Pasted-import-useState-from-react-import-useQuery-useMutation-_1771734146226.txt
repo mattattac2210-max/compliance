@@ -12,6 +12,7 @@ import {
   Newspaper, Check, X, AlertCircle,
 } from "lucide-react";
 
+// ── Types ──────────────────────────────────────────────────────────────────
 interface AdminUser {
   id: string;
   email: string;
@@ -35,6 +36,7 @@ interface LogEntry {
   targetEmail?: string;
 }
 
+// ── Mock regulatory intelligence (replace with real API later) ─────────────
 const MOCK_INTEL = [
   {
     id: "1",
@@ -97,6 +99,7 @@ const MONITORED_SITES = [
   { name: "Satpol PP Portal", url: "satpolpp.badungkab.go.id", status: "unknown", lastCheck: "1 day ago", gate: 6 },
 ];
 
+// ── Helpers ────────────────────────────────────────────────────────────────
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
   const m = Math.floor(diff / 60000);
@@ -111,6 +114,7 @@ function formatDate(iso: string | null) {
   return new Date(iso).toLocaleDateString("en-AU", { day: "numeric", month: "short", year: "numeric" });
 }
 
+// ── Shared UI ──────────────────────────────────────────────────────────────
 function MetricCard({
   label, value, sub, icon, color = "#E8192C", trend,
 }: {
@@ -122,7 +126,7 @@ function MetricCard({
       background: "var(--surface)", border: "1px solid var(--b)",
       borderRadius: 10, padding: "16px 18px",
       display: "flex", flexDirection: "column", gap: 8,
-    }} data-testid={`metric-${label.toLowerCase().replace(/\s+/g, "-")}`}>
+    }}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)" }}>
           {label}
@@ -190,6 +194,7 @@ function StatusBadge({ status }: { status: string }) {
   );
 }
 
+// ── Overview Tab ───────────────────────────────────────────────────────────
 function OverviewTab({ users }: { users: AdminUser[] }) {
   const total = users.length;
   const pro = users.filter(u => u.isPro).length;
@@ -287,6 +292,7 @@ function OverviewTab({ users }: { users: AdminUser[] }) {
   );
 }
 
+// ── Customers Tab ──────────────────────────────────────────────────────────
 function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUserId: string }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<"all" | "pro" | "free" | "inactive">("all");
@@ -322,7 +328,6 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by email..."
-            data-testid="input-search-customers"
             style={{
               width: "100%", paddingLeft: 30, paddingRight: 10, paddingTop: 8, paddingBottom: 8,
               background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 7,
@@ -334,7 +339,6 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
           <button
             key={f}
             onClick={() => setFilter(f)}
-            data-testid={`button-filter-${f}`}
             style={{
               padding: "7px 14px", borderRadius: 7, fontSize: 11, fontWeight: 700,
               cursor: "pointer", border: "1px solid",
@@ -351,7 +355,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
 
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 10, overflow: "hidden" }}>
         <div style={{ overflowX: "auto" }}>
-          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }} data-testid="table-customers">
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
             <thead>
               <tr style={{ borderBottom: "1px solid var(--b)" }}>
                 {["Email", "Plan", "Properties", "Last Login", "Actions"].map(h => (
@@ -365,7 +369,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
               {filtered.map(u => {
                 const isInactive = !u.lastLogin || Date.now() - new Date(u.lastLogin).getTime() > 7 * 24 * 60 * 60 * 1000;
                 return (
-                  <tr key={u.id} style={{ borderBottom: "1px solid var(--b)" }} data-testid={`row-customer-${u.id}`}>
+                  <tr key={u.id} style={{ borderBottom: "1px solid var(--b)" }}>
                     <td style={{ padding: "10px 14px", color: "var(--txt)", fontWeight: 600 }}>
                       {u.email}
                       {u.id === currentUserId && <span style={{ fontSize: 9, color: "var(--t3)", marginLeft: 4 }}>(you)</span>}
@@ -379,7 +383,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
                       )}
                     </td>
                     <td style={{ padding: "10px 14px", color: u.propertyCount > 0 ? "var(--txt)" : "var(--t4)" }}>
-                      {u.propertyCount > 0 ? u.propertyCount : "\u2014"}
+                      {u.propertyCount > 0 ? u.propertyCount : "—"}
                     </td>
                     <td style={{ padding: "10px 14px" }}>
                       <span style={{ color: isInactive ? "var(--danger)" : "var(--grn)", fontSize: 11 }}>
@@ -392,7 +396,6 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
                           <button
                             onClick={() => toggleProMutation.mutate({ id: u.id, isPro: !u.isPro })}
                             disabled={toggleProMutation.isPending}
-                            data-testid={`button-toggle-pro-${u.id}`}
                             style={{
                               padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700,
                               cursor: "pointer", border: "1px solid",
@@ -406,7 +409,6 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
                           {u.hasSupportAccess && (
                             <button
                               onClick={() => enterSupportMutation.mutate(u.id)}
-                              data-testid={`button-view-as-${u.id}`}
                               style={{
                                 padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700,
                                 cursor: "pointer", border: "1px solid rgba(22,163,74,0.3)",
@@ -435,6 +437,7 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
   );
 }
 
+// ── Intelligence Tab ───────────────────────────────────────────────────────
 function IntelligenceTab() {
   const [intel, setIntel] = useState(MOCK_INTEL);
   const [siteFilter, setSiteFilter] = useState<"all" | "changed" | "ok">("all");
@@ -451,6 +454,7 @@ function IntelligenceTab() {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      {/* Monitored Sites */}
       <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 10, padding: 16 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14, flexWrap: "wrap", gap: 8 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
@@ -464,7 +468,7 @@ function IntelligenceTab() {
           </div>
           <div style={{ display: "flex", gap: 6 }}>
             {(["all", "changed", "ok"] as const).map(f => (
-              <button key={f} onClick={() => setSiteFilter(f)} data-testid={`button-site-filter-${f}`} style={{
+              <button key={f} onClick={() => setSiteFilter(f)} style={{
                 padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
                 border: "1px solid", borderColor: siteFilter === f ? "var(--accent)" : "var(--b)",
                 background: siteFilter === f ? "var(--accent)" : "transparent",
@@ -503,6 +507,7 @@ function IntelligenceTab() {
         </div>
       </div>
 
+      {/* Intelligence Feed */}
       <div>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
           <Newspaper size={14} style={{ color: "var(--accent)" }} />
@@ -520,7 +525,7 @@ function IntelligenceTab() {
             <div key={item.id} style={{
               background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 10, padding: 16,
               opacity: item.status === "dismissed" ? 0.45 : 1,
-            }} data-testid={`intel-item-${item.id}`}>
+            }}>
               <div style={{ display: "flex", alignItems: "flex-start", gap: 12, marginBottom: 8 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4, flexWrap: "wrap" }}>
@@ -545,7 +550,7 @@ function IntelligenceTab() {
               {(item.status === "pending" || item.status === "approved") && (
                 <div style={{ display: "flex", gap: 8, paddingTop: 10, borderTop: "1px solid var(--b)", marginTop: 8, flexWrap: "wrap" }}>
                   {item.status === "pending" && (
-                    <button onClick={() => handleApprove(item.id)} data-testid={`button-approve-${item.id}`} style={{
+                    <button onClick={() => handleApprove(item.id)} style={{
                       padding: "5px 14px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
                       border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: "#16A34A",
                       display: "flex", alignItems: "center", gap: 5,
@@ -553,7 +558,7 @@ function IntelligenceTab() {
                       <Check size={11} /> Approve
                     </button>
                   )}
-                  <button onClick={() => handleSend(item.id)} data-testid={`button-send-${item.id}`} style={{
+                  <button onClick={() => handleSend(item.id)} style={{
                     padding: "5px 14px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
                     border: "1px solid rgba(37,99,235,0.3)", background: "rgba(37,99,235,0.08)", color: "#3B82F6",
                     display: "flex", alignItems: "center", gap: 5,
@@ -561,7 +566,7 @@ function IntelligenceTab() {
                     <Send size={11} /> Send to Users
                   </button>
                   {item.status === "pending" && (
-                    <button onClick={() => handleDismiss(item.id)} data-testid={`button-dismiss-${item.id}`} style={{
+                    <button onClick={() => handleDismiss(item.id)} style={{
                       padding: "5px 14px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
                       border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
                       display: "flex", alignItems: "center", gap: 5,
@@ -579,6 +584,7 @@ function IntelligenceTab() {
   );
 }
 
+// ── Platform Tab ───────────────────────────────────────────────────────────
 function PlatformTab({ users }: { users: AdminUser[] }) {
   const { data: logEntries = [] } = useQuery<LogEntry[]>({
     queryKey: ["/api/admin/access-log"],
@@ -606,7 +612,7 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
             background: "var(--surface)",
             border: `1px solid ${item.color}30`,
             borderRadius: 10, padding: 16,
-          }} data-testid={`health-${item.label.toLowerCase()}`}>
+          }}>
             <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
               <div style={{ width: 8, height: 8, borderRadius: "50%", background: item.color }} />
               <span style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)" }}>
@@ -629,7 +635,7 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
           <div style={{ padding: 32, textAlign: "center", color: "var(--t3)", fontSize: 12 }}>No actions logged yet</div>
         ) : (
           <div style={{ overflowX: "auto" }}>
-            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }} data-testid="table-action-log">
+            <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }}>
               <thead>
                 <tr style={{ borderBottom: "1px solid var(--b)" }}>
                   {["Time", "Admin", "Action", "Target"].map(h => (
@@ -641,7 +647,7 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
               </thead>
               <tbody>
                 {logEntries.slice(0, 30).map(entry => (
-                  <tr key={entry.id} style={{ borderBottom: "1px solid var(--b)" }} data-testid={`row-log-${entry.id}`}>
+                  <tr key={entry.id} style={{ borderBottom: "1px solid var(--b)" }}>
                     <td style={{ padding: "8px 14px", color: "var(--t3)", fontSize: 11, whiteSpace: "nowrap" }}>
                       {new Date(entry.timestamp).toLocaleString("en-AU", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" })}
                     </td>
@@ -672,6 +678,7 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
   );
 }
 
+// ── Main Component ─────────────────────────────────────────────────────────
 export default function AdminControlRoom() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
@@ -704,6 +711,7 @@ export default function AdminControlRoom() {
 
   return (
     <div style={{ minHeight: "100vh", background: "var(--bg)", color: "var(--txt)" }}>
+      {/* Top Bar */}
       <div style={{
         height: 54, background: "var(--sidebar)",
         borderBottom: "1px solid rgba(255,255,255,0.07)",
@@ -712,6 +720,7 @@ export default function AdminControlRoom() {
         gap: 12,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14, minWidth: 0 }}>
+          {/* Logo */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
             <div style={{
               width: 28, height: 28, background: "var(--accent)", borderRadius: 7,
@@ -728,28 +737,27 @@ export default function AdminControlRoom() {
 
           <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.1)", flexShrink: 0 }} />
 
+          {/* Tabs */}
           <div style={{ display: "flex", gap: 2, overflow: "auto" }}>
             {tabs.map(t => (
               <button
                 key={t.key}
                 onClick={() => setTab(t.key)}
-                data-testid={`tab-${t.key}`}
                 style={{
-                  display: "flex", alignItems: "center", gap: 6,
-                  padding: "8px 14px", borderRadius: 7, fontSize: 12, fontWeight: 700,
-                  cursor: "pointer", border: "none", whiteSpace: "nowrap",
+                  padding: "5px 12px", borderRadius: 6, fontSize: 11, fontWeight: 700,
+                  cursor: "pointer", border: "none", display: "flex", alignItems: "center", gap: 5,
                   background: tab === t.key ? "rgba(255,255,255,0.1)" : "transparent",
                   color: tab === t.key ? "#fff" : "rgba(255,255,255,0.45)",
-                  transition: "all 0.15s",
+                  transition: "all 0.15s", whiteSpace: "nowrap", flexShrink: 0,
                 }}
               >
                 {t.icon}
-                <span style={{ display: "inline" }}>{t.label}</span>
-                {t.badge !== undefined && t.badge > 0 && (
+                {t.label}
+                {"badge" in t && t.badge !== undefined && t.badge > 0 && (
                   <span style={{
-                    background: t.key === "intelligence" ? "rgba(239,68,68,0.2)" : "rgba(255,255,255,0.12)",
-                    color: t.key === "intelligence" ? "#EF4444" : "rgba(255,255,255,0.6)",
-                    fontSize: 9, fontWeight: 800, padding: "1px 6px", borderRadius: 4, minWidth: 16, textAlign: "center",
+                    background: t.key === "intelligence" ? "var(--accent)" : "rgba(255,255,255,0.2)",
+                    color: "#fff", fontSize: 9, fontWeight: 800,
+                    padding: "1px 5px", borderRadius: 10, minWidth: 16, textAlign: "center",
                   }}>
                     {t.badge}
                   </span>
@@ -759,27 +767,33 @@ export default function AdminControlRoom() {
           </div>
         </div>
 
-        <button
-          onClick={() => navigate("/app")}
-          data-testid="button-back-to-app"
-          style={{
-            padding: "6px 14px", borderRadius: 6, fontSize: 11, fontWeight: 700,
-            cursor: "pointer", border: "1px solid rgba(255,255,255,0.12)",
-            background: "transparent", color: "rgba(255,255,255,0.5)",
-            whiteSpace: "nowrap", flexShrink: 0,
-          }}
-        >
-          Back to App
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: 10, flexShrink: 0 }}>
+          <span style={{ fontSize: 11, color: "rgba(255,255,255,0.35)", display: "none" /* hide on mobile */ }}>
+            {user.email}
+          </span>
+          <button
+            onClick={() => navigate("/app")}
+            style={{
+              padding: "5px 12px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
+              border: "1px solid rgba(255,255,255,0.12)", background: "rgba(255,255,255,0.06)",
+              color: "rgba(255,255,255,0.6)", display: "flex", alignItems: "center", gap: 5,
+            }}
+          >
+            <ChevronRight size={11} /> App
+          </button>
+        </div>
       </div>
 
+      {/* Content */}
       <div style={{ maxWidth: 1200, margin: "0 auto", padding: "24px 20px" }}>
         {isLoading ? (
-          <div style={{ textAlign: "center", padding: 40, color: "var(--t3)", fontSize: 13 }}>Loading Control Room...</div>
+          <div style={{ textAlign: "center", padding: 60, color: "var(--t3)", fontSize: 13 }}>
+            Loading...
+          </div>
         ) : (
           <>
             {tab === "overview" && <OverviewTab users={users} />}
-            {tab === "customers" && <CustomersTab users={users} currentUserId={user?.id || ""} />}
+            {tab === "customers" && <CustomersTab users={users} currentUserId={user.id} />}
             {tab === "intelligence" && <IntelligenceTab />}
             {tab === "platform" && <PlatformTab users={users} />}
           </>

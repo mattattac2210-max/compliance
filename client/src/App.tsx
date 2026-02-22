@@ -19,7 +19,7 @@ import ProfilePage from "@/pages/profile";
 import VaultPage from "@/pages/vault";
 import TimelinePage from "@/pages/timeline";
 import AlertsPage from "@/pages/alerts";
-import AdminDashboardPage from "@/pages/admin-dashboard";
+import AdminControlRoom from "@/pages/admin-dashboard";
 import CalendarPage from "@/pages/calendar";
 import DisclaimersPage from "@/pages/disclaimers";
 import GlossaryPage from "@/pages/glossary";
@@ -39,7 +39,7 @@ function Router() {
       <Route path="/admin" component={AdminPage} />
       <Route path="/admin-dashboard">
         <ProtectedRoute>
-          <AdminDashboardPage />
+          <AdminControlRoom />
         </ProtectedRoute>
       </Route>
       <Route path="/login" component={LoginPage} />
