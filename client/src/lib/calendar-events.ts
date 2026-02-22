@@ -720,6 +720,134 @@ export function mapPropertyHgb(properties: PropertyInput[], lang: string = "en")
   return results;
 }
 
+export interface RecurringFilingInput {
+  id: string;
+  propertyId: string;
+  filingType: string;
+  periodLabel: string;
+  dueDate: string;
+  filedDate: string | null;
+  status: string;
+  notes: string | null;
+}
+
+const FILING_TYPE_MAP: Record<string, { eventPrefix: string; type: CalendarEvent["type"]; gate: number; icon: string }> = {
+  "pb1": { eventPrefix: "pb1", type: "tax", gate: 4, icon: "cycle" },
+  "pph 21": { eventPrefix: "pph21", type: "tax", gate: 4, icon: "cycle" },
+  "pph21": { eventPrefix: "pph21", type: "tax", gate: 4, icon: "cycle" },
+  "pph 25": { eventPrefix: "pph25", type: "tax", gate: 4, icon: "cycle" },
+  "pph25": { eventPrefix: "pph25", type: "tax", gate: 4, icon: "cycle" },
+  "ppn": { eventPrefix: "ppn", type: "tax", gate: 4, icon: "cycle" },
+  "bpjs kesehatan": { eventPrefix: "bpjsk", type: "bpjs", gate: 5, icon: "dot" },
+  "bpjs-k": { eventPrefix: "bpjsk", type: "bpjs", gate: 5, icon: "dot" },
+  "bpjamsostek": { eventPrefix: "bpjstk", type: "bpjs", gate: 5, icon: "dot" },
+  "bpjs ketenagakerjaan": { eventPrefix: "bpjstk", type: "bpjs", gate: 5, icon: "dot" },
+  "bpjs": { eventPrefix: "bpjsk", type: "bpjs", gate: 5, icon: "dot" },
+  "spt tahunan": { eventPrefix: "spt", type: "tax", gate: 4, icon: "hex" },
+  "pbb": { eventPrefix: "pbb", type: "tax", gate: 4, icon: "hex" },
+  "lkpm": { eventPrefix: "lkpm", type: "tax", gate: 0, icon: "cycle" },
+};
+
+function matchFilingType(filingType: string): { eventPrefix: string; type: CalendarEvent["type"]; gate: number; icon: string } | null {
+  const lower = filingType.toLowerCase().trim();
+  if (FILING_TYPE_MAP[lower]) return FILING_TYPE_MAP[lower];
+  for (const [key, val] of Object.entries(FILING_TYPE_MAP)) {
+    if (lower.includes(key)) return val;
+  }
+  return null;
+}
+
+const MONTH_NAMES = ["january","february","march","april","may","june","july","august","september","october","november","december"];
+
+function deriveOverrideIds(prefix: string, periodLabel: string, dueDate: string): string[] {
+  const ids: string[] = [];
+  const pl = periodLabel.toLowerCase();
+
+  const qMatch = pl.match(/q([1-4])/i);
+  if (qMatch) {
+    const yr = pl.match(/(\d{4})/)?.[1];
+    if (yr) {
+      ids.push(`${prefix}-Q${qMatch[1]}-${yr}`);
+    }
+  }
+
+  const yrMatch = pl.match(/(\d{4})/);
+  if (yrMatch) {
+    const yr = yrMatch[1];
+
+    if (pl.includes("annual") || pl.includes("tahunan") || pl.includes("full year") || pl.includes("fiscal")) {
+      ids.push(`${prefix}-${yr}`);
+    }
+
+    for (let mi = 0; mi < 12; mi++) {
+      if (pl.includes(MONTH_NAMES[mi])) {
+        ids.push(`${prefix}-${yr}-${mi}`);
+      }
+    }
+  }
+
+  if (ids.length === 0) {
+    const d = new Date(dueDate + "T00:00:00");
+    if (!isNaN(d.getTime())) {
+      const yr = d.getFullYear();
+      const m = d.getMonth();
+      ids.push(`${prefix}-${yr}-${m}`);
+    }
+  }
+
+  return ids;
+}
+
+export function mapRecurringFilings(filings: RecurringFilingInput[], lang: string = "en"): { events: CalendarEvent[]; overrideIds: Set<string> } {
+  const events: CalendarEvent[] = [];
+  const overrideIds = new Set<string>();
+
+  for (const filing of filings) {
+    if (!filing.dueDate) continue;
+    const d = new Date(filing.dueDate + "T00:00:00");
+    if (isNaN(d.getTime())) continue;
+
+    const matched = matchFilingType(filing.filingType);
+
+    if (matched) {
+      const idsToOverride = deriveOverrideIds(matched.eventPrefix, filing.periodLabel, filing.dueDate);
+      for (const oid of idsToOverride) {
+        overrideIds.add(oid);
+      }
+
+      events.push({
+        id: `filing-${filing.id}`,
+        date: d,
+        type: matched.type,
+        gate: matched.gate,
+        icon: matched.icon,
+        short: filing.filingType,
+        title: `${filing.filingType}${filing.notes ? ` — ${filing.notes}` : ""}`,
+        period: filing.periodLabel,
+        desc: filing.notes || `Filing: ${filing.filingType}. Status: ${filing.status}.`,
+        recurring: true,
+        daysUntil: daysUntil(d),
+      });
+    } else {
+      events.push({
+        id: `filing-${filing.id}`,
+        date: d,
+        type: "tax",
+        gate: 4,
+        icon: "cycle",
+        short: filing.filingType.slice(0, 16),
+        title: `${filing.filingType}${filing.notes ? ` — ${filing.notes}` : ""}`,
+        period: filing.periodLabel,
+        desc: filing.notes || `Filing: ${filing.filingType}. Status: ${filing.status}.`,
+        recurring: true,
+        daysUntil: daysUntil(d),
+      });
+    }
+  }
+
+  return { events, overrideIds };
+}
+
 export const FILTER_TYPES = ["all", "tax", "bpjs", "banjar", "safety", "docs", "ops", "ota", "custom"] as const;
 
 export const FILTER_LABELS: Record<string, string> = {
