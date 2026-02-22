@@ -143,7 +143,10 @@ export default function RegisterPage() {
               {registerMutation.isPending ? "..." : t.auth.registerButton}
             </Button>
           </form>
-          <div className="mt-6 text-center">
+          <div className="mt-4 text-center text-xs leading-relaxed" style={{ color: "var(--t3)" }} data-testid="text-free-disclaimer">
+            This is a free account. Pro features can be purchased after setting up your account.
+          </div>
+          <div className="mt-4 text-center">
             <Link to="/login" className="text-sm transition-colors" style={{ color: "var(--accent)" }} data-testid="link-login">
               {t.auth.loginLink}
             </Link>
