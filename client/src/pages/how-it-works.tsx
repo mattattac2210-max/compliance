@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "wouter";
 import "./landing.css";
 
@@ -58,8 +58,6 @@ const STEP_COLORS: Record<string, string> = {
 export default function HowItWorksPage() {
   const [activeStep, setActiveStep] = useState("step1");
   const [openFaq, setOpenFaq] = useState<Record<number, boolean>>({});
-  const [isFloating, setIsFloating] = useState(false);
-  const phEndRef = useRef<HTMLDivElement>(null);
 
   const toggleFaq = useCallback((idx: number) => {
     setOpenFaq((prev) => ({ ...prev, [idx]: !prev[idx] }));
@@ -84,18 +82,6 @@ export default function HowItWorksPage() {
     return () => observer.disconnect();
   }, []);
 
-  useEffect(() => {
-    const sentinel = phEndRef.current;
-    if (!sentinel) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsFloating(!entry.isIntersecting);
-      },
-      { threshold: 0 }
-    );
-    observer.observe(sentinel);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <div className="lp">
@@ -134,27 +120,12 @@ export default function HowItWorksPage() {
           <div className="ph-tag">Platform walkthrough</div>
           <h1 className="ph-h1">From zero to fully compliant.<br />Here&rsquo;s exactly how.</h1>
           <p className="ph-sub">A step-by-step guide to using DSCVR &mdash; from creating your account through to live alerts, document management, and staying ahead of regulatory changes.</p>
-          <div className="ph-progress" data-testid="step-progress-bar-inline">
-            {STEPS.map((s) => (
-              <a
-                key={s.id}
-                className={`ph-step${activeStep === s.id ? " ac" : ""}`}
-                href={`#${s.id}`}
-                onClick={() => setActiveStep(s.id)}
-                data-testid={`step-link-${s.id}`}
-              >
-                <div className="ph-step-n">{s.num}</div>
-                <div className="ph-step-l">{s.label}</div>
-              </a>
-            ))}
-          </div>
         </div>
       </div>
-      <div ref={phEndRef} style={{ height: 0 }} />
 
       {/* FLOATING STEP PROGRESS BAR */}
       <div
-        className={`ph-progress-float${isFloating ? " visible" : ""}`}
+        className="ph-progress-float visible"
         style={{ "--step-accent": STEP_COLORS[activeStep] || "#E8192C" } as React.CSSProperties}
         data-testid="step-progress-bar"
       >
