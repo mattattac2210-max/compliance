@@ -223,6 +223,7 @@ function SeverityPill({ sev }: { sev: string }) {
 function StatusPill({ status }: { status: string }) {
   const m: Record<string, [string, string, string]> = {
     pending: ["rgba(217,119,6,0.12)", "#D97706", "Pending Review"],
+    partial: ["rgba(217,119,6,0.12)", "#D97706", "Partial"],
     approved: ["rgba(22,163,74,0.12)", "#16A34A", "Approved"],
     sent: ["rgba(37,99,235,0.12)", "#3B82F6", "Sent"],
     dismissed: ["rgba(100,116,139,0.12)", "#94A3B8", "Dismissed"],
@@ -567,17 +568,51 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
   );
 }
 
+type ActionStatus = "pending" | "approved" | "sent" | "dismissed";
+
 function IntelligenceTab() {
   const [intel, setIntel] = useState(INTEL_ITEMS);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [siteFilter, setSiteFilter] = useState<"all" | "changed" | "ok">("all");
+  const [actionStatuses, setActionStatuses] = useState<Record<string, ActionStatus>>(() => {
+    const initial: Record<string, ActionStatus> = {};
+    for (const item of INTEL_ITEMS) {
+      for (let i = 0; i < item.suggestedActions.length; i++) {
+        initial[`${item.id}-${i}`] = item.status as ActionStatus;
+      }
+    }
+    return initial;
+  });
 
-  const pending = intel.filter(i => i.status === "pending").length;
+  const pendingActions = Object.values(actionStatuses).filter(s => s === "pending").length;
   const filteredSites = MONITORED_SITES.filter(s => siteFilter === "all" || s.status === siteFilter);
 
-  const approve = (id: string) => setIntel(p => p.map(i => i.id === id ? { ...i, status: "approved" } : i));
-  const send = (id: string) => setIntel(p => p.map(i => i.id === id ? { ...i, status: "sent" } : i));
-  const dismiss = (id: string) => setIntel(p => p.map(i => i.id === id ? { ...i, status: "dismissed" } : i));
+  const approveAction = (itemId: string, actionIdx: number) => {
+    setActionStatuses(p => ({ ...p, [`${itemId}-${actionIdx}`]: "approved" }));
+  };
+  const sendAction = (itemId: string, actionIdx: number) => {
+    setActionStatuses(p => ({ ...p, [`${itemId}-${actionIdx}`]: "sent" }));
+  };
+  const dismissAction = (itemId: string, actionIdx: number) => {
+    setActionStatuses(p => ({ ...p, [`${itemId}-${actionIdx}`]: "dismissed" }));
+  };
+  const approveAllActions = (itemId: string, count: number) => {
+    setActionStatuses(p => {
+      const next = { ...p };
+      for (let i = 0; i < count; i++) {
+        if (next[`${itemId}-${i}`] === "pending") next[`${itemId}-${i}`] = "approved";
+      }
+      return next;
+    });
+  };
+  const getItemStatus = (itemId: string, count: number): string => {
+    const statuses = Array.from({ length: count }, (_, i) => actionStatuses[`${itemId}-${i}`] || "pending");
+    if (statuses.every(s => s === "sent")) return "sent";
+    if (statuses.every(s => s === "dismissed")) return "dismissed";
+    if (statuses.every(s => s === "approved" || s === "sent")) return "approved";
+    if (statuses.some(s => s === "approved" || s === "sent")) return "partial";
+    return "pending";
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -622,7 +657,10 @@ function IntelligenceTab() {
                 <div style={{ fontSize: 10, color: "var(--t3)" }}>Gate {site.gate} · {site.lastCheck}</div>
                 {site.status === "changed" && (
                   <div style={{ fontSize: 10, color: "#D97706", fontWeight: 700, marginTop: 4 }}>
-                    {linkedIntel ? `${linkedIntel.status === "sent" ? "\u2713 Sent" : linkedIntel.status === "approved" ? "\u2713 Approved" : "! Needs review"} \u2014 click to view` : "Change detected"}
+                    {linkedIntel ? (() => {
+                      const itemSt = getItemStatus(linkedIntel.id, linkedIntel.suggestedActions.length);
+                      return `${itemSt === "sent" ? "\u2713 Sent" : itemSt === "approved" ? "\u2713 Approved" : itemSt === "partial" ? "\u25cb Partial" : "! Needs review"} \u2014 click to view`;
+                    })() : "Change detected"}
                   </div>
                 )}
               </div>
@@ -632,14 +670,15 @@ function IntelligenceTab() {
       </div>
 
       <div>
-        <SectionHead label="Regulatory Intelligence Feed" badge={pending} />
+        <SectionHead label="Regulatory Intelligence Feed" badge={pendingActions} />
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {intel.map(item => {
             const isExpanded = expanded === item.id;
+            const derivedStatus = getItemStatus(item.id, item.suggestedActions.length);
             return (
               <div key={item.id} data-testid={`intel-item-${item.id}`} style={{
                 background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12,
-                overflow: "hidden", opacity: item.status === "dismissed" ? 0.45 : 1,
+                overflow: "hidden", opacity: derivedStatus === "dismissed" ? 0.45 : 1,
               }}>
                 <div
                   onClick={() => setExpanded(isExpanded ? null : item.id)}
@@ -650,7 +689,7 @@ function IntelligenceTab() {
                       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6, flexWrap: "wrap" }}>
                         <span style={{ fontSize: 13, fontWeight: 800, color: "var(--txt)" }}>{item.title}</span>
                         <SeverityPill sev={item.severity} />
-                        <StatusPill status={item.status} />
+                        <StatusPill status={derivedStatus} />
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
                         <Globe size={10} style={{ color: "var(--t3)" }} />
@@ -701,56 +740,106 @@ function IntelligenceTab() {
                       </div>
                     </div>
 
-                    <div style={{ padding: "14px 18px", borderBottom: item.status !== "dismissed" ? "1px solid var(--b)" : undefined }}>
-                      <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", marginBottom: 8 }}>
-                        Suggested Actions
+                    <div style={{ padding: "14px 18px", borderBottom: "1px solid var(--b)" }}>
+                      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 10 }}>
+                        <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)" }}>
+                          Suggested Actions
+                        </div>
+                        {item.suggestedActions.some((_, i) => actionStatuses[`${item.id}-${i}`] === "pending") && (
+                          <button
+                            onClick={() => approveAllActions(item.id, item.suggestedActions.length)}
+                            data-testid={`button-approve-all-${item.id}`}
+                            style={{
+                              padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                              border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: C.green,
+                              display: "flex", alignItems: "center", gap: 4,
+                            }}
+                          >
+                            <Check size={10} /> Approve All
+                          </button>
+                        )}
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                        {item.suggestedActions.map((a, i) => (
-                          <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
-                            <span style={{ fontSize: 12, color: C.green, flexShrink: 0, fontWeight: 700 }}>{i + 1}.</span>
-                            <span style={{ fontSize: 12, color: "var(--t2)" }}>{a}</span>
-                          </div>
-                        ))}
+                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                        {item.suggestedActions.map((a, i) => {
+                          const aStatus = actionStatuses[`${item.id}-${i}`] || "pending";
+                          return (
+                            <div key={i} data-testid={`action-row-${item.id}-${i}`} style={{
+                              display: "flex", alignItems: "flex-start", gap: 10,
+                              padding: "8px 12px", borderRadius: 8,
+                              background: aStatus === "sent" ? "rgba(37,99,235,0.06)" : aStatus === "approved" ? "rgba(22,163,74,0.06)" : aStatus === "dismissed" ? "rgba(100,116,139,0.04)" : "var(--bg2)",
+                              border: `1px solid ${aStatus === "sent" ? "rgba(37,99,235,0.2)" : aStatus === "approved" ? "rgba(22,163,74,0.2)" : aStatus === "dismissed" ? "rgba(100,116,139,0.12)" : "var(--b)"}`,
+                              opacity: aStatus === "dismissed" ? 0.5 : 1,
+                            }}>
+                              <span style={{ fontSize: 12, color: C.green, flexShrink: 0, fontWeight: 700, marginTop: 1 }}>{i + 1}.</span>
+                              <div style={{ flex: 1, minWidth: 0 }}>
+                                <span style={{ fontSize: 12, color: "var(--t2)", lineHeight: 1.5 }}>{a}</span>
+                                <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap", alignItems: "center" }}>
+                                  {aStatus === "pending" && (
+                                    <>
+                                      <button onClick={() => approveAction(item.id, i)} data-testid={`button-approve-${item.id}-${i}`} style={{
+                                        padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                        border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: C.green,
+                                        display: "flex", alignItems: "center", gap: 4,
+                                      }}>
+                                        <Check size={10} /> Approve
+                                      </button>
+                                      <button onClick={() => sendAction(item.id, i)} data-testid={`button-approve-send-${item.id}-${i}`} style={{
+                                        padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                        border: "1px solid rgba(37,99,235,0.3)", background: "rgba(37,99,235,0.08)", color: "#3B82F6",
+                                        display: "flex", alignItems: "center", gap: 4,
+                                      }}>
+                                        <Send size={10} /> Approve & Send
+                                      </button>
+                                      <button onClick={() => dismissAction(item.id, i)} data-testid={`button-dismiss-${item.id}-${i}`} style={{
+                                        padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                        border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
+                                        display: "flex", alignItems: "center", gap: 4,
+                                      }}>
+                                        <X size={10} /> Dismiss
+                                      </button>
+                                    </>
+                                  )}
+                                  {aStatus === "approved" && (
+                                    <>
+                                      <span style={{ fontSize: 10, fontWeight: 700, color: C.green, display: "flex", alignItems: "center", gap: 3 }}>
+                                        <Check size={10} /> Approved
+                                      </span>
+                                      <button onClick={() => sendAction(item.id, i)} data-testid={`button-send-${item.id}-${i}`} style={{
+                                        padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                        border: "1px solid rgba(37,99,235,0.3)", background: "rgba(37,99,235,0.08)", color: "#3B82F6",
+                                        display: "flex", alignItems: "center", gap: 4,
+                                      }}>
+                                        <Send size={10} /> Send to Users
+                                      </button>
+                                    </>
+                                  )}
+                                  {aStatus === "sent" && (
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: "#3B82F6", display: "flex", alignItems: "center", gap: 3 }}>
+                                      <Send size={10} /> Sent
+                                    </span>
+                                  )}
+                                  {aStatus === "dismissed" && (
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--t3)", display: "flex", alignItems: "center", gap: 3 }}>
+                                      <X size={10} /> Dismissed
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })}
                       </div>
                     </div>
 
-                    {(item.status === "pending" || item.status === "approved") && (
-                      <div style={{ padding: "12px 18px", display: "flex", gap: 8, flexWrap: "wrap" }}>
-                        {item.status === "pending" && (
-                          <button onClick={() => approve(item.id)} data-testid={`button-approve-${item.id}`} style={{
-                            padding: "6px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
-                            border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: C.green,
-                            display: "flex", alignItems: "center", gap: 5,
-                          }}>
-                            <Check size={11} /> Approve
-                          </button>
-                        )}
-                        <button onClick={() => send(item.id)} data-testid={`button-send-${item.id}`} style={{
-                          padding: "6px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
-                          border: "1px solid rgba(37,99,235,0.3)", background: "rgba(37,99,235,0.08)", color: "#3B82F6",
-                          display: "flex", alignItems: "center", gap: 5,
-                        }}>
-                          <Send size={11} /> {item.status === "pending" ? "Approve & Send" : "Send to Users"}
-                        </button>
-                        {item.status === "pending" && (
-                          <button onClick={() => dismiss(item.id)} data-testid={`button-dismiss-${item.id}`} style={{
-                            padding: "6px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer",
-                            border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
-                            display: "flex", alignItems: "center", gap: 5,
-                          }}>
-                            <X size={11} /> Dismiss
-                          </button>
-                        )}
-                        <a href={item.url} target="_blank" rel="noopener noreferrer" style={{
-                          padding: "6px 16px", borderRadius: 6, fontSize: 11, fontWeight: 700,
-                          border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
-                          display: "flex", alignItems: "center", gap: 5, textDecoration: "none",
-                        }}>
-                          <ExternalLink size={11} /> Open Portal
-                        </a>
-                      </div>
-                    )}
+                    <div style={{ padding: "10px 18px", display: "flex", gap: 8, alignItems: "center" }}>
+                      <a href={item.url} target="_blank" rel="noopener noreferrer" style={{
+                        padding: "5px 14px", borderRadius: 6, fontSize: 11, fontWeight: 700,
+                        border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
+                        display: "flex", alignItems: "center", gap: 5, textDecoration: "none",
+                      }}>
+                        <ExternalLink size={11} /> Open Portal
+                      </a>
+                    </div>
                   </div>
                 )}
               </div>
