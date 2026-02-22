@@ -902,7 +902,7 @@ export const id: UITranslations = {
     breadcrumbHome: "DSCVR",
     breadcrumbCurrent: "Cara kerja",
     tag: "Panduan platform",
-    headline: "Dari nol ke sepenuhnya patuh.\nBegini caranya.",
+    headline: "Apakah Anda sepenuhnya patuh?\nBegini cara memeriksanya.",
     sub: "Panduan langkah demi langkah menggunakan DSCVR \u2014 dari membuat akun hingga peringatan langsung, manajemen dokumen, dan tetap terdepan dalam perubahan regulasi.",
     step1Label: "Daftar & atur",
     step2Label: "Petakan properti",

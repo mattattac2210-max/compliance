@@ -902,7 +902,7 @@ export const en: UITranslations = {
     breadcrumbHome: "DSCVR",
     breadcrumbCurrent: "How it works",
     tag: "Platform walkthrough",
-    headline: "From zero to fully compliant.\nHere's exactly how.",
+    headline: "Are you fully compliant?\nHere's how to check.",
     sub: "A step-by-step guide to using DSCVR \u2014 from creating your account through to live alerts, document management, and staying ahead of regulatory changes.",
     step1Label: "Register & set up",
     step2Label: "Map your property",
