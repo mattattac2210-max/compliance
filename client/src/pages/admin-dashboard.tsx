@@ -973,7 +973,10 @@ function CalendarTab() {
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
       await apiRequest("PATCH", `/api/calendar-templates/${id}`, { isActive });
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/calendar-templates"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/calendar-templates"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/calendar-templates", "active"] });
+    },
   });
 
   const updateTemplate = useMutation({
@@ -982,6 +985,7 @@ function CalendarTab() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/calendar-templates"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/calendar-templates", "active"] });
       setEditingId(null);
     },
   });
