@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Mail, Lock, AlertCircle } from "lucide-react";
+import { Mail, Lock, AlertCircle, ArrowLeft } from "lucide-react";
 
 export default function LoginPage() {
   const { t } = useLanguage();
@@ -50,7 +50,17 @@ export default function LoginPage() {
   if (isAuthenticated) return <Redirect to="/app" />;
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "var(--bg)" }}>
+    <div className="min-h-screen flex items-center justify-center p-4 relative" style={{ background: "var(--bg)" }}>
+      <Link to="/" data-testid="link-back-home">
+        <button
+          className="absolute top-5 left-5 flex items-center gap-2 text-sm font-medium rounded-lg px-3 py-2 transition-colors hover:opacity-80"
+          style={{ color: "var(--t3)", background: "var(--surface)", border: "1px solid var(--accent-tint2)" }}
+          data-testid="button-back-home"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </button>
+      </Link>
       <Card className="w-full max-w-md backdrop-blur-sm shadow-2xl" style={{ borderColor: "var(--accent-tint2)", background: "var(--surface)" }}>
         <CardHeader className="text-center space-y-2 pb-2">
           <div className="text-2xl font-bold tracking-wider" style={{ color: "var(--accent)", fontFamily: "var(--font-display)" }}>DSCVR</div>
