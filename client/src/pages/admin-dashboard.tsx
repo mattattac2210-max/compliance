@@ -17,6 +17,7 @@ import {
   Wifi, Server, Clock, Zap, AlertCircle,
   TrendingUp, Filter, Globe, MapPin,
   CalendarDays, Pencil, Eye, EyeOff, Save, RotateCw,
+  Bell, FileText, BookOpen, ListChecks, Info, CalendarPlus, ChevronDown, ChevronUp,
 } from "lucide-react";
 import type { CalendarEventTemplate } from "@shared/schema";
 import { generateEventsFromTemplates, typeColor } from "@/lib/calendar-events";
@@ -55,6 +56,30 @@ interface PlatformHealth {
   error?: string;
 }
 
+type IntelActionType = "alert" | "vault" | "calendar" | "glossary" | "guide" | "checklist" | "info";
+
+interface IntelAction {
+  type: IntelActionType;
+  description: string;
+  preview: {
+    title: string;
+    body: string;
+    target?: string;
+    before?: string;
+    after?: string;
+  };
+}
+
+const ACTION_TYPE_META: Record<IntelActionType, { label: string; color: string; icon: typeof Bell }> = {
+  alert:     { label: "Alert",         color: "#F59E0B", icon: Bell },
+  vault:     { label: "Vault Doc",     color: "#A78BFA", icon: FileText },
+  calendar:  { label: "Calendar",      color: "#14B8A6", icon: CalendarPlus },
+  glossary:  { label: "Glossary",      color: "#60A5FA", icon: BookOpen },
+  guide:     { label: "Guide",         color: "#FB923C", icon: BookOpen },
+  checklist: { label: "Checklist",     color: "#E879F9", icon: ListChecks },
+  info:      { label: "Info",          color: "#94A3B8", icon: Info },
+};
+
 const INTEL_ITEMS = [
   {
     id: "1",
@@ -70,9 +95,35 @@ const INTEL_ITEMS = [
     whatChanged: "Maintenance banner added to CoreTax homepage. Page hash changed from a9f2c1 \u2192 b74d3e. New element: <div class=\"maintenance-notice\"> detecting scheduled downtime 2026-03-05T00:00 to 2026-03-06T12:00 WITA.",
     affected: ["PPh 21 monthly filing (due 10th)", "PPh 25 installment (due 15th)", "PPN monthly return (due 20th)"],
     suggestedActions: [
-      "Push alert to all Pro users with Gate 4 obligations due March 5\u201320",
-      "Advise users to file PPh 21 and PPh 25 before March 4",
-      "Add calendar event: CoreTax offline March 5\u20136",
+      {
+        type: "alert" as IntelActionType,
+        description: "Push alert to all Pro users with Gate 4 obligations due March 5\u201320",
+        preview: {
+          title: "CoreTax Maintenance \u2014 File Early",
+          body: "The CoreTax portal will be offline March 5\u20136 for scheduled maintenance. If you have PPh 21, PPh 25, or PPN filings due between March 5\u201320, please complete them before March 4.",
+          target: "All Pro users \u00b7 Gate 4 \u00b7 All regions",
+        },
+      },
+      {
+        type: "alert" as IntelActionType,
+        description: "Advise users to file PPh 21 and PPh 25 before March 4",
+        preview: {
+          title: "Action Required: File PPh 21 & PPh 25 Early",
+          body: "Due to CoreTax maintenance on March 5\u20136, we recommend filing your PPh 21 and PPh 25 returns before March 4 to avoid any disruption.",
+          target: "Pro users \u00b7 Gate 4 \u00b7 Tax obligations",
+        },
+      },
+      {
+        type: "calendar" as IntelActionType,
+        description: "Add calendar event: CoreTax offline March 5\u20136",
+        preview: {
+          title: "CoreTax Portal Offline",
+          body: "Scheduled maintenance window. Filing portal unavailable.",
+          target: "Calendar \u00b7 March 5\u20136, 2026",
+          before: "No event exists for this date range",
+          after: "New event: 'CoreTax Portal Offline' \u00b7 March 5\u20136 \u00b7 Type: tax \u00b7 Frequency: one-time",
+        },
+      },
     ],
   },
   {
@@ -89,9 +140,37 @@ const INTEL_ITEMS = [
     whatChanged: "OSS KBLI 55193 verification page hash changed from 3c8a12 \u2192 f91b44. New required upload field added: 'Foto tampak depan properti (maks 2MB, format JPG/PNG)'. Previously 6 required documents, now 7.",
     affected: ["All operators with pending NIB verification", "New PT PMA applicants in Badung/Gianyar/Denpasar", "Operators updating existing NIB"],
     suggestedActions: [
-      "Notify all Pro users in affected regencies with Gate 2 incomplete",
-      "Update vault document template to add 'Property frontage photo' as required",
-      "Update Gate 2 checklist in compliance flow",
+      {
+        type: "alert" as IntelActionType,
+        description: "Notify all Pro users in affected regencies with Gate 2 incomplete",
+        preview: {
+          title: "NIB Verification Updated \u2014 New Photo Required",
+          body: "OSS now requires a property frontage photo (JPG/PNG, max 2MB) for KBLI 55193 verification. If your NIB verification is pending, please prepare this document.",
+          target: "Pro users \u00b7 Gate 2 \u00b7 Badung, Gianyar, Denpasar",
+        },
+      },
+      {
+        type: "vault" as IntelActionType,
+        description: "Update vault document template to add 'Property frontage photo' as required",
+        preview: {
+          title: "Add Document Template",
+          body: "Property Frontage Photo \u2014 Front-facing photo of the villa property for NIB verification.",
+          target: "Document Vault \u00b7 Gate 2 templates",
+          before: "6 required documents for NIB verification",
+          after: "7 required documents \u2014 added: 'Property Frontage Photo' (JPG/PNG, max 2MB)",
+        },
+      },
+      {
+        type: "checklist" as IntelActionType,
+        description: "Update Gate 2 checklist in compliance flow",
+        preview: {
+          title: "Gate 2 Checklist Update",
+          body: "Add 'Property frontage photo uploaded' as a new checklist item in the Gate 2 NIB verification flow.",
+          target: "Compliance Flow \u00b7 Gate 2",
+          before: "Current checklist: 6 items",
+          after: "Updated checklist: 7 items \u2014 added: 'Upload property frontage photo (JPG/PNG, max 2MB)'",
+        },
+      },
     ],
   },
   {
@@ -108,8 +187,26 @@ const INTEL_ITEMS = [
     whatChanged: "Q2 2026 PB1 schedule PDF replaced on Badung e-Gov portal. Hash changed from 2d1f09 \u2192 8a3c77. Content comparison: tax rate unchanged at 10%. Filing deadlines unchanged (20th of following month). No new requirements identified.",
     affected: ["Villa operators in Badung with PB1 obligations"],
     suggestedActions: [
-      "No urgent action required \u2014 confirmation only",
-      "Update compliance terms last-verified date for PB1 Badung",
+      {
+        type: "info" as IntelActionType,
+        description: "No urgent action required \u2014 confirmation only",
+        preview: {
+          title: "No Change Required",
+          body: "PB1 hotel tax rate for Badung remains at 10% for Q2 2026. Filing deadlines unchanged (20th of following month). No user action needed.",
+          target: "Internal note \u00b7 No user notification",
+        },
+      },
+      {
+        type: "glossary" as IntelActionType,
+        description: "Update compliance terms last-verified date for PB1 Badung",
+        preview: {
+          title: "Glossary Update: PB1 (Pajak Hotel)",
+          body: "Update the 'last verified' date for the PB1 glossary entry to reflect the Q2 2026 confirmation.",
+          target: "Compliance Glossary \u00b7 PB1 entry",
+          before: "Last verified: Q1 2026",
+          after: "Last verified: Q2 2026 \u2014 rate confirmed 10%, no changes",
+        },
+      },
     ],
   },
   {
@@ -126,8 +223,26 @@ const INTEL_ITEMS = [
     whatChanged: "eDabu login page completely redesigned. Previous username/password flow replaced with NPWP + password authentication. Session cookie name changed from 'edabu_sess' to 'edabu_v2_sess'. All existing sessions invalidated.",
     affected: ["All operators with staff enrolled in BPJS Kesehatan", "Monthly contribution payment workflow"],
     suggestedActions: [
-      "Alert all Pro users: re-login to eDabu required with company NPWP",
-      "Update Step-by-Step guide for BPJS Kesehatan monthly payment",
+      {
+        type: "alert" as IntelActionType,
+        description: "Alert all Pro users: re-login to eDabu required with company NPWP",
+        preview: {
+          title: "eDabu Login Changed \u2014 Action Required",
+          body: "The eDabu portal now requires your company NPWP instead of the old username to log in. All existing sessions have been invalidated. Please re-login with your NPWP and password.",
+          target: "All Pro users \u00b7 Gate 5 \u00b7 BPJS Kesehatan",
+        },
+      },
+      {
+        type: "guide" as IntelActionType,
+        description: "Update Step-by-Step guide for BPJS Kesehatan monthly payment",
+        preview: {
+          title: "Guide Update: BPJS Kesehatan Monthly Payment",
+          body: "Update the login step in the BPJS Kesehatan monthly payment guide to reflect the new NPWP-based authentication.",
+          target: "Process Guide \u00b7 Gate 5",
+          before: "Step 1: Log in to eDabu with your username and password",
+          after: "Step 1: Log in to eDabu with your company NPWP and password (updated Feb 2026)",
+        },
+      },
     ],
   },
 ];
@@ -570,8 +685,14 @@ function CustomersTab({ users, currentUserId }: { users: AdminUser[]; currentUse
 
 type ActionStatus = "pending" | "approved" | "sent" | "dismissed";
 
+interface ActionEditState {
+  title: string;
+  body: string;
+  target?: string;
+}
+
 function IntelligenceTab() {
-  const [intel, setIntel] = useState(INTEL_ITEMS);
+  const [intel] = useState(INTEL_ITEMS);
   const [expanded, setExpanded] = useState<string | null>(null);
   const [siteFilter, setSiteFilter] = useState<"all" | "changed" | "ok">("all");
   const [actionStatuses, setActionStatuses] = useState<Record<string, ActionStatus>>(() => {
@@ -583,9 +704,42 @@ function IntelligenceTab() {
     }
     return initial;
   });
+  const [previewOpen, setPreviewOpen] = useState<Record<string, boolean>>({});
+  const [editingAction, setEditingAction] = useState<string | null>(null);
+  const [actionEdits, setActionEdits] = useState<Record<string, ActionEditState>>({});
 
   const pendingActions = Object.values(actionStatuses).filter(s => s === "pending").length;
   const filteredSites = MONITORED_SITES.filter(s => siteFilter === "all" || s.status === siteFilter);
+
+  const togglePreview = (key: string) => {
+    setPreviewOpen(p => ({ ...p, [key]: !p[key] }));
+  };
+
+  const startEditAction = (key: string, action: IntelAction) => {
+    setEditingAction(key);
+    setActionEdits(p => ({
+      ...p,
+      [key]: {
+        title: actionEdits[key]?.title ?? action.preview.title,
+        body: actionEdits[key]?.body ?? action.preview.body,
+        target: actionEdits[key]?.target ?? action.preview.target,
+      },
+    }));
+    setPreviewOpen(p => ({ ...p, [key]: true }));
+  };
+
+  const cancelEditAction = (key: string) => {
+    setEditingAction(null);
+    setActionEdits(p => {
+      const next = { ...p };
+      delete next[key];
+      return next;
+    });
+  };
+
+  const saveEditAction = () => {
+    setEditingAction(null);
+  };
 
   const approveAction = (itemId: string, actionIdx: number) => {
     setActionStatuses(p => ({ ...p, [`${itemId}-${actionIdx}`]: "approved" }));
@@ -745,100 +899,260 @@ function IntelligenceTab() {
                         <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)" }}>
                           Suggested Actions
                         </div>
-                        {item.suggestedActions.some((_, i) => actionStatuses[`${item.id}-${i}`] === "pending") && (
-                          <button
-                            onClick={() => approveAllActions(item.id, item.suggestedActions.length)}
-                            data-testid={`button-approve-all-${item.id}`}
-                            style={{
-                              padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
-                              border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: C.green,
-                              display: "flex", alignItems: "center", gap: 4,
-                            }}
-                          >
-                            <Check size={10} /> Approve All
-                          </button>
-                        )}
+                        <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+                          {item.suggestedActions.some((_, i) => actionStatuses[`${item.id}-${i}`] === "pending") && (
+                            <button
+                              onClick={() => approveAllActions(item.id, item.suggestedActions.length)}
+                              data-testid={`button-approve-all-${item.id}`}
+                              style={{
+                                padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: C.green,
+                                display: "flex", alignItems: "center", gap: 4,
+                              }}
+                            >
+                              <Check size={10} /> Approve All
+                            </button>
+                          )}
+                          <a href={item.url} target="_blank" rel="noopener noreferrer" style={{
+                            padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700,
+                            border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
+                            display: "flex", alignItems: "center", gap: 4, textDecoration: "none",
+                          }}>
+                            <ExternalLink size={10} /> Source
+                          </a>
+                        </div>
                       </div>
-                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                        {item.suggestedActions.map((a, i) => {
-                          const aStatus = actionStatuses[`${item.id}-${i}`] || "pending";
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {item.suggestedActions.map((action, i) => {
+                          const aKey = `${item.id}-${i}`;
+                          const aStatus = actionStatuses[aKey] || "pending";
+                          const meta = ACTION_TYPE_META[action.type];
+                          const TypeIcon = meta.icon;
+                          const isPreviewOpen = previewOpen[aKey];
+                          const isEditing = editingAction === aKey;
+                          const editState = actionEdits[aKey];
+                          const previewTitle = editState?.title ?? action.preview.title;
+                          const previewBody = editState?.body ?? action.preview.body;
+                          const previewTarget = editState?.target ?? action.preview.target;
+
                           return (
                             <div key={i} data-testid={`action-row-${item.id}-${i}`} style={{
-                              display: "flex", alignItems: "flex-start", gap: 10,
-                              padding: "8px 12px", borderRadius: 8,
-                              background: aStatus === "sent" ? "rgba(37,99,235,0.06)" : aStatus === "approved" ? "rgba(22,163,74,0.06)" : aStatus === "dismissed" ? "rgba(100,116,139,0.04)" : "var(--bg2)",
-                              border: `1px solid ${aStatus === "sent" ? "rgba(37,99,235,0.2)" : aStatus === "approved" ? "rgba(22,163,74,0.2)" : aStatus === "dismissed" ? "rgba(100,116,139,0.12)" : "var(--b)"}`,
+                              borderRadius: 10, overflow: "hidden",
+                              border: `1px solid ${aStatus === "sent" ? "rgba(37,99,235,0.2)" : aStatus === "approved" ? "rgba(22,163,74,0.2)" : aStatus === "dismissed" ? "rgba(100,116,139,0.12)" : `${meta.color}33`}`,
                               opacity: aStatus === "dismissed" ? 0.5 : 1,
                             }}>
-                              <span style={{ fontSize: 12, color: C.green, flexShrink: 0, fontWeight: 700, marginTop: 1 }}>{i + 1}.</span>
-                              <div style={{ flex: 1, minWidth: 0 }}>
-                                <span style={{ fontSize: 12, color: "var(--t2)", lineHeight: 1.5 }}>{a}</span>
-                                <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap", alignItems: "center" }}>
-                                  {aStatus === "pending" && (
-                                    <>
-                                      <button onClick={() => approveAction(item.id, i)} data-testid={`button-approve-${item.id}-${i}`} style={{
-                                        padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
-                                        border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: C.green,
-                                        display: "flex", alignItems: "center", gap: 4,
-                                      }}>
-                                        <Check size={10} /> Approve
-                                      </button>
-                                      <button onClick={() => sendAction(item.id, i)} data-testid={`button-approve-send-${item.id}-${i}`} style={{
-                                        padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
-                                        border: "1px solid rgba(37,99,235,0.3)", background: "rgba(37,99,235,0.08)", color: "#3B82F6",
-                                        display: "flex", alignItems: "center", gap: 4,
-                                      }}>
-                                        <Send size={10} /> Approve & Send
-                                      </button>
-                                      <button onClick={() => dismissAction(item.id, i)} data-testid={`button-dismiss-${item.id}-${i}`} style={{
-                                        padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
-                                        border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
-                                        display: "flex", alignItems: "center", gap: 4,
-                                      }}>
-                                        <X size={10} /> Dismiss
-                                      </button>
-                                    </>
-                                  )}
-                                  {aStatus === "approved" && (
-                                    <>
-                                      <span style={{ fontSize: 10, fontWeight: 700, color: C.green, display: "flex", alignItems: "center", gap: 3 }}>
-                                        <Check size={10} /> Approved
+                              <div style={{
+                                display: "flex", alignItems: "flex-start", gap: 10,
+                                padding: "10px 12px",
+                                background: aStatus === "sent" ? "rgba(37,99,235,0.04)" : aStatus === "approved" ? "rgba(22,163,74,0.04)" : aStatus === "dismissed" ? "rgba(100,116,139,0.03)" : "var(--bg2)",
+                              }}>
+                                <div style={{
+                                  width: 28, height: 28, borderRadius: 7, flexShrink: 0,
+                                  background: `${meta.color}15`, border: `1px solid ${meta.color}30`,
+                                  display: "flex", alignItems: "center", justifyContent: "center",
+                                }}>
+                                  <TypeIcon size={13} style={{ color: meta.color }} />
+                                </div>
+                                <div style={{ flex: 1, minWidth: 0 }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 4, flexWrap: "wrap" }}>
+                                    <span style={{
+                                      fontSize: 9, fontWeight: 800, padding: "1px 6px", borderRadius: 3,
+                                      background: `${meta.color}18`, color: meta.color,
+                                      textTransform: "uppercase", letterSpacing: "0.06em",
+                                    }}>
+                                      {meta.label}
+                                    </span>
+                                    <span style={{ fontSize: 12, fontWeight: 600, color: "var(--t2)", lineHeight: 1.4 }}>{action.description}</span>
+                                  </div>
+                                  <div style={{ display: "flex", gap: 5, marginTop: 6, flexWrap: "wrap", alignItems: "center" }}>
+                                    <button
+                                      onClick={() => togglePreview(aKey)}
+                                      data-testid={`button-preview-${item.id}-${i}`}
+                                      style={{
+                                        padding: "3px 9px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                        border: `1px solid ${meta.color}40`, background: isPreviewOpen ? `${meta.color}12` : "transparent",
+                                        color: meta.color, display: "flex", alignItems: "center", gap: 3,
+                                      }}
+                                    >
+                                      {isPreviewOpen ? <ChevronUp size={10} /> : <ChevronDown size={10} />}
+                                      {isPreviewOpen ? "Hide Preview" : "Preview"}
+                                    </button>
+                                    {aStatus === "pending" && (
+                                      <>
+                                        <button onClick={() => startEditAction(aKey, action)} data-testid={`button-edit-${item.id}-${i}`} style={{
+                                          padding: "3px 9px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                          border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
+                                          display: "flex", alignItems: "center", gap: 3,
+                                        }}>
+                                          <Pencil size={9} /> Edit
+                                        </button>
+                                        <button onClick={() => approveAction(item.id, i)} data-testid={`button-approve-${item.id}-${i}`} style={{
+                                          padding: "3px 9px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                          border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: C.green,
+                                          display: "flex", alignItems: "center", gap: 3,
+                                        }}>
+                                          <Check size={10} /> Approve
+                                        </button>
+                                        <button onClick={() => sendAction(item.id, i)} data-testid={`button-approve-send-${item.id}-${i}`} style={{
+                                          padding: "3px 9px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                          border: "1px solid rgba(37,99,235,0.3)", background: "rgba(37,99,235,0.08)", color: "#3B82F6",
+                                          display: "flex", alignItems: "center", gap: 3,
+                                        }}>
+                                          <Send size={10} /> Approve & Send
+                                        </button>
+                                        <button onClick={() => dismissAction(item.id, i)} data-testid={`button-dismiss-${item.id}-${i}`} style={{
+                                          padding: "3px 9px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                          border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
+                                          display: "flex", alignItems: "center", gap: 3,
+                                        }}>
+                                          <X size={10} /> Dismiss
+                                        </button>
+                                      </>
+                                    )}
+                                    {aStatus === "approved" && (
+                                      <>
+                                        <span style={{ fontSize: 10, fontWeight: 700, color: C.green, display: "flex", alignItems: "center", gap: 3 }}>
+                                          <Check size={10} /> Approved
+                                        </span>
+                                        <button onClick={() => sendAction(item.id, i)} data-testid={`button-send-${item.id}-${i}`} style={{
+                                          padding: "3px 9px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                          border: "1px solid rgba(37,99,235,0.3)", background: "rgba(37,99,235,0.08)", color: "#3B82F6",
+                                          display: "flex", alignItems: "center", gap: 3,
+                                        }}>
+                                          <Send size={10} /> Send to Users
+                                        </button>
+                                      </>
+                                    )}
+                                    {aStatus === "sent" && (
+                                      <span style={{ fontSize: 10, fontWeight: 700, color: "#3B82F6", display: "flex", alignItems: "center", gap: 3 }}>
+                                        <Send size={10} /> Sent
                                       </span>
-                                      <button onClick={() => sendAction(item.id, i)} data-testid={`button-send-${item.id}-${i}`} style={{
-                                        padding: "3px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
-                                        border: "1px solid rgba(37,99,235,0.3)", background: "rgba(37,99,235,0.08)", color: "#3B82F6",
-                                        display: "flex", alignItems: "center", gap: 4,
-                                      }}>
-                                        <Send size={10} /> Send to Users
-                                      </button>
-                                    </>
-                                  )}
-                                  {aStatus === "sent" && (
-                                    <span style={{ fontSize: 10, fontWeight: 700, color: "#3B82F6", display: "flex", alignItems: "center", gap: 3 }}>
-                                      <Send size={10} /> Sent
-                                    </span>
-                                  )}
-                                  {aStatus === "dismissed" && (
-                                    <span style={{ fontSize: 10, fontWeight: 700, color: "var(--t3)", display: "flex", alignItems: "center", gap: 3 }}>
-                                      <X size={10} /> Dismissed
-                                    </span>
-                                  )}
+                                    )}
+                                    {aStatus === "dismissed" && (
+                                      <span style={{ fontSize: 10, fontWeight: 700, color: "var(--t3)", display: "flex", alignItems: "center", gap: 3 }}>
+                                        <X size={10} /> Dismissed
+                                      </span>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
+
+                              {isPreviewOpen && (
+                                <div style={{
+                                  borderTop: `1px solid ${meta.color}22`,
+                                  background: `${meta.color}06`,
+                                  padding: "12px 14px",
+                                }}>
+                                  <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
+                                    <TypeIcon size={11} style={{ color: meta.color }} />
+                                    <span style={{ fontSize: 10, fontWeight: 700, color: meta.color, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                                      {meta.label} Preview
+                                    </span>
+                                    {isEditing && (
+                                      <span style={{ fontSize: 9, fontWeight: 700, color: "#F59E0B", background: "rgba(245,158,11,0.12)", padding: "1px 6px", borderRadius: 3 }}>
+                                        EDITING
+                                      </span>
+                                    )}
+                                    {!isEditing && editState && (
+                                      <span style={{ fontSize: 9, fontWeight: 700, color: "#14B8A6", background: "rgba(20,184,166,0.12)", padding: "1px 6px", borderRadius: 3 }}>
+                                        EDITED
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  <div style={{
+                                    background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 8,
+                                    padding: "12px 14px", marginBottom: action.preview.before ? 8 : 0,
+                                  }}>
+                                    {isEditing ? (
+                                      <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                                        <div>
+                                          <label style={{ fontSize: 9, fontWeight: 700, color: "var(--t3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3, display: "block" }}>Title</label>
+                                          <input
+                                            data-testid={`input-edit-action-title-${item.id}-${i}`}
+                                            value={editState?.title || ""}
+                                            onChange={e => setActionEdits(p => ({ ...p, [aKey]: { ...p[aKey], title: e.target.value } }))}
+                                            style={{ width: "100%", padding: "5px 8px", borderRadius: 5, border: `1px solid ${meta.color}44`, background: "var(--bg)", color: "var(--txt)", fontSize: 12, fontWeight: 700, outline: "none" }}
+                                          />
+                                        </div>
+                                        <div>
+                                          <label style={{ fontSize: 9, fontWeight: 700, color: "var(--t3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3, display: "block" }}>Message</label>
+                                          <textarea
+                                            data-testid={`input-edit-action-body-${item.id}-${i}`}
+                                            value={editState?.body || ""}
+                                            onChange={e => setActionEdits(p => ({ ...p, [aKey]: { ...p[aKey], body: e.target.value } }))}
+                                            rows={3}
+                                            style={{ width: "100%", padding: "5px 8px", borderRadius: 5, border: `1px solid ${meta.color}44`, background: "var(--bg)", color: "var(--txt)", fontSize: 12, lineHeight: 1.6, outline: "none", resize: "vertical", fontFamily: "inherit" }}
+                                          />
+                                        </div>
+                                        {previewTarget && (
+                                          <div>
+                                            <label style={{ fontSize: 9, fontWeight: 700, color: "var(--t3)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3, display: "block" }}>Target</label>
+                                            <input
+                                              data-testid={`input-edit-action-target-${item.id}-${i}`}
+                                              value={editState?.target || ""}
+                                              onChange={e => setActionEdits(p => ({ ...p, [aKey]: { ...p[aKey], target: e.target.value } }))}
+                                              style={{ width: "100%", padding: "5px 8px", borderRadius: 5, border: "1px solid var(--b)", background: "var(--bg)", color: "var(--txt)", fontSize: 11, outline: "none" }}
+                                            />
+                                          </div>
+                                        )}
+                                        <div style={{ display: "flex", gap: 6 }}>
+                                          <button onClick={saveEditAction} data-testid={`button-save-edit-${item.id}-${i}`} style={{
+                                            padding: "4px 12px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                            border: `1px solid ${meta.color}44`, background: `${meta.color}12`, color: meta.color,
+                                            display: "flex", alignItems: "center", gap: 4,
+                                          }}>
+                                            <Save size={10} /> Save Changes
+                                          </button>
+                                          <button onClick={() => cancelEditAction(aKey)} style={{
+                                            padding: "4px 12px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                                            border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
+                                          }}>
+                                            Cancel
+                                          </button>
+                                        </div>
+                                      </div>
+                                    ) : (
+                                      <>
+                                        <div style={{ fontSize: 13, fontWeight: 800, color: "var(--txt)", marginBottom: 6 }}>
+                                          {previewTitle}
+                                        </div>
+                                        <p style={{ fontSize: 12, color: "var(--t2)", lineHeight: 1.7, margin: 0 }}>
+                                          {previewBody}
+                                        </p>
+                                        {previewTarget && (
+                                          <div style={{ marginTop: 8, fontSize: 10, color: "var(--t3)", display: "flex", alignItems: "center", gap: 5 }}>
+                                            <MapPin size={10} /> {previewTarget}
+                                          </div>
+                                        )}
+                                      </>
+                                    )}
+                                  </div>
+
+                                  {action.preview.before && !isEditing && (
+                                    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                                      <div style={{
+                                        background: "rgba(239,68,68,0.06)", border: "1px solid rgba(239,68,68,0.15)",
+                                        borderRadius: 6, padding: "8px 10px",
+                                      }}>
+                                        <div style={{ fontSize: 9, fontWeight: 700, color: "#EF4444", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>Before</div>
+                                        <div style={{ fontSize: 11, color: "var(--t2)", lineHeight: 1.5 }}>{action.preview.before}</div>
+                                      </div>
+                                      <div style={{
+                                        background: "rgba(22,163,74,0.06)", border: "1px solid rgba(22,163,74,0.15)",
+                                        borderRadius: 6, padding: "8px 10px",
+                                      }}>
+                                        <div style={{ fontSize: 9, fontWeight: 700, color: C.green, textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 4 }}>After</div>
+                                        <div style={{ fontSize: 11, color: "var(--t2)", lineHeight: 1.5 }}>{action.preview.after}</div>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           );
                         })}
                       </div>
-                    </div>
-
-                    <div style={{ padding: "10px 18px", display: "flex", gap: 8, alignItems: "center" }}>
-                      <a href={item.url} target="_blank" rel="noopener noreferrer" style={{
-                        padding: "5px 14px", borderRadius: 6, fontSize: 11, fontWeight: 700,
-                        border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
-                        display: "flex", alignItems: "center", gap: 5, textDecoration: "none",
-                      }}>
-                        <ExternalLink size={11} /> Open Portal
-                      </a>
                     </div>
                   </div>
                 )}
