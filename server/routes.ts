@@ -1108,7 +1108,7 @@ export async function registerRoutes(
 
   app.patch("/api/calendar-templates/:id", requireAuth, async (req, res) => {
     const user = await storage.getUser(req.session.userId!);
-    if (!user?.isAdmin) return res.status(403).json({ message: "Admin only" });
+    if (!user?.isAdmin && !user?.isPro) return res.status(403).json({ message: "Pro or Admin access required" });
     const partialSchema = insertCalendarEventTemplateSchema.partial();
     const parsed = partialSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
@@ -1119,7 +1119,7 @@ export async function registerRoutes(
 
   app.post("/api/calendar-templates", requireAuth, async (req, res) => {
     const user = await storage.getUser(req.session.userId!);
-    if (!user?.isAdmin) return res.status(403).json({ message: "Admin only" });
+    if (!user?.isAdmin && !user?.isPro) return res.status(403).json({ message: "Pro or Admin access required" });
     const parsed = insertCalendarEventTemplateSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
     const template = await storage.createCalendarEventTemplate(parsed.data);
@@ -1128,7 +1128,7 @@ export async function registerRoutes(
 
   app.delete("/api/calendar-templates/:id", requireAuth, async (req, res) => {
     const user = await storage.getUser(req.session.userId!);
-    if (!user?.isAdmin) return res.status(403).json({ message: "Admin only" });
+    if (!user?.isAdmin && !user?.isPro) return res.status(403).json({ message: "Pro or Admin access required" });
     await storage.deleteCalendarEventTemplate(req.params.id);
     res.json({ ok: true });
   });
