@@ -16,7 +16,9 @@ import {
   Newspaper, Check, X, Cpu, MemoryStick,
   Wifi, Server, Clock, Zap, AlertCircle,
   TrendingUp, Filter, Globe, MapPin,
+  CalendarDays, Pencil, Eye, EyeOff, Save, RotateCw,
 } from "lucide-react";
+import type { CalendarEventTemplate } from "@shared/schema";
 
 interface AdminUser {
   id: string;
@@ -943,10 +945,233 @@ function PlatformTab({ users }: { users: AdminUser[] }) {
   );
 }
 
+const FREQ_LABELS: Record<string, string> = {
+  monthly: "Monthly", quarterly: "Quarterly", annual: "Annual",
+  "one-time": "One-time", holiday: "Holiday",
+};
+
+const TYPE_COLORS: Record<string, string> = {
+  tax: "#F59E0B", bpjs: "#22C55E", banjar: "#E879F9", safety: "#FCA5A5",
+  docs: "#A78BFA", ops: "#FB923C", ota: "#14B8A6",
+};
+
+const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+function CalendarTab() {
+  const { data: templates = [], isLoading } = useQuery<CalendarEventTemplate[]>({
+    queryKey: ["/api/calendar-templates"],
+    queryFn: () => fetch("/api/calendar-templates", { credentials: "include" }).then(r => r.json()),
+  });
+
+  const [search, setSearch] = useState("");
+  const [freqFilter, setFreqFilter] = useState<string>("all");
+  const [typeFilter, setTypeFilter] = useState<string>("all");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState<Partial<CalendarEventTemplate>>({});
+
+  const toggleActive = useMutation({
+    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
+      await apiRequest("PATCH", `/api/calendar-templates/${id}`, { isActive });
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/calendar-templates"] }),
+  });
+
+  const updateTemplate = useMutation({
+    mutationFn: async ({ id, updates }: { id: string; updates: Partial<CalendarEventTemplate> }) => {
+      await apiRequest("PATCH", `/api/calendar-templates/${id}`, updates);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/calendar-templates"] });
+      setEditingId(null);
+    },
+  });
+
+  const filtered = useMemo(() => {
+    return templates.filter(t => {
+      if (freqFilter !== "all" && t.frequency !== freqFilter) return false;
+      if (typeFilter !== "all" && t.type !== typeFilter) return false;
+      if (search) {
+        const s = search.toLowerCase();
+        return t.eventKey.toLowerCase().includes(s) ||
+               t.titleEn.toLowerCase().includes(s) ||
+               t.shortEn.toLowerCase().includes(s);
+      }
+      return true;
+    });
+  }, [templates, search, freqFilter, typeFilter]);
+
+  const counts = useMemo(() => {
+    const byFreq: Record<string, number> = {};
+    const byType: Record<string, number> = {};
+    for (const t of templates) {
+      byFreq[t.frequency] = (byFreq[t.frequency] || 0) + 1;
+      byType[t.type] = (byType[t.type] || 0) + 1;
+    }
+    return { byFreq, byType, active: templates.filter(t => t.isActive).length, total: templates.length };
+  }, [templates]);
+
+  function startEdit(t: CalendarEventTemplate) {
+    setEditingId(t.id);
+    setEditForm({ dueDay: t.dueDay, dueMonth: t.dueMonth, titleEn: t.titleEn, shortEn: t.shortEn, descEn: t.descEn, titleUk: t.titleUk, shortUk: t.shortUk, titleId: t.titleId, shortId: t.shortId });
+  }
+
+  function saveEdit() {
+    if (!editingId) return;
+    updateTemplate.mutate({ id: editingId, updates: editForm });
+  }
+
+  if (isLoading) return <div style={{ padding: 40, textAlign: "center", color: "var(--t3)", fontSize: 13 }}>Loading templates...</div>;
+
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+      <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+        {[
+          { label: "Total", value: counts.total, color: "var(--accent)" },
+          { label: "Active", value: counts.active, color: "#16A34A" },
+          { label: "Inactive", value: counts.total - counts.active, color: "#EF4444" },
+        ].map(s => (
+          <div key={s.label} style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 10, padding: "12px 18px", minWidth: 100 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: s.color }}>{s.value}</div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--t3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{s.label}</div>
+          </div>
+        ))}
+        {Object.entries(counts.byFreq).map(([freq, count]) => (
+          <div key={freq} style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 10, padding: "12px 18px", minWidth: 80 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, color: "var(--txt)" }}>{count}</div>
+            <div style={{ fontSize: 10, fontWeight: 600, color: "var(--t3)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{FREQ_LABELS[freq] || freq}</div>
+          </div>
+        ))}
+      </div>
+
+      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+        <div style={{ position: "relative", flex: 1, minWidth: 200 }}>
+          <Search size={13} style={{ position: "absolute", left: 10, top: "50%", transform: "translateY(-50%)", color: "var(--t3)" }} />
+          <input
+            data-testid="input-search-templates"
+            value={search} onChange={e => setSearch(e.target.value)}
+            placeholder="Search event key, title..."
+            style={{ width: "100%", padding: "7px 10px 7px 30px", borderRadius: 7, border: "1px solid var(--b)", background: "var(--surface)", color: "var(--txt)", fontSize: 12, outline: "none" }}
+          />
+        </div>
+        <select data-testid="select-freq-filter" value={freqFilter} onChange={e => setFreqFilter(e.target.value)}
+          style={{ padding: "7px 10px", borderRadius: 7, border: "1px solid var(--b)", background: "var(--surface)", color: "var(--txt)", fontSize: 12 }}>
+          <option value="all">All Frequencies</option>
+          {Object.entries(FREQ_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+        </select>
+        <select data-testid="select-type-filter" value={typeFilter} onChange={e => setTypeFilter(e.target.value)}
+          style={{ padding: "7px 10px", borderRadius: 7, border: "1px solid var(--b)", background: "var(--surface)", color: "var(--txt)", fontSize: 12 }}>
+          <option value="all">All Types</option>
+          {Object.keys(TYPE_COLORS).map(k => <option key={k} value={k}>{k.charAt(0).toUpperCase() + k.slice(1)}</option>)}
+        </select>
+      </div>
+
+      <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 12, overflow: "hidden" }}>
+        <div style={{ padding: "10px 14px", borderBottom: "1px solid var(--b)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <SectionHead label={`Calendar Event Templates (${filtered.length})`} />
+        </div>
+        <div style={{ overflowX: "auto" }}>
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 12 }} data-testid="table-calendar-templates">
+            <thead>
+              <tr style={{ borderBottom: "1px solid var(--b)" }}>
+                {["Active", "Key", "Title", "Type", "Freq", "Due", "Gate", "Actions"].map(h => (
+                  <th key={h} style={{ padding: "8px 10px", textAlign: "left", fontSize: 10, fontWeight: 700, color: "var(--t3)", textTransform: "uppercase", letterSpacing: "0.06em", whiteSpace: "nowrap" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.map(t => {
+                const isEditing = editingId === t.id;
+                return (
+                  <tr key={t.id} style={{ borderBottom: "1px solid var(--b)", opacity: t.isActive ? 1 : 0.5, background: isEditing ? "rgba(20,184,166,0.04)" : undefined }}>
+                    <td style={{ padding: "8px 10px" }}>
+                      <button
+                        data-testid={`toggle-active-${t.eventKey}`}
+                        onClick={() => toggleActive.mutate({ id: t.id, isActive: !t.isActive })}
+                        style={{ background: "none", border: "none", cursor: "pointer", color: t.isActive ? "#16A34A" : "#EF4444", padding: 2 }}
+                        title={t.isActive ? "Active — click to deactivate" : "Inactive — click to activate"}
+                      >
+                        {t.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
+                      </button>
+                    </td>
+                    <td style={{ padding: "8px 10px", fontFamily: "monospace", fontSize: 11, color: "var(--accent)" }}>{t.eventKey}</td>
+                    <td style={{ padding: "8px 10px", maxWidth: 240 }}>
+                      {isEditing ? (
+                        <input
+                          data-testid="input-edit-title"
+                          value={editForm.titleEn || ""}
+                          onChange={e => setEditForm(f => ({ ...f, titleEn: e.target.value }))}
+                          style={{ width: "100%", padding: "4px 6px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--bg)", color: "var(--txt)", fontSize: 11 }}
+                        />
+                      ) : (
+                        <span style={{ fontSize: 11, fontWeight: 600 }}>{t.titleEn}</span>
+                      )}
+                    </td>
+                    <td style={{ padding: "8px 10px" }}>
+                      <span style={{ background: `${TYPE_COLORS[t.type] || "#94A3B8"}22`, color: TYPE_COLORS[t.type] || "#94A3B8", fontSize: 9, fontWeight: 800, padding: "2px 7px", borderRadius: 4, textTransform: "uppercase" }}>{t.type}</span>
+                    </td>
+                    <td style={{ padding: "8px 10px", fontSize: 10, fontWeight: 600, color: "var(--t2)" }}>{FREQ_LABELS[t.frequency] || t.frequency}</td>
+                    <td style={{ padding: "8px 10px", fontSize: 11 }}>
+                      {isEditing ? (
+                        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                          {(t.frequency !== "monthly") && (
+                            <select
+                              data-testid="select-edit-month"
+                              value={editForm.dueMonth ?? ""}
+                              onChange={e => setEditForm(f => ({ ...f, dueMonth: e.target.value === "" ? null : Number(e.target.value) }))}
+                              style={{ padding: "3px 4px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--bg)", color: "var(--txt)", fontSize: 10, width: 50 }}
+                            >
+                              {MONTH_SHORT.map((m, i) => <option key={i} value={i}>{m}</option>)}
+                            </select>
+                          )}
+                          <input
+                            data-testid="input-edit-day"
+                            type="number" min={1} max={31}
+                            value={editForm.dueDay || ""}
+                            onChange={e => setEditForm(f => ({ ...f, dueDay: Number(e.target.value) }))}
+                            style={{ width: 36, padding: "3px 4px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--bg)", color: "var(--txt)", fontSize: 10, textAlign: "center" }}
+                          />
+                        </div>
+                      ) : (
+                        <span style={{ color: "var(--t2)" }}>
+                          {t.frequency === "monthly" ? `Day ${t.dueDay}` : t.dueMonth !== null && t.dueMonth !== undefined ? `${MONTH_SHORT[t.dueMonth]} ${t.dueDay}` : `Day ${t.dueDay}`}
+                        </span>
+                      )}
+                    </td>
+                    <td style={{ padding: "8px 10px", fontSize: 11, color: "var(--t2)" }}>G{t.gate}</td>
+                    <td style={{ padding: "8px 10px" }}>
+                      {isEditing ? (
+                        <div style={{ display: "flex", gap: 4 }}>
+                          <button data-testid="button-save-edit" onClick={saveEdit} disabled={updateTemplate.isPending}
+                            style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
+                            {updateTemplate.isPending ? <RotateCw size={10} className="animate-spin" /> : <Save size={10} />} Save
+                          </button>
+                          <button data-testid="button-cancel-edit" onClick={() => setEditingId(null)}
+                            style={{ background: "rgba(255,255,255,0.06)", color: "var(--t2)", border: "1px solid var(--b)", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+                            Cancel
+                          </button>
+                        </div>
+                      ) : (
+                        <button data-testid={`button-edit-${t.eventKey}`} onClick={() => startEdit(t)}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--t3)", padding: 2 }} title="Edit">
+                          <Pencil size={13} />
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminControlRoom() {
   const { user } = useAuth();
   const [, navigate] = useLocation();
-  const [tab, setTab] = useState<"overview" | "customers" | "intelligence" | "platform">("overview");
+  const [tab, setTab] = useState<"overview" | "customers" | "intelligence" | "platform" | "calendar">("overview");
 
   const { data: users = [], isLoading } = useQuery<AdminUser[]>({
     queryKey: ["/api/admin/users"],
@@ -967,6 +1192,7 @@ export default function AdminControlRoom() {
     { key: "overview" as const, label: "Overview", icon: <BarChart2 size={13} />, badge: undefined },
     { key: "customers" as const, label: "Customers", icon: <Users size={13} />, badge: users.length },
     { key: "intelligence" as const, label: "Intelligence", icon: <Radio size={13} />, badge: pendingIntel },
+    { key: "calendar" as const, label: "Calendar", icon: <CalendarDays size={13} />, badge: undefined },
     { key: "platform" as const, label: "Platform", icon: <Server size={13} />, badge: undefined },
   ];
 
@@ -1025,6 +1251,7 @@ export default function AdminControlRoom() {
             {tab === "overview" && <OverviewTab users={users} />}
             {tab === "customers" && <CustomersTab users={users} currentUserId={user.id} />}
             {tab === "intelligence" && <IntelligenceTab />}
+            {tab === "calendar" && <CalendarTab />}
             {tab === "platform" && <PlatformTab users={users} />}
           </>
         )}

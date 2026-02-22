@@ -2,10 +2,10 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useLanguage } from "@/i18n/context";
 import { useAuth } from "@/hooks/useAuth";
-import type { Property, VaultDocumentTemplate, VaultDocument, StaffMember } from "@shared/schema";
+import type { Property, VaultDocumentTemplate, VaultDocument, StaffMember, CalendarEventTemplate } from "@shared/schema";
 import { Calendar, AlertTriangle, RotateCw } from "lucide-react";
 import {
-  generateEvents, mapVaultDocs, mapStaffKitas, mapPropertyHgb,
+  generateEventsFromTemplates, mapVaultDocs, mapStaffKitas, mapPropertyHgb,
   typeColor, GATE_NAMES, type CalendarEvent,
 } from "@/lib/calendar-events";
 
@@ -23,8 +23,13 @@ export default function TimelinePage() {
     enabled: !!user,
   });
 
-  const { data: templates = [] } = useQuery<VaultDocumentTemplate[]>({
+  const { data: vaultTemplates = [] } = useQuery<VaultDocumentTemplate[]>({
     queryKey: ["/api/vault/templates"],
+  });
+
+  const { data: calendarTemplates = [] } = useQuery<CalendarEventTemplate[]>({
+    queryKey: ["/api/calendar-templates"],
+    queryFn: () => fetch("/api/calendar-templates?activeOnly=true", { credentials: "include" }).then(r => r.json()),
   });
 
   const selectedPropertyId = properties[0]?.id;
@@ -46,15 +51,15 @@ export default function TimelinePage() {
     today.setHours(0, 0, 0, 0);
     const yr = today.getFullYear();
 
-    const thisYearEvents = generateEvents(yr, language);
-    const nextYearEvents = generateEvents(yr + 1, language);
+    const thisYearEvents = generateEventsFromTemplates(calendarTemplates, yr, language);
+    const nextYearEvents = generateEventsFromTemplates(calendarTemplates, yr + 1, language);
     const seen = new Set(thisYearEvents.map(e => e.id));
     const merged = [...thisYearEvents];
     for (const e of nextYearEvents) {
       if (!seen.has(e.id)) merged.push(e);
     }
 
-    const vaultEvents = mapVaultDocs(vaultDocs, templates, language);
+    const vaultEvents = mapVaultDocs(vaultDocs, vaultTemplates, language);
     const kitasEvents = mapStaffKitas(staffMembers, language);
     const hgbEvents = mapPropertyHgb(properties, language);
 
@@ -62,7 +67,7 @@ export default function TimelinePage() {
 
     all.sort((a, b) => a.date.getTime() - b.date.getTime());
     return all;
-  }, [vaultDocs, templates, properties, staffMembers, language]);
+  }, [calendarTemplates, vaultDocs, vaultTemplates, properties, staffMembers, language]);
 
   const filtered = useMemo(() => {
     const today = new Date();

@@ -12,11 +12,13 @@ import {
   type UpdatePreferences, type InsertUpdatePreferences,
   type UserNotification, type InsertUserNotification,
   type RegulatoryChange, type InsertRegulatoryChange,
+  type CalendarEventTemplate, type InsertCalendarEventTemplate,
   users, complianceTerms, processNavigationGuides, properties,
   vaultDocumentTemplates, vaultDocuments,
   supportAccessGrants, adminAccessLog,
   banjarContributions, recurringFilings, staffMembers,
   updatePreferences, userNotifications, regulatoryChanges,
+  calendarEventTemplates,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, desc, count } from "drizzle-orm";
@@ -104,6 +106,13 @@ export interface IStorage {
   createVaultDocumentTemplate(template: InsertVaultDocumentTemplate): Promise<VaultDocumentTemplate>;
 
   getRecurringFilingById(id: string): Promise<RecurringFiling | undefined>;
+
+  getAllCalendarEventTemplates(activeOnly?: boolean): Promise<CalendarEventTemplate[]>;
+  getCalendarEventTemplateById(id: string): Promise<CalendarEventTemplate | undefined>;
+  getCalendarEventTemplateByKey(eventKey: string): Promise<CalendarEventTemplate | undefined>;
+  createCalendarEventTemplate(template: InsertCalendarEventTemplate): Promise<CalendarEventTemplate>;
+  updateCalendarEventTemplate(id: string, updates: Partial<InsertCalendarEventTemplate>): Promise<CalendarEventTemplate | undefined>;
+  deleteCalendarEventTemplate(id: string): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -571,6 +580,39 @@ export class DatabaseStorage implements IStorage {
   async getRecurringFilingById(id: string): Promise<RecurringFiling | undefined> {
     const [filing] = await db.select().from(recurringFilings).where(eq(recurringFilings.id, id));
     return filing;
+  }
+
+  async getAllCalendarEventTemplates(activeOnly?: boolean): Promise<CalendarEventTemplate[]> {
+    if (activeOnly) {
+      return db.select().from(calendarEventTemplates)
+        .where(eq(calendarEventTemplates.isActive, true))
+        .orderBy(calendarEventTemplates.sortOrder);
+    }
+    return db.select().from(calendarEventTemplates).orderBy(calendarEventTemplates.sortOrder);
+  }
+
+  async getCalendarEventTemplateById(id: string): Promise<CalendarEventTemplate | undefined> {
+    const [template] = await db.select().from(calendarEventTemplates).where(eq(calendarEventTemplates.id, id));
+    return template;
+  }
+
+  async getCalendarEventTemplateByKey(eventKey: string): Promise<CalendarEventTemplate | undefined> {
+    const [template] = await db.select().from(calendarEventTemplates).where(eq(calendarEventTemplates.eventKey, eventKey));
+    return template;
+  }
+
+  async createCalendarEventTemplate(template: InsertCalendarEventTemplate): Promise<CalendarEventTemplate> {
+    const [created] = await db.insert(calendarEventTemplates).values(template).returning();
+    return created;
+  }
+
+  async updateCalendarEventTemplate(id: string, updates: Partial<InsertCalendarEventTemplate>): Promise<CalendarEventTemplate | undefined> {
+    const [updated] = await db.update(calendarEventTemplates).set(updates).where(eq(calendarEventTemplates.id, id)).returning();
+    return updated;
+  }
+
+  async deleteCalendarEventTemplate(id: string): Promise<void> {
+    await db.delete(calendarEventTemplates).where(eq(calendarEventTemplates.id, id));
   }
 }
 

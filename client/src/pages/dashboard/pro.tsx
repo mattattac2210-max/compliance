@@ -10,10 +10,10 @@ import {
 } from "lucide-react";
 import { FILING_SCHEDULE, getNextFilingDates } from "@/lib/filing-schedule";
 import {
-  generateEvents, mapVaultDocs, mapStaffKitas, mapPropertyHgb,
+  generateEventsFromTemplates, mapVaultDocs, mapStaffKitas, mapPropertyHgb,
   typeColor,
 } from "@/lib/calendar-events";
-import type { Property, VaultDocument, VaultDocumentTemplate, StaffMember } from "@shared/schema";
+import type { Property, VaultDocument, VaultDocumentTemplate, StaffMember, CalendarEventTemplate } from "@shared/schema";
 
 interface ProDashboardProps {
   onOpenFlow: () => void;
@@ -75,6 +75,11 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
 
   const { data: templates = [] } = useQuery<VaultDocumentTemplate[]>({
     queryKey: ["/api/vault/templates"],
+  });
+
+  const { data: calendarTemplates = [] } = useQuery<CalendarEventTemplate[]>({
+    queryKey: ["/api/calendar-templates"],
+    queryFn: () => fetch("/api/calendar-templates?activeOnly=true", { credentials: "include" }).then(r => r.json()),
   });
 
   const { data: documents = [] } = useQuery<VaultDocument[]>({
@@ -208,8 +213,8 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
 
   const upcomingDeadlines = useMemo(() => {
     const yr = now.getFullYear();
-    const staticEvents = generateEvents(yr, lang);
-    const nextYearEvents = generateEvents(yr + 1, lang);
+    const staticEvents = generateEventsFromTemplates(calendarTemplates, yr, lang);
+    const nextYearEvents = generateEventsFromTemplates(calendarTemplates, yr + 1, lang);
     const seen = new Set(staticEvents.map(e => e.id));
     for (const e of nextYearEvents) {
       if (!seen.has(e.id)) staticEvents.push(e);
@@ -230,7 +235,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
       type: e.type,
       color: typeColor(e.type, e.gate),
     }));
-  }, [documents, templates, staffMembers, properties, now, in90, lang]);
+  }, [calendarTemplates, documents, templates, staffMembers, properties, now, in90, lang]);
 
   const gateDocCounts = useMemo(() => {
     return GATE_ABBRS.map((_, i) => {

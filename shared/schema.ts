@@ -322,3 +322,34 @@ export const regulatoryChanges = pgTable("regulatory_changes", {
 export const insertRegulatoryChangeSchema = createInsertSchema(regulatoryChanges).omit({ id: true, createdAt: true });
 export type InsertRegulatoryChange = z.infer<typeof insertRegulatoryChangeSchema>;
 export type RegulatoryChange = typeof regulatoryChanges.$inferSelect;
+
+export const calendarEventTemplates = pgTable("calendar_event_templates", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  eventKey: text("event_key").notNull().unique(),
+  frequency: text("frequency").notNull(),
+  dueDay: integer("due_day").notNull(),
+  dueMonth: integer("due_month"),
+  quarterMonths: json("quarter_months").$type<number[]>(),
+  quarterLabels: json("quarter_labels").$type<string[]>(),
+  type: text("type").notNull(),
+  gate: integer("gate").notNull(),
+  icon: text("icon").notNull(),
+  titleEn: text("title_en").notNull(),
+  titleUk: text("title_uk"),
+  titleId: text("title_id"),
+  shortEn: text("short_en").notNull(),
+  shortUk: text("short_uk"),
+  shortId: text("short_id"),
+  descEn: text("desc_en").notNull(),
+  descUk: text("desc_uk"),
+  descId: text("desc_id"),
+  periodTemplate: text("period_template").notNull().default("cur_month"),
+  isActive: boolean("is_active").notNull().default(true),
+  yearSpecific: integer("year_specific"),
+  isRecurring: boolean("is_recurring").notNull().default(true),
+  sortOrder: integer("sort_order").notNull().default(0),
+});
+
+export const insertCalendarEventTemplateSchema = createInsertSchema(calendarEventTemplates).omit({ id: true });
+export type InsertCalendarEventTemplate = z.infer<typeof insertCalendarEventTemplateSchema>;
+export type CalendarEventTemplate = typeof calendarEventTemplates.$inferSelect;

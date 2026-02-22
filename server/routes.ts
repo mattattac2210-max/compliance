@@ -1,9 +1,10 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
-import { insertComplianceTermSchema, insertProcessGuideSchema, insertPropertySchema, insertVaultDocumentSchema, insertBanjarContributionSchema, insertRecurringFilingSchema, insertStaffMemberSchema } from "@shared/schema";
+import { insertComplianceTermSchema, insertProcessGuideSchema, insertPropertySchema, insertVaultDocumentSchema, insertBanjarContributionSchema, insertRecurringFilingSchema, insertStaffMemberSchema, insertCalendarEventTemplateSchema } from "@shared/schema";
 import { seedComplianceTerms } from "./seed";
 import { seedVaultTemplates } from "./seed-vault";
+import { seedCalendarEventTemplates } from "./seed-calendar-templates";
 import bcrypt from "bcrypt";
 import { z } from "zod";
 import multer from "multer";
@@ -53,6 +54,7 @@ export async function registerRoutes(
 ): Promise<Server> {
   await seedComplianceTerms();
   await seedVaultTemplates();
+  await seedCalendarEventTemplates();
 
   app.post("/api/auth/register", async (req, res) => {
     const parsed = registerSchema.safeParse(req.body);
@@ -1094,6 +1096,40 @@ export async function registerRoutes(
 
   app.delete("/api/filings/:id", requireAuth, async (req, res) => {
     await storage.deleteRecurringFiling(req.params.id);
+    res.json({ ok: true });
+  });
+
+  // === Calendar Event Templates ===
+  app.get("/api/calendar-templates", requireAuth, async (req, res) => {
+    const activeOnly = req.query.activeOnly === "true";
+    const templates = await storage.getAllCalendarEventTemplates(activeOnly);
+    res.json(templates);
+  });
+
+  app.patch("/api/calendar-templates/:id", requireAuth, async (req, res) => {
+    const user = await storage.getUser(req.session.userId!);
+    if (!user?.isAdmin) return res.status(403).json({ message: "Admin only" });
+    const partialSchema = insertCalendarEventTemplateSchema.partial();
+    const parsed = partialSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
+    const updated = await storage.updateCalendarEventTemplate(req.params.id, parsed.data);
+    if (!updated) return res.status(404).json({ message: "Template not found" });
+    res.json(updated);
+  });
+
+  app.post("/api/calendar-templates", requireAuth, async (req, res) => {
+    const user = await storage.getUser(req.session.userId!);
+    if (!user?.isAdmin) return res.status(403).json({ message: "Admin only" });
+    const parsed = insertCalendarEventTemplateSchema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
+    const template = await storage.createCalendarEventTemplate(parsed.data);
+    res.status(201).json(template);
+  });
+
+  app.delete("/api/calendar-templates/:id", requireAuth, async (req, res) => {
+    const user = await storage.getUser(req.session.userId!);
+    if (!user?.isAdmin) return res.status(403).json({ message: "Admin only" });
+    await storage.deleteCalendarEventTemplate(req.params.id);
     res.json({ ok: true });
   });
 

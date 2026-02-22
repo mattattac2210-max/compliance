@@ -4,12 +4,12 @@ import { ChevronLeft, ChevronRight, Plus, X, Calendar as CalIcon, Check, AlertTr
 import { useAuth } from "@/hooks/useAuth";
 import { useLanguage } from "@/i18n/context";
 import {
-  generateEvents, expandCustomEvent, typeColor, GATE_NAMES,
+  generateEventsFromTemplates, expandCustomEvent, typeColor, GATE_NAMES,
   FILTER_TYPES, getFilterLabels, getLegendItems,
   mapVaultDocs, mapStaffKitas, mapPropertyHgb, mapRecurringFilings,
   type CalendarEvent, type CustomEvent, type RecurringFilingInput,
 } from "@/lib/calendar-events";
-import type { Property, VaultDocumentTemplate, VaultDocument, StaffMember, RecurringFiling } from "@shared/schema";
+import type { Property, VaultDocumentTemplate, VaultDocument, StaffMember, RecurringFiling, CalendarEventTemplate } from "@shared/schema";
 
 const COLOR_OPTIONS = ["#14B8A6", "#F59E0B", "#E879F9", "#FCA5A5", "#60A5FA", "#22C55E", "#A78BFA", "#94A3B8", "#FB923C", "#F472B6"];
 
@@ -162,8 +162,13 @@ export default function ComplianceCalendar() {
     enabled: !!user,
   });
 
-  const { data: templates = [] } = useQuery<VaultDocumentTemplate[]>({
+  const { data: vaultTemplates = [] } = useQuery<VaultDocumentTemplate[]>({
     queryKey: ["/api/vault/templates"],
+  });
+
+  const { data: calendarTemplates = [] } = useQuery<CalendarEventTemplate[]>({
+    queryKey: ["/api/calendar-templates"],
+    queryFn: () => fetch("/api/calendar-templates?activeOnly=true", { credentials: "include" }).then(r => r.json()),
   });
 
   const selectedPropertyId = properties[0]?.id;
@@ -186,10 +191,10 @@ export default function ComplianceCalendar() {
     enabled: !!selectedPropertyId,
   });
 
-  const baseEvents = useMemo(() => generateEvents(curYear, language), [curYear, language]);
+  const baseEvents = useMemo(() => generateEventsFromTemplates(calendarTemplates, curYear, language), [calendarTemplates, curYear, language]);
   const allEvents = useMemo(() => {
     const expanded = customEvs.flatMap(ce => expandCustomEvent(ce, curYear));
-    const vaultEvents = mapVaultDocs(vaultDocs, templates, language);
+    const vaultEvents = mapVaultDocs(vaultDocs, vaultTemplates, language);
     const kitasEvents = mapStaffKitas(staffMembers, language);
     const hgbEvents = mapPropertyHgb(properties, language);
     const { events: filingEvents, overrideIds } = mapRecurringFilings(recurringFilings as RecurringFilingInput[], language);
@@ -206,7 +211,7 @@ export default function ComplianceCalendar() {
       return ev;
     });
     return events;
-  }, [baseEvents, customEvs, curYear, vaultDocs, templates, staffMembers, properties, recurringFilings, language, dismissed, dateOverrides]);
+  }, [baseEvents, customEvs, curYear, vaultDocs, vaultTemplates, staffMembers, properties, recurringFilings, language, dismissed, dateOverrides]);
 
   const getEventsForDay = useCallback((y: number, m: number, d: number) => {
     let evts = allEvents.filter(ev => ev.date.getFullYear() === y && ev.date.getMonth() === m && ev.date.getDate() === d);
