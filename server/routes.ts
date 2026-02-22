@@ -171,8 +171,13 @@ export async function registerRoutes(
   }
 
   app.get("/api/properties", requireAuth, async (req, res) => {
-    const props = await storage.getPropertiesByUserId(req.session.userId!);
-    res.json(props);
+    try {
+      const props = await storage.getPropertiesByUserId(req.session.userId!);
+      res.json(props);
+    } catch (err) {
+      console.error("Properties fetch error:", err);
+      res.json([]);
+    }
   });
 
   app.post("/api/properties", requireAuth, async (req, res) => {
@@ -215,9 +220,14 @@ export async function registerRoutes(
   });
 
   app.get("/api/terms", async (_req, res) => {
-    const activeOnly = _req.query.activeOnly !== "false";
-    const terms = await storage.getAllTerms(activeOnly);
-    res.json(terms);
+    try {
+      const activeOnly = _req.query.activeOnly !== "false";
+      const terms = await storage.getAllTerms(activeOnly);
+      res.json(terms);
+    } catch (err) {
+      console.error("Terms fetch error:", err);
+      res.json([]);
+    }
   });
 
   app.get("/api/terms/search", async (req, res) => {
@@ -1133,9 +1143,14 @@ export async function registerRoutes(
 
   // === Calendar Event Templates ===
   app.get("/api/calendar-templates", requireAuth, async (req, res) => {
-    const activeOnly = req.query.activeOnly === "true";
-    const templates = await storage.getAllCalendarEventTemplates(activeOnly);
-    res.json(templates);
+    try {
+      const activeOnly = req.query.activeOnly === "true";
+      const templates = await storage.getAllCalendarEventTemplates(activeOnly);
+      res.json(templates);
+    } catch (err) {
+      console.error("Calendar templates fetch error:", err);
+      res.json([]);
+    }
   });
 
   app.patch("/api/calendar-templates/:id", requireAuth, async (req, res) => {
