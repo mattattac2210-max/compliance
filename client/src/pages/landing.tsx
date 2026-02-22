@@ -165,12 +165,12 @@ export default function LandingPage() {
                 <div className="ct-ic" style={{ background: "rgba(217,119,6,.1)" }}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#D97706" strokeWidth="1.5"><rect x="1.5" y="2.5" width="11" height="9" rx="1.5" /><line x1="1.5" y1="5.5" x2="12.5" y2="5.5" /></svg>
                 </div>
-                <div className="ct-tx"><div className="ct-name">Tax obligations — 6 recurring items</div><div className="ct-hint">PB1, PPh 21, PPh 25, LKPM, SPT Tahunan, PBB</div></div>
+                <div className="ct-tx"><div className="ct-name">{t.landing.obTaxName}</div><div className="ct-hint">{t.landing.obTaxHint}</div></div>
                 <ArrowSvg open={!!openSections[0]} />
               </div>
               <div className={`cb${openSections[0] ? " open" : ""}`}>
-                <p className="cb-p">Tax obligations run across three separate portals. PB1 hotel tax (10% of prior month revenue) is filed monthly via e-Palapa by the 20th. PPh 21 (payroll withholding) and PPh 25 (corporate instalment) go via CoreTax — the system that replaced eFiling in 2025. LKPM investment reports are filed quarterly via OSS. The annual SPT Tahunan is via CoreTax by 30 April. PBB land tax is paid by 30 September.</p>
-                <div className="cb-tags"><span className="tag tax">PB1 — 20th monthly</span><span className="tag tax">PPh 21 — 20th monthly</span><span className="tag tax">PPh 25 — 15th monthly</span><span className="tag tax">LKPM — quarterly</span><span className="tag tax">SPT Tahunan — Apr 30</span><span className="tag tax">PBB — Sep 30</span></div>
+                <p className="cb-p">{t.landing.obTaxBody}</p>
+                <div className="cb-tags">{t.landing.obTaxTags.map((tag: string, i: number) => <span key={i} className="tag tax">{tag}</span>)}</div>
               </div>
             </div>
 
@@ -180,12 +180,12 @@ export default function LandingPage() {
                 <div className="ct-ic" style={{ background: "rgba(22,163,74,.1)" }}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#16A34A" strokeWidth="1.5"><circle cx="7" cy="7" r="5.5" /><polyline points="4.5,7 6.5,9 9.5,5" /></svg>
                 </div>
-                <div className="ct-tx"><div className="ct-name">Staff &amp; BPJS — 5 items</div><div className="ct-hint">Health insurance, employment insurance, THR holiday bonuses</div></div>
+                <div className="ct-tx"><div className="ct-name">{t.landing.obBpjsName}</div><div className="ct-hint">{t.landing.obBpjsHint}</div></div>
                 <ArrowSvg open={!!openSections[1]} />
               </div>
               <div className={`cb${openSections[1] ? " open" : ""}`}>
-                <p className="cb-p">BPJS Kesehatan (4% employer + 1% employee) and BPJamsostek must both be paid by the 10th of each month. THR holiday bonuses — one month's salary — are legally required for all staff, 7 days before the relevant religious holiday. In Bali this means three separate THR events per year: Nyepi, Eid, and Christmas.</p>
-                <div className="cb-tags"><span className="tag bpjs">BPJS Kesehatan — 10th monthly</span><span className="tag bpjs">BPJamsostek — 10th monthly</span><span className="tag bpjs">THR Nyepi</span><span className="tag bpjs">THR Eid</span><span className="tag bpjs">THR Christmas</span></div>
+                <p className="cb-p">{t.landing.obBpjsBody}</p>
+                <div className="cb-tags">{t.landing.obBpjsTags.map((tag: string, i: number) => <span key={i} className="tag bpjs">{tag}</span>)}</div>
               </div>
             </div>
 
@@ -195,12 +195,12 @@ export default function LandingPage() {
                 <div className="ct-ic" style={{ background: "rgba(219,39,119,.1)" }}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#DB2777" strokeWidth="1.5"><path d="M7 1.5l5.5 3v5c0 3-2.5 5-5.5 5.5C4 14.5 1.5 12.5 1.5 9.5v-5L7 1.5z" /></svg>
                 </div>
-                <div className="ct-tx"><div className="ct-name">Banjar &amp; community — ongoing</div><div className="ct-hint">Monthly iuran, quarterly gotong royong, annual ceremonial contributions</div></div>
+                <div className="ct-tx"><div className="ct-name">{t.landing.obBanjarName}</div><div className="ct-hint">{t.landing.obBanjarHint}</div></div>
                 <ArrowSvg open={!!openSections[2]} />
               </div>
               <div className={`cb${openSections[2] ? " open" : ""}`}>
-                <p className="cb-p">Banjar obligations are not optional — they define your standing in the community and directly affect how local authorities treat your operation. Monthly iuran (IDR 100K–1M+), quarterly gotong royong, and annual ceremonial contributions are all expected. Amounts vary by area — confirm with your Kelian Banjar. DSCVR tracks the standard schedule and flags upcoming events.</p>
-                <div className="cb-tags"><span className="tag ban">Iuran Bulanan</span><span className="tag ban">Gotong Royong</span><span className="tag ban">Galungan &amp; Kuningan</span><span className="tag ban">Odalan / Melaspas</span></div>
+                <p className="cb-p">{t.landing.obBanjarBody}</p>
+                <div className="cb-tags">{t.landing.obBanjarTags.map((tag: string, i: number) => <span key={i} className="tag ban">{tag}</span>)}</div>
               </div>
             </div>
 
@@ -210,12 +210,12 @@ export default function LandingPage() {
                 <div className="ct-ic" style={{ background: "rgba(232,25,44,.1)" }}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#E8192C" strokeWidth="1.5"><path d="M7 1.5L13.5 12H.5L7 1.5z" /><line x1="7" y1="5.5" x2="7" y2="8.5" strokeLinecap="round" /><circle cx="7" cy="10.5" r=".65" fill="#E8192C" stroke="none" /></svg>
                 </div>
-                <div className="ct-tx"><div className="ct-name">Safety certificates — 6 items</div><div className="ct-hint">APAR monthly, DAMKAR annual, pool, electrical, water quality</div></div>
+                <div className="ct-tx"><div className="ct-name">{t.landing.obSafetyName}</div><div className="ct-hint">{t.landing.obSafetyHint}</div></div>
                 <ArrowSvg open={!!openSections[3]} />
               </div>
               <div className={`cb${openSections[3] ? " open" : ""}`}>
-                <p className="cb-p">Safety certificates are the most common cause of OTA verification blocks and Satpol PP issues. DAMKAR fire safety requires a physical inspection — book at least 30 days in advance. Monthly APAR checks must be logged in an SOP Evidence Book. Pool quarterly checks, annual electrical inspection, and water quality testing complete the set.</p>
-                <div className="cb-tags"><span className="tag saf">APAR Monthly</span><span className="tag saf">APAR Annual Service</span><span className="tag saf">DAMKAR Certificate</span><span className="tag saf">Pool Safety Q-check</span><span className="tag saf">Electrical Annual</span><span className="tag saf">Water Quality Test</span></div>
+                <p className="cb-p">{t.landing.obSafetyBody}</p>
+                <div className="cb-tags">{t.landing.obSafetyTags.map((tag: string, i: number) => <span key={i} className="tag saf">{tag}</span>)}</div>
               </div>
             </div>
 
@@ -225,12 +225,12 @@ export default function LandingPage() {
                 <div className="ct-ic" style={{ background: "rgba(37,99,235,.1)" }}>
                   <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="#2563EB" strokeWidth="1.5"><circle cx="7" cy="4.5" r="2.5" /><path d="M1.5 12.5c0-3.04 2.46-5.5 5.5-5.5s5.5 2.46 5.5 5.5" /></svg>
                 </div>
-                <div className="ct-tx"><div className="ct-name">OTA &amp; platform requirements — 4 items</div><div className="ct-hint">Airbnb, Booking.com, Agoda, Vrbo verification deadlines</div></div>
+                <div className="ct-tx"><div className="ct-name">{t.landing.obOtaName}</div><div className="ct-hint">{t.landing.obOtaHint}</div></div>
                 <ArrowSvg open={!!openSections[4]} />
               </div>
               <div className={`cb${openSections[4] ? " open" : ""}`}>
-                <p className="cb-p">Indonesian OTA platforms are required to verify that properties hold valid NIB and relevant operating permits. The March 2026 deadline affects listings on Airbnb, Booking.com, Agoda and others. Unverified properties risk delisting. DSCVR tracks your verification status, flags what's missing, and links each OTA requirement back to the specific gate that provides the required documentation.</p>
-                <div className="cb-tags"><span className="tag doc">Airbnb verification</span><span className="tag doc">Booking.com NIB</span><span className="tag doc">Agoda permit check</span><span className="tag doc">Vrbo compliance</span></div>
+                <p className="cb-p">{t.landing.obOtaBody}</p>
+                <div className="cb-tags">{t.landing.obOtaTags.map((tag: string, i: number) => <span key={i} className="tag doc">{tag}</span>)}</div>
               </div>
             </div>
           </div>
@@ -248,11 +248,11 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="hiw-steps">
-            <div className="hiw-step"><div className="hiw-step-n">01</div><div className="hiw-step-l">Register</div></div>
-            <div className="hiw-step"><div className="hiw-step-n">02</div><div className="hiw-step-l">Map property</div></div>
-            <div className="hiw-step"><div className="hiw-step-n">03</div><div className="hiw-step-l">See your gates</div></div>
-            <div className="hiw-step"><div className="hiw-step-n">04</div><div className="hiw-step-l">Go Pro</div></div>
-            <div className="hiw-step"><div className="hiw-step-n">05</div><div className="hiw-step-l">Stay compliant</div></div>
+            <div className="hiw-step"><div className="hiw-step-n">01</div><div className="hiw-step-l">{t.landing.hiwStep1}</div></div>
+            <div className="hiw-step"><div className="hiw-step-n">02</div><div className="hiw-step-l">{t.landing.hiwStep2}</div></div>
+            <div className="hiw-step"><div className="hiw-step-n">03</div><div className="hiw-step-l">{t.landing.hiwStep3}</div></div>
+            <div className="hiw-step"><div className="hiw-step-n">04</div><div className="hiw-step-l">{t.landing.hiwStep4}</div></div>
+            <div className="hiw-step"><div className="hiw-step-n">05</div><div className="hiw-step-l">{t.landing.hiwStep5}</div></div>
           </div>
         </div>
       </div>
@@ -282,9 +282,9 @@ export default function LandingPage() {
               <div className="fp-h">{t.landing.calTitle.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</div>
               <p className="fp-p">{t.landing.calBody}</p>
               <div className="fp-buls">
-                <div className="fp-bul"><CheckSvg /> All 120+ events pre-loaded for your property type and regency</div>
-                <div className="fp-bul"><CheckSvg /> Plain-language explanation on every event — portal, amounts, documents needed</div>
-                <div className="fp-bul"><CheckSvg /> Deadlines auto-adjust when government portal schedules change</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.calBul1}</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.calBul2}</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.calBul3}</div>
               </div>
               <div className="fp-note">{t.landing.calNote}</div>
             </div>
@@ -316,11 +316,11 @@ export default function LandingPage() {
               <div className="fp-h">{t.landing.alertsTitle.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</div>
               <p className="fp-p">{t.landing.alertsBody}</p>
               <div className="fp-buls">
-                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>In-app, email, and direct to staff phones</strong> — WhatsApp or SMS, no app install required</div>
-                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>Route by obligation type</strong> — tax to your accountant, APAR to your caretaker, banjar to your villa manager</div>
-                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>Staff confirm on their phone</strong> — upload a photo or receipt, updates your dashboard instantly</div>
-                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>14-day advance warning</strong> on every deadline — overdue items escalate automatically</div>
-                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>Owner confirmation</strong> every time a task is marked done — full visibility without doing it yourself</div>
+                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>{t.landing.alertsBul1}</strong>{t.landing.alertsBul1b}</div>
+                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>{t.landing.alertsBul2}</strong>{t.landing.alertsBul2b}</div>
+                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>{t.landing.alertsBul3}</strong>{t.landing.alertsBul3b}</div>
+                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>{t.landing.alertsBul4}</strong>{t.landing.alertsBul4b}</div>
+                <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>{t.landing.alertsBul5}</strong>{t.landing.alertsBul5b}</div>
               </div>
               <div className="fp-note">{t.landing.alertsNote}</div>
             </div>
@@ -380,10 +380,10 @@ export default function LandingPage() {
               <div className="fp-h">{t.landing.vaultTitle.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</div>
               <p className="fp-p">{t.landing.vaultBody}</p>
               <div className="fp-buls">
-                <div className="fp-bul"><CheckSvg /> Unlimited uploads linked to compliance events and gates</div>
-                <div className="fp-bul"><CheckSvg /> Date-stamped audit trail — every upload timestamped and traceable</div>
-                <div className="fp-bul"><CheckSvg /> Missing documents flagged — shows exactly where your record has gaps</div>
-                <div className="fp-bul"><CheckSvg /> Export full compliance record as PDF — for audits, inspections, or accountants</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.vaultBul1}</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.vaultBul2}</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.vaultBul3}</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.vaultBul4}</div>
               </div>
               <div className="fp-note">{t.landing.vaultNote}</div>
             </div>
@@ -405,9 +405,9 @@ export default function LandingPage() {
               <div className="fp-h">{t.landing.gatesTitle.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</div>
               <p className="fp-p">{t.landing.gatesBody}</p>
               <div className="fp-buls">
-                <div className="fp-bul"><CheckSvg /> G0 Foundation → G7 OTA Verified, every step mapped</div>
-                <div className="fp-bul"><CheckSvg /> Blocking items flagged with clear next actions and portal links</div>
-                <div className="fp-bul"><CheckSvg /> Documents uploaded to Vault auto-update gate completion percentages</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.gatesBul1}</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.gatesBul2}</div>
+                <div className="fp-bul"><CheckSvg /> {t.landing.gatesBul3}</div>
               </div>
               <div className="fp-note">{t.landing.gatesNote}</div>
             </div>
