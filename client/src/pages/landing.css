@@ -308,17 +308,19 @@
   position:fixed;
   top:60px;
   left:0;right:0;
-  z-index:99;
+  z-index:101;
   display:flex;gap:0;
   background:var(--navy);
   border-bottom:1px solid var(--dk-b);
   box-shadow:0 4px 20px rgba(0,0,0,.25);
   opacity:0;
-  transition:opacity .25s ease;
+  visibility:hidden;
+  transition:opacity .25s ease, visibility .25s ease;
   pointer-events:none;
 }
 .lp .ph-progress-float.visible{
   opacity:1;
+  visibility:visible;
   pointer-events:auto;
 }
 .lp .ph-progress-float .ph-step{
