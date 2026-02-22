@@ -584,21 +584,54 @@ export async function registerRoutes(
     res.json({ active: true, targetUserId: req.session.supportUserId, targetEmail: targetUser?.email });
   });
 
-  // === Platform health endpoint ===
-  app.get("/api/admin/platform-health", requireAuth, requireAdmin, async (_req, res) => {
-    const uptime = process.uptime();
-    const hours = Math.floor(uptime / 3600);
-    const mins = Math.floor((uptime % 3600) / 60);
-    const mem = process.memoryUsage();
-    res.json({
-      status: "healthy" as const,
-      uptime: `${hours}h ${mins}m`,
-      cpu: undefined,
-      memory: Math.round(mem.rss / 1024 / 1024),
-      memoryMax: Math.round(mem.heapTotal / 1024 / 1024),
-      requestsLastHour: undefined,
-      deploy: undefined,
-    });
+  // === Admin platform health (Render API proxy) ===
+  app.get("/api/admin/platform-health", requireAuth, requireAdmin, async (req, res) => {
+    const RENDER_API_KEY = process.env.RENDER_API_KEY;
+    const RENDER_SERVICE_ID = process.env.RENDER_SERVICE_ID;
+
+    if (!RENDER_API_KEY || !RENDER_SERVICE_ID) {
+      return res.json({
+        status: "healthy",
+        uptime: "unknown \u2014 add RENDER_API_KEY and RENDER_SERVICE_ID env vars",
+        error: "Render API credentials not configured",
+      });
+    }
+
+    try {
+      const serviceRes = await fetch(`https://api.render.com/v1/services/${RENDER_SERVICE_ID}`, {
+        headers: { Authorization: `Bearer ${RENDER_API_KEY}`, Accept: "application/json" },
+      });
+      const service = await serviceRes.json();
+
+      const deploysRes = await fetch(`https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys?limit=1`, {
+        headers: { Authorization: `Bearer ${RENDER_API_KEY}`, Accept: "application/json" },
+      });
+      const deploys = await deploysRes.json();
+      const latestDeploy = deploys?.[0]?.deploy;
+
+      const suspended = service?.suspended === "suspended";
+      const status = suspended ? "degraded" : "healthy";
+
+      let uptime = "unknown";
+      if (latestDeploy?.finishedAt) {
+        const diffMs = Date.now() - new Date(latestDeploy.finishedAt).getTime();
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffHours / 24);
+        uptime = diffDays > 0 ? `${diffDays}d ${diffHours % 24}h` : `${diffHours}h`;
+      }
+
+      res.json({
+        status,
+        uptime,
+        deploy: latestDeploy ? {
+          status: latestDeploy.status,
+          createdAt: latestDeploy.createdAt,
+          finishedAt: latestDeploy.finishedAt,
+        } : null,
+      });
+    } catch (err) {
+      res.json({ status: "error", error: "Failed to reach Render API" });
+    }
   });
 
   // === Admin access log ===
