@@ -40,6 +40,8 @@ if (!process.env.SESSION_SECRET) {
   console.warn("WARNING: SESSION_SECRET not set. Using fallback dev secret.");
 }
 
+const isProduction = process.env.NODE_ENV === "production" || !!process.env.REPLIT_DEPLOYMENT;
+
 app.use(session({
   store: new PgSession({
     pool,
@@ -50,7 +52,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: process.env.NODE_ENV === "production",
+    secure: isProduction,
     httpOnly: true,
     sameSite: "lax" as const,
     maxAge: 7 * 24 * 60 * 60 * 1000,
@@ -95,11 +97,7 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  try {
-    await registerRoutes(httpServer, app);
-  } catch (err) {
-    console.error("Route registration failed:", err);
-  }
+  await registerRoutes(httpServer, app);
 
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
@@ -114,16 +112,27 @@ app.use((req, res, next) => {
     return res.status(status).json({ message });
   });
 
-  if (process.env.NODE_ENV === "production") {
+  // importantly only setup vite in development and after
+  // setting up all the other routes so the catch-all route
+  // doesn't interfere with the other routes
+  if (isProduction) {
     serveStatic(app);
   } else {
     const { setupVite } = await import("./vite");
     await setupVite(httpServer, app);
   }
 
+  // ALWAYS serve the app on the port specified in the environment variable PORT
+  // Other ports are firewalled. Default to 5000 if not specified.
+  // this serves both the API and the client.
+  // It is the only port that is not firewalled.
   const port = parseInt(process.env.PORT || "5000", 10);
   httpServer.listen(
-    { port, host: "0.0.0.0", reusePort: true },
+    {
+      port,
+      host: "0.0.0.0",
+      reusePort: true,
+    },
     () => {
       log(`serving on port ${port}`);
     },
