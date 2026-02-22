@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, Fragment } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,6 +19,7 @@ import {
   CalendarDays, Pencil, Eye, EyeOff, Save, RotateCw,
 } from "lucide-react";
 import type { CalendarEventTemplate } from "@shared/schema";
+import { generateEventsFromTemplates, typeColor } from "@/lib/calendar-events";
 
 interface AdminUser {
   id: string;
@@ -957,6 +958,85 @@ const TYPE_COLORS: Record<string, string> = {
 
 const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
+function CalendarPreview({ template, editForm, isEditing }: { template: CalendarEventTemplate; editForm: Partial<CalendarEventTemplate>; isEditing: boolean }) {
+  const yr = new Date().getFullYear();
+  const previewTemplate: CalendarEventTemplate = isEditing
+    ? { ...template, ...editForm } as CalendarEventTemplate
+    : template;
+
+  const events = useMemo(() => generateEventsFromTemplates([previewTemplate], yr, "en"), [previewTemplate, yr]);
+
+  const eventsByMonth = useMemo(() => {
+    const m: Record<number, { day: number; title: string }[]> = {};
+    for (const ev of events) {
+      const month = ev.date.getMonth();
+      if (!m[month]) m[month] = [];
+      m[month].push({ day: ev.date.getDate(), title: ev.title });
+    }
+    return m;
+  }, [events]);
+
+  const color = typeColor(previewTemplate.type, previewTemplate.gate);
+
+  return (
+    <div data-testid="calendar-preview" style={{ background: "var(--bg)", border: "1px solid var(--b)", borderRadius: 10, padding: 16 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+        <CalendarDays size={14} style={{ color }} />
+        <span style={{ fontSize: 11, fontWeight: 700, color: "var(--txt)" }}>
+          {isEditing ? "Live Preview" : "Calendar Preview"} — {yr}
+        </span>
+        <span style={{ fontSize: 10, color: "var(--t3)" }}>
+          ({events.length} occurrence{events.length !== 1 ? "s" : ""})
+        </span>
+      </div>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 8 }}>
+        {MONTH_SHORT.map((mName, mi) => {
+          const monthEvents = eventsByMonth[mi] || [];
+          const daysInMonth = new Date(yr, mi + 1, 0).getDate();
+          const firstDay = new Date(yr, mi, 1).getDay();
+          return (
+            <div key={mi} style={{ background: "var(--surface)", borderRadius: 8, padding: "8px 6px", border: monthEvents.length > 0 ? `1px solid ${color}44` : "1px solid var(--b)" }}>
+              <div style={{ fontSize: 9, fontWeight: 700, color: monthEvents.length > 0 ? color : "var(--t3)", textAlign: "center", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.08em" }}>
+                {mName}
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1 }}>
+                {Array.from({ length: firstDay }, (_, i) => (
+                  <div key={`pad-${i}`} style={{ width: 12, height: 12 }} />
+                ))}
+                {Array.from({ length: daysInMonth }, (_, i) => {
+                  const day = i + 1;
+                  const hasEvent = monthEvents.some(e => e.day === day);
+                  const eventTitle = monthEvents.find(e => e.day === day)?.title;
+                  return (
+                    <div key={day} title={eventTitle || `${mName} ${day}`} style={{
+                      width: 12, height: 12, borderRadius: hasEvent ? 3 : 2,
+                      background: hasEvent ? color : "rgba(255,255,255,0.04)",
+                      border: hasEvent ? `1px solid ${color}` : "none",
+                      fontSize: 6, display: "flex", alignItems: "center", justifyContent: "center",
+                      color: hasEvent ? "#fff" : "transparent", fontWeight: 800, cursor: hasEvent ? "default" : undefined,
+                    }}>
+                      {hasEvent ? day : ""}
+                    </div>
+                  );
+                })}
+              </div>
+              {monthEvents.length > 0 && (
+                <div style={{ marginTop: 4 }}>
+                  {monthEvents.map((ev, i) => (
+                    <div key={i} style={{ fontSize: 8, color, fontWeight: 600, lineHeight: 1.3, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+                      {ev.day} — {ev.title}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
 function CalendarTab() {
   const { data: templates = [], isLoading } = useQuery<CalendarEventTemplate[]>({
     queryKey: ["/api/calendar-templates"],
@@ -968,6 +1048,7 @@ function CalendarTab() {
   const [typeFilter, setTypeFilter] = useState<string>("all");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editForm, setEditForm] = useState<Partial<CalendarEventTemplate>>({});
+  const [previewId, setPreviewId] = useState<string | null>(null);
 
   const toggleActive = useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }) => {
@@ -1085,8 +1166,10 @@ function CalendarTab() {
             <tbody>
               {filtered.map(t => {
                 const isEditing = editingId === t.id;
+                const showPreview = previewId === t.id;
                 return (
-                  <tr key={t.id} style={{ borderBottom: "1px solid var(--b)", opacity: t.isActive ? 1 : 0.5, background: isEditing ? "rgba(20,184,166,0.04)" : undefined }}>
+                  <Fragment key={t.id}>
+                  <tr style={{ borderBottom: showPreview ? "none" : "1px solid var(--b)", opacity: t.isActive ? 1 : 0.5, background: isEditing ? "rgba(20,184,166,0.04)" : undefined }}>
                     <td style={{ padding: "8px 10px" }}>
                       <button
                         data-testid={`toggle-active-${t.eventKey}`}
@@ -1143,25 +1226,43 @@ function CalendarTab() {
                     </td>
                     <td style={{ padding: "8px 10px", fontSize: 11, color: "var(--t2)" }}>G{t.gate}</td>
                     <td style={{ padding: "8px 10px" }}>
-                      {isEditing ? (
-                        <div style={{ display: "flex", gap: 4 }}>
-                          <button data-testid="button-save-edit" onClick={saveEdit} disabled={updateTemplate.isPending}
-                            style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
-                            {updateTemplate.isPending ? <RotateCw size={10} className="animate-spin" /> : <Save size={10} />} Save
+                      <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                        {isEditing ? (
+                          <>
+                            <button data-testid="button-save-edit" onClick={saveEdit} disabled={updateTemplate.isPending}
+                              style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
+                              {updateTemplate.isPending ? <RotateCw size={10} className="animate-spin" /> : <Save size={10} />} Save
+                            </button>
+                            <button data-testid="button-cancel-edit" onClick={() => setEditingId(null)}
+                              style={{ background: "rgba(255,255,255,0.06)", color: "var(--t2)", border: "1px solid var(--b)", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <button data-testid={`button-edit-${t.eventKey}`} onClick={() => startEdit(t)}
+                            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--t3)", padding: 2 }} title="Edit">
+                            <Pencil size={13} />
                           </button>
-                          <button data-testid="button-cancel-edit" onClick={() => setEditingId(null)}
-                            style={{ background: "rgba(255,255,255,0.06)", color: "var(--t2)", border: "1px solid var(--b)", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
-                            Cancel
-                          </button>
-                        </div>
-                      ) : (
-                        <button data-testid={`button-edit-${t.eventKey}`} onClick={() => startEdit(t)}
-                          style={{ background: "none", border: "none", cursor: "pointer", color: "var(--t3)", padding: 2 }} title="Edit">
-                          <Pencil size={13} />
+                        )}
+                        <button
+                          data-testid={`button-preview-${t.eventKey}`}
+                          onClick={() => setPreviewId(previewId === t.id ? null : t.id)}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: previewId === t.id ? "var(--accent)" : "var(--t3)", padding: 2 }}
+                          title="Preview on calendar"
+                        >
+                          <CalendarDays size={13} />
                         </button>
-                      )}
+                      </div>
                     </td>
                   </tr>
+                  {showPreview && (
+                    <tr style={{ borderBottom: "1px solid var(--b)" }}>
+                      <td colSpan={8} style={{ padding: "12px 10px", background: "rgba(20,184,166,0.02)" }}>
+                        <CalendarPreview template={t} editForm={editForm} isEditing={isEditing} />
+                      </td>
+                    </tr>
+                  )}
+                  </Fragment>
                 );
               })}
             </tbody>
