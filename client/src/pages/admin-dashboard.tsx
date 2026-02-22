@@ -1398,7 +1398,7 @@ export default function AdminControlRoom() {
         padding: "0 20px", position: "sticky", top: 0, zIndex: 50, gap: 12,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 16, minWidth: 0 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0 }}>
+          <div onClick={() => navigate("/app")} data-testid="button-logo-back" style={{ display: "flex", alignItems: "center", gap: 8, flexShrink: 0, cursor: "pointer", borderRadius: 8, padding: "4px 6px", margin: "-4px -6px", transition: "background 0.15s" }} onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.08)")} onMouseLeave={e => (e.currentTarget.style.background = "transparent")}>
             <div style={{ width: 30, height: 30, background: "var(--accent)", borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 13, fontWeight: 900, color: "#fff" }}>D</div>
             <div>
               <div style={{ fontSize: 13, fontWeight: 800, color: "#fff", letterSpacing: "-0.02em" }}>DSCVR</div>
