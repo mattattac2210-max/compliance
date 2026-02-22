@@ -73,7 +73,7 @@ export default function HowItWorksPage() {
           }
         }
       },
-      { rootMargin: "-80px 0px -60% 0px", threshold: 0 }
+      { rootMargin: "-120px 0px -60% 0px", threshold: 0 }
     );
     stepIds.forEach((id) => {
       const el = document.getElementById(id);
@@ -144,11 +144,11 @@ export default function HowItWorksPage() {
       </div>
 
       {/* STEPS */}
-      <div className="section white" id="step1">
+      <div className="section white">
         <div className="wrap">
 
           {/* Step 01 */}
-          <div className="step-block" data-testid="step-block-1">
+          <div className="step-block" id="step1" data-testid="step-block-1">
             <div className="step-num-col"><div className="step-n">01</div><div className="step-line" /></div>
             <div className="step-content">
               <div className="step-head">
