@@ -170,6 +170,9 @@ export default function ComplianceCalendar() {
     queryKey: ["/api/calendar-templates", "active"],
     queryFn: () => fetch("/api/calendar-templates?activeOnly=true", { credentials: "include" }).then(r => r.json()),
     staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const selectedPropertyId = properties[0]?.id;

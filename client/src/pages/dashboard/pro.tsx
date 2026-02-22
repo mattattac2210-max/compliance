@@ -81,6 +81,9 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
     queryKey: ["/api/calendar-templates", "active"],
     queryFn: () => fetch("/api/calendar-templates?activeOnly=true", { credentials: "include" }).then(r => r.json()),
     staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 
   const { data: documents = [] } = useQuery<VaultDocument[]>({
