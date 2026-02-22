@@ -19,7 +19,7 @@
 }
 
 /* NAV */
-.lp .lnav{height:60px;background:var(--white);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;padding:0 40px;position:sticky;top:0;z-index:100;box-shadow:var(--sh);}
+.lp .lnav{height:60px;background:var(--white);border-bottom:1px solid var(--b);display:flex;align-items:center;justify-content:space-between;padding:0 40px;position:sticky;top:0;z-index:10002;box-shadow:var(--sh);}
 .lp .logo{display:flex;align-items:center;gap:10px;text-decoration:none;cursor:pointer;}
 .lp .lm{width:32px;height:32px;background:var(--red);border-radius:7px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:13px;color:#fff;flex-shrink:0;letter-spacing:-.5px;}
 .lp .lt{font-family:'IBM Plex Serif',serif;font-weight:900;font-size:19px;color:var(--navy);}
