@@ -477,6 +477,15 @@ export async function registerRoutes(
     res.json({ isActive: false });
   });
 
+  app.post("/api/admin/setup", requireAuth, async (req, res) => {
+    const allUsers = await storage.getAllUsers();
+    const hasAdmin = allUsers.some(u => u.isAdmin);
+    if (hasAdmin) return res.status(403).json({ message: "Admin already exists" });
+    const updated = await storage.updateUserAdmin(req.session.userId!, true);
+    if (updated) await storage.updateUserPro(req.session.userId!, true, "system");
+    res.json({ message: "Admin + Pro granted" });
+  });
+
   // === Admin user management routes ===
   app.get("/api/admin/users", requireAuth, requireAdmin, async (req, res) => {
     const allUsers = await storage.getAllUsers();
