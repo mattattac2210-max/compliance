@@ -76,6 +76,26 @@ export default function LandingPage() {
 
       </div>
 
+      {/* OTA REGULATION BANNER */}
+      <div className="ota-banner" data-testid="banner-ota-regulation">
+        <div className="ota-banner-inner">
+          <div className="ota-banner-icon">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none" stroke="#E8192C" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M11 2L2 20h18L11 2z" />
+              <line x1="11" y1="9" x2="11" y2="13" />
+              <circle cx="11" cy="16" r="0.5" fill="#E8192C" />
+            </svg>
+          </div>
+          <div className="ota-banner-content">
+            <div className="ota-banner-headline">Regulations change 31 March 2026 — your villa may lose its OTA listings</div>
+            <div className="ota-banner-body">Indonesia is enforcing new accommodation verification rules. Properties that don't meet updated NIB, licensing, and safety requirements by the deadline risk being delisted from Booking.com, Airbnb, and other OTA platforms. DSCVR tracks exactly what you need — and what's missing.</div>
+          </div>
+          <Link to="/register">
+            <button className="ota-banner-cta" data-testid="button-ota-banner-cta">Check your status</button>
+          </Link>
+        </div>
+      </div>
+
       {/* PROBLEM */}
       <div className="section white" id="problem">
         <div className="wrap">
