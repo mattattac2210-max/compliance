@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "wouter";
 import "./landing.css";
 
@@ -58,15 +58,23 @@ const STEP_COLORS: Record<string, string> = {
 export default function HowItWorksPage() {
   const [activeStep, setActiveStep] = useState("step1");
   const [openFaq, setOpenFaq] = useState<Record<number, boolean>>({});
+  const clickCooldown = useRef(false);
 
   const toggleFaq = useCallback((idx: number) => {
     setOpenFaq((prev) => ({ ...prev, [idx]: !prev[idx] }));
+  }, []);
+
+  const handleStepClick = useCallback((stepId: string) => {
+    setActiveStep(stepId);
+    clickCooldown.current = true;
+    setTimeout(() => { clickCooldown.current = false; }, 1000);
   }, []);
 
   useEffect(() => {
     const stepIds = STEPS.map((s) => s.id);
     const observer = new IntersectionObserver(
       (entries) => {
+        if (clickCooldown.current) return;
         for (const entry of entries) {
           if (entry.isIntersecting) {
             setActiveStep(entry.target.id);
@@ -134,7 +142,7 @@ export default function HowItWorksPage() {
             key={s.id}
             className={`ph-step${activeStep === s.id ? " ac" : ""}`}
             href={`#${s.id}`}
-            onClick={() => setActiveStep(s.id)}
+            onClick={() => handleStepClick(s.id)}
             data-testid={`step-float-${s.id}`}
           >
             <div className="ph-step-n">{s.num}</div>
