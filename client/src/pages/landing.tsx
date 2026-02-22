@@ -61,6 +61,7 @@ function LandingLangSelector() {
 }
 
 export default function LandingPage() {
+  const { t } = useLanguage();
   const [openSections, setOpenSections] = useState<Record<number, boolean>>({});
   const [activeTab, setActiveTab] = useState("cal");
 
@@ -77,14 +78,14 @@ export default function LandingPage() {
           <div><div className="lt">DSCVR</div><div className="ls">Compliance Navigator</div></div>
         </Link>
         <div className="nav-links">
-          <Link to="/how-it-works" className="nav-link" data-testid="link-how-it-works">How it works</Link>
-          <a className="nav-link" href="#features" data-testid="link-features">Features</a>
-          <a className="nav-link" href="#pricing" data-testid="link-pricing">Pricing</a>
+          <Link to="/how-it-works" className="nav-link" data-testid="link-how-it-works">{t.landing.navHowItWorks}</Link>
+          <a className="nav-link" href="#features" data-testid="link-features">{t.landing.navFeatures}</a>
+          <a className="nav-link" href="#pricing" data-testid="link-pricing">{t.landing.navPricing}</a>
         </div>
         <div className="nav-r">
           <LandingLangSelector />
-          <Link to="/login"><button className="btn-out" data-testid="button-signin">Sign in</button></Link>
-          <Link to="/register"><button className="btn-red" data-testid="button-get-pro-nav">Sign up for free</button></Link>
+          <Link to="/login"><button className="btn-out" data-testid="button-signin">{t.landing.navSignIn}</button></Link>
+          <Link to="/register"><button className="btn-red" data-testid="button-get-pro-nav">{t.landing.ctaPrimary}</button></Link>
         </div>
       </nav>
 
@@ -92,24 +93,21 @@ export default function LandingPage() {
       <div className="hero">
         <div className="hero-top">
           <div>
-            <div className="h-tag">For Bali Villa Operators</div>
-            <h1 className="h1">Indonesian compliance is<br /><em>genuinely complex.</em><br />We made it manageable.</h1>
-            <p className="h-sub">Tax filings across 8+ portals, monthly community obligations, annual safety certificates, OTA platform requirements — all while Indonesia transitions to new digital systems. DSCVR tracks all of it and tells you what to do next.</p>
+            <div className="h-tag">{t.landing.heroKicker}</div>
+            <h1 className="h1">{t.landing.heroHeadline1}<br /><em>{t.landing.heroHeadline2}</em><br />{t.landing.heroHeadline3}</h1>
+            <p className="h-sub">{t.landing.heroSub}</p>
             <div className="h-btns">
-              <Link to="/register"><button className="btn-hp" data-testid="button-get-pro-hero">Sign up for free</button></Link>
-              <Link to="/how-it-works"><button className="btn-hs" data-testid="button-how-it-works-hero">See how it works →</button></Link>
+              <Link to="/register"><button className="btn-hp" data-testid="button-get-pro-hero">{t.landing.ctaPrimary}</button></Link>
+              <Link to="/how-it-works"><button className="btn-hs" data-testid="button-how-it-works-hero">{t.landing.ctaSecondary}</button></Link>
             </div>
-            <p className="h-fine">Free account always available — gate overview and regulations, forever free. Pro unlocks the full platform: calendar, alerts, vault, tracking. Month-to-month, no lock-in, cancel anytime.</p>
+            <p className="h-fine">{t.landing.trustLine}</p>
           </div>
           <div className="cc">
-            <div className="cc-lbl">What you're managing</div>
-            <div className="cc-row"><span className="cc-n">Monthly recurring obligations</span><span className="cc-v g">7</span></div>
-            <div className="cc-row"><span className="cc-n">Annual filings &amp; renewals</span><span className="cc-v g">12</span></div>
-            <div className="cc-row"><span className="cc-n">Separate government portals</span><span className="cc-v r">8+</span></div>
-            <div className="cc-row"><span className="cc-n">Compliance events per year</span><span className="cc-v r">120+</span></div>
-            <div className="cc-row"><span className="cc-n">OTA verification deadline</span><span className="cc-v r">Mar 2026</span></div>
-            <div className="cc-row"><span className="cc-n">DSCVR tracks</span><span className="cc-v grn">All of it</span></div>
-            <div className="cc-note">Based on a typical commercial villa in Badung Regency with OSS NIB and OTA listings.</div>
+            <div className="cc-lbl">{t.landing.heroManagingLabel}</div>
+            {t.landing.heroManagingRows.map((row: string, i: number) => (
+              <div key={i} className={`cc-row`}><span className="cc-n">{row}</span><span className={`cc-v ${i < 2 ? "g" : i < 5 ? "r" : "grn"}`}>{t.landing.heroManagingValues[i]}</span></div>
+            ))}
+            <div className="cc-note">{t.landing.heroManagingNote}</div>
           </div>
         </div>
 
@@ -126,8 +124,8 @@ export default function LandingPage() {
             </svg>
           </div>
           <div className="ota-banner-content">
-            <div className="ota-banner-headline">Regulations change 31 March 2026 — your villa may lose its OTA listings</div>
-            <div className="ota-banner-body">Indonesia is enforcing new accommodation verification rules. Properties that don't meet updated NIB, licensing, and safety requirements by the deadline risk being delisted from Booking.com, Airbnb, and other OTA platforms. DSCVR tracks exactly what you need — and what's missing.</div>
+            <div className="ota-banner-headline">{t.landing.urgencyHeading}</div>
+            <div className="ota-banner-body">{t.landing.urgencyBody}</div>
           </div>
           <Link to="/register">
             <button className="ota-banner-cta" data-testid="button-ota-banner-cta">Check your status</button>
@@ -138,24 +136,24 @@ export default function LandingPage() {
       {/* PROBLEM */}
       <div className="section white" id="problem">
         <div className="wrap">
-          <div className="ey">The reality</div>
-          <h2 className="sh2">120+ obligations. 8 portals.<br />One mid-transition bureaucracy.</h2>
-          <p className="sp">Running a villa in Bali isn't legally complicated — it's administratively overwhelming. The obligations are clear. The volume, combined with Indonesia's active digital transition, is where things fall apart.</p>
+          <div className="ey">{t.landing.problemEyebrow}</div>
+          <h2 className="sh2">{t.landing.problemHeading.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</h2>
+          <p className="sp">{t.landing.problemSub}</p>
           <div className="stat-row">
             <div className="sb r">
-              <div className="sbn r">120+</div>
-              <div className="sbl">Compliance events per year</div>
-              <div className="sbd">Monthly tax filings, BPJS, banjar, safety checks, quarterly reports, annual renewals. Miss one and it cascades.</div>
+              <div className="sbn r">{t.landing.stat1Value}</div>
+              <div className="sbl">{t.landing.stat1Label}</div>
+              <div className="sbd">{t.landing.stat1Desc}</div>
             </div>
             <div className="sb g">
-              <div className="sbn g">8+</div>
-              <div className="sbl">Separate government portals</div>
-              <div className="sbd">CoreTax, OSS, eDabu, SIPP Online, e-Palapa, LKPM module, local e-gov, Satpol PP. None talk to each other.</div>
+              <div className="sbn g">{t.landing.stat2Value}</div>
+              <div className="sbl">{t.landing.stat2Label}</div>
+              <div className="sbd">{t.landing.stat2Desc}</div>
             </div>
             <div className="sb bl">
-              <div className="sbn bl">Now</div>
-              <div className="sbl">Mid-transition to digital</div>
-              <div className="sbd">CoreTax replaced eFiling in 2025. OSS NIB requirements keep changing. Rules shifting in real time with sparse guidance.</div>
+              <div className="sbn bl">{t.landing.stat3Value}</div>
+              <div className="sbl">{t.landing.stat3Label}</div>
+              <div className="sbd">{t.landing.stat3Desc}</div>
             </div>
           </div>
 
@@ -243,10 +241,10 @@ export default function LandingPage() {
       <div className="hiw-band">
         <div className="hiw-inner">
           <div className="hiw-txt">
-            <h3>Want the full walk-through?</h3>
-            <p>See exactly how DSCVR works — from creating your account and mapping your property through to live alerts, vault management and staying ahead of regulatory changes.</p>
+            <h3>{t.landing.hiwBandHeading}</h3>
+            <p>{t.landing.hiwBandBody}</p>
             <div style={{ marginTop: "16px" }}>
-              <Link to="/how-it-works"><button className="btn-hp" style={{ fontSize: "12px", padding: "10px 20px" }} data-testid="button-how-it-works-band">See the full walk-through →</button></Link>
+              <Link to="/how-it-works"><button className="btn-hp" style={{ fontSize: "12px", padding: "10px 20px" }} data-testid="button-how-it-works-band">{t.landing.hiwBandCta}</button></Link>
             </div>
           </div>
           <div className="hiw-steps">
@@ -264,31 +262,31 @@ export default function LandingPage() {
         <div className="wrap">
           <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", gap: "20px", marginBottom: "28px", flexWrap: "wrap" }}>
             <div>
-              <div className="ey w">Pro features</div>
-              <h2 className="sh2 w" style={{ marginBottom: "8px" }}>Everything you need.<br />One subscription.</h2>
-              <p className="sp w">Month-to-month. No lock-in. Cancel anytime. Here's exactly what Pro gives you.</p>
+              <div className="ey w">{t.landing.proFeaturesEyebrow}</div>
+              <h2 className="sh2 w" style={{ marginBottom: "8px" }}>{t.landing.proFeaturesHeading.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</h2>
+              <p className="sp w">{t.landing.proFeaturesSub}</p>
             </div>
-            <Link to="/register"><button className="btn-hp" style={{ whiteSpace: "nowrap", flexShrink: 0 }} data-testid="button-get-pro-features">Stay Updated — no lock-in</button></Link>
+            <Link to="/register"><button className="btn-hp" style={{ whiteSpace: "nowrap", flexShrink: 0 }} data-testid="button-get-pro-features">{t.landing.proFeaturesCta}</button></Link>
           </div>
 
           <div className="ftabs">
-            <button className={`ftab${activeTab === "cal" ? " ac" : ""}`} onClick={() => setActiveTab("cal")} data-testid="tab-calendar">Compliance Calendar</button>
-            <button className={`ftab${activeTab === "alerts" ? " ac" : ""}`} onClick={() => setActiveTab("alerts")} data-testid="tab-alerts">Alerts System</button>
-            <button className={`ftab${activeTab === "vault" ? " ac" : ""}`} onClick={() => setActiveTab("vault")} data-testid="tab-vault">Document Vault</button>
-            <button className={`ftab${activeTab === "gates" ? " ac" : ""}`} onClick={() => setActiveTab("gates")} data-testid="tab-gates">Gate Tracker</button>
+            <button className={`ftab${activeTab === "cal" ? " ac" : ""}`} onClick={() => setActiveTab("cal")} data-testid="tab-calendar">{t.landing.tabCalendar}</button>
+            <button className={`ftab${activeTab === "alerts" ? " ac" : ""}`} onClick={() => setActiveTab("alerts")} data-testid="tab-alerts">{t.landing.tabAlerts}</button>
+            <button className={`ftab${activeTab === "vault" ? " ac" : ""}`} onClick={() => setActiveTab("vault")} data-testid="tab-vault">{t.landing.tabVault}</button>
+            <button className={`ftab${activeTab === "gates" ? " ac" : ""}`} onClick={() => setActiveTab("gates")} data-testid="tab-gates">{t.landing.tabGates}</button>
           </div>
 
           {/* Calendar panel */}
           <div className={`fp two${activeTab === "cal" ? " ac" : ""}`} id="fp-cal">
             <div className="fp-txt">
-              <div className="fp-h">120+ obligations.<br />Five views. Zero surprises.</div>
-              <p className="fp-p">Every compliance event pre-loaded and explained. Month, week, list, category and timeline views. Filter by type, mark items filed, add your own. DSCVR knows what you owe and when — and updates automatically when regulations change.</p>
+              <div className="fp-h">{t.landing.calTitle.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</div>
+              <p className="fp-p">{t.landing.calBody}</p>
               <div className="fp-buls">
                 <div className="fp-bul"><CheckSvg /> All 120+ events pre-loaded for your property type and regency</div>
                 <div className="fp-bul"><CheckSvg /> Plain-language explanation on every event — portal, amounts, documents needed</div>
                 <div className="fp-bul"><CheckSvg /> Deadlines auto-adjust when government portal schedules change</div>
               </div>
-              <div className="fp-note">Calendar is a Pro feature. No lock-in — cancel anytime.</div>
+              <div className="fp-note">{t.landing.calNote}</div>
             </div>
             <div className="fp-screen">
               <div className="fp-sbar"><div className="fp-sdot" style={{ background: "#FF5F57" }} /><div className="fp-sdot" style={{ background: "#FFBD2E" }} /><div className="fp-sdot" style={{ background: "#28CA41" }} /><div className="fp-stitle">COMPLIANCE CALENDAR — FEBRUARY 2026</div></div>
@@ -315,8 +313,8 @@ export default function LandingPage() {
           {/* Alerts panel */}
           <div className={`fp two${activeTab === "alerts" ? " ac" : ""}`} id="fp-alerts">
             <div className="fp-txt">
-              <div className="fp-h">The right person gets the alert.<br />On their phone. Right now.</div>
-              <p className="fp-p">Most compliance failures aren't ignorance — they're dropped balls. The owner knows PB1 is due but the accountant wasn't told. APAR needs checking but the caretaker never got the message. DSCVR closes that gap by routing every obligation directly to whoever is responsible.</p>
+              <div className="fp-h">{t.landing.alertsTitle.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</div>
+              <p className="fp-p">{t.landing.alertsBody}</p>
               <div className="fp-buls">
                 <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>In-app, email, and direct to staff phones</strong> — WhatsApp or SMS, no app install required</div>
                 <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>Route by obligation type</strong> — tax to your accountant, APAR to your caretaker, banjar to your villa manager</div>
@@ -324,7 +322,7 @@ export default function LandingPage() {
                 <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>14-day advance warning</strong> on every deadline — overdue items escalate automatically</div>
                 <div className="fp-bul"><CheckSvg /> <strong style={{ color: "var(--dk-hi)" }}>Owner confirmation</strong> every time a task is marked done — full visibility without doing it yourself</div>
               </div>
-              <div className="fp-note">Alerts are a Pro feature. No lock-in — cancel anytime.</div>
+              <div className="fp-note">{t.landing.alertsNote}</div>
             </div>
             <div className="fp-screen">
               <div className="fp-sbar"><div className="fp-sdot" style={{ background: "#FF5F57" }} /><div className="fp-sdot" style={{ background: "#FFBD2E" }} /><div className="fp-sdot" style={{ background: "#28CA41" }} /><div className="fp-stitle">ALERTS + NOTIFICATION ROUTING</div></div>
@@ -379,15 +377,15 @@ export default function LandingPage() {
           {/* Vault panel */}
           <div className={`fp two${activeTab === "vault" ? " ac" : ""}`} id="fp-vault">
             <div className="fp-txt">
-              <div className="fp-h">Every certificate.<br />One place. Instantly accessible.</div>
-              <p className="fp-p">Upload receipts, certificates and inspection records — each linked to its compliance event. When Satpol PP arrives, you have everything on your phone in seconds. Uploads are optional but missing documents show as gaps in your compliance picture.</p>
+              <div className="fp-h">{t.landing.vaultTitle.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</div>
+              <p className="fp-p">{t.landing.vaultBody}</p>
               <div className="fp-buls">
                 <div className="fp-bul"><CheckSvg /> Unlimited uploads linked to compliance events and gates</div>
                 <div className="fp-bul"><CheckSvg /> Date-stamped audit trail — every upload timestamped and traceable</div>
                 <div className="fp-bul"><CheckSvg /> Missing documents flagged — shows exactly where your record has gaps</div>
                 <div className="fp-bul"><CheckSvg /> Export full compliance record as PDF — for audits, inspections, or accountants</div>
               </div>
-              <div className="fp-note">Vault is a Pro feature. No lock-in — cancel anytime.</div>
+              <div className="fp-note">{t.landing.vaultNote}</div>
             </div>
             <div className="fp-screen">
               <div className="fp-sbar"><div className="fp-sdot" style={{ background: "#FF5F57" }} /><div className="fp-sdot" style={{ background: "#FFBD2E" }} /><div className="fp-sdot" style={{ background: "#28CA41" }} /><div className="fp-stitle">DOCUMENT VAULT — 9 FILES</div></div>
@@ -404,14 +402,14 @@ export default function LandingPage() {
           {/* Gates panel */}
           <div className={`fp two${activeTab === "gates" ? " ac" : ""}`} id="fp-gates">
             <div className="fp-txt">
-              <div className="fp-h">8 gates from registered<br />to OTA-verified.</div>
-              <p className="fp-p">Every obligation mapped into 8 sequential gates. Each gate shows what's required, what's blocking, and your progress percentage. Gate overview is free — full tracking with blocking-item detail and vault integration requires Pro.</p>
+              <div className="fp-h">{t.landing.gatesTitle.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</div>
+              <p className="fp-p">{t.landing.gatesBody}</p>
               <div className="fp-buls">
                 <div className="fp-bul"><CheckSvg /> G0 Foundation → G7 OTA Verified, every step mapped</div>
                 <div className="fp-bul"><CheckSvg /> Blocking items flagged with clear next actions and portal links</div>
                 <div className="fp-bul"><CheckSvg /> Documents uploaded to Vault auto-update gate completion percentages</div>
               </div>
-              <div className="fp-note">Gate overview is free. Full tracking is Pro — no lock-in.</div>
+              <div className="fp-note">{t.landing.gatesNote}</div>
             </div>
             <div className="fp-screen">
               <div className="fp-sbar"><div className="fp-sdot" style={{ background: "#FF5F57" }} /><div className="fp-sdot" style={{ background: "#FFBD2E" }} /><div className="fp-sdot" style={{ background: "#28CA41" }} /><div className="fp-stitle">COMPLIANCE GATES — VILLA KERTI</div></div>
@@ -436,76 +434,64 @@ export default function LandingPage() {
       <div className="section white" id="pricing">
         <div className="wrap">
           <div style={{ textAlign: "center", marginBottom: "28px" }}>
-            <div className="ey" style={{ justifyContent: "center" }}><span style={{ display: "inline-block", width: "16px", height: "2px", background: "var(--red)", borderRadius: "1px" }} /> Pricing</div>
-            <h2 className="sh2">Free account. Pro when you're ready.<br />No lock-in, ever.</h2>
-            <p className="sp" style={{ margin: "0 auto", textAlign: "center" }}>Start free to understand where you stand. Upgrade to Pro when you want the full picture — calendar, alerts, vault, tracking. Month-to-month. Cancel anytime.</p>
+            <div className="ey" style={{ justifyContent: "center" }}><span style={{ display: "inline-block", width: "16px", height: "2px", background: "var(--red)", borderRadius: "1px" }} /> {t.landing.pricingEyebrow}</div>
+            <h2 className="sh2">{t.landing.pricingHeading.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</h2>
+            <p className="sp" style={{ margin: "0 auto", textAlign: "center" }}>{t.landing.pricingSub}</p>
           </div>
           <div className="tier-row">
             {/* Free */}
             <div className="tier">
               <div className="t-head">
-                <div className="t-badge free">Free forever</div>
-                <div className="t-name">Free</div>
-                <div className="t-price">IDR 0 / month — always free</div>
-                <div className="t-hook">Understand where you stand. See what's required. No credit card, no expiry.</div>
+                <div className="t-badge free">{t.landing.freeForever}</div>
+                <div className="t-name">{t.landing.freeName}</div>
+                <div className="t-price">{t.landing.freePrice}</div>
+                <div className="t-hook">{t.landing.freeHook}</div>
               </div>
               <div className="t-body">
-                <div className="t-item inc"><CheckSvg /> Compliance gate overview — all 8 gates, read only</div>
-                <div className="t-item inc"><CheckSvg /> Regulations &amp; intelligence hub — read only</div>
-                <div className="t-item inc"><CheckSvg /> Full compliance glossary &amp; term definitions</div>
-                <div className="t-item lk"><LockSvg /> Compliance calendar — Pro only</div>
-                <div className="t-item lk"><LockSvg /> Alerts &amp; staff routing — Pro only</div>
-                <div className="t-item lk"><LockSvg /> Document vault — Pro only</div>
-                <div className="t-item lk"><LockSvg /> Gate tracking &amp; progress — Pro only</div>
+                {t.landing.freeItems.map((item: string, i: number) => (
+                  <div key={i} className={`t-item ${i < 3 ? "inc" : "lk"}`}>{i < 3 ? <CheckSvg /> : <LockSvg />} {item}</div>
+                ))}
               </div>
               <div className="t-cta">
-                <Link to="/register"><button className="t-btn fb" data-testid="button-create-free">Create free account</button></Link>
+                <Link to="/register"><button className="t-btn fb" data-testid="button-create-free">{t.landing.freeCta}</button></Link>
               </div>
             </div>
 
             {/* Pro */}
             <div className="tier hot">
               <div className="t-head">
-                <div className="t-badge popular">Most popular</div>
-                <div className="t-name">Pro</div>
-                <div className="t-price">IDR 450,000 / month · cancel anytime · no lock-in</div>
-                <div className="t-hook">The full platform. Every deadline covered, every document stored, your whole team looped in.</div>
+                <div className="t-badge popular">{t.landing.proPopular}</div>
+                <div className="t-name">{t.landing.proName}</div>
+                <div className="t-price">{t.landing.proPrice}</div>
+                <div className="t-hook">{t.landing.proHook}</div>
               </div>
               <div className="t-body">
-                <div className="t-item inc"><CheckGreenSvg /> Full compliance calendar — 120+ events, 5 views</div>
-                <div className="t-item inc"><CheckGreenSvg /> Alerts — app, email, WhatsApp/SMS to staff</div>
-                <div className="t-item inc"><CheckGreenSvg /> Document vault — unlimited uploads, audit trail</div>
-                <div className="t-item inc"><CheckGreenSvg /> Full gate tracking — progress % and blocking items</div>
-                <div className="t-item inc"><CheckGreenSvg /> Staff routing — assign tasks by obligation type</div>
-                <div className="t-item inc"><CheckGreenSvg /> Self-audit tool + regulations hub</div>
-                <div className="t-item inc"><CheckGreenSvg /> Regulatory change notifications — auto-updated</div>
+                {t.landing.proItems.map((item: string, i: number) => (
+                  <div key={i} className="t-item inc"><CheckGreenSvg /> {item}</div>
+                ))}
               </div>
               <div className="t-cta">
-                <Link to="/register"><button className="t-btn tb" data-testid="button-get-pro-pricing">Stay Updated — no lock-in →</button></Link>
-                <div className="t-note">IDR 450,000 per month. Cancel anytime from your account.</div>
+                <Link to="/register"><button className="t-btn tb" data-testid="button-get-pro-pricing">{t.landing.proCta}</button></Link>
+                <div className="t-note">{t.landing.proNote}</div>
               </div>
             </div>
 
             {/* Pro+ */}
             <div className="tier">
               <div className="t-head">
-                <div className="t-badge multi">Multi-property</div>
-                <div className="t-name">Pro+</div>
-                <div className="t-price">Contact Us</div>
-                <div className="t-hook">Multiple villas, one shared team, one compliance dashboard. Same no lock-in commitment.</div>
+                <div className="t-badge multi">{t.landing.proPlusMulti}</div>
+                <div className="t-name">{t.landing.proPlusName}</div>
+                <div className="t-price">{t.landing.proPlusPrice}</div>
+                <div className="t-hook">{t.landing.proPlusHook}</div>
               </div>
               <div className="t-body">
-                <div className="t-item inc"><CheckSvg /> Everything in Pro</div>
-                <div className="t-item inc"><CheckSvg /> Up to 10 properties under one account</div>
-                <div className="t-item inc"><CheckSvg /> Unlimited team members and staff accounts</div>
-                <div className="t-item inc"><CheckSvg /> Per-property compliance dashboard and vault</div>
-                <div className="t-item inc"><CheckSvg /> Cross-property compliance roll-up view</div>
-                <div className="t-item inc"><CheckSvg /> PDF export — full audit pack, Satpol PP ready</div>
-                <div className="t-item inc"><CheckSvg /> Priority support via WhatsApp</div>
+                {t.landing.proPlusItems.map((item: string, i: number) => (
+                  <div key={i} className="t-item inc"><CheckSvg /> {item}</div>
+                ))}
               </div>
               <div className="t-cta">
-                <Link to="/register"><button className="t-btn pb" data-testid="button-get-pro-plus">Stay Updated — no lock-in</button></Link>
-                <div className="t-note">Contact us for pricing and setup.</div>
+                <Link to="/register"><button className="t-btn pb" data-testid="button-get-pro-plus">{t.landing.proPlusCta}</button></Link>
+                <div className="t-note">{t.landing.proPlusNote}</div>
               </div>
             </div>
           </div>
@@ -515,31 +501,31 @@ export default function LandingPage() {
       {/* LEGAL */}
       <div className="section grey">
         <div className="wrap-sm">
-          <div className="ey">Legal notice</div>
-          <h2 className="sh2">We explain and track.<br />We don't advise.</h2>
-          <p className="sp">Most compliance problems are information problems, not legal problems. DSCVR solves the information problem. For tax disputes, zoning challenges, and employment matters — you need a qualified Indonesian professional.</p>
+          <div className="ey">{t.landing.legalEyebrow}</div>
+          <h2 className="sh2">{t.landing.legalHeading.split('\n').map((line: string, i: number, arr: string[]) => <span key={i}>{line}{i < arr.length - 1 && <br />}</span>)}</h2>
+          <p className="sp">{t.landing.legalSub}</p>
           <div className="legal-box">
             <div className="legal-title">
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round"><path d="M7 1.5L13.5 12.5H.5L7 1.5z" /><line x1="7" y1="6" x2="7" y2="9.5" strokeLinecap="round" /><circle cx="7" cy="11.5" r=".65" fill="currentColor" stroke="none" /></svg>
-              What DSCVR is and is not
+              {t.landing.legalBoxTitle}
             </div>
-            <p className="legal-body">DSCVR is a <strong>compliance information and tracking platform</strong>, not a licensed legal or tax advisory service. Information is provided for general guidance only and does not constitute legal or tax advice. Requirements vary by property type, structure and location. Always verify critical obligations with official sources or a qualified advisor before acting.</p>
+            <p className="legal-body">{t.landing.legalBoxBody}</p>
             <div className="do-grid">
               <div className="do-item yes">
                 <svg className="y" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,6 4.5,8.5 10,3" /></svg>
-                <span><strong>We do</strong> explain obligations, deadlines, portals and required documents in plain language.</span>
+                <span>{t.landing.legalWeDo1}</span>
               </div>
               <div className="do-item yes">
                 <svg className="y" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,6 4.5,8.5 10,3" /></svg>
-                <span><strong>We do</strong> track deadlines, alert you early, and flag overdue items before they become enforcement problems.</span>
+                <span>{t.landing.legalWeDo2}</span>
               </div>
               <div className="do-item">
                 <svg className="n" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="2.5" y1="6" x2="9.5" y2="6" /></svg>
-                <span><strong>We don't</strong> provide tax or legal advice, or tell you how to structure your business or minimise liability.</span>
+                <span>{t.landing.legalWeDont1}</span>
               </div>
               <div className="do-item">
                 <svg className="n" width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5"><line x1="2.5" y1="6" x2="9.5" y2="6" /></svg>
-                <span><strong>We don't</strong> file anything on your behalf or represent you to any Indonesian government authority.</span>
+                <span>{t.landing.legalWeDont2}</span>
               </div>
             </div>
           </div>
@@ -549,12 +535,12 @@ export default function LandingPage() {
       {/* FOOTER */}
       <div className="footer">
         <div className="footer-nav">
-          <Link to="/how-it-works" className="footer-link" data-testid="link-footer-how-it-works">How it works</Link>
-          <a className="footer-link" href="#features" data-testid="link-footer-features">Features</a>
-          <a className="footer-link" href="#pricing" data-testid="link-footer-pricing">Pricing</a>
-          <Link to="/login" className="footer-link" data-testid="link-footer-signin">Sign in</Link>
+          <Link to="/how-it-works" className="footer-link" data-testid="link-footer-how-it-works">{t.landing.navHowItWorks}</Link>
+          <a className="footer-link" href="#features" data-testid="link-footer-features">{t.landing.navFeatures}</a>
+          <a className="footer-link" href="#pricing" data-testid="link-footer-pricing">{t.landing.navPricing}</a>
+          <Link to="/login" className="footer-link" data-testid="link-footer-signin">{t.landing.navSignIn}</Link>
         </div>
-        <p className="footer-txt">DSCVR is a compliance information and tracking platform, not a licensed legal or tax advisory service. Information reflects our best understanding of current Indonesian regulations applicable to Bali villa operators and is subject to change. Always verify critical obligations with official sources or a qualified advisor. <Link to="/disclaimers">Full disclaimer →</Link></p>
+        <p className="footer-txt">{t.landing.footerDisclaimer} <Link to="/disclaimers">Full disclaimer →</Link></p>
       </div>
     </div>
   );

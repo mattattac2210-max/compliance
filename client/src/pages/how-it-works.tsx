@@ -94,6 +94,8 @@ function LandingLangSelector() {
 }
 
 export default function HowItWorksPage() {
+  const { t } = useLanguage();
+  const stepLabels = [t.howItWorks.step1Label, t.howItWorks.step2Label, t.howItWorks.step3Label, t.howItWorks.step4Label, t.howItWorks.step5Label, t.howItWorks.step6Label];
   const [activeStep, setActiveStep] = useState("step1");
   const [openFaq, setOpenFaq] = useState<Record<number, boolean>>({});
   const clickCooldown = useRef(false);
@@ -141,17 +143,17 @@ export default function HowItWorksPage() {
           </div>
         </Link>
         <div className="nav-links">
-          <a className="nav-link ac" href="#" data-testid="link-how-it-works">How it works</a>
-          <a href="/#features" className="nav-link" data-testid="link-features">Features</a>
-          <a href="/#pricing" className="nav-link" data-testid="link-pricing">Pricing</a>
+          <a className="nav-link ac" href="#" data-testid="link-how-it-works">{t.howItWorks.navHowItWorks}</a>
+          <a href="/#features" className="nav-link" data-testid="link-features">{t.howItWorks.navFeatures}</a>
+          <a href="/#pricing" className="nav-link" data-testid="link-pricing">{t.howItWorks.navPricing}</a>
         </div>
         <div className="nav-r">
           <LandingLangSelector />
           <Link to="/login">
-            <button className="btn-out" data-testid="button-sign-in">Sign in</button>
+            <button className="btn-out" data-testid="button-sign-in">{t.howItWorks.navSignIn}</button>
           </Link>
           <Link to="/register">
-            <button className="btn-red" data-testid="button-get-pro">Sign up for free</button>
+            <button className="btn-red" data-testid="button-get-pro">{t.howItWorks.navSignUp}</button>
           </Link>
         </div>
       </nav>
@@ -162,11 +164,11 @@ export default function HowItWorksPage() {
           <div className="ph-breadcrumb">
             <Link to="/" data-testid="link-breadcrumb-home">DSCVR</Link>
             <span className="ph-breadcrumb-sep">&rsaquo;</span>
-            <span className="ph-breadcrumb-current">How it works</span>
+            <span className="ph-breadcrumb-current">{t.howItWorks.breadcrumbCurrent}</span>
           </div>
-          <div className="ph-tag">Platform walkthrough</div>
-          <h1 className="ph-h1">From zero to fully compliant.<br />Here&rsquo;s exactly how.</h1>
-          <p className="ph-sub">A step-by-step guide to using DSCVR &mdash; from creating your account through to live alerts, document management, and staying ahead of regulatory changes.</p>
+          <div className="ph-tag">{t.howItWorks.tag}</div>
+          <h1 className="ph-h1">{t.howItWorks.headline.split("\n").map((line, i) => <span key={i}>{i > 0 && <br />}{line}</span>)}</h1>
+          <p className="ph-sub">{t.howItWorks.sub}</p>
         </div>
       </div>
 
@@ -185,7 +187,7 @@ export default function HowItWorksPage() {
             data-testid={`step-float-${s.id}`}
           >
             <div className="ph-step-n">{s.num}</div>
-            <div className="ph-step-l">{s.label}</div>
+            <div className="ph-step-l">{stepLabels[STEPS.indexOf(s)]}</div>
           </a>
         ))}
       </div>
@@ -204,19 +206,19 @@ export default function HowItWorksPage() {
                 </div>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
-                    <span className="step-title">Register &amp; set up your account</span>
-                    <span className="free-badge">Free</span>
+                    <span className="step-title">{t.howItWorks.step1Title}</span>
+                    <span className="free-badge">{t.howItWorks.freeLabel}</span>
                   </div>
                 </div>
               </div>
-              <p className="step-body">Creating a DSCVR account takes under 2 minutes. Enter your email and password &mdash; that&rsquo;s it. No credit card required. Your free account gives you permanent access to the gate overview and regulations hub. You can stay on the free account as long as you like.</p>
+              <p className="step-body">{t.howItWorks.step1Body}</p>
               <div className="blist">
-                <div className="bitem"><CheckSvg /> <span>Register with email &mdash; no credit card, no trial timer, no expiry</span></div>
-                <div className="bitem"><CheckSvg /> <span>Set your preferred language &mdash; English, Indonesian, or Ukrainian</span></div>
-                <div className="bitem"><CheckSvg /> <span>Your free account is permanent &mdash; gate overview and regulations hub never lock</span></div>
+                {t.howItWorks.step1Bullets.map((b, i) => (
+                  <div className="bitem" key={i}><CheckSvg /> <span>{b}</span></div>
+                ))}
               </div>
               <div className="note">
-                <p className="note-txt"><strong>Free vs Pro:</strong> The free account is designed to help you understand your compliance picture before committing to anything. It shows you the compliance landscape in full &mdash; what&rsquo;s required, which gates apply to you, what each term means. Pro unlocks tracking, deadlines, alerts and documents.</p>
+                <p className="note-txt">{t.howItWorks.step1Note}</p>
               </div>
             </div>
           </div>
@@ -231,18 +233,16 @@ export default function HowItWorksPage() {
                 </div>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
-                    <span className="step-title">Map your property</span>
-                    <span className="free-badge">Free</span>
+                    <span className="step-title">{t.howItWorks.step2Title}</span>
+                    <span className="free-badge">{t.howItWorks.freeLabel}</span>
                   </div>
                 </div>
               </div>
-              <p className="step-body">Tell DSCVR about your property &mdash; type, regency, number of staff, OTA listings, and current permit status. This takes about 5 minutes. DSCVR uses this information to determine exactly which compliance obligations apply to you, filtered for your property type and regency.</p>
+              <p className="step-body">{t.howItWorks.step2Body}</p>
               <div className="blist">
-                <div className="bitem"><CheckSvg /> <span><strong>Property type</strong> &mdash; commercial villa, homestay, boutique resort. Affects which licenses apply.</span></div>
-                <div className="bitem"><CheckSvg /> <span><strong>Regency</strong> &mdash; Badung, Gianyar, Denpasar, or elsewhere. Local taxes and permit requirements differ.</span></div>
-                <div className="bitem"><CheckSvg /> <span><strong>Staff count</strong> &mdash; determines BPJS thresholds and THR calculation approach</span></div>
-                <div className="bitem"><CheckSvg /> <span><strong>OTA listings</strong> &mdash; which platforms (Airbnb, Booking.com, etc) triggers OTA verification requirements</span></div>
-                <div className="bitem"><CheckSvg /> <span><strong>Current status</strong> &mdash; which permits you already hold. DSCVR starts your gate map from where you are now.</span></div>
+                {t.howItWorks.step2Bullets.map((b, i) => (
+                  <div className="bitem" key={i}><CheckSvg /> <span>{b}</span></div>
+                ))}
               </div>
 
               <div className="step-detail" style={{ marginTop: "18px" }}>
@@ -290,12 +290,12 @@ export default function HowItWorksPage() {
                 </div>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
-                    <span className="step-title">See your compliance gates</span>
-                    <span className="free-badge">Free</span>
+                    <span className="step-title">{t.howItWorks.step3Title}</span>
+                    <span className="free-badge">{t.howItWorks.freeLabel}</span>
                   </div>
                 </div>
               </div>
-              <p className="step-body">DSCVR maps your entire compliance journey into 8 sequential gates &mdash; from entity registration through to OTA platform verification. The free account shows you the full gate structure: what each gate requires, where you currently sit, and what&rsquo;s blocking you. Progress tracking and detailed blocking-item analysis require Pro.</p>
+              <p className="step-body">{t.howItWorks.step3Body}</p>
 
               <div className="gate-map" style={{ marginTop: "16px" }}>
                 <div className="gate-row free-g">
@@ -341,7 +341,7 @@ export default function HowItWorksPage() {
               </div>
 
               <div className="note" style={{ marginTop: "14px" }}>
-                <p className="note-txt"><strong>Free account shows:</strong> all gate names, what each requires, your current status. <strong>Pro unlocks:</strong> progress percentages, blocking item detail, vault integration that auto-updates gate completion when documents are uploaded.</p>
+                <p className="note-txt">{t.howItWorks.step3Note}</p>
               </div>
             </div>
           </div>
@@ -356,17 +356,16 @@ export default function HowItWorksPage() {
                 </div>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
-                    <span className="step-title">Upgrade to Pro</span>
-                    <span className="pro-badge">Pro</span>
+                    <span className="step-title">{t.howItWorks.step4Title}</span>
+                    <span className="pro-badge">{t.howItWorks.proLabel}</span>
                   </div>
                 </div>
               </div>
-              <p className="step-body">When you&rsquo;re ready to move from seeing your compliance picture to actively managing it, upgrade to Pro. No lock-in: you pay month-to-month and can cancel anytime from your account settings. Your data &mdash; property, vault, calendar &mdash; stays exactly as you left it if you ever pause and restart.</p>
+              <p className="step-body">{t.howItWorks.step4Body}</p>
               <div className="blist">
-                <div className="bitem"><CheckSvg /> <span><strong>IDR 450,000/month</strong> for a single property. No setup fees, no annual commitment.</span></div>
-                <div className="bitem"><CheckSvg /> <span><strong>IDR 850,000/month</strong> for Pro+ &mdash; up to 10 properties, unlimited staff, cross-property dashboard.</span></div>
-                <div className="bitem"><CheckSvg /> <span>Cancel anytime from Account Settings. No cancellation fees, no retention calls.</span></div>
-                <div className="bitem"><CheckSvg /> <span>Your compliance calendar pre-populates immediately &mdash; 120+ events loaded on upgrade.</span></div>
+                {t.howItWorks.step4Bullets.map((b, i) => (
+                  <div className="bitem" key={i}><CheckSvg /> <span>{b}</span></div>
+                ))}
               </div>
               <div className="pill-row">
                 <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>Calendar unlocked</div>
@@ -388,16 +387,16 @@ export default function HowItWorksPage() {
                 </div>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
-                    <span className="step-title">Set up alerts &amp; your document vault</span>
-                    <span className="pro-badge">Pro</span>
+                    <span className="step-title">{t.howItWorks.step5Title}</span>
+                    <span className="pro-badge">{t.howItWorks.proLabel}</span>
                   </div>
                 </div>
               </div>
-              <p className="step-body">After upgrading, spend 10 minutes on the two most impactful setup steps: configuring who gets which alerts, and uploading any documents you already have. Both will immediately change how well your compliance is covered.</p>
+              <p className="step-body">{t.howItWorks.step5Body}</p>
 
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginTop: "16px" }}>
                 <div>
-                  <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "10px" }}>Alert routing &mdash; assign by obligation type</div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "10px" }}>{t.howItWorks.step5AlertRouting}</div>
                   <div className="routing-diagram">
                     <div className="route-row">
                       <div className="route-from">Tax filings (PB1, PPh, SPT)</div>
@@ -428,10 +427,10 @@ export default function HowItWorksPage() {
                       <div className="route-to"><span className="route-chip" style={{ background: "rgba(232,25,44,.1)", color: "#991B1B", border: "1px solid rgba(232,25,44,.2)" }}>Owner</span></div>
                     </div>
                   </div>
-                  <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--t3)", lineHeight: "1.55" }}>Staff receive alerts via app, email, or WhatsApp/SMS &mdash; no app install required for WhatsApp. They confirm completion on their phone, optionally uploading a receipt photo.</div>
+                  <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--t3)", lineHeight: "1.55" }}>{t.howItWorks.step5StaffNote}</div>
                 </div>
                 <div>
-                  <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "10px" }}>Vault &mdash; upload what you already have</div>
+                  <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "10px" }}>{t.howItWorks.step5VaultUpload}</div>
                   <div className="vault-cats">
                     <div className="vault-cat">
                       <div className="vc-head"><span style={{ color: "var(--red)" }}>&bull;</span> Safety</div>
@@ -458,7 +457,7 @@ export default function HowItWorksPage() {
                       <div className="vc-item"><div className="vc-dot" style={{ background: "var(--blue)" }} />Staff records</div>
                     </div>
                   </div>
-                  <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--t3)", lineHeight: "1.55" }}>Each upload is linked to its gate and compliance event. Missing documents show as gaps. When Satpol PP visits, everything is on your phone in one place.</div>
+                  <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--t3)", lineHeight: "1.55" }}>{t.howItWorks.step5VaultNote}</div>
                 </div>
               </div>
             </div>
@@ -474,17 +473,16 @@ export default function HowItWorksPage() {
                 </div>
                 <div>
                   <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "3px" }}>
-                    <span className="step-title">Stay ahead &mdash; regulatory intelligence</span>
-                    <span className="pro-badge">Pro</span>
+                    <span className="step-title">{t.howItWorks.step6Title}</span>
+                    <span className="pro-badge">{t.howItWorks.proLabel}</span>
                   </div>
                 </div>
               </div>
-              <p className="step-body">Indonesia&rsquo;s regulatory environment is actively changing. CoreTax replaced eFiling in 2025. OSS NIB verification requirements have evolved. OTA platform requirements shifted ahead of the March 2026 deadline. DSCVR monitors government portals and regulatory sources, and notifies you when anything that affects your property changes &mdash; before the deadline hits.</p>
+              <p className="step-body">{t.howItWorks.step6Body}</p>
               <div className="blist">
-                <div className="bitem"><CheckSvg /> <span><strong>Government portal monitoring</strong> &mdash; OSS, CoreTax, eDabu, e-Palapa and more watched daily</span></div>
-                <div className="bitem"><CheckSvg /> <span><strong>Region-filtered alerts</strong> &mdash; Badung notices go to Badung operators only. No noise from irrelevant regencies.</span></div>
-                <div className="bitem"><CheckSvg /> <span><strong>Calendar auto-adjusts</strong> &mdash; when a deadline moves, your compliance calendar shifts automatically</span></div>
-                <div className="bitem"><CheckSvg /> <span><strong>In-plain-English summaries</strong> &mdash; what changed, what it means for you, what you need to do</span></div>
+                {t.howItWorks.step6Bullets.map((b, i) => (
+                  <div className="bitem" key={i}><CheckSvg /> <span>{b}</span></div>
+                ))}
               </div>
 
               <div className="tl" style={{ marginTop: "18px" }}>
@@ -537,10 +535,10 @@ export default function HowItWorksPage() {
       {/* FAQ */}
       <div className="section grey">
         <div className="wrap-sm">
-          <div className="ey">Common questions</div>
-          <h2 className="sh2">Before you start</h2>
+          <div className="ey">{t.howItWorks.faqTitle}</div>
+          <h2 className="sh2">{t.howItWorks.faqTitle}</h2>
           <div className="faq-list" data-testid="faq-list">
-            {FAQ_ITEMS.map((item, idx) => {
+            {t.howItWorks.faqItems.map((item, idx) => {
               const isOpen = !!openFaq[idx];
               return (
                 <div className="faq-item" key={idx}>
@@ -564,11 +562,11 @@ export default function HowItWorksPage() {
 
       {/* CTA BAND */}
       <div className="cta-band">
-        <h2 className="cta-h">Ready to get on top of it?</h2>
-        <p className="cta-sub">Create your free account in under 2 minutes. See exactly where you stand before committing to anything. No credit card required.</p>
+        <h2 className="cta-h">{t.howItWorks.finalHeading}</h2>
+        <p className="cta-sub">{t.howItWorks.finalSub}</p>
         <div className="cta-btns">
           <Link to="/register">
-            <button className="cta-btn-w" data-testid="button-cta-register">Create free account &mdash; no card needed</button>
+            <button className="cta-btn-w" data-testid="button-cta-register">{t.howItWorks.finalCta}</button>
           </Link>
           <a href="/#pricing">
             <button className="cta-btn-o" data-testid="button-cta-pricing">See pricing &rarr;</button>
@@ -579,12 +577,12 @@ export default function HowItWorksPage() {
       {/* FOOTER */}
       <div className="footer">
         <div className="footer-nav">
-          <a className="footer-link" href="#" data-testid="footer-link-how">How it works</a>
-          <a href="/#features" className="footer-link" data-testid="footer-link-features">Features</a>
-          <a href="/#pricing" className="footer-link" data-testid="footer-link-pricing">Pricing</a>
-          <Link to="/login" className="footer-link" data-testid="footer-link-signin">Sign in</Link>
+          <a className="footer-link" href="#" data-testid="footer-link-how">{t.howItWorks.navHowItWorks}</a>
+          <a href="/#features" className="footer-link" data-testid="footer-link-features">{t.howItWorks.navFeatures}</a>
+          <a href="/#pricing" className="footer-link" data-testid="footer-link-pricing">{t.howItWorks.navPricing}</a>
+          <Link to="/login" className="footer-link" data-testid="footer-link-signin">{t.howItWorks.navSignIn}</Link>
         </div>
-        <p className="footer-txt">DSCVR is a compliance information and tracking platform, not a licensed legal or tax advisory service. Information reflects our best understanding of current Indonesian regulations applicable to Bali villa operators and is subject to change. Always verify critical obligations with official sources or a qualified advisor. <Link to="/disclaimers">Full disclaimer &rarr;</Link></p>
+        <p className="footer-txt">{t.howItWorks.footerDisclaimer} <Link to="/disclaimers">Full disclaimer &rarr;</Link></p>
       </div>
     </div>
   );
