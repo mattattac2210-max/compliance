@@ -250,29 +250,29 @@ export default function HowItWorksPage() {
                   <div className="sd-dot" style={{ background: "#FF5F57" }} />
                   <div className="sd-dot" style={{ background: "#FFBD2E" }} />
                   <div className="sd-dot" style={{ background: "#28CA41" }} />
-                  <span className="sd-title">PROPERTY PROFILE &mdash; Villa Kerti, Badung</span>
+                  <span className="sd-title">{t.howItWorks.ppTitle}</span>
                 </div>
                 <div className="sd-body">
                   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                     <div style={{ background: "var(--bg)", border: "1px solid var(--b)", borderRadius: "7px", padding: "10px 12px" }}>
-                      <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "5px" }}>Property</div>
-                      <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--txt)" }}>Commercial Villa</div>
-                      <div style={{ fontSize: "11px", color: "var(--t3)", marginTop: "2px" }}>Badung Regency</div>
+                      <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "5px" }}>{t.howItWorks.ppPropLabel}</div>
+                      <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--txt)" }}>{t.howItWorks.ppPropValue}</div>
+                      <div style={{ fontSize: "11px", color: "var(--t3)", marginTop: "2px" }}>{t.howItWorks.ppPropSub}</div>
                     </div>
                     <div style={{ background: "var(--bg)", border: "1px solid var(--b)", borderRadius: "7px", padding: "10px 12px" }}>
-                      <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "5px" }}>Staff</div>
-                      <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--txt)" }}>4 employees</div>
-                      <div style={{ fontSize: "11px", color: "var(--t3)", marginTop: "2px" }}>BPJS required</div>
+                      <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "5px" }}>{t.howItWorks.ppStaffLabel}</div>
+                      <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--txt)" }}>{t.howItWorks.ppStaffValue}</div>
+                      <div style={{ fontSize: "11px", color: "var(--t3)", marginTop: "2px" }}>{t.howItWorks.ppStaffSub}</div>
                     </div>
                     <div style={{ background: "var(--bg)", border: "1px solid var(--b)", borderRadius: "7px", padding: "10px 12px" }}>
-                      <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "5px" }}>OTA Listings</div>
-                      <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--txt)" }}>3 platforms</div>
-                      <div style={{ fontSize: "11px", color: "var(--t3)", marginTop: "2px" }}>Airbnb &middot; Booking &middot; Agoda</div>
+                      <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "5px" }}>{t.howItWorks.ppOtaLabel}</div>
+                      <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--txt)" }}>{t.howItWorks.ppOtaValue}</div>
+                      <div style={{ fontSize: "11px", color: "var(--t3)", marginTop: "2px" }}>{t.howItWorks.ppOtaSub}</div>
                     </div>
                     <div style={{ background: "rgba(232,25,44,.04)", border: "1px solid rgba(232,25,44,.12)", borderRadius: "7px", padding: "10px 12px" }}>
-                      <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "5px" }}>Compliance events/yr</div>
-                      <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--red)" }}>127</div>
-                      <div style={{ fontSize: "11px", color: "var(--t3)", marginTop: "2px" }}>Tracked by DSCVR</div>
+                      <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "5px" }}>{t.howItWorks.ppEventsLabel}</div>
+                      <div style={{ fontSize: "12px", fontWeight: 700, color: "var(--red)" }}>{t.howItWorks.ppEventsValue}</div>
+                      <div style={{ fontSize: "11px", color: "var(--t3)", marginTop: "2px" }}>{t.howItWorks.ppEventsSub}</div>
                     </div>
                   </div>
                 </div>
@@ -300,43 +300,43 @@ export default function HowItWorksPage() {
               <div className="gate-map" style={{ marginTop: "16px" }}>
                 <div className="gate-row free-g">
                   <div className="gate-badge" style={{ background: "rgba(22,163,74,.12)", color: "#16A34A", border: "1.5px solid rgba(22,163,74,.3)" }}>G0</div>
-                  <div className="gate-info"><div className="gate-name">Foundation</div><div className="gate-desc">NPWP, PT or CV entity, bank account structure</div></div>
-                  <span className="gate-access" style={{ background: "rgba(37,99,235,.08)", color: "var(--blue)" }}>Free view</span>
+                  <div className="gate-info"><div className="gate-name">{t.howItWorks.g0Name}</div><div className="gate-desc">{t.howItWorks.g0Desc}</div></div>
+                  <span className="gate-access" style={{ background: "rgba(37,99,235,.08)", color: "var(--blue)" }}>{t.howItWorks.gFreeView}</span>
                 </div>
                 <div className="gate-row free-g">
                   <div className="gate-badge" style={{ background: "rgba(22,163,74,.12)", color: "#16A34A", border: "1.5px solid rgba(22,163,74,.3)" }}>G1</div>
-                  <div className="gate-info"><div className="gate-name">Zoning &amp; Land</div><div className="gate-desc">RTRW zoning check, Sertifikat Hak Sewa, IMB/PBG</div></div>
-                  <span className="gate-access" style={{ background: "rgba(37,99,235,.08)", color: "var(--blue)" }}>Free view</span>
+                  <div className="gate-info"><div className="gate-name">{t.howItWorks.g1Name}</div><div className="gate-desc">{t.howItWorks.g1Desc}</div></div>
+                  <span className="gate-access" style={{ background: "rgba(37,99,235,.08)", color: "var(--blue)" }}>{t.howItWorks.gFreeView}</span>
                 </div>
                 <div className="gate-row free-g">
                   <div className="gate-badge" style={{ background: "rgba(217,119,6,.12)", color: "var(--gold)", border: "1.5px solid rgba(217,119,6,.3)" }}>G2</div>
-                  <div className="gate-info"><div className="gate-name">NIB &amp; OSS Registration</div><div className="gate-desc">NIB via OSS, KBLI classification, NIB verification (Mar 2026 deadline)</div></div>
-                  <span className="gate-access" style={{ background: "rgba(37,99,235,.08)", color: "var(--blue)" }}>Free view</span>
+                  <div className="gate-info"><div className="gate-name">{t.howItWorks.g2Name}</div><div className="gate-desc">{t.howItWorks.g2Desc}</div></div>
+                  <span className="gate-access" style={{ background: "rgba(37,99,235,.08)", color: "var(--blue)" }}>{t.howItWorks.gFreeView}</span>
                 </div>
                 <div className="gate-row pro-g">
                   <div className="gate-badge" style={{ background: "rgba(124,58,237,.1)", color: "var(--purple)", border: "1.5px solid rgba(124,58,237,.25)" }}>G3</div>
-                  <div className="gate-info"><div className="gate-name">Building &amp; SLF</div><div className="gate-desc">PBG building permit, SLF operational certificate, construction compliance</div></div>
-                  <span className="gate-access" style={{ background: "rgba(232,25,44,.07)", color: "var(--red)" }}>Pro tracking</span>
+                  <div className="gate-info"><div className="gate-name">{t.howItWorks.g3Name}</div><div className="gate-desc">{t.howItWorks.g3Desc}</div></div>
+                  <span className="gate-access" style={{ background: "rgba(232,25,44,.07)", color: "var(--red)" }}>{t.howItWorks.gProTracking}</span>
                 </div>
                 <div className="gate-row pro-g">
                   <div className="gate-badge" style={{ background: "rgba(217,119,6,.1)", color: "var(--gold)", border: "1.5px solid rgba(217,119,6,.22)" }}>G4</div>
-                  <div className="gate-info"><div className="gate-name">Tax &amp; LKPM</div><div className="gate-desc">CoreTax registration, PB1 hotel tax, monthly filing schedule, LKPM quarterly</div></div>
-                  <span className="gate-access" style={{ background: "rgba(232,25,44,.07)", color: "var(--red)" }}>Pro tracking</span>
+                  <div className="gate-info"><div className="gate-name">{t.howItWorks.g4Name}</div><div className="gate-desc">{t.howItWorks.g4Desc}</div></div>
+                  <span className="gate-access" style={{ background: "rgba(232,25,44,.07)", color: "var(--red)" }}>{t.howItWorks.gProTracking}</span>
                 </div>
                 <div className="gate-row pro-g">
                   <div className="gate-badge" style={{ background: "rgba(22,163,74,.1)", color: "var(--grn)", border: "1.5px solid rgba(22,163,74,.22)" }}>G5</div>
-                  <div className="gate-info"><div className="gate-name">Staff &amp; BPJS</div><div className="gate-desc">BPJS Kesehatan, BPJamsostek, payroll, THR obligations</div></div>
-                  <span className="gate-access" style={{ background: "rgba(232,25,44,.07)", color: "var(--red)" }}>Pro tracking</span>
+                  <div className="gate-info"><div className="gate-name">{t.howItWorks.g5Name}</div><div className="gate-desc">{t.howItWorks.g5Desc}</div></div>
+                  <span className="gate-access" style={{ background: "rgba(232,25,44,.07)", color: "var(--red)" }}>{t.howItWorks.gProTracking}</span>
                 </div>
                 <div className="gate-row pro-g">
                   <div className="gate-badge" style={{ background: "rgba(232,25,44,.1)", color: "var(--red)", border: "1.5px solid rgba(232,25,44,.22)" }}>G6</div>
-                  <div className="gate-info"><div className="gate-name">Safety Certificates</div><div className="gate-desc">DAMKAR fire safety, monthly APAR, pool, electrical, water quality</div></div>
-                  <span className="gate-access" style={{ background: "rgba(232,25,44,.07)", color: "var(--red)" }}>Pro tracking</span>
+                  <div className="gate-info"><div className="gate-name">{t.howItWorks.g6Name}</div><div className="gate-desc">{t.howItWorks.g6Desc}</div></div>
+                  <span className="gate-access" style={{ background: "rgba(232,25,44,.07)", color: "var(--red)" }}>{t.howItWorks.gProTracking}</span>
                 </div>
                 <div className="gate-row" style={{ background: "rgba(37,99,235,.05)", borderColor: "rgba(37,99,235,.14)" }}>
                   <div className="gate-badge" style={{ background: "rgba(37,99,235,.12)", color: "var(--blue)", border: "1.5px solid rgba(37,99,235,.3)" }}>G7</div>
-                  <div className="gate-info"><div className="gate-name">OTA Verified</div><div className="gate-desc">Airbnb, Booking.com, Agoda, Vrbo &mdash; all require NIB + permit confirmation</div></div>
-                  <span className="gate-access" style={{ background: "rgba(37,99,235,.08)", color: "var(--blue)" }}>Goal state</span>
+                  <div className="gate-info"><div className="gate-name">{t.howItWorks.g7Name}</div><div className="gate-desc">{t.howItWorks.g7Desc}</div></div>
+                  <span className="gate-access" style={{ background: "rgba(37,99,235,.08)", color: "var(--blue)" }}>{t.howItWorks.gGoalState}</span>
                 </div>
               </div>
 
@@ -368,11 +368,11 @@ export default function HowItWorksPage() {
                 ))}
               </div>
               <div className="pill-row">
-                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>Calendar unlocked</div>
-                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>Alerts active</div>
-                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>Vault enabled</div>
-                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>Gate tracking live</div>
-                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>Staff routing</div>
+                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>{t.howItWorks.pillCalendar}</div>
+                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>{t.howItWorks.pillAlerts}</div>
+                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>{t.howItWorks.pillVault}</div>
+                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>{t.howItWorks.pillGates}</div>
+                <div className="pill" style={{ background: "rgba(22,163,74,.08)", color: "#14532D", border: "1px solid rgba(22,163,74,.18)" }}>{t.howItWorks.pillStaff}</div>
               </div>
             </div>
           </div>
