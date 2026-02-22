@@ -452,7 +452,7 @@ export default function LandingPage() {
               <div className="t-head">
                 <div className="t-badge multi">Multi-property</div>
                 <div className="t-name">Pro+</div>
-                <div className="t-price">IDR 850,000 / month · cancel anytime · no lock-in</div>
+                <div className="t-price">Contact Us</div>
                 <div className="t-hook">Multiple villas, one shared team, one compliance dashboard. Same no lock-in commitment.</div>
               </div>
               <div className="t-body">
@@ -466,7 +466,7 @@ export default function LandingPage() {
               </div>
               <div className="t-cta">
                 <Link to="/register"><button className="t-btn pb" data-testid="button-get-pro-plus">Stay Updated — no lock-in</button></Link>
-                <div className="t-note">IDR 850,000 per month. Cancel anytime from your account.</div>
+                <div className="t-note">Contact us for pricing and setup.</div>
               </div>
             </div>
           </div>
