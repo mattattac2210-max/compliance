@@ -313,13 +313,11 @@
   background:var(--navy);
   border-bottom:1px solid var(--dk-b);
   box-shadow:0 4px 20px rgba(0,0,0,.25);
-  transform:translateY(-100%);
   opacity:0;
-  transition:transform .3s ease,opacity .3s ease,background .4s ease;
+  transition:opacity .25s ease;
   pointer-events:none;
 }
 .lp .ph-progress-float.visible{
-  transform:translateY(0);
   opacity:1;
   pointer-events:auto;
 }
