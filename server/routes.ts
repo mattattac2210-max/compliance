@@ -57,6 +57,22 @@ export async function registerRoutes(
   try { await seedVaultTemplates(); } catch (e) { console.error("Vault templates seed error:", e); }
   try { await seedCalendarEventTemplates(); } catch (e) { console.error("Calendar templates seed error:", e); }
 
+  app.get("/api/health", async (req, res) => {
+    try {
+      const dbCheck = await storage.getUser("health-check-nonexistent").catch(() => null);
+      res.json({
+        status: "ok",
+        timestamp: new Date().toISOString(),
+        database: "connected",
+        session: !!req.session,
+        secure: req.secure,
+        proto: req.headers["x-forwarded-proto"] || "direct",
+      });
+    } catch (err: any) {
+      res.status(500).json({ status: "error", timestamp: new Date().toISOString(), database: "disconnected", error: err?.message });
+    }
+  });
+
   app.post("/api/auth/register", async (req, res) => {
     try {
       const parsed = registerSchema.safeParse(req.body);
@@ -132,14 +148,19 @@ export async function registerRoutes(
   });
 
   app.get("/api/auth/me", async (req, res) => {
-    if (!req.session.userId) {
-      return res.status(401).json({ message: "Unauthorized" });
+    try {
+      if (!req.session.userId) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      const user = await storage.getUser(req.session.userId);
+      if (!user) {
+        return res.status(401).json({ message: "Unauthorized" });
+      }
+      res.json({ id: user.id, email: user.email, firstName: user.firstName, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
+    } catch (err) {
+      console.error("Auth me error:", err);
+      res.status(500).json({ message: "Internal server error" });
     }
-    const user = await storage.getUser(req.session.userId);
-    if (!user) {
-      return res.status(401).json({ message: "Unauthorized" });
-    }
-    res.json({ id: user.id, email: user.email, firstName: user.firstName, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
   });
 
   async function requireAdmin(req: Request, res: Response, next: NextFunction) {

@@ -5,12 +5,55 @@ import { useLanguage } from "@/i18n/context";
 import { useUpgradeModal } from "@/components/upgrade-modal";
 
 export function ProtectedRoute({ children }: { children: React.ReactNode }) {
-  const { isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isError } = useAuth();
+
   if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
-      <div className="text-[var(--accent)] font-heading text-sm tracking-widest uppercase animate-pulse">Loading…</div>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{ background: "#F7F8FA" }}
+      data-testid="auth-loading"
+    >
+      <div style={{
+        width: 40, height: 40,
+        border: "3px solid #E2E8F0",
+        borderTopColor: "#E8192C",
+        borderRadius: "50%",
+        animation: "spin 0.8s linear infinite",
+        marginBottom: 16,
+      }} />
+      <div style={{
+        fontFamily: "system-ui, sans-serif",
+        fontSize: 14,
+        color: "#4A5568",
+        letterSpacing: "0.05em",
+      }}>
+        Loading...
+      </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
+
+  if (isError) return (
+    <div
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{ background: "#F7F8FA", padding: 40, textAlign: "center" }}
+      data-testid="auth-error"
+    >
+      <div style={{ fontFamily: "system-ui, sans-serif", fontSize: 18, fontWeight: 700, color: "#E8192C", marginBottom: 12 }}>
+        Connection Error
+      </div>
+      <div style={{ fontFamily: "system-ui, sans-serif", fontSize: 14, color: "#4A5568", marginBottom: 24, maxWidth: 400, lineHeight: 1.6 }}>
+        Unable to connect to the server. Please check your connection and try again.
+      </div>
+      <button
+        onClick={() => window.location.reload()}
+        style={{ padding: "10px 24px", background: "#E8192C", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer", fontFamily: "system-ui, sans-serif", fontSize: 14 }}
+      >
+        Retry
+      </button>
+    </div>
+  );
+
   if (!isAuthenticated) return <Redirect to="/login" />;
   return <>{children}</>;
 }
@@ -21,8 +64,23 @@ export function ProRoute({ children }: { children: React.ReactNode }) {
   const { openUpgradeModal } = useUpgradeModal();
 
   if (isLoading) return (
-    <div className="min-h-screen flex items-center justify-center" style={{ background: "var(--bg)" }}>
-      <div className="text-[var(--accent)] font-heading text-sm tracking-widest uppercase animate-pulse">Loading…</div>
+    <div
+      className="min-h-screen flex flex-col items-center justify-center"
+      style={{ background: "#F7F8FA" }}
+      data-testid="pro-loading"
+    >
+      <div style={{
+        width: 40, height: 40,
+        border: "3px solid #E2E8F0",
+        borderTopColor: "#E8192C",
+        borderRadius: "50%",
+        animation: "spin 0.8s linear infinite",
+        marginBottom: 16,
+      }} />
+      <div style={{ fontFamily: "system-ui, sans-serif", fontSize: 14, color: "#4A5568" }}>
+        Loading...
+      </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
   if (!isAuthenticated) return <Redirect to="/login" />;
