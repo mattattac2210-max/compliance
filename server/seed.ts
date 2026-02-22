@@ -13,8 +13,12 @@ export async function seedAdminUser() {
     return;
   }
 
-  const existing = await db.select({ id: users.id }).from(users).where(eq(users.email, adminEmail)).limit(1);
+  const existing = await db.select({ id: users.id, isAdmin: users.isAdmin }).from(users).where(eq(users.email, adminEmail)).limit(1);
   if (existing.length > 0) {
+    if (!existing[0].isAdmin) {
+      await db.update(users).set({ isAdmin: true, isPro: true }).where(eq(users.id, existing[0].id));
+      console.log(`Existing user promoted to admin: ${adminEmail}`);
+    }
     return;
   }
   const hashedPassword = await bcrypt.hash(adminPassword, 10);
