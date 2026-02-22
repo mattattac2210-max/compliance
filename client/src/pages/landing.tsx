@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { useLanguage } from "@/i18n/context";
+import { Globe } from "lucide-react";
+import type { Language } from "@/i18n/types";
 import "./landing.css";
 
 const CheckSvg = () => (
@@ -21,6 +24,41 @@ const DocIconSvg2 = () => (
 const CheckGreenSvg = () => (
   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="#16A34A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="2,6 4.5,8.5 10,3" /></svg>
 );
+
+function LandingLangSelector() {
+  const { lang, setLang } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const languages: Language[] = ["en", "uk", "id"];
+  const labels: Record<Language, string> = { en: "EN", uk: "UK", id: "ID" };
+  const codes: Record<Language, string> = { en: "GB", uk: "UA", id: "ID" };
+  const names: Record<Language, string> = { en: "English", uk: "Українська", id: "Bahasa Indonesia" };
+  return (
+    <div className="relative" data-testid="landing-language-selector" style={{ marginLeft: 4 }}>
+      <button onClick={() => setOpen(!open)} data-testid="landing-language-toggle"
+        style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 20, border: "1px solid var(--b)", background: "var(--white)", color: "var(--t2)", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+        <Globe size={13} />
+        <span>{labels[lang]}</span>
+      </button>
+      {open && (
+        <>
+          <div style={{ position: "fixed", inset: 0, zIndex: 10000 }} onClick={() => setOpen(false)} />
+          <div style={{ position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 10001, borderRadius: 8, border: "1px solid var(--b)", background: "var(--white)", boxShadow: "var(--sh2)", overflow: "hidden", minWidth: 150 }}>
+            {languages.map((l) => (
+              <button key={l} data-testid={`landing-lang-option-${l}`}
+                onClick={() => { setLang(l); setOpen(false); }}
+                style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", padding: "10px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", border: "none", fontFamily: "inherit",
+                  background: l === lang ? "var(--rt)" : "transparent",
+                  color: l === lang ? "var(--red)" : "var(--t2)" }}>
+                <span style={{ fontSize: 10, fontWeight: 700, opacity: 0.5 }}>{codes[l]}</span>
+                <span>{names[l]}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
 
 export default function LandingPage() {
   const [openSections, setOpenSections] = useState<Record<number, boolean>>({});
@@ -44,6 +82,7 @@ export default function LandingPage() {
           <a className="nav-link" href="#pricing" data-testid="link-pricing">Pricing</a>
         </div>
         <div className="nav-r">
+          <LandingLangSelector />
           <Link to="/login"><button className="btn-out" data-testid="button-signin">Sign in</button></Link>
           <Link to="/register"><button className="btn-red" data-testid="button-get-pro-nav">Sign up for free</button></Link>
         </div>

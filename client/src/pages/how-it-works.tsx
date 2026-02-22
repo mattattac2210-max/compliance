@@ -1,5 +1,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Link } from "wouter";
+import { useLanguage } from "@/i18n/context";
+import { Globe } from "lucide-react";
+import type { Language } from "@/i18n/types";
 import "./landing.css";
 
 const CheckSvg = () => (
@@ -55,6 +58,41 @@ const STEP_COLORS: Record<string, string> = {
   step6: "#E8192C",
 };
 
+function LandingLangSelector() {
+  const { lang, setLang } = useLanguage();
+  const [open, setOpen] = useState(false);
+  const languages: Language[] = ["en", "uk", "id"];
+  const labels: Record<Language, string> = { en: "EN", uk: "UK", id: "ID" };
+  const codes: Record<Language, string> = { en: "GB", uk: "UA", id: "ID" };
+  const names: Record<Language, string> = { en: "English", uk: "Українська", id: "Bahasa Indonesia" };
+  return (
+    <div className="relative" data-testid="landing-language-selector" style={{ marginLeft: 4 }}>
+      <button onClick={() => setOpen(!open)} data-testid="landing-language-toggle"
+        style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 10px", borderRadius: 20, border: "1px solid var(--b)", background: "var(--white)", color: "var(--t2)", fontSize: 12, fontWeight: 700, cursor: "pointer", fontFamily: "inherit" }}>
+        <Globe size={13} />
+        <span>{labels[lang]}</span>
+      </button>
+      {open && (
+        <>
+          <div style={{ position: "fixed", inset: 0, zIndex: 10000 }} onClick={() => setOpen(false)} />
+          <div style={{ position: "absolute", right: 0, top: "calc(100% + 6px)", zIndex: 10001, borderRadius: 8, border: "1px solid var(--b)", background: "var(--white)", boxShadow: "var(--sh2)", overflow: "hidden", minWidth: 150 }}>
+            {languages.map((l) => (
+              <button key={l} data-testid={`landing-lang-option-${l}`}
+                onClick={() => { setLang(l); setOpen(false); }}
+                style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", textAlign: "left", padding: "10px 14px", fontSize: 12, fontWeight: 600, cursor: "pointer", border: "none", fontFamily: "inherit",
+                  background: l === lang ? "var(--rt)" : "transparent",
+                  color: l === lang ? "var(--red)" : "var(--t2)" }}>
+                <span style={{ fontSize: 10, fontWeight: 700, opacity: 0.5 }}>{codes[l]}</span>
+                <span>{names[l]}</span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 export default function HowItWorksPage() {
   const [activeStep, setActiveStep] = useState("step1");
   const [openFaq, setOpenFaq] = useState<Record<number, boolean>>({});
@@ -108,6 +146,7 @@ export default function HowItWorksPage() {
           <a href="/#pricing" className="nav-link" data-testid="link-pricing">Pricing</a>
         </div>
         <div className="nav-r">
+          <LandingLangSelector />
           <Link to="/login">
             <button className="btn-out" data-testid="button-sign-in">Sign in</button>
           </Link>
