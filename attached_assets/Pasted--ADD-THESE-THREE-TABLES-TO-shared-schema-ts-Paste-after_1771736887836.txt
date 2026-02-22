@@ -1,0 +1,75 @@
+// ── ADD THESE THREE TABLES TO shared/schema.ts ────────────────────────────
+// Paste after the staffMembers table definition (end of file)
+
+export const updatePreferences = pgTable("update_preferences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
+  // How regulatory changes are applied
+  autoApplyCalendar: boolean("auto_apply_calendar").notNull().default(false),
+  autoApplyVault: boolean("auto_apply_vault").notNull().default(false),
+  requireApprovalCalendar: boolean("require_approval_calendar").notNull().default(true),
+  requireApprovalVault: boolean("require_approval_vault").notNull().default(true),
+  // How user is notified of changes
+  notifyInApp: boolean("notify_in_app").notNull().default(true),
+  notifyEmail: boolean("notify_email").notNull().default(false),
+  updatedAt: text("updated_at").notNull().default(sql`now()`),
+});
+
+export const insertUpdatePreferencesSchema = createInsertSchema(updatePreferences).omit({ id: true, updatedAt: true });
+export type InsertUpdatePreferences = z.infer<typeof insertUpdatePreferencesSchema>;
+export type UpdatePreferences = typeof updatePreferences.$inferSelect;
+
+export const userNotifications = pgTable("user_notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  type: text("type").notNull(), // "regulatory_change" | "filing_shifted" | "vault_updated" | "action_required"
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  gate: integer("gate"),
+  regency: text("regency"), // null = all regions
+  requiresAction: boolean("requires_action").notNull().default(false),
+  actionLabel: text("action_label"), // e.g. "Review & Accept"
+  actionUrl: text("action_url"),
+  isRead: boolean("is_read").notNull().default(false),
+  isDismissed: boolean("is_dismissed").notNull().default(false),
+  // If this was auto-applied and awaiting user approval
+  pendingChangeType: text("pending_change_type"), // "filing_shift" | "vault_update"
+  pendingChangeData: json("pending_change_data").$type<Record<string, unknown>>(),
+  changeId: text("change_id"), // links back to regulatory_changes
+  createdAt: text("created_at").notNull().default(sql`now()`),
+});
+
+export const insertUserNotificationSchema = createInsertSchema(userNotifications).omit({ id: true, createdAt: true });
+export type InsertUserNotification = z.infer<typeof insertUserNotificationSchema>;
+export type UserNotification = typeof userNotifications.$inferSelect;
+
+export const regulatoryChanges = pgTable("regulatory_changes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  // Source intelligence
+  source: text("source").notNull(),
+  sourceUrl: text("source_url"),
+  title: text("title").notNull(),
+  summary: text("summary").notNull(),
+  whatChanged: text("what_changed").notNull(),
+  severity: text("severity").notNull().default("medium"), // "high" | "medium" | "low"
+  gate: integer("gate"),
+  regions: json("regions").$type<string[]>().notNull().default(sql`'["all"]'`),
+  // Actions applied
+  actionsApplied: json("actions_applied").$type<Array<{
+    type: string;
+    description: string;
+    affectedCount: number;
+    appliedAt: string;
+  }>>().default(sql`'[]'`),
+  // User message
+  userMessage: text("user_message"), // The drafted notification sent to users
+  // Status
+  status: text("status").notNull().default("pending"), // "pending" | "approved" | "applied" | "dismissed"
+  adminId: varchar("admin_id").references(() => users.id),
+  appliedAt: text("applied_at"),
+  createdAt: text("created_at").notNull().default(sql`now()`),
+});
+
+export const insertRegulatoryChangeSchema = createInsertSchema(regulatoryChanges).omit({ id: true, createdAt: true });
+export type InsertRegulatoryChange = z.infer<typeof insertRegulatoryChangeSchema>;
+export type RegulatoryChange = typeof regulatoryChanges.$inferSelect;

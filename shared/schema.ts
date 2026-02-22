@@ -256,3 +256,69 @@ export const staffMembers = pgTable("staff_members", {
 export const insertStaffMemberSchema = createInsertSchema(staffMembers).omit({ id: true, createdAt: true });
 export type InsertStaffMember = z.infer<typeof insertStaffMemberSchema>;
 export type StaffMember = typeof staffMembers.$inferSelect;
+
+export const updatePreferences = pgTable("update_preferences", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }).unique(),
+  autoApplyCalendar: boolean("auto_apply_calendar").notNull().default(false),
+  autoApplyVault: boolean("auto_apply_vault").notNull().default(false),
+  requireApprovalCalendar: boolean("require_approval_calendar").notNull().default(true),
+  requireApprovalVault: boolean("require_approval_vault").notNull().default(true),
+  notifyInApp: boolean("notify_in_app").notNull().default(true),
+  notifyEmail: boolean("notify_email").notNull().default(false),
+  updatedAt: text("updated_at").notNull().default(sql`now()`),
+});
+
+export const insertUpdatePreferencesSchema = createInsertSchema(updatePreferences).omit({ id: true, updatedAt: true });
+export type InsertUpdatePreferences = z.infer<typeof insertUpdatePreferencesSchema>;
+export type UpdatePreferences = typeof updatePreferences.$inferSelect;
+
+export const userNotifications = pgTable("user_notifications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  type: text("type").notNull(),
+  title: text("title").notNull(),
+  body: text("body").notNull(),
+  gate: integer("gate"),
+  regency: text("regency"),
+  requiresAction: boolean("requires_action").notNull().default(false),
+  actionLabel: text("action_label"),
+  actionUrl: text("action_url"),
+  isRead: boolean("is_read").notNull().default(false),
+  isDismissed: boolean("is_dismissed").notNull().default(false),
+  pendingChangeType: text("pending_change_type"),
+  pendingChangeData: json("pending_change_data").$type<Record<string, unknown>>(),
+  changeId: text("change_id"),
+  createdAt: text("created_at").notNull().default(sql`now()`),
+});
+
+export const insertUserNotificationSchema = createInsertSchema(userNotifications).omit({ id: true, createdAt: true });
+export type InsertUserNotification = z.infer<typeof insertUserNotificationSchema>;
+export type UserNotification = typeof userNotifications.$inferSelect;
+
+export const regulatoryChanges = pgTable("regulatory_changes", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  source: text("source").notNull(),
+  sourceUrl: text("source_url"),
+  title: text("title").notNull(),
+  summary: text("summary").notNull(),
+  whatChanged: text("what_changed").notNull(),
+  severity: text("severity").notNull().default("medium"),
+  gate: integer("gate"),
+  regions: json("regions").$type<string[]>().notNull().default(sql`'["all"]'`),
+  actionsApplied: json("actions_applied").$type<Array<{
+    type: string;
+    description: string;
+    affectedCount: number;
+    appliedAt: string;
+  }>>().default(sql`'[]'`),
+  userMessage: text("user_message"),
+  status: text("status").notNull().default("pending"),
+  adminId: varchar("admin_id").references(() => users.id),
+  appliedAt: text("applied_at"),
+  createdAt: text("created_at").notNull().default(sql`now()`),
+});
+
+export const insertRegulatoryChangeSchema = createInsertSchema(regulatoryChanges).omit({ id: true, createdAt: true });
+export type InsertRegulatoryChange = z.infer<typeof insertRegulatoryChangeSchema>;
+export type RegulatoryChange = typeof regulatoryChanges.$inferSelect;

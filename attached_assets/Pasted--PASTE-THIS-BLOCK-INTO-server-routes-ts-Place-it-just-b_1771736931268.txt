@@ -1,0 +1,277 @@
+// ── PASTE THIS BLOCK INTO server/routes.ts ────────────────────────────────
+// Place it just before the line: // === Support-mode aware property/vault access ===
+
+  // === Update Preferences (user opt-in settings) ===
+  app.get("/api/profile/update-preferences", requireAuth, async (req, res) => {
+    const prefs = await storage.getUpdatePreferences(req.session.userId!);
+    res.json(prefs);
+  });
+
+  app.patch("/api/profile/update-preferences", requireAuth, async (req, res) => {
+    const prefs = await storage.upsertUpdatePreferences(req.session.userId!, req.body);
+    res.json(prefs);
+  });
+
+  // === User Notifications ===
+  app.get("/api/notifications", requireAuth, async (req, res) => {
+    const notifications = await storage.getUserNotifications(req.session.userId!);
+    res.json(notifications);
+  });
+
+  app.get("/api/notifications/unread-count", requireAuth, async (req, res) => {
+    const count = await storage.getUnreadNotificationCount(req.session.userId!);
+    res.json({ count });
+  });
+
+  app.patch("/api/notifications/:id/read", requireAuth, async (req, res) => {
+    await storage.markNotificationRead(req.params.id, req.session.userId!);
+    res.json({ ok: true });
+  });
+
+  app.patch("/api/notifications/:id/dismiss", requireAuth, async (req, res) => {
+    await storage.dismissNotification(req.params.id, req.session.userId!);
+    res.json({ ok: true });
+  });
+
+  app.patch("/api/notifications/:id/accept-change", requireAuth, async (req, res) => {
+    // User accepts a pending change (e.g. filing date shift) that needed approval
+    const notif = await storage.getNotificationById(req.params.id);
+    if (!notif || notif.userId !== req.session.userId!) {
+      return res.status(403).json({ message: "Forbidden" });
+    }
+    if (notif.pendingChangeType === "filing_shift" && notif.pendingChangeData) {
+      const { filingIds, shiftDays } = notif.pendingChangeData as { filingIds: string[]; shiftDays: number };
+      for (const filingId of filingIds) {
+        const filing = await storage.getRecurringFilingById(filingId);
+        if (filing && filing.propertyId) {
+          const props = await storage.getPropertiesByUserId(req.session.userId!);
+          if (props.some(p => p.id === filing.propertyId)) {
+            const current = new Date(filing.dueDate);
+            current.setDate(current.getDate() + shiftDays);
+            await storage.updateRecurringFiling(filingId, { dueDate: current.toISOString().split("T")[0] });
+          }
+        }
+      }
+    }
+    await storage.markNotificationRead(req.params.id, req.session.userId!);
+    res.json({ ok: true });
+  });
+
+  // === Regulatory Changes (admin) ===
+  app.get("/api/admin/regulatory-changes", requireAuth, requireAdmin, async (req, res) => {
+    const changes = await storage.getRegulatoryChanges();
+    res.json(changes);
+  });
+
+  app.post("/api/admin/regulatory-changes", requireAuth, requireAdmin, async (req, res) => {
+    const change = await storage.createRegulatoryChange({
+      ...req.body,
+      adminId: req.session.userId!,
+    });
+    res.json(change);
+  });
+
+  // === Apply regulatory change — the cascade engine ===
+  app.post("/api/admin/regulatory-changes/:id/apply", requireAuth, requireAdmin, async (req, res) => {
+    const {
+      actions,         // Array of action objects (see below)
+      userMessage,     // The notification message to send to users
+      regions,         // ["all"] or ["Badung", "Gianyar", ...]
+    } = req.body as {
+      actions: Array<{
+        type: "filing_shift" | "vault_template" | "compliance_term" | "user_alert" | "process_guide";
+        // filing_shift
+        filingTypes?: string[];   // e.g. ["PPh 21", "PPh 25"]
+        shiftDays?: number;       // negative = earlier
+        newDueNote?: string;
+        // vault_template
+        templateSlug?: string;
+        templateName?: string;
+        templateGate?: number;
+        isRequired?: boolean;
+        // compliance_term
+        termSlug?: string;
+        termUpdates?: Record<string, unknown>;
+        // user_alert — always included
+        // process_guide
+        guideId?: string;
+        guideUpdates?: Record<string, unknown>;
+      }>;
+      userMessage: string;
+      regions: string[];
+    };
+
+    const allUsers = await storage.getAllUsers();
+    const proUsers = allUsers.filter(u => u.isPro || u.isAdmin);
+    const actionsApplied: Array<{ type: string; description: string; affectedCount: number; appliedAt: string }> = [];
+    const now = new Date().toISOString();
+
+    for (const action of actions) {
+      if (action.type === "filing_shift" && action.filingTypes && action.shiftDays !== undefined) {
+        let affectedCount = 0;
+
+        for (const proUser of proUsers) {
+          const userProps = await storage.getPropertiesByUserId(proUser.id);
+          // Filter by region
+          const targetProps = regions.includes("all")
+            ? userProps
+            : userProps.filter(p => p.regency && regions.includes(p.regency));
+
+          if (targetProps.length === 0) continue;
+
+          const prefs = await storage.getUpdatePreferences(proUser.id);
+          const autoApply = prefs?.autoApplyCalendar ?? false;
+
+          const affectedFilingIds: string[] = [];
+          for (const prop of targetProps) {
+            const filings = await storage.getRecurringFilings(prop.id);
+            const matching = filings.filter(f =>
+              action.filingTypes!.some(ft => f.filingType.toLowerCase().includes(ft.toLowerCase()))
+              && f.status === "pending"
+            );
+            for (const filing of matching) {
+              if (autoApply) {
+                // Apply immediately
+                const current = new Date(filing.dueDate);
+                current.setDate(current.getDate() + action.shiftDays!);
+                await storage.updateRecurringFiling(filing.id, {
+                  dueDate: current.toISOString().split("T")[0],
+                  notes: `${filing.notes ? filing.notes + " | " : ""}Auto-adjusted: ${action.newDueNote || "regulatory change"}`,
+                });
+              } else {
+                affectedFilingIds.push(filing.id);
+              }
+            }
+          }
+
+          if (affectedFilingIds.length > 0 || autoApply) {
+            // Queue notification
+            const shiftLabel = action.shiftDays! < 0
+              ? `${Math.abs(action.shiftDays!)} days earlier`
+              : `${action.shiftDays!} days later`;
+
+            await storage.createUserNotification({
+              userId: proUser.id,
+              type: "filing_shifted",
+              title: autoApply
+                ? `Filing dates auto-adjusted: ${action.filingTypes!.join(", ")}`
+                : `Action required: Filing date change for ${action.filingTypes!.join(", ")}`,
+              body: autoApply
+                ? `Your ${action.filingTypes!.join(" and ")} deadlines have been shifted ${shiftLabel}. ${userMessage}`
+                : `Due to a regulatory change, your ${action.filingTypes!.join(" and ")} deadlines need to shift ${shiftLabel}. Review and accept below. ${userMessage}`,
+              gate: req.body.gate,
+              regency: regions.includes("all") ? null : regions.join(", "),
+              requiresAction: !autoApply,
+              actionLabel: autoApply ? null : "Review & Accept",
+              pendingChangeType: autoApply ? null : "filing_shift",
+              pendingChangeData: autoApply ? null : { filingIds: affectedFilingIds, shiftDays: action.shiftDays },
+              changeId: req.params.id,
+              isRead: false,
+              isDismissed: false,
+            });
+            affectedCount++;
+          }
+        }
+
+        actionsApplied.push({
+          type: "filing_shift",
+          description: `Shifted ${action.filingTypes!.join(", ")} by ${action.shiftDays} days`,
+          affectedCount,
+          appliedAt: now,
+        });
+      }
+
+      if (action.type === "vault_template" && action.templateSlug && action.templateName) {
+        // Add new vault document template globally
+        // (check if it already exists first)
+        const existing = await storage.getVaultTemplateBySlug(action.templateSlug);
+        if (!existing) {
+          await storage.createVaultDocumentTemplate({
+            gateNumber: action.templateGate || 2,
+            documentSlug: action.templateSlug,
+            isRequired: action.isRequired ?? true,
+            translations: {
+              en: { name: action.templateName, description: `Required by regulatory update` },
+              id: { name: action.templateName, description: `Diperlukan oleh pembaruan regulasi` },
+            },
+            isActive: true,
+          });
+        }
+        // Notify all affected Pro users
+        const targetUsers = proUsers.filter(u => {
+          // Region filter applied via their properties — simplified here
+          return true;
+        });
+        for (const u of targetUsers) {
+          await storage.createUserNotification({
+            userId: u.id,
+            type: "vault_updated",
+            title: `New document required: ${action.templateName}`,
+            body: `A new document has been added to your vault checklist for Gate ${action.templateGate}. ${userMessage}`,
+            gate: action.templateGate,
+            regency: regions.includes("all") ? null : regions.join(", "),
+            requiresAction: true,
+            actionLabel: "Upload Document",
+            actionUrl: "/vault",
+            changeId: req.params.id,
+            isRead: false,
+            isDismissed: false,
+          });
+        }
+        actionsApplied.push({
+          type: "vault_template",
+          description: `Added vault template: ${action.templateName}`,
+          affectedCount: targetUsers.length,
+          appliedAt: now,
+        });
+      }
+
+      if (action.type === "user_alert") {
+        // Pure notification — no system change
+        let affectedCount = 0;
+        for (const proUser of proUsers) {
+          if (!regions.includes("all")) {
+            const userProps = await storage.getPropertiesByUserId(proUser.id);
+            const inRegion = userProps.some(p => p.regency && regions.includes(p.regency));
+            if (!inRegion) continue;
+          }
+          await storage.createUserNotification({
+            userId: proUser.id,
+            type: "regulatory_change",
+            title: req.body.title || "Regulatory update",
+            body: userMessage,
+            gate: req.body.gate,
+            regency: regions.includes("all") ? null : regions.join(", "),
+            requiresAction: false,
+            changeId: req.params.id,
+            isRead: false,
+            isDismissed: false,
+          });
+          affectedCount++;
+        }
+        actionsApplied.push({
+          type: "user_alert",
+          description: `Sent notification to ${affectedCount} Pro users`,
+          affectedCount,
+          appliedAt: now,
+        });
+      }
+    }
+
+    // Update the regulatory change record
+    await storage.updateRegulatoryChange(req.params.id, {
+      status: "applied",
+      actionsApplied,
+      userMessage,
+      appliedAt: now,
+    });
+
+    await storage.createAccessLogEntry(
+      req.session.userId!,
+      req.session.userId!,
+      "apply_regulatory_change",
+      { changeId: req.params.id, actionsCount: String(actions.length) }
+    );
+
+    res.json({ ok: true, actionsApplied });
+  });

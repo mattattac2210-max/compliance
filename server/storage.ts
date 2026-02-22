@@ -3,16 +3,20 @@ import {
   type ComplianceTerm, type InsertComplianceTerm,
   type ProcessGuide, type InsertProcessGuide,
   type Property, type InsertProperty,
-  type VaultDocumentTemplate,
+  type VaultDocumentTemplate, type InsertVaultDocumentTemplate,
   type VaultDocument, type InsertVaultDocument,
   type SupportAccessGrant, type AdminAccessLogEntry,
   type BanjarContribution, type InsertBanjarContribution,
   type RecurringFiling, type InsertRecurringFiling,
   type StaffMember, type InsertStaffMember,
+  type UpdatePreferences, type InsertUpdatePreferences,
+  type UserNotification, type InsertUserNotification,
+  type RegulatoryChange, type InsertRegulatoryChange,
   users, complianceTerms, processNavigationGuides, properties,
   vaultDocumentTemplates, vaultDocuments,
   supportAccessGrants, adminAccessLog,
   banjarContributions, recurringFilings, staffMembers,
+  updatePreferences, userNotifications, regulatoryChanges,
 } from "@shared/schema";
 import { db } from "./db";
 import { eq, and, sql, desc, count } from "drizzle-orm";
@@ -80,6 +84,26 @@ export interface IStorage {
   createRecurringFiling(filing: InsertRecurringFiling): Promise<RecurringFiling>;
   updateRecurringFiling(id: string, updates: Partial<InsertRecurringFiling>): Promise<RecurringFiling | undefined>;
   deleteRecurringFiling(id: string): Promise<void>;
+
+  getUpdatePreferences(userId: string): Promise<UpdatePreferences | undefined>;
+  upsertUpdatePreferences(userId: string, prefs: Partial<InsertUpdatePreferences>): Promise<UpdatePreferences>;
+
+  getUserNotifications(userId: string): Promise<UserNotification[]>;
+  getUnreadNotificationCount(userId: string): Promise<number>;
+  getNotificationById(id: string): Promise<UserNotification | undefined>;
+  createUserNotification(notif: InsertUserNotification): Promise<UserNotification>;
+  markNotificationRead(id: string, userId: string): Promise<void>;
+  dismissNotification(id: string, userId: string): Promise<void>;
+
+  getRegulatoryChanges(): Promise<RegulatoryChange[]>;
+  getRegulatoryChangeById(id: string): Promise<RegulatoryChange | undefined>;
+  createRegulatoryChange(change: InsertRegulatoryChange): Promise<RegulatoryChange>;
+  updateRegulatoryChange(id: string, updates: Partial<RegulatoryChange>): Promise<RegulatoryChange | undefined>;
+
+  getVaultTemplateBySlug(slug: string): Promise<VaultDocumentTemplate | undefined>;
+  createVaultDocumentTemplate(template: InsertVaultDocumentTemplate): Promise<VaultDocumentTemplate>;
+
+  getRecurringFilingById(id: string): Promise<RecurringFiling | undefined>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -451,6 +475,102 @@ export class DatabaseStorage implements IStorage {
 
   async deleteRecurringFiling(id: string): Promise<void> {
     await db.delete(recurringFilings).where(eq(recurringFilings.id, id));
+  }
+
+  async getUpdatePreferences(userId: string): Promise<UpdatePreferences | undefined> {
+    const [prefs] = await db.select().from(updatePreferences).where(eq(updatePreferences.userId, userId));
+    return prefs;
+  }
+
+  async upsertUpdatePreferences(userId: string, prefs: Partial<InsertUpdatePreferences>): Promise<UpdatePreferences> {
+    const existing = await this.getUpdatePreferences(userId);
+    if (existing) {
+      const [updated] = await db.update(updatePreferences)
+        .set({ ...prefs, updatedAt: new Date().toISOString() })
+        .where(eq(updatePreferences.userId, userId))
+        .returning();
+      return updated;
+    }
+    const [created] = await db.insert(updatePreferences)
+      .values({ userId, ...prefs })
+      .returning();
+    return created;
+  }
+
+  async getUserNotifications(userId: string): Promise<UserNotification[]> {
+    return db.select().from(userNotifications)
+      .where(and(eq(userNotifications.userId, userId), eq(userNotifications.isDismissed, false)))
+      .orderBy(desc(userNotifications.createdAt));
+  }
+
+  async getUnreadNotificationCount(userId: string): Promise<number> {
+    const [result] = await db.select({ count: count() }).from(userNotifications)
+      .where(and(
+        eq(userNotifications.userId, userId),
+        eq(userNotifications.isRead, false),
+        eq(userNotifications.isDismissed, false),
+      ));
+    return result?.count ?? 0;
+  }
+
+  async getNotificationById(id: string): Promise<UserNotification | undefined> {
+    const [notif] = await db.select().from(userNotifications).where(eq(userNotifications.id, id));
+    return notif;
+  }
+
+  async createUserNotification(notif: InsertUserNotification): Promise<UserNotification> {
+    const [created] = await db.insert(userNotifications).values(notif).returning();
+    return created;
+  }
+
+  async markNotificationRead(id: string, userId: string): Promise<void> {
+    await db.update(userNotifications)
+      .set({ isRead: true })
+      .where(and(eq(userNotifications.id, id), eq(userNotifications.userId, userId)));
+  }
+
+  async dismissNotification(id: string, userId: string): Promise<void> {
+    await db.update(userNotifications)
+      .set({ isDismissed: true, isRead: true })
+      .where(and(eq(userNotifications.id, id), eq(userNotifications.userId, userId)));
+  }
+
+  async getRegulatoryChanges(): Promise<RegulatoryChange[]> {
+    return db.select().from(regulatoryChanges).orderBy(desc(regulatoryChanges.createdAt));
+  }
+
+  async getRegulatoryChangeById(id: string): Promise<RegulatoryChange | undefined> {
+    const [change] = await db.select().from(regulatoryChanges).where(eq(regulatoryChanges.id, id));
+    return change;
+  }
+
+  async createRegulatoryChange(change: InsertRegulatoryChange): Promise<RegulatoryChange> {
+    const [created] = await db.insert(regulatoryChanges).values(change).returning();
+    return created;
+  }
+
+  async updateRegulatoryChange(id: string, updates: Partial<RegulatoryChange>): Promise<RegulatoryChange | undefined> {
+    const [updated] = await db.update(regulatoryChanges)
+      .set(updates)
+      .where(eq(regulatoryChanges.id, id))
+      .returning();
+    return updated;
+  }
+
+  async getVaultTemplateBySlug(slug: string): Promise<VaultDocumentTemplate | undefined> {
+    const [template] = await db.select().from(vaultDocumentTemplates)
+      .where(eq(vaultDocumentTemplates.documentSlug, slug));
+    return template;
+  }
+
+  async createVaultDocumentTemplate(template: InsertVaultDocumentTemplate): Promise<VaultDocumentTemplate> {
+    const [created] = await db.insert(vaultDocumentTemplates).values(template).returning();
+    return created;
+  }
+
+  async getRecurringFilingById(id: string): Promise<RecurringFiling | undefined> {
+    const [filing] = await db.select().from(recurringFilings).where(eq(recurringFilings.id, id));
+    return filing;
   }
 }
 
