@@ -52,10 +52,10 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  await seedAdminUser();
-  await seedComplianceTerms();
-  await seedVaultTemplates();
-  await seedCalendarEventTemplates();
+  try { await seedAdminUser(); } catch (e) { console.error("Admin seed error:", e); }
+  try { await seedComplianceTerms(); } catch (e) { console.error("Compliance terms seed error:", e); }
+  try { await seedVaultTemplates(); } catch (e) { console.error("Vault templates seed error:", e); }
+  try { await seedCalendarEventTemplates(); } catch (e) { console.error("Calendar templates seed error:", e); }
 
   app.post("/api/auth/register", async (req, res) => {
     const parsed = registerSchema.safeParse(req.body);
