@@ -1,0 +1,892 @@
+// ── FILE: client/src/components/intelligence-action-panel.tsx ─────────────
+// Drop-in action panel that slides in when admin clicks "Apply Changes"
+// on any intelligence item in the admin control room.
+
+import { useState, useEffect } from "react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import {
+  X, Zap, Calendar, Archive, Bell, FileText,
+  CheckCircle, AlertCircle, Loader2, ChevronRight,
+  Globe, MapPin, Users, Sparkles, Edit3, Send,
+  ToggleLeft, ToggleRight, Info,
+} from "lucide-react";
+
+// ── Types ──────────────────────────────────────────────────────────────────
+interface IntelItem {
+  id: string;
+  source: string;
+  url: string;
+  title: string;
+  summary: string;
+  severity: string;
+  regions: string[];
+  gate: number;
+  status: string;
+  whatChanged: string;
+  affected: string[];
+  suggestedActions: string[];
+}
+
+interface ActionConfig {
+  type: "filing_shift" | "vault_template" | "user_alert" | "process_guide";
+  enabled: boolean;
+  label: string;
+  icon: React.ReactNode;
+  // filing_shift
+  filingTypes?: string[];
+  shiftDays?: number;
+  newDueNote?: string;
+  // vault_template
+  templateSlug?: string;
+  templateName?: string;
+  templateGate?: number;
+  // process_guide
+  guideId?: string;
+}
+
+interface ApplyResult {
+  type: string;
+  description: string;
+  affectedCount: number;
+  appliedAt: string;
+}
+
+const REGENCIES = ["Badung", "Gianyar", "Denpasar", "Tabanan", "Buleleng", "Karangasem", "Klungkung", "Jembrana", "Bangli"];
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function inferActions(item: IntelItem): ActionConfig[] {
+  const actions: ActionConfig[] = [];
+
+  // Always include user alert
+  actions.push({
+    type: "user_alert",
+    enabled: true,
+    label: "Notify Pro users",
+    icon: <Bell size={14} />,
+  });
+
+  // Detect filing shift from affected list
+  const filingKeywords = ["PPh 21", "PPh 25", "PPN", "PB1", "BPJS"];
+  const matchedFilings = filingKeywords.filter(kw =>
+    item.affected.some(a => a.includes(kw)) || item.whatChanged.includes(kw)
+  );
+  if (matchedFilings.length > 0 || item.suggestedActions.some(a => a.toLowerCase().includes("calendar") || a.toLowerCase().includes("filing"))) {
+    actions.push({
+      type: "filing_shift",
+      enabled: true,
+      label: "Adjust filing deadlines",
+      icon: <Calendar size={14} />,
+      filingTypes: matchedFilings.length > 0 ? matchedFilings : [],
+      shiftDays: -3,
+      newDueNote: item.title,
+    });
+  }
+
+  // Detect vault template update
+  if (item.suggestedActions.some(a => a.toLowerCase().includes("vault") || a.toLowerCase().includes("document") || a.toLowerCase().includes("upload"))) {
+    actions.push({
+      type: "vault_template",
+      enabled: true,
+      label: "Add vault document requirement",
+      icon: <Archive size={14} />,
+      templateSlug: `gate${item.gate}-${item.source.toLowerCase().replace(/[^a-z0-9]/g, "-")}-update`,
+      templateName: "",
+      templateGate: item.gate,
+    });
+  }
+
+  return actions;
+}
+
+function draftMessage(item: IntelItem, actions: ActionConfig[]): string {
+  const filingAction = actions.find(a => a.type === "filing_shift" && a.enabled);
+  const vaultAction = actions.find(a => a.type === "vault_template" && a.enabled);
+
+  let msg = `**Regulatory Update — Gate ${item.gate}**\n\n`;
+  msg += `${item.summary}\n\n`;
+
+  if (filingAction && filingAction.filingTypes && filingAction.filingTypes.length > 0) {
+    const shift = filingAction.shiftDays!;
+    const shiftLabel = shift < 0 ? `${Math.abs(shift)} days earlier than usual` : `${shift} days later`;
+    msg += `📅 **Filing dates affected:** ${filingAction.filingTypes.join(", ")} should be submitted ${shiftLabel} due to this change.\n\n`;
+  }
+
+  if (vaultAction && vaultAction.templateName) {
+    msg += `📎 **New document required:** ${vaultAction.templateName} has been added to your Gate ${vaultAction.templateGate} vault checklist.\n\n`;
+  }
+
+  msg += `**What this means for you:** Review your upcoming obligations in the Calendar and Timeline tabs. Your deadlines have been updated automatically${item.regions.includes("all") ? "" : ` for properties in ${item.regions.join(", ")}`}.\n\n`;
+  msg += `Source: ${item.source}`;
+
+  return msg;
+}
+
+// ── Sub-components ─────────────────────────────────────────────────────────
+function ActionRow({
+  action, onChange,
+}: {
+  action: ActionConfig;
+  onChange: (updates: Partial<ActionConfig>) => void;
+}) {
+  return (
+    <div style={{
+      background: action.enabled ? "var(--surface)" : "var(--bg2)",
+      border: `1px solid ${action.enabled ? "var(--b)" : "var(--b2)"}`,
+      borderRadius: 10, padding: "12px 14px",
+      opacity: action.enabled ? 1 : 0.55,
+      transition: "all 0.15s",
+    }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: action.enabled ? 12 : 0 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <div style={{ color: action.enabled ? "var(--accent)" : "var(--t3)" }}>{action.icon}</div>
+          <span style={{ fontSize: 12, fontWeight: 700, color: action.enabled ? "var(--txt)" : "var(--t3)" }}>
+            {action.label}
+          </span>
+        </div>
+        <button
+          onClick={() => onChange({ enabled: !action.enabled })}
+          style={{ background: "none", border: "none", cursor: "pointer", color: action.enabled ? "var(--accent)" : "var(--t3)", display: "flex" }}
+        >
+          {action.enabled ? <ToggleRight size={20} /> : <ToggleLeft size={20} />}
+        </button>
+      </div>
+
+      {action.enabled && action.type === "filing_shift" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div>
+            <label style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--t3)", display: "block", marginBottom: 4 }}>
+              Filing types (comma-separated)
+            </label>
+            <input
+              value={action.filingTypes?.join(", ") || ""}
+              onChange={e => onChange({ filingTypes: e.target.value.split(",").map(s => s.trim()).filter(Boolean) })}
+              placeholder="PPh 21, PPh 25, PPN..."
+              style={inputStyle}
+            />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div>
+              <label style={labelStyle}>Shift days (negative = earlier)</label>
+              <input
+                type="number"
+                value={action.shiftDays ?? -3}
+                onChange={e => onChange({ shiftDays: parseInt(e.target.value) || 0 })}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Note for filing record</label>
+              <input
+                value={action.newDueNote || ""}
+                onChange={e => onChange({ newDueNote: e.target.value })}
+                placeholder="e.g. CoreTax maintenance"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+          <div style={{ fontSize: 10, color: "var(--t3)", display: "flex", alignItems: "center", gap: 4 }}>
+            <Info size={11} />
+            Auto-apply users: date shifts immediately. Approval users: prompted to accept.
+          </div>
+        </div>
+      )}
+
+      {action.enabled && action.type === "vault_template" && (
+        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          <div>
+            <label style={labelStyle}>Document name</label>
+            <input
+              value={action.templateName || ""}
+              onChange={e => onChange({ templateName: e.target.value })}
+              placeholder="e.g. Property frontage photo"
+              style={inputStyle}
+            />
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+            <div>
+              <label style={labelStyle}>Gate number</label>
+              <input
+                type="number"
+                value={action.templateGate ?? 2}
+                min={1} max={8}
+                onChange={e => onChange({ templateGate: parseInt(e.target.value) || 2 })}
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <label style={labelStyle}>Document slug (auto-filled)</label>
+              <input value={action.templateSlug || ""} readOnly style={{ ...inputStyle, opacity: 0.6 }} />
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const inputStyle: React.CSSProperties = {
+  width: "100%", padding: "7px 10px", borderRadius: 6,
+  background: "var(--bg2)", border: "1px solid var(--b)",
+  color: "var(--txt)", fontSize: 12, outline: "none", boxSizing: "border-box",
+};
+
+const labelStyle: React.CSSProperties = {
+  fontSize: 10, fontWeight: 700, letterSpacing: "0.08em",
+  textTransform: "uppercase", color: "var(--t3)", display: "block", marginBottom: 4,
+};
+
+// ── Main Panel ─────────────────────────────────────────────────────────────
+export function IntelligenceActionPanel({
+  item,
+  onClose,
+  onApplied,
+}: {
+  item: IntelItem;
+  onClose: () => void;
+  onApplied: (id: string) => void;
+}) {
+  const [actions, setActions] = useState<ActionConfig[]>(() => inferActions(item));
+  const [regions, setRegions] = useState<string[]>(item.regions);
+  const [message, setMessage] = useState<string>("");
+  const [messageEdited, setMessageEdited] = useState(false);
+  const [step, setStep] = useState<"configure" | "preview" | "done">("configure");
+  const [results, setResults] = useState<ApplyResult[]>([]);
+  const [isDraftingAI, setIsDraftingAI] = useState(false);
+
+  // Auto-draft message on mount
+  useEffect(() => {
+    setMessage(draftMessage(item, actions));
+  }, []);
+
+  // Re-draft when actions change (unless user manually edited)
+  useEffect(() => {
+    if (!messageEdited) {
+      setMessage(draftMessage(item, actions));
+    }
+  }, [actions, messageEdited]);
+
+  const applyMutation = useMutation({
+    mutationFn: async () => {
+      const enabledActions = actions.filter(a => a.enabled);
+      const res = await apiRequest("POST", `/api/admin/regulatory-changes/${item.id}/apply`, {
+        actions: enabledActions,
+        userMessage: message,
+        regions,
+        title: item.title,
+        gate: item.gate,
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setResults(data.actionsApplied || []);
+      setStep("done");
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/regulatory-changes"] });
+      setTimeout(() => onApplied(item.id), 1500);
+    },
+  });
+
+  const updateAction = (type: string, updates: Partial<ActionConfig>) => {
+    setActions(prev => prev.map(a => a.type === type ? { ...a, ...updates } : a));
+  };
+
+  const toggleRegion = (r: string) => {
+    if (r === "all") {
+      setRegions(["all"]);
+    } else {
+      setRegions(prev => {
+        const without = prev.filter(x => x !== "all");
+        return without.includes(r) ? without.filter(x => x !== r) : [...without, r];
+      });
+    }
+  };
+
+  const enabledCount = actions.filter(a => a.enabled).length;
+
+  return (
+    <div style={{
+      position: "fixed", inset: 0, zIndex: 200,
+      display: "flex", alignItems: "flex-end", justifyContent: "flex-end",
+    }}>
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{ position: "absolute", inset: 0, background: "rgba(0,0,0,0.5)" }}
+      />
+
+      {/* Panel */}
+      <div style={{
+        position: "relative", zIndex: 1,
+        width: "min(520px, 100vw)", height: "100vh",
+        background: "var(--bg)", borderLeft: "1px solid var(--b)",
+        display: "flex", flexDirection: "column",
+        boxShadow: "-8px 0 32px rgba(0,0,0,0.3)",
+      }}>
+        {/* Header */}
+        <div style={{
+          padding: "16px 20px", borderBottom: "1px solid var(--b)",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+          background: "var(--sidebar)", flexShrink: 0,
+        }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 800, color: "#fff" }}>Apply Regulatory Change</div>
+            <div style={{ fontSize: 11, color: "rgba(255,255,255,0.45)", marginTop: 2, maxWidth: 380, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              {item.title}
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "rgba(255,255,255,0.5)", display: "flex" }}>
+            <X size={18} />
+          </button>
+        </div>
+
+        {step === "done" ? (
+          // ── Done state ─────────────────────────────────────────────────
+          <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 16, padding: 32 }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", background: "rgba(22,163,74,0.12)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <CheckCircle size={28} style={{ color: "#16A34A" }} />
+            </div>
+            <div style={{ textAlign: "center" }}>
+              <div style={{ fontSize: 16, fontWeight: 800, color: "var(--txt)", marginBottom: 6 }}>Changes Applied</div>
+              <div style={{ fontSize: 12, color: "var(--t3)" }}>Cascading updates complete</div>
+            </div>
+            <div style={{ width: "100%", display: "flex", flexDirection: "column", gap: 8 }}>
+              {results.map((r, i) => (
+                <div key={i} style={{
+                  padding: "10px 14px", borderRadius: 8,
+                  background: "rgba(22,163,74,0.08)", border: "1px solid rgba(22,163,74,0.2)",
+                  display: "flex", alignItems: "center", justifyContent: "space-between",
+                }}>
+                  <span style={{ fontSize: 12, color: "var(--txt)" }}>{r.description}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: "#16A34A" }}>{r.affectedCount} users</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          // ── Configure / Preview ────────────────────────────────────────
+          <div style={{ flex: 1, overflowY: "auto", padding: "20px" }}>
+
+            {/* Step indicator */}
+            <div style={{ display: "flex", gap: 8, marginBottom: 20 }}>
+              {["configure", "preview"].map((s, i) => (
+                <div
+                  key={s}
+                  onClick={() => s === "preview" && enabledCount > 0 ? setStep("preview") : setStep("configure")}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    fontSize: 11, fontWeight: 700, cursor: "pointer",
+                    color: step === s ? "var(--accent)" : "var(--t3)",
+                  }}
+                >
+                  <div style={{
+                    width: 20, height: 20, borderRadius: "50%",
+                    background: step === s ? "var(--accent)" : "var(--b)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontSize: 10, fontWeight: 800, color: step === s ? "#fff" : "var(--t3)",
+                  }}>{i + 1}</div>
+                  {s.charAt(0).toUpperCase() + s.slice(1)}
+                  {i === 0 && <ChevronRight size={12} style={{ color: "var(--t4)" }} />}
+                </div>
+              ))}
+            </div>
+
+            {step === "configure" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+
+                {/* Region scope */}
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Globe size={12} /> Region Scope
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+                    <button
+                      onClick={() => toggleRegion("all")}
+                      style={{
+                        padding: "5px 12px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer", border: "1px solid",
+                        borderColor: regions.includes("all") ? "var(--accent)" : "var(--b)",
+                        background: regions.includes("all") ? "var(--accent)" : "var(--surface)",
+                        color: regions.includes("all") ? "#fff" : "var(--t2)",
+                      }}
+                    >
+                      All Regions
+                    </button>
+                    {REGENCIES.map(r => (
+                      <button
+                        key={r}
+                        onClick={() => toggleRegion(r)}
+                        style={{
+                          padding: "5px 12px", borderRadius: 6, fontSize: 11, fontWeight: 700, cursor: "pointer", border: "1px solid",
+                          borderColor: regions.includes(r) ? "var(--accent)" : "var(--b)",
+                          background: regions.includes(r) ? "rgba(232,25,44,0.08)" : "var(--surface)",
+                          color: regions.includes(r) ? "var(--accent)" : "var(--t2)",
+                        }}
+                      >
+                        {r}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Zap size={12} /> Actions ({enabledCount} enabled)
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {actions.map(action => (
+                      <ActionRow
+                        key={action.type}
+                        action={action}
+                        onChange={updates => updateAction(action.type, updates)}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* AI-drafted message */}
+                <div>
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                    <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", display: "flex", alignItems: "center", gap: 6 }}>
+                      <Bell size={12} /> User Notification Message
+                    </div>
+                    <button
+                      onClick={() => {
+                        setMessageEdited(false);
+                        setMessage(draftMessage(item, actions));
+                      }}
+                      style={{
+                        display: "flex", alignItems: "center", gap: 4,
+                        fontSize: 10, fontWeight: 700, cursor: "pointer",
+                        border: "none", background: "none", color: "var(--accent)",
+                      }}
+                    >
+                      <Sparkles size={11} /> Re-draft
+                    </button>
+                  </div>
+                  <textarea
+                    value={message}
+                    onChange={e => { setMessage(e.target.value); setMessageEdited(true); }}
+                    rows={8}
+                    placeholder="Notification message to Pro users..."
+                    style={{
+                      width: "100%", padding: "10px 12px", borderRadius: 8,
+                      background: "var(--surface)", border: "1px solid var(--b)",
+                      color: "var(--txt)", fontSize: 12, lineHeight: 1.6,
+                      outline: "none", resize: "vertical", boxSizing: "border-box",
+                      fontFamily: "var(--font-body)",
+                    }}
+                  />
+                  <div style={{ fontSize: 10, color: "var(--t3)", marginTop: 4 }}>
+                    Markdown supported. Sent as in-app notification to affected Pro users.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {step === "preview" && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+                <div style={{ fontSize: 12, color: "var(--t3)" }}>
+                  Review what will happen when you execute. This cannot be easily undone.
+                </div>
+
+                {/* Region summary */}
+                <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                    <MapPin size={11} /> Scope
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--txt)" }}>
+                    {regions.includes("all") ? "All regions" : regions.join(", ")} · Pro users only
+                  </div>
+                </div>
+
+                {/* Actions preview */}
+                <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Zap size={11} /> Actions to Execute
+                  </div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {actions.filter(a => a.enabled).map((action, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                        <div style={{ width: 20, height: 20, borderRadius: "50%", background: "rgba(232,25,44,0.1)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, color: "var(--accent)" }}>
+                          {action.icon}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: 12, fontWeight: 700, color: "var(--txt)" }}>{action.label}</div>
+                          {action.type === "filing_shift" && (
+                            <div style={{ fontSize: 11, color: "var(--t3)", marginTop: 2 }}>
+                              {action.filingTypes?.join(", ")} · {Math.abs(action.shiftDays!)} days {action.shiftDays! < 0 ? "earlier" : "later"}
+                              <br />Auto-apply users: immediate · Approval users: prompted
+                            </div>
+                          )}
+                          {action.type === "vault_template" && (
+                            <div style={{ fontSize: 11, color: "var(--t3)", marginTop: 2 }}>
+                              Add "{action.templateName}" to Gate {action.templateGate} vault
+                            </div>
+                          )}
+                          {action.type === "user_alert" && (
+                            <div style={{ fontSize: 11, color: "var(--t3)", marginTop: 2 }}>
+                              In-app notification sent to all affected Pro users
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Message preview */}
+                <div style={{ background: "var(--surface)", border: "1px solid var(--b)", borderRadius: 10, padding: 14 }}>
+                  <div style={{ fontSize: 10, fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "var(--t3)", marginBottom: 8, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Bell size={11} /> Notification Preview
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--t2)", lineHeight: 1.7, whiteSpace: "pre-wrap" }}>
+                    {message}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Footer */}
+        {step !== "done" && (
+          <div style={{
+            padding: "14px 20px", borderTop: "1px solid var(--b)",
+            display: "flex", gap: 8, flexShrink: 0, background: "var(--surface)",
+          }}>
+            {step === "configure" && (
+              <>
+                <button
+                  onClick={() => enabledCount > 0 && setStep("preview")}
+                  disabled={enabledCount === 0 || !message.trim()}
+                  style={{
+                    flex: 1, padding: "10px 0", borderRadius: 8, fontSize: 12, fontWeight: 700,
+                    cursor: enabledCount > 0 ? "pointer" : "not-allowed",
+                    border: "none",
+                    background: enabledCount > 0 ? "var(--accent)" : "var(--b)",
+                    color: enabledCount > 0 ? "#fff" : "var(--t3)",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  }}
+                >
+                  Preview Changes <ChevronRight size={14} />
+                </button>
+                <button onClick={onClose} style={{
+                  padding: "10px 18px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+                  cursor: "pointer", border: "1px solid var(--b)", background: "var(--surface)", color: "var(--t2)",
+                }}>
+                  Cancel
+                </button>
+              </>
+            )}
+            {step === "preview" && (
+              <>
+                <button
+                  onClick={() => applyMutation.mutate()}
+                  disabled={applyMutation.isPending}
+                  style={{
+                    flex: 1, padding: "10px 0", borderRadius: 8, fontSize: 12, fontWeight: 700,
+                    cursor: "pointer", border: "none",
+                    background: "var(--accent)", color: "#fff",
+                    display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
+                  }}
+                >
+                  {applyMutation.isPending ? (
+                    <><Loader2 size={14} style={{ animation: "spin 1s linear infinite" }} /> Applying...</>
+                  ) : (
+                    <><Send size={14} /> Execute Changes</>
+                  )}
+                </button>
+                <button
+                  onClick={() => setStep("configure")}
+                  style={{
+                    padding: "10px 18px", borderRadius: 8, fontSize: 12, fontWeight: 700,
+                    cursor: "pointer", border: "1px solid var(--b)", background: "var(--surface)", color: "var(--t2)",
+                  }}
+                >
+                  Back
+                </button>
+              </>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+
+// ── FILE: client/src/components/notifications-bell.tsx ────────────────────
+// Notification bell for the app shell — shows unread count, dropdown list
+
+export function NotificationsBell() {
+  const [open, setOpen] = useState(false);
+
+  const { data: countData } = useQuery<{ count: number }>({
+    queryKey: ["/api/notifications/unread-count"],
+    refetchInterval: 30000,
+  });
+
+  const { data: notifications = [] } = useQuery<any[]>({
+    queryKey: ["/api/notifications"],
+    enabled: open,
+  });
+
+  const markReadMutation = useMutation({
+    mutationFn: (id: string) => apiRequest("PATCH", `/api/notifications/${id}/read`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications/unread-count"] });
+    },
+  });
+
+  const acceptMutation = useMutation({
+    mutationFn: (id: string) => apiRequest("PATCH", `/api/notifications/${id}/accept-change`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications/unread-count"] });
+    },
+  });
+
+  const dismissMutation = useMutation({
+    mutationFn: (id: string) => apiRequest("PATCH", `/api/notifications/${id}/dismiss`, {}),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/notifications/unread-count"] });
+    },
+  });
+
+  const unread = countData?.count ?? 0;
+
+  const typeIcon: Record<string, React.ReactNode> = {
+    regulatory_change: <Globe size={13} style={{ color: "#3B82F6" }} />,
+    filing_shifted: <Calendar size={13} style={{ color: "#D97706" }} />,
+    vault_updated: <Archive size={13} style={{ color: "#7C3AED" }} />,
+    action_required: <AlertCircle size={13} style={{ color: "#EF4444" }} />,
+  };
+
+  return (
+    <div style={{ position: "relative" }}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        style={{
+          position: "relative", background: "none", border: "none",
+          cursor: "pointer", padding: 6, borderRadius: 8,
+          color: "var(--t2)", display: "flex", alignItems: "center",
+        }}
+      >
+        <Bell size={18} />
+        {unread > 0 && (
+          <span style={{
+            position: "absolute", top: 2, right: 2,
+            width: 16, height: 16, borderRadius: "50%",
+            background: "var(--accent)", color: "#fff",
+            fontSize: 9, fontWeight: 800,
+            display: "flex", alignItems: "center", justifyContent: "center",
+          }}>
+            {unread > 9 ? "9+" : unread}
+          </span>
+        )}
+      </button>
+
+      {open && (
+        <>
+          <div onClick={() => setOpen(false)} style={{ position: "fixed", inset: 0, zIndex: 99 }} />
+          <div style={{
+            position: "absolute", top: "calc(100% + 8px)", right: 0, zIndex: 100,
+            width: 360, maxHeight: 480,
+            background: "var(--surface)", border: "1px solid var(--b)",
+            borderRadius: 12, boxShadow: "var(--shadow2)",
+            display: "flex", flexDirection: "column",
+            overflow: "hidden",
+          }}>
+            <div style={{ padding: "12px 16px", borderBottom: "1px solid var(--b)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: "var(--txt)" }}>Notifications</span>
+              {unread > 0 && (
+                <span style={{ background: "rgba(232,25,44,0.1)", color: "var(--accent)", fontSize: 10, fontWeight: 800, padding: "2px 8px", borderRadius: 10 }}>
+                  {unread} unread
+                </span>
+              )}
+            </div>
+            <div style={{ overflowY: "auto", flex: 1 }}>
+              {notifications.length === 0 ? (
+                <div style={{ padding: 32, textAlign: "center", color: "var(--t3)", fontSize: 12 }}>
+                  All caught up ✓
+                </div>
+              ) : (
+                notifications.map((n: any) => (
+                  <div
+                    key={n.id}
+                    style={{
+                      padding: "12px 16px", borderBottom: "1px solid var(--b)",
+                      background: n.isRead ? "transparent" : "rgba(232,25,44,0.03)",
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "flex-start", gap: 10, marginBottom: 6 }}>
+                      <div style={{ flexShrink: 0, marginTop: 1 }}>{typeIcon[n.type] || <Bell size={13} />}</div>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontSize: 12, fontWeight: n.isRead ? 500 : 700, color: "var(--txt)", marginBottom: 2 }}>
+                          {n.title}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--t3)", lineHeight: 1.5 }}>
+                          {n.body.length > 120 ? n.body.slice(0, 120) + "..." : n.body}
+                        </div>
+                        {n.regency && (
+                          <div style={{ fontSize: 10, color: "var(--t3)", marginTop: 4, display: "flex", alignItems: "center", gap: 3 }}>
+                            <MapPin size={9} /> {n.regency}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ display: "flex", gap: 6, marginLeft: 23 }}>
+                      {n.requiresAction && !n.isRead && (
+                        <button
+                          onClick={() => acceptMutation.mutate(n.id)}
+                          style={{
+                            padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                            border: "1px solid rgba(22,163,74,0.3)", background: "rgba(22,163,74,0.08)", color: "#16A34A",
+                          }}
+                        >
+                          {n.actionLabel || "Accept"}
+                        </button>
+                      )}
+                      {!n.isRead && (
+                        <button
+                          onClick={() => markReadMutation.mutate(n.id)}
+                          style={{
+                            padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                            border: "1px solid var(--b)", background: "transparent", color: "var(--t3)",
+                          }}
+                        >
+                          Mark read
+                        </button>
+                      )}
+                      <button
+                        onClick={() => dismissMutation.mutate(n.id)}
+                        style={{
+                          padding: "4px 10px", borderRadius: 5, fontSize: 10, fontWeight: 700, cursor: "pointer",
+                          border: "none", background: "none", color: "var(--t4)",
+                        }}
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
+
+// ── FILE: client/src/components/update-preferences-section.tsx ─────────────
+// Section to add to the Profile page
+
+export function UpdatePreferencesSection() {
+  const { data: prefs, isLoading } = useQuery<any>({
+    queryKey: ["/api/profile/update-preferences"],
+  });
+
+  const mutation = useMutation({
+    mutationFn: (updates: Record<string, boolean>) =>
+      apiRequest("PATCH", "/api/profile/update-preferences", updates).then(r => r.json()),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/profile/update-preferences"] }),
+  });
+
+  const toggle = (key: string, current: boolean) => {
+    mutation.mutate({ [key]: !current });
+  };
+
+  if (isLoading) return null;
+
+  const p = prefs || {};
+
+  const settings = [
+    {
+      key: "autoApplyCalendar",
+      label: "Auto-adjust filing deadlines",
+      desc: "When a regulatory change shifts a filing date, update your calendar automatically without asking.",
+      value: p.autoApplyCalendar ?? false,
+      badge: "Calendar & Timeline",
+      badgeColor: "#D97706",
+    },
+    {
+      key: "autoApplyVault",
+      label: "Auto-add new document requirements",
+      desc: "When a new document is required by regulators, add it to your vault checklist automatically.",
+      value: p.autoApplyVault ?? false,
+      badge: "Vault",
+      badgeColor: "#7C3AED",
+    },
+    {
+      key: "notifyInApp",
+      label: "In-app notifications",
+      desc: "Show a notification bell alert when regulatory changes affect your property.",
+      value: p.notifyInApp ?? true,
+      badge: "Always recommended",
+      badgeColor: "#16A34A",
+    },
+    {
+      key: "notifyEmail",
+      label: "Email notifications",
+      desc: "Receive an email when important regulatory changes require your attention.",
+      value: p.notifyEmail ?? false,
+      badge: "Email",
+      badgeColor: "#3B82F6",
+    },
+  ];
+
+  return (
+    <div style={{ marginTop: 32 }}>
+      <div style={{ marginBottom: 16 }}>
+        <h3 style={{ fontSize: 15, fontWeight: 800, color: "var(--txt)", margin: 0, marginBottom: 4 }}>
+          Regulatory Update Preferences
+        </h3>
+        <p style={{ fontSize: 12, color: "var(--t3)", margin: 0, lineHeight: 1.5 }}>
+          Control how DSCVR applies regulatory changes to your account. Auto-apply keeps everything up to date hands-free. Manual approval gives you a review step before any changes are made.
+        </p>
+      </div>
+
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {settings.map(s => (
+          <div
+            key={s.key}
+            style={{
+              background: "var(--surface)", border: "1px solid var(--b)",
+              borderRadius: 10, padding: "14px 16px",
+              display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
+            }}
+          >
+            <div style={{ flex: 1 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <span style={{ fontSize: 13, fontWeight: 700, color: "var(--txt)" }}>{s.label}</span>
+                <span style={{
+                  fontSize: 9, fontWeight: 700, letterSpacing: "0.08em", textTransform: "uppercase",
+                  padding: "2px 7px", borderRadius: 4,
+                  background: `${s.badgeColor}18`, color: s.badgeColor,
+                }}>
+                  {s.badge}
+                </span>
+              </div>
+              <p style={{ fontSize: 11, color: "var(--t3)", margin: 0, lineHeight: 1.5 }}>{s.desc}</p>
+            </div>
+            <button
+              onClick={() => toggle(s.key, s.value)}
+              disabled={mutation.isPending}
+              style={{ background: "none", border: "none", cursor: "pointer", flexShrink: 0, color: s.value ? "var(--accent)" : "var(--t3)", display: "flex" }}
+            >
+              {s.value ? <ToggleRight size={28} /> : <ToggleLeft size={28} />}
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <p style={{ fontSize: 11, color: "var(--t4)", marginTop: 12 }}>
+        Changes where manual approval is off will show in your notification bell with an "Accept" button before taking effect.
+      </p>
+    </div>
+  );
+}
