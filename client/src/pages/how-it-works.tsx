@@ -399,32 +399,32 @@ export default function HowItWorksPage() {
                   <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "10px" }}>{t.howItWorks.step5AlertRouting}</div>
                   <div className="routing-diagram">
                     <div className="route-row">
-                      <div className="route-from">Tax filings (PB1, PPh, SPT)</div>
+                      <div className="route-from">{t.howItWorks.routeFrom1}</div>
                       <div className="route-arrow">&rarr;</div>
-                      <div className="route-to"><span className="route-chip" style={{ background: "rgba(217,119,6,.1)", color: "#92400E", border: "1px solid rgba(217,119,6,.2)" }}>Accountant</span></div>
+                      <div className="route-to"><span className="route-chip" style={{ background: "rgba(217,119,6,.1)", color: "#92400E", border: "1px solid rgba(217,119,6,.2)" }}>{t.howItWorks.routeTo1}</span></div>
                     </div>
                     <div className="route-row">
-                      <div className="route-from">APAR &amp; fire checks</div>
+                      <div className="route-from">{t.howItWorks.routeFrom2}</div>
                       <div className="route-arrow">&rarr;</div>
-                      <div className="route-to"><span className="route-chip" style={{ background: "rgba(22,163,74,.1)", color: "#14532D", border: "1px solid rgba(22,163,74,.2)" }}>Caretaker</span></div>
+                      <div className="route-to"><span className="route-chip" style={{ background: "rgba(22,163,74,.1)", color: "#14532D", border: "1px solid rgba(22,163,74,.2)" }}>{t.howItWorks.routeTo2}</span></div>
                     </div>
                     <div className="route-row">
-                      <div className="route-from">BPJS contributions</div>
+                      <div className="route-from">{t.howItWorks.routeFrom3}</div>
                       <div className="route-arrow">&rarr;</div>
                       <div className="route-to">
-                        <span className="route-chip" style={{ background: "rgba(22,163,74,.1)", color: "#14532D", border: "1px solid rgba(22,163,74,.2)" }}>Manager</span>
-                        <span className="route-chip" style={{ background: "rgba(217,119,6,.1)", color: "#92400E", border: "1px solid rgba(217,119,6,.2)" }}>Accountant</span>
+                        <span className="route-chip" style={{ background: "rgba(22,163,74,.1)", color: "#14532D", border: "1px solid rgba(22,163,74,.2)" }}>{t.howItWorks.routeTo3}</span>
+                        <span className="route-chip" style={{ background: "rgba(217,119,6,.1)", color: "#92400E", border: "1px solid rgba(217,119,6,.2)" }}>{t.howItWorks.routeTo3b}</span>
                       </div>
                     </div>
                     <div className="route-row">
-                      <div className="route-from">Banjar contributions</div>
+                      <div className="route-from">{t.howItWorks.routeFrom4}</div>
                       <div className="route-arrow">&rarr;</div>
-                      <div className="route-to"><span className="route-chip" style={{ background: "rgba(124,58,237,.1)", color: "#4C1D95", border: "1px solid rgba(124,58,237,.2)" }}>Villa Manager</span></div>
+                      <div className="route-to"><span className="route-chip" style={{ background: "rgba(124,58,237,.1)", color: "#4C1D95", border: "1px solid rgba(124,58,237,.2)" }}>{t.howItWorks.routeTo4}</span></div>
                     </div>
                     <div className="route-row">
-                      <div className="route-from">All overdue items</div>
+                      <div className="route-from">{t.howItWorks.routeFrom5}</div>
                       <div className="route-arrow">&rarr;</div>
-                      <div className="route-to"><span className="route-chip" style={{ background: "rgba(232,25,44,.1)", color: "#991B1B", border: "1px solid rgba(232,25,44,.2)" }}>Owner</span></div>
+                      <div className="route-to"><span className="route-chip" style={{ background: "rgba(232,25,44,.1)", color: "#991B1B", border: "1px solid rgba(232,25,44,.2)" }}>{t.howItWorks.routeTo5}</span></div>
                     </div>
                   </div>
                   <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--t3)", lineHeight: "1.55" }}>{t.howItWorks.step5StaffNote}</div>
@@ -433,28 +433,28 @@ export default function HowItWorksPage() {
                   <div style={{ fontSize: "11px", fontWeight: 700, letterSpacing: ".5px", textTransform: "uppercase" as const, color: "var(--t4)", marginBottom: "10px" }}>{t.howItWorks.step5VaultUpload}</div>
                   <div className="vault-cats">
                     <div className="vault-cat">
-                      <div className="vc-head"><span style={{ color: "var(--red)" }}>&bull;</span> Safety</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--red)" }} />DAMKAR cert</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--red)" }} />APAR logbook</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--red)" }} />Electrical cert</div>
+                      <div className="vc-head"><span style={{ color: "var(--red)" }}>&bull;</span> {t.howItWorks.vaultCatSafety}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--red)" }} />{t.howItWorks.vaultSafety1}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--red)" }} />{t.howItWorks.vaultSafety2}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--red)" }} />{t.howItWorks.vaultSafety3}</div>
                     </div>
                     <div className="vault-cat">
-                      <div className="vc-head"><span style={{ color: "var(--gold)" }}>&bull;</span> Tax</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--gold)" }} />PB1 receipts</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--gold)" }} />CoreTax filings</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--gold)" }} />SPT confirmation</div>
+                      <div className="vc-head"><span style={{ color: "var(--gold)" }}>&bull;</span> {t.howItWorks.vaultCatTax}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--gold)" }} />{t.howItWorks.vaultTax1}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--gold)" }} />{t.howItWorks.vaultTax2}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--gold)" }} />{t.howItWorks.vaultTax3}</div>
                     </div>
                     <div className="vault-cat">
-                      <div className="vc-head"><span style={{ color: "var(--grn)" }}>&bull;</span> Permits</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--grn)" }} />NIB certificate</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--grn)" }} />SLF certificate</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--grn)" }} />IMB/PBG copy</div>
+                      <div className="vc-head"><span style={{ color: "var(--grn)" }}>&bull;</span> {t.howItWorks.vaultCatPermits}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--grn)" }} />{t.howItWorks.vaultPermits1}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--grn)" }} />{t.howItWorks.vaultPermits2}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--grn)" }} />{t.howItWorks.vaultPermits3}</div>
                     </div>
                     <div className="vault-cat">
-                      <div className="vc-head"><span style={{ color: "var(--blue)" }}>&bull;</span> BPJS</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--blue)" }} />Monthly receipts</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--blue)" }} />Enrollment certs</div>
-                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--blue)" }} />Staff records</div>
+                      <div className="vc-head"><span style={{ color: "var(--blue)" }}>&bull;</span> {t.howItWorks.vaultCatBpjs}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--blue)" }} />{t.howItWorks.vaultBpjs1}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--blue)" }} />{t.howItWorks.vaultBpjs2}</div>
+                      <div className="vc-item"><div className="vc-dot" style={{ background: "var(--blue)" }} />{t.howItWorks.vaultBpjs3}</div>
                     </div>
                   </div>
                   <div style={{ marginTop: "10px", fontSize: "11px", color: "var(--t3)", lineHeight: "1.55" }}>{t.howItWorks.step5VaultNote}</div>
@@ -492,8 +492,8 @@ export default function HowItWorksPage() {
                     <div className="tl-conn" style={{ background: "var(--b)" }} />
                   </div>
                   <div className="tl-body">
-                    <div className="tl-label">Change detected &mdash; CoreTax maintenance scheduled</div>
-                    <div className="tl-sub">System detects announcement on DJP portal. Affects PPh 21 and PPh 25 filing window for March 5&ndash;6.</div>
+                    <div className="tl-label">{t.howItWorks.tlLabel1}</div>
+                    <div className="tl-sub">{t.howItWorks.tlSub1}</div>
                   </div>
                 </div>
                 <div className="tl-item">
@@ -502,8 +502,8 @@ export default function HowItWorksPage() {
                     <div className="tl-conn" style={{ background: "var(--b)" }} />
                   </div>
                   <div className="tl-body">
-                    <div className="tl-label">Admin reviews and approves</div>
-                    <div className="tl-sub">DSCVR team verifies the change, drafts plain-English notification, determines affected operators.</div>
+                    <div className="tl-label">{t.howItWorks.tlLabel2}</div>
+                    <div className="tl-sub">{t.howItWorks.tlSub2}</div>
                   </div>
                 </div>
                 <div className="tl-item">
@@ -512,8 +512,8 @@ export default function HowItWorksPage() {
                     <div className="tl-conn" style={{ background: "var(--b)" }} />
                   </div>
                   <div className="tl-body">
-                    <div className="tl-label">You receive a notification</div>
-                    <div className="tl-sub">In-app alert (and email if enabled): &ldquo;CoreTax maintenance March 5&ndash;6 &mdash; your PPh deadlines have been adjusted.&rdquo;</div>
+                    <div className="tl-label">{t.howItWorks.tlLabel3}</div>
+                    <div className="tl-sub">{t.howItWorks.tlSub3}</div>
                   </div>
                 </div>
                 <div className="tl-item">
@@ -521,8 +521,8 @@ export default function HowItWorksPage() {
                     <div className="tl-dot" style={{ borderColor: "var(--grn)", background: "rgba(22,163,74,.12)" }} />
                   </div>
                   <div className="tl-body">
-                    <div className="tl-label">Calendar adjusts automatically</div>
-                    <div className="tl-sub">Your PPh 21 deadline shifts to March 7. Your accountant&rsquo;s alert updates. No action required from you.</div>
+                    <div className="tl-label">{t.howItWorks.tlLabel4}</div>
+                    <div className="tl-sub">{t.howItWorks.tlSub4}</div>
                   </div>
                 </div>
               </div>
@@ -569,7 +569,7 @@ export default function HowItWorksPage() {
             <button className="cta-btn-w" data-testid="button-cta-register">{t.howItWorks.finalCta}</button>
           </Link>
           <a href="/#pricing">
-            <button className="cta-btn-o" data-testid="button-cta-pricing">See pricing &rarr;</button>
+            <button className="cta-btn-o" data-testid="button-cta-pricing">{t.howItWorks.seePricing}</button>
           </a>
         </div>
       </div>
@@ -582,7 +582,7 @@ export default function HowItWorksPage() {
           <a href="/#pricing" className="footer-link" data-testid="footer-link-pricing">{t.howItWorks.navPricing}</a>
           <Link to="/login" className="footer-link" data-testid="footer-link-signin">{t.howItWorks.navSignIn}</Link>
         </div>
-        <p className="footer-txt">{t.howItWorks.footerDisclaimer} <Link to="/disclaimers">Full disclaimer &rarr;</Link></p>
+        <p className="footer-txt">{t.howItWorks.footerDisclaimer} <Link to="/disclaimers">{t.howItWorks.fullDisclaimer}</Link></p>
       </div>
     </div>
   );
