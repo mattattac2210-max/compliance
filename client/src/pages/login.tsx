@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useLanguage } from "@/i18n/context";
 import { useAuth } from "@/hooks/useAuth";
+import { useTheme } from "@/components/theme-provider";
 import { Link, Redirect, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,8 @@ import { Mail, Lock, AlertCircle, ArrowLeft } from "lucide-react";
 export default function LoginPage() {
   const { t } = useLanguage();
   const { isAuthenticated, isLoading } = useAuth();
+  const { theme, setTheme } = useTheme();
+  useEffect(() => { if (theme !== "light") setTheme("light"); }, []);
   const [, navigate] = useLocation();
   const queryClient = useQueryClient();
   const [email, setEmail] = useState("");
