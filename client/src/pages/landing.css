@@ -233,9 +233,11 @@
 .lp .t-item.inc svg{color:var(--grn);}
 .lp .t-item.lk{color:var(--t4);}
 .lp .t-item.lk svg{color:var(--t5);}
-.lp .tier.hot .t-item{color:var(--dk-body);}
+.lp .tier.hot .t-body{background:var(--navy);}
+.lp .tier.hot .t-item{color:var(--dk-body);border-bottom-color:var(--dk-b2);}
 .lp .tier.hot .t-item.lk{color:var(--dk-muted);}
 .lp .t-cta{padding:14px 22px;border-top:1px solid var(--b);}
+.lp .tier.hot .t-cta{background:var(--navy);border-top-color:var(--dk-b2);}
 .lp .t-btn{width:100%;padding:11px;border-radius:7px;font-size:12px;font-weight:800;cursor:pointer;border:none;font-family:inherit;transition:all .15s;}
 .lp .t-btn.fb{background:var(--bg);border:1px solid var(--b);color:var(--t2);}
 .lp .t-btn.fb:hover{border-color:var(--red);color:var(--red);}
