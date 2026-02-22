@@ -482,8 +482,27 @@ export async function registerRoutes(
     const hasAdmin = allUsers.some(u => u.isAdmin);
     if (hasAdmin) return res.status(403).json({ message: "Admin already exists" });
     const updated = await storage.updateUserAdmin(req.session.userId!, true);
-    if (updated) await storage.updateUserPro(req.session.userId!, true, "system");
+    if (updated) await storage.updateUserPro(req.session.userId!, true);
     res.json({ message: "Admin + Pro granted" });
+  });
+
+  app.post("/api/admin/bootstrap", async (req, res) => {
+    const { email, password } = req.body;
+    if (!email || !password) return res.status(400).json({ message: "email and password required" });
+    const allUsers = await storage.getAllUsers();
+    const hasAdmin = allUsers.some(u => u.isAdmin);
+    if (hasAdmin) return res.status(403).json({ message: "Admin already exists. Bootstrap disabled." });
+    let user = await storage.getUserByEmail(email);
+    if (!user) {
+      const hashed = await bcrypt.hash(password, 10);
+      user = await storage.createUser({ email, password: hashed, username: null, firstName: "Admin" });
+    } else {
+      const hashed = await bcrypt.hash(password, 10);
+      await storage.updateUserPassword(user.id, hashed);
+    }
+    await storage.updateUserAdmin(user.id, true);
+    await storage.updateUserPro(user.id, true);
+    res.json({ message: "Admin account ready. Log in now.", email });
   });
 
   // === Admin user management routes ===
