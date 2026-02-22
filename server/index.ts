@@ -16,6 +16,22 @@ declare module "express-session" {
 const app = express();
 const httpServer = createServer(app);
 
+async function ensureSessionTable() {
+  try {
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS "sessions" (
+        "sid" varchar NOT NULL COLLATE "default",
+        "sess" json NOT NULL,
+        "expire" timestamp(6) NOT NULL,
+        CONSTRAINT "sessions_pkey" PRIMARY KEY ("sid")
+      );
+      CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "sessions" ("expire");
+    `);
+  } catch (err) {
+    console.error("Failed to create sessions table:", err);
+  }
+}
+
 declare module "http" {
   interface IncomingMessage {
     rawBody: unknown;
@@ -42,11 +58,14 @@ if (!process.env.SESSION_SECRET) {
 
 const isProduction = process.env.NODE_ENV === "production" || !!process.env.REPLIT_DEPLOYMENT;
 
+(async () => {
+  await ensureSessionTable();
+})();
+
 app.use(session({
   store: new PgSession({
     pool,
     tableName: "sessions",
-    createTableIfMissing: true,
     errorLog: (err) => console.error("Session store error:", err),
   }),
   secret: process.env.SESSION_SECRET || "dscvr-dev-secret-change-in-production",
