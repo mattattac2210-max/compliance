@@ -41,7 +41,7 @@ function getTemplateDesc(tmpl: VaultDocumentTemplate, lang: string): string {
 type DocFilter = "all" | "required" | "expiring" | "expired";
 
 export default function VaultPage() {
-  const { t, language } = useLanguage();
+  const { t, lang: language } = useLanguage();
   const { user } = useAuth();
   const queryClient = useQueryClient();
   const [selectedPropertyId, setSelectedPropertyId] = useState<string>("");

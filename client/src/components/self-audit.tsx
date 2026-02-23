@@ -100,28 +100,26 @@ export default function SelfAudit() {
                   <li
                     key={item.id}
                     data-testid={`checklist-item-${item.id}`}
-                    className={`grid grid-cols-[22px_1fr_auto] gap-3 items-start p-[13px_16px] rounded-[8px] mb-1 border cursor-pointer transition-colors duration-150 ${
-                      status === "checked"
+                    className={`grid grid-cols-[22px_1fr_auto] gap-3 items-start p-[13px_16px] rounded-[8px] mb-1 border cursor-pointer transition-colors duration-150 ${status === "checked"
                         ? "bg-[rgba(34,197,94,0.05)] border-[rgba(34,197,94,0.14)]"
                         : status === "flagged"
                           ? "bg-[rgba(239,68,68,0.05)] border-[rgba(239,68,68,0.14)]"
                           : status === "warn"
                             ? "bg-[rgba(245,158,11,0.05)] border-[rgba(245,158,11,0.14)]"
                             : "border-[var(--b)] hover:bg-[var(--b)]"
-                    }`}
+                      }`}
                     style={!status ? { background: "var(--app-expand-bg)" } : undefined}
                     onClick={() => cycleCheck(item.id)}
                   >
                     <div
-                      className={`w-[20px] h-[20px] rounded flex items-center justify-center text-[11px] shrink-0 mt-[1px] transition-all duration-150 font-bold ${
-                        status === "checked"
+                      className={`w-[20px] h-[20px] rounded flex items-center justify-center text-[11px] shrink-0 mt-[1px] transition-all duration-150 font-bold ${status === "checked"
                           ? "bg-[#22C55E] border-[#22C55E] text-white"
                           : status === "flagged"
                             ? "bg-[#EF4444] border-[#EF4444] text-white"
                             : status === "warn"
                               ? "bg-[#F59E0B] border-[#F59E0B] text-white"
                               : "border-[1.5px] border-[var(--t3)]"
-                      }`}
+                        }`}
                     >
                       {status === "checked" ? "\u2713" : status === "flagged" ? "\u2717" : status === "warn" ? "!" : ""}
                     </div>
@@ -132,21 +130,20 @@ export default function SelfAudit() {
                       <div className="text-[12px] font-light leading-[1.55]" style={{ color: "var(--t3)" }}>{item.desc}</div>
                     </div>
                     <span
-                      className={`font-heading text-[9px] font-bold tracking-[1px] py-[3px] px-[8px] rounded shrink-0 self-start mt-[2px] uppercase ${
-                        item.severity === "critical"
+                      className={`font-heading text-[9px] font-bold tracking-[1px] py-[3px] px-[8px] rounded shrink-0 self-start mt-[2px] uppercase ${item.severity === "critical"
                           ? "bg-[rgba(239,68,68,0.12)]"
                           : item.severity === "high"
                             ? "bg-[rgba(245,158,11,0.12)]"
                             : item.severity === "medium"
                               ? "bg-[var(--accent-tint)] text-[var(--accent)]"
                               : "bg-[rgba(148,163,184,0.12)]"
-                      }`}
+                        }`}
                       style={{
                         color: item.severity === "critical"
                           ? "var(--app-red-alert-text)"
                           : item.severity === "high"
                             ? "var(--app-amber-alert-text)"
-                            : item.severity === "low"
+                            : item.severity === "medium"
                               ? "var(--t2)"
                               : undefined,
                       }}

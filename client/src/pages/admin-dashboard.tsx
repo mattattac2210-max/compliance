@@ -71,13 +71,13 @@ interface IntelAction {
 }
 
 const ACTION_TYPE_META: Record<IntelActionType, { label: string; color: string; icon: typeof Bell }> = {
-  alert:     { label: "Alert",         color: "#F59E0B", icon: Bell },
-  vault:     { label: "Vault Doc",     color: "#A78BFA", icon: FileText },
-  calendar:  { label: "Calendar",      color: "#14B8A6", icon: CalendarPlus },
-  glossary:  { label: "Glossary",      color: "#60A5FA", icon: BookOpen },
-  guide:     { label: "Guide",         color: "#FB923C", icon: BookOpen },
-  checklist: { label: "Checklist",     color: "#E879F9", icon: ListChecks },
-  info:      { label: "Info",          color: "#94A3B8", icon: Info },
+  alert: { label: "Alert", color: "#F59E0B", icon: Bell },
+  vault: { label: "Vault Doc", color: "#A78BFA", icon: FileText },
+  calendar: { label: "Calendar", color: "#14B8A6", icon: CalendarPlus },
+  glossary: { label: "Glossary", color: "#60A5FA", icon: BookOpen },
+  guide: { label: "Guide", color: "#FB923C", icon: BookOpen },
+  checklist: { label: "Checklist", color: "#E879F9", icon: ListChecks },
+  info: { label: "Info", color: "#94A3B8", icon: Info },
 };
 
 const INTEL_ITEMS = [
@@ -940,9 +940,9 @@ function IntelligenceTab() {
                   </span>
                   <span style={{ fontSize: 10, color: "var(--t3)", flexShrink: 0 }}>{log.detail}</span>
                   {log.result === "success" ? (
-                    <CheckCircle size={12} style={{ color: C.green, flexShrink: 0 }} />
+                    <CheckCircle size={12} style={{ color: "#22C55E", flexShrink: 0 }} />
                   ) : (
-                    <AlertCircle size={12} style={{ color: C.red, flexShrink: 0 }} />
+                    <AlertCircle size={12} style={{ color: "#EF4444", flexShrink: 0 }} />
                   )}
                   <span style={{ fontSize: 9, color: "var(--t4)", flexShrink: 0 }}>{timeAgo(log.sentAt)}</span>
                 </div>
@@ -1155,7 +1155,7 @@ function IntelligenceTab() {
                                     {aStatus === "sent" && (() => {
                                       const logEntry = sentLog.find(l => l.key === aKey);
                                       return (
-                                        <span style={{ fontSize: 10, fontWeight: 700, color: logEntry?.result === "error" ? C.red : "#3B82F6", display: "flex", alignItems: "center", gap: 3 }}>
+                                        <span style={{ fontSize: 10, fontWeight: 700, color: logEntry?.result === "error" ? "#EF4444" : "#3B82F6", display: "flex", alignItems: "center", gap: 3 }}>
                                           {logEntry?.result === "error" ? <AlertCircle size={10} /> : <CheckCircle size={10} />}
                                           {logEntry?.result === "error" ? "Failed" : "Sent"}
                                           {logEntry?.detail && <span style={{ fontWeight: 500, color: "var(--t3)", marginLeft: 2 }}>\u2014 {logEntry.detail}</span>}
@@ -1493,7 +1493,7 @@ const TYPE_COLORS: Record<string, string> = {
   docs: "#A78BFA", ops: "#FB923C", ota: "#14B8A6",
 };
 
-const MONTH_SHORT = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 function CalendarPreview({ template, editForm, isEditing }: { template: CalendarEventTemplate; editForm: Partial<CalendarEventTemplate>; isEditing: boolean }) {
   const yr = new Date().getFullYear();
@@ -1615,8 +1615,8 @@ function CalendarTab() {
       if (search) {
         const s = search.toLowerCase();
         return t.eventKey.toLowerCase().includes(s) ||
-               t.titleEn.toLowerCase().includes(s) ||
-               t.shortEn.toLowerCase().includes(s);
+          t.titleEn.toLowerCase().includes(s) ||
+          t.shortEn.toLowerCase().includes(s);
       }
       return true;
     });
@@ -1706,99 +1706,99 @@ function CalendarTab() {
                 const showPreview = previewId === t.id;
                 return (
                   <Fragment key={t.id}>
-                  <tr style={{ borderBottom: showPreview ? "none" : "1px solid var(--b)", opacity: t.isActive ? 1 : 0.5, background: isEditing ? "rgba(20,184,166,0.04)" : undefined }}>
-                    <td style={{ padding: "8px 10px" }}>
-                      <button
-                        data-testid={`toggle-active-${t.eventKey}`}
-                        onClick={() => toggleActive.mutate({ id: t.id, isActive: !t.isActive })}
-                        style={{ background: "none", border: "none", cursor: "pointer", color: t.isActive ? "#16A34A" : "#EF4444", padding: 2 }}
-                        title={t.isActive ? "Active — click to deactivate" : "Inactive — click to activate"}
-                      >
-                        {t.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
-                      </button>
-                    </td>
-                    <td style={{ padding: "8px 10px", fontFamily: "monospace", fontSize: 11, color: "var(--accent)" }}>{t.eventKey}</td>
-                    <td style={{ padding: "8px 10px", maxWidth: 240 }}>
-                      {isEditing ? (
-                        <input
-                          data-testid="input-edit-title"
-                          value={editForm.titleEn || ""}
-                          onChange={e => setEditForm(f => ({ ...f, titleEn: e.target.value }))}
-                          style={{ width: "100%", padding: "4px 6px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--bg)", color: "var(--txt)", fontSize: 11 }}
-                        />
-                      ) : (
-                        <span style={{ fontSize: 11, fontWeight: 600 }}>{t.titleEn}</span>
-                      )}
-                    </td>
-                    <td style={{ padding: "8px 10px" }}>
-                      <span style={{ background: `${TYPE_COLORS[t.type] || "#94A3B8"}22`, color: TYPE_COLORS[t.type] || "#94A3B8", fontSize: 9, fontWeight: 800, padding: "2px 7px", borderRadius: 4, textTransform: "uppercase" }}>{t.type}</span>
-                    </td>
-                    <td style={{ padding: "8px 10px", fontSize: 10, fontWeight: 600, color: "var(--t2)" }}>{FREQ_LABELS[t.frequency] || t.frequency}</td>
-                    <td style={{ padding: "8px 10px", fontSize: 11 }}>
-                      {isEditing ? (
-                        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                          {(t.frequency !== "monthly") && (
-                            <select
-                              data-testid="select-edit-month"
-                              value={editForm.dueMonth ?? ""}
-                              onChange={e => setEditForm(f => ({ ...f, dueMonth: e.target.value === "" ? null : Number(e.target.value) }))}
-                              style={{ padding: "3px 4px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--bg)", color: "var(--txt)", fontSize: 10, width: 50 }}
-                            >
-                              {MONTH_SHORT.map((m, i) => <option key={i} value={i}>{m}</option>)}
-                            </select>
-                          )}
-                          <input
-                            data-testid="input-edit-day"
-                            type="number" min={1} max={31}
-                            value={editForm.dueDay || ""}
-                            onChange={e => setEditForm(f => ({ ...f, dueDay: Number(e.target.value) }))}
-                            style={{ width: 36, padding: "3px 4px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--bg)", color: "var(--txt)", fontSize: 10, textAlign: "center" }}
-                          />
-                        </div>
-                      ) : (
-                        <span style={{ color: "var(--t2)" }}>
-                          {t.frequency === "monthly" ? `Day ${t.dueDay}` : t.dueMonth !== null && t.dueMonth !== undefined ? `${MONTH_SHORT[t.dueMonth]} ${t.dueDay}` : `Day ${t.dueDay}`}
-                        </span>
-                      )}
-                    </td>
-                    <td style={{ padding: "8px 10px", fontSize: 11, color: "var(--t2)" }}>G{t.gate}</td>
-                    <td style={{ padding: "8px 10px" }}>
-                      <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
-                        {isEditing ? (
-                          <>
-                            <button data-testid="button-save-edit" onClick={saveEdit} disabled={updateTemplate.isPending}
-                              style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
-                              {updateTemplate.isPending ? <RotateCw size={10} className="animate-spin" /> : <Save size={10} />} Save
-                            </button>
-                            <button data-testid="button-cancel-edit" onClick={() => setEditingId(null)}
-                              style={{ background: "rgba(255,255,255,0.06)", color: "var(--t2)", border: "1px solid var(--b)", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
-                              Cancel
-                            </button>
-                          </>
-                        ) : (
-                          <button data-testid={`button-edit-${t.eventKey}`} onClick={() => startEdit(t)}
-                            style={{ background: "none", border: "none", cursor: "pointer", color: "var(--t3)", padding: 2 }} title="Edit">
-                            <Pencil size={13} />
-                          </button>
-                        )}
+                    <tr style={{ borderBottom: showPreview ? "none" : "1px solid var(--b)", opacity: t.isActive ? 1 : 0.5, background: isEditing ? "rgba(20,184,166,0.04)" : undefined }}>
+                      <td style={{ padding: "8px 10px" }}>
                         <button
-                          data-testid={`button-preview-${t.eventKey}`}
-                          onClick={() => setPreviewId(previewId === t.id ? null : t.id)}
-                          style={{ background: "none", border: "none", cursor: "pointer", color: previewId === t.id ? "var(--accent)" : "var(--t3)", padding: 2 }}
-                          title="Preview on calendar"
+                          data-testid={`toggle-active-${t.eventKey}`}
+                          onClick={() => toggleActive.mutate({ id: t.id, isActive: !t.isActive })}
+                          style={{ background: "none", border: "none", cursor: "pointer", color: t.isActive ? "#16A34A" : "#EF4444", padding: 2 }}
+                          title={t.isActive ? "Active — click to deactivate" : "Inactive — click to activate"}
                         >
-                          <CalendarDays size={13} />
+                          {t.isActive ? <Eye size={14} /> : <EyeOff size={14} />}
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                  {showPreview && (
-                    <tr style={{ borderBottom: "1px solid var(--b)" }}>
-                      <td colSpan={8} style={{ padding: "12px 10px", background: "rgba(20,184,166,0.02)" }}>
-                        <CalendarPreview template={t} editForm={editForm} isEditing={isEditing} />
+                      </td>
+                      <td style={{ padding: "8px 10px", fontFamily: "monospace", fontSize: 11, color: "var(--accent)" }}>{t.eventKey}</td>
+                      <td style={{ padding: "8px 10px", maxWidth: 240 }}>
+                        {isEditing ? (
+                          <input
+                            data-testid="input-edit-title"
+                            value={editForm.titleEn || ""}
+                            onChange={e => setEditForm(f => ({ ...f, titleEn: e.target.value }))}
+                            style={{ width: "100%", padding: "4px 6px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--bg)", color: "var(--txt)", fontSize: 11 }}
+                          />
+                        ) : (
+                          <span style={{ fontSize: 11, fontWeight: 600 }}>{t.titleEn}</span>
+                        )}
+                      </td>
+                      <td style={{ padding: "8px 10px" }}>
+                        <span style={{ background: `${TYPE_COLORS[t.type] || "#94A3B8"}22`, color: TYPE_COLORS[t.type] || "#94A3B8", fontSize: 9, fontWeight: 800, padding: "2px 7px", borderRadius: 4, textTransform: "uppercase" }}>{t.type}</span>
+                      </td>
+                      <td style={{ padding: "8px 10px", fontSize: 10, fontWeight: 600, color: "var(--t2)" }}>{FREQ_LABELS[t.frequency] || t.frequency}</td>
+                      <td style={{ padding: "8px 10px", fontSize: 11 }}>
+                        {isEditing ? (
+                          <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                            {(t.frequency !== "monthly") && (
+                              <select
+                                data-testid="select-edit-month"
+                                value={editForm.dueMonth ?? ""}
+                                onChange={e => setEditForm(f => ({ ...f, dueMonth: e.target.value === "" ? null : Number(e.target.value) }))}
+                                style={{ padding: "3px 4px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--bg)", color: "var(--txt)", fontSize: 10, width: 50 }}
+                              >
+                                {MONTH_SHORT.map((m, i) => <option key={i} value={i}>{m}</option>)}
+                              </select>
+                            )}
+                            <input
+                              data-testid="input-edit-day"
+                              type="number" min={1} max={31}
+                              value={editForm.dueDay || ""}
+                              onChange={e => setEditForm(f => ({ ...f, dueDay: Number(e.target.value) }))}
+                              style={{ width: 36, padding: "3px 4px", borderRadius: 4, border: "1px solid var(--accent)", background: "var(--bg)", color: "var(--txt)", fontSize: 10, textAlign: "center" }}
+                            />
+                          </div>
+                        ) : (
+                          <span style={{ color: "var(--t2)" }}>
+                            {t.frequency === "monthly" ? `Day ${t.dueDay}` : t.dueMonth !== null && t.dueMonth !== undefined ? `${MONTH_SHORT[t.dueMonth]} ${t.dueDay}` : `Day ${t.dueDay}`}
+                          </span>
+                        )}
+                      </td>
+                      <td style={{ padding: "8px 10px", fontSize: 11, color: "var(--t2)" }}>G{t.gate}</td>
+                      <td style={{ padding: "8px 10px" }}>
+                        <div style={{ display: "flex", gap: 4, alignItems: "center" }}>
+                          {isEditing ? (
+                            <>
+                              <button data-testid="button-save-edit" onClick={saveEdit} disabled={updateTemplate.isPending}
+                                style={{ background: "var(--accent)", color: "#fff", border: "none", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", gap: 3 }}>
+                                {updateTemplate.isPending ? <RotateCw size={10} className="animate-spin" /> : <Save size={10} />} Save
+                              </button>
+                              <button data-testid="button-cancel-edit" onClick={() => setEditingId(null)}
+                                style={{ background: "rgba(255,255,255,0.06)", color: "var(--t2)", border: "1px solid var(--b)", borderRadius: 4, padding: "3px 8px", fontSize: 10, fontWeight: 700, cursor: "pointer" }}>
+                                Cancel
+                              </button>
+                            </>
+                          ) : (
+                            <button data-testid={`button-edit-${t.eventKey}`} onClick={() => startEdit(t)}
+                              style={{ background: "none", border: "none", cursor: "pointer", color: "var(--t3)", padding: 2 }} title="Edit">
+                              <Pencil size={13} />
+                            </button>
+                          )}
+                          <button
+                            data-testid={`button-preview-${t.eventKey}`}
+                            onClick={() => setPreviewId(previewId === t.id ? null : t.id)}
+                            style={{ background: "none", border: "none", cursor: "pointer", color: previewId === t.id ? "var(--accent)" : "var(--t3)", padding: 2 }}
+                            title="Preview on calendar"
+                          >
+                            <CalendarDays size={13} />
+                          </button>
+                        </div>
                       </td>
                     </tr>
-                  )}
+                    {showPreview && (
+                      <tr style={{ borderBottom: "1px solid var(--b)" }}>
+                        <td colSpan={8} style={{ padding: "12px 10px", background: "rgba(20,184,166,0.02)" }}>
+                          <CalendarPreview template={t} editForm={editForm} isEditing={isEditing} />
+                        </td>
+                      </tr>
+                    )}
                   </Fragment>
                 );
               })}

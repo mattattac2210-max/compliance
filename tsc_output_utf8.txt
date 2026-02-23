@@ -1,0 +1,154 @@
+﻿
+> rest-express@1.0.0 check
+> tsc
+
+client/src/components/process-navigation.tsx(364,22): error TS2802: Type 'Set<number>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/components/self-audit.tsx(149,31): error TS2367: This comparison appears to be unintentional because the types '"medium"' and '"low"' have no overlap.
+client/src/pages/admin-dashboard.tsx(945,62): error TS2339: Property 'red' does not exist on type '{ accent: string; pro: string; free: string; green: string; purple: string; t3: string; }'.
+client/src/pages/admin-dashboard.tsx(1158,127): error TS2339: Property 'red' does not exist on type '{ accent: string; pro: string; free: string; green: string; purple: string; t3: string; }'.
+client/src/pages/alerts.tsx(44,14): error TS2339: Property 'language' does not exist on type 'LanguageContextValue'.
+client/src/pages/alerts.tsx(80,73): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/pages/calendar.tsx(70,62): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/pages/calendar.tsx(82,66): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/pages/calendar.tsx(201,49): error TS2345: Argument of type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }[]' is not assignable to parameter of type 'VaultTemplateInput[]'.
+  Property 'documentName' is missing in type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }' but required in type 'VaultTemplateInput'.
+client/src/pages/calendar.tsx(546,29): error TS2802: Type 'Set<"custom" | "tax" | "bpjs" | "banjar" | "safety" | "docs" | "ops" | "ota">' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/pages/dashboard/pro.tsx(227,49): error TS2345: Argument of type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }[]' is not assignable to parameter of type 'VaultTemplateInput[]'.
+  Property 'documentName' is missing in type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }' but required in type 'VaultTemplateInput'.
+client/src/pages/home.tsx(699,35): error TS2367: This comparison appears to be unintentional because the types '"medium"' and '"low"' have no overlap.
+client/src/pages/timeline.tsx(17,14): error TS2339: Property 'language' does not exist on type 'LanguageContextValue'.
+client/src/pages/timeline.tsx(66,49): error TS2345: Argument of type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }[]' is not assignable to parameter of type 'VaultTemplateInput[]'.
+  Property 'documentName' is missing in type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }' but required in type 'VaultTemplateInput'.
+client/src/pages/vault.tsx(44,14): error TS2339: Property 'language' does not exist on type 'LanguageContextValue'.
+server/routes.ts(207,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(219,50): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(224,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(229,38): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(418,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(427,55): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(478,36): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(495,52): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(595,51): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(598,61): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(607,60): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(610,61): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(616,49): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(620,44): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(621,61): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(622,5): error TS2322: Type 'string | string[]' is not assignable to type 'string | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(723,40): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(728,39): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(733,53): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(751,40): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(855,15): error TS2322: Type 'string | string[]' is not assignable to type 'string | null | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(899,13): error TS2322: Type 'string | string[]' is not assignable to type 'string | null | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(928,13): error TS2322: Type 'string | string[]' is not assignable to type 'string | null | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(943,42): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(954,9): error TS2322: Type 'string | string[]' is not assignable to type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(1081,44): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(1110,53): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(1116,37): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(1145,57): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(1151,41): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(1173,63): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(1190,47): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/storage.ts(240,63): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { term: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; plainDefinition: string | SQL<unknown> | Placeholder<...>; ... 9 more ...; synonyms?: string[] | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ term: string; slug: string; plainDefinition: string; whyItMatters: { [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables...' is not assignable to parameter of type '{ term: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; plainDefinition: string | SQL<unknown> | Placeholder<...>; ... 9 more ...; synonyms?: string[] | ... 3 more ... | undefined; }'.
+      Types of property 'whyItMatters' are incompatible.
+        Type '{ [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'string[] | SQL<unknown> | Placeholder<string, any>'.
+          Type '{ [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'string[]'.
+            The types returned by 'pop()' are incompatible between these types.
+              Type 'unknown' is not assignable to type 'string | undefined'.
+  Overload 2 of 2, '(values: { term: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; plainDefinition: string | SQL<unknown> | Placeholder<...>; ... 9 more ...; synonyms?: string[] | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ term: string; slug: string; plainDefinition: string; whyItMatters: { [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables...' is not assignable to parameter of type '{ term: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; plainDefinition: string | SQL<unknown> | Placeholder<...>; ... 9 more ...; synonyms?: string[] | ... 3 more ... | undefined; }[]'.
+      Type '{ term: string; slug: string; plainDefinition: string; whyItMatters: { [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables...' is missing the following properties from type '{ term: string | SQL<unknown> | Placeholder<string, any>; slug: string | SQL<unknown> | Placeholder<string, any>; plainDefinition: string | SQL<unknown> | Placeholder<...>; ... 9 more ...; synonyms?: string[] | ... 3 more ... | undefined; }[]': length, pop, push, concat, and 35 more.
+server/storage.ts(245,60): error TS2345: Argument of type 'Partial<{ term: string; slug: string; plainDefinition: string; whyItMatters: { [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.uns...' is not assignable to parameter of type '{ term?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; slug?: string | SQL<unknown> | PgColumn<...> | undefined; ... 10 more ...; synonyms?: string[] | ... 3 more ... | undefined; }'.
+  Types of property 'whyItMatters' are incompatible.
+    Type '{ [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; } | undefined' is not assignable to type 'string[] | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+      Type '{ [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'string[] | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined'.
+        Type '{ [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'string[]'.
+          The types returned by 'pop()' are incompatible between these types.
+            Type 'unknown' is not assignable to type 'string | undefined'.
+server/storage.ts(262,71): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { gateNumber: number | SQL<unknown> | Placeholder<string, any>; lastUpdated: string | SQL<unknown> | Placeholder<string, any>; title: string | SQL<unknown> | Placeholder<...>; ... 10 more ...; translations?: SQL<...> | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ gateNumber: number; lastUpdated: string; title: string; summary: string; authorityHandledBy: string; submissionType: string; sequenceSteps: { [x: number]: { stepNumber: number; actionDescription: string; ... 4 more ...; expandDetails?: unknown; }; ... 40 more ...; readonly [Symbol.unscopables]: { ...; }; }; ... 5 ...' is not assignable to parameter of type '{ gateNumber: number | SQL<unknown> | Placeholder<string, any>; lastUpdated: string | SQL<unknown> | Placeholder<string, any>; title: string | SQL<unknown> | Placeholder<...>; ... 10 more ...; translations?: SQL<...> | ... 3 more ... | undefined; }'.
+      Types of property 'sequenceSteps' are incompatible.
+        Type '{ [x: number]: { stepNumber: number; actionDescription: string; whereItGoes: string; digitalOrPhysical: string; whoHandlesIt: string; notes?: unknown; expandDetails?: unknown; }; length: number; toString: () => string; ... 38 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'SQL<unknown> | SequenceStep[] | Placeholder<string, any>'.
+          Type '{ [x: number]: { stepNumber: number; actionDescription: string; whereItGoes: string; digitalOrPhysical: string; whoHandlesIt: string; notes?: unknown; expandDetails?: unknown; }; length: number; toString: () => string; ... 38 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'SequenceStep[]'.
+            The types returned by 'pop()' are incompatible between these types.
+              Type 'unknown' is not assignable to type 'SequenceStep | undefined'.
+  Overload 2 of 2, '(values: { gateNumber: number | SQL<unknown> | Placeholder<string, any>; lastUpdated: string | SQL<unknown> | Placeholder<string, any>; title: string | SQL<unknown> | Placeholder<...>; ... 10 more ...; translations?: SQL<...> | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ gateNumber: number; lastUpdated: string; title: string; summary: string; authorityHandledBy: string; submissionType: string; sequenceSteps: { [x: number]: { stepNumber: number; actionDescription: string; ... 4 more ...; expandDetails?: unknown; }; ... 40 more ...; readonly [Symbol.unscopables]: { ...; }; }; ... 5 ...' is not assignable to parameter of type '{ gateNumber: number | SQL<unknown> | Placeholder<string, any>; lastUpdated: string | SQL<unknown> | Placeholder<string, any>; title: string | SQL<unknown> | Placeholder<...>; ... 10 more ...; translations?: SQL<...> | ... 3 more ... | undefined; }[]'.
+      Type '{ gateNumber: number; lastUpdated: string; title: string; summary: string; authorityHandledBy: string; submissionType: string; sequenceSteps: { [x: number]: { stepNumber: number; actionDescription: string; ... 4 more ...; expandDetails?: unknown; }; ... 40 more ...; readonly [Symbol.unscopables]: { ...; }; }; ... 5 ...' is missing the following properties from type '{ gateNumber: number | SQL<unknown> | Placeholder<string, any>; lastUpdated: string | SQL<unknown> | Placeholder<string, any>; title: string | SQL<unknown> | Placeholder<...>; ... 10 more ...; translations?: SQL<...> | ... 3 more ... | undefined; }[]': length, pop, push, concat, and 35 more.
+server/storage.ts(267,68): error TS2345: Argument of type 'Partial<{ gateNumber: number; lastUpdated: string; title: string; summary: string; authorityHandledBy: string; submissionType: string; sequenceSteps: { [x: number]: { stepNumber: number; actionDescription: string; ... 4 more ...; expandDetails?: unknown; }; ... 40 more ...; readonly [Symbol.unscopables]: { ...; }; }...' is not assignable to parameter of type '{ gateNumber?: number | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; lastUpdated?: string | SQL<...> | PgColumn<...> | undefined; ... 11 more ...; translations?: SQL<...> | ... 3 more ... | undefined; }'.
+  Types of property 'sequenceSteps' are incompatible.
+    Type '{ [x: number]: { stepNumber: number; actionDescription: string; whereItGoes: string; digitalOrPhysical: string; whoHandlesIt: string; notes?: unknown; expandDetails?: unknown; }; length: number; toString: () => string; ... 38 more ...; readonly [Symbol.unscopables]: { ...; }; } | undefined' is not assignable to type 'SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | SequenceStep[] | undefined'.
+      Type '{ [x: number]: { stepNumber: number; actionDescription: string; whereItGoes: string; digitalOrPhysical: string; whoHandlesIt: string; notes?: unknown; expandDetails?: unknown; }; length: number; toString: () => string; ... 38 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | SequenceStep[] | undefined'.
+        Type '{ [x: number]: { stepNumber: number; actionDescription: string; whereItGoes: string; digitalOrPhysical: string; whoHandlesIt: string; notes?: unknown; expandDetails?: unknown; }; length: number; toString: () => string; ... 38 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'SequenceStep[]'.
+          The types returned by 'pop()' are incompatible between these types.
+            Type 'unknown' is not assignable to type 'SequenceStep | undefined'.
+server/storage.ts(401,25): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+server/storage.ts(557,65): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { title: string | SQL<unknown> | Placeholder<string, any>; summary: string | SQL<unknown> | Placeholder<string, any>; source: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; appliedAt?: string | ... 3 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ title: string; summary: string; source: string; whatChanged: string; status?: string | undefined; adminId?: string | null | undefined; gate?: number | null | undefined; sourceUrl?: string | null | undefined; ... 4 more ...; appliedAt?: string | ... 1 more ... | undefined; }' is not assignable to parameter of type '{ title: string | SQL<unknown> | Placeholder<string, any>; summary: string | SQL<unknown> | Placeholder<string, any>; source: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; appliedAt?: string | ... 3 more ... | undefined; }'.
+      Types of property 'regions' are incompatible.
+        Type '{ [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; } | undefined' is not assignable to type 'string[] | SQL<unknown> | Placeholder<string, any> | undefined'.
+          Type '{ [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'string[] | SQL<unknown> | Placeholder<string, any> | undefined'.
+            Type '{ [x: number]: string; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'string[]'.
+              The types returned by 'pop()' are incompatible between these types.
+                Type 'unknown' is not assignable to type 'string | undefined'.
+  Overload 2 of 2, '(values: { title: string | SQL<unknown> | Placeholder<string, any>; summary: string | SQL<unknown> | Placeholder<string, any>; source: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; appliedAt?: string | ... 3 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ title: string; summary: string; source: string; whatChanged: string; status?: string | undefined; adminId?: string | null | undefined; gate?: number | null | undefined; sourceUrl?: string | null | undefined; ... 4 more ...; appliedAt?: string | ... 1 more ... | undefined; }' is not assignable to parameter of type '{ title: string | SQL<unknown> | Placeholder<string, any>; summary: string | SQL<unknown> | Placeholder<string, any>; source: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; appliedAt?: string | ... 3 more ... | undefined; }[]'.
+      Type '{ title: string; summary: string; source: string; whatChanged: string; status?: string | undefined; adminId?: string | null | undefined; gate?: number | null | undefined; sourceUrl?: string | null | undefined; ... 4 more ...; appliedAt?: string | ... 1 more ... | undefined; }' is missing the following properties from type '{ title: string | SQL<unknown> | Placeholder<string, any>; summary: string | SQL<unknown> | Placeholder<string, any>; source: string | SQL<unknown> | Placeholder<...>; ... 11 more ...; appliedAt?: string | ... 3 more ... | undefined; }[]': length, pop, push, concat, and 35 more.
+server/storage.ts(605,70): error TS2769: No overload matches this call.
+  Overload 1 of 2, '(value: { type: string | SQL<unknown> | Placeholder<string, any>; gate: number | SQL<unknown> | Placeholder<string, any>; eventKey: string | SQL<unknown> | Placeholder<...>; ... 20 more ...; sortOrder?: number | ... 2 more ... | undefined; }): PgInsertBase<...>', gave the following error.
+    Argument of type '{ type: string; gate: number; eventKey: string; frequency: string; dueDay: number; icon: string; titleEn: string; shortEn: string; descEn: string; isActive?: boolean | undefined; dueMonth?: number | null | undefined; ... 11 more ...; sortOrder?: number | undefined; }' is not assignable to parameter of type '{ type: string | SQL<unknown> | Placeholder<string, any>; gate: number | SQL<unknown> | Placeholder<string, any>; eventKey: string | SQL<unknown> | Placeholder<string, any>; ... 20 more ...; sortOrder?: number | ... 2 more ... | undefined; }'.
+      Types of property 'quarterMonths' are incompatible.
+        Type '{ [x: number]: number; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; } | null | undefined' is not assignable to type 'SQL<unknown> | number[] | Placeholder<string, any> | null | undefined'.
+          Type '{ [x: number]: number; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'SQL<unknown> | number[] | Placeholder<string, any> | null | undefined'.
+            Type '{ [x: number]: number; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'number[]'.
+              The types returned by 'pop()' are incompatible between these types.
+                Type 'unknown' is not assignable to type 'number | undefined'.
+  Overload 2 of 2, '(values: { type: string | SQL<unknown> | Placeholder<string, any>; gate: number | SQL<unknown> | Placeholder<string, any>; eventKey: string | SQL<unknown> | Placeholder<...>; ... 20 more ...; sortOrder?: number | ... 2 more ... | undefined; }[]): PgInsertBase<...>', gave the following error.
+    Argument of type '{ type: string; gate: number; eventKey: string; frequency: string; dueDay: number; icon: string; titleEn: string; shortEn: string; descEn: string; isActive?: boolean | undefined; dueMonth?: number | null | undefined; ... 11 more ...; sortOrder?: number | undefined; }' is not assignable to parameter of type '{ type: string | SQL<unknown> | Placeholder<string, any>; gate: number | SQL<unknown> | Placeholder<string, any>; eventKey: string | SQL<unknown> | Placeholder<string, any>; ... 20 more ...; sortOrder?: number | ... 2 more ... | undefined; }[]'.
+      Type '{ type: string; gate: number; eventKey: string; frequency: string; dueDay: number; icon: string; titleEn: string; shortEn: string; descEn: string; isActive?: boolean | undefined; dueMonth?: number | null | undefined; ... 11 more ...; sortOrder?: number | undefined; }' is missing the following properties from type '{ type: string | SQL<unknown> | Placeholder<string, any>; gate: number | SQL<unknown> | Placeholder<string, any>; eventKey: string | SQL<unknown> | Placeholder<string, any>; ... 20 more ...; sortOrder?: number | ... 2 more ... | undefined; }[]': length, pop, push, concat, and 35 more.
+server/storage.ts(610,67): error TS2345: Argument of type 'Partial<{ type: string; gate: number; eventKey: string; frequency: string; dueDay: number; icon: string; titleEn: string; shortEn: string; descEn: string; isActive?: boolean | undefined; dueMonth?: number | null | undefined; ... 11 more ...; sortOrder?: number | undefined; }>' is not assignable to parameter of type '{ type?: string | SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | undefined; gate?: number | SQL<unknown> | PgColumn<...> | undefined; ... 21 more ...; sortOrder?: number | ... 2 more ... | undefined; }'.
+  Types of property 'quarterMonths' are incompatible.
+    Type '{ [x: number]: number; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; } | null | undefined' is not assignable to type 'SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | number[] | null | undefined'.
+      Type '{ [x: number]: number; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'SQL<unknown> | PgColumn<ColumnBaseConfig<ColumnDataType, string>, {}, {}> | number[] | null | undefined'.
+        Type '{ [x: number]: number; length: number; toString: () => string; toLocaleString: { (): string; (locales: string | string[], options?: (NumberFormatOptions & DateTimeFormatOptions) | undefined): string; }; ... 37 more ...; readonly [Symbol.unscopables]: { ...; }; }' is not assignable to type 'number[]'.
+          The types returned by 'pop()' are incompatible between these types.
+            Type 'unknown' is not assignable to type 'number | undefined'.

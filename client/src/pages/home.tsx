@@ -127,11 +127,10 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
   return (
     <div
       data-testid={`gate-card-${gate.id}`}
-      className={`rounded-[10px] border transition-all duration-200 cursor-pointer ${
-        isOpen
+      className={`rounded-[10px] border transition-all duration-200 cursor-pointer ${isOpen
           ? "bg-[rgba(13,148,136,0.04)]"
           : ""
-      }`}
+        }`}
       style={{
         borderColor: isOpen ? "var(--app-border-teal)" : "var(--app-border)",
         ...(!isOpen ? { background: "var(--app-panel)" } : {}),
@@ -163,9 +162,8 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
             {gate.rolePillText}
           </span>
           <div
-            className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[18px] font-light transition-all duration-200 ${
-              isOpen ? "rotate-45 text-[#14B8A6]" : ""
-            }`}
+            className={`w-[26px] h-[26px] rounded-full flex items-center justify-center text-[18px] font-light transition-all duration-200 ${isOpen ? "rotate-45 text-[#14B8A6]" : ""
+              }`}
             style={{
               background: "var(--app-expand-bg)",
               ...(!isOpen ? { color: "var(--app-text-muted)" } : {}),
@@ -201,13 +199,12 @@ function GateCard({ gate, isOpen, onToggle }: { gate: GateData; isOpen: boolean;
                 {gate.alerts.map((alert, i) => (
                   <div
                     key={i}
-                    className={`flex gap-[10px] items-start p-[11px_14px] rounded-[7px] mb-[14px] text-[13px] leading-[1.65] ${
-                      alert.type === "amber"
+                    className={`flex gap-[10px] items-start p-[11px_14px] rounded-[7px] mb-[14px] text-[13px] leading-[1.65] ${alert.type === "amber"
                         ? "bg-[rgba(245,158,11,0.06)] border border-[rgba(245,158,11,0.18)]"
                         : alert.type === "red"
                           ? "bg-[rgba(239,68,68,0.06)] border border-[rgba(239,68,68,0.18)]"
                           : "bg-[rgba(13,148,136,0.06)] border border-[rgba(20,184,166,0.18)] text-[#14B8A6]"
-                    }`}
+                      }`}
                     style={{
                       color: alert.type === "amber"
                         ? "var(--app-amber-alert-text)"
@@ -418,11 +415,10 @@ export default function Home() {
           <button
             key={tab.id}
             data-testid={`tab-${tab.id}`}
-            className={`font-heading font-bold text-[11px] tracking-[1.5px] uppercase py-[14px] px-[22px] border-b-2 cursor-pointer transition-all duration-200 mb-[-1px] bg-transparent ${
-              activeTab === tab.id
+            className={`font-heading font-bold text-[11px] tracking-[1.5px] uppercase py-[14px] px-[22px] border-b-2 cursor-pointer transition-all duration-200 mb-[-1px] bg-transparent ${activeTab === tab.id
                 ? "text-[#14B8A6] border-b-[#14B8A6]"
                 : "border-b-transparent hover:text-[#14B8A6]"
-            }`}
+              }`}
             style={activeTab !== tab.id ? { color: "var(--app-text-muted)" } : undefined}
             onClick={() => {
               setActiveTab(tab.id);
@@ -650,28 +646,26 @@ export default function Home() {
                       <li
                         key={item.id}
                         data-testid={`checklist-item-${item.id}`}
-                        className={`grid grid-cols-[22px_1fr_auto] gap-3 items-start p-[13px_16px] rounded-[8px] mb-1 border cursor-pointer transition-colors duration-150 ${
-                          status === "checked"
+                        className={`grid grid-cols-[22px_1fr_auto] gap-3 items-start p-[13px_16px] rounded-[8px] mb-1 border cursor-pointer transition-colors duration-150 ${status === "checked"
                             ? "bg-[rgba(34,197,94,0.05)] border-[rgba(34,197,94,0.14)]"
                             : status === "flagged"
                               ? "bg-[rgba(239,68,68,0.05)] border-[rgba(239,68,68,0.14)]"
                               : status === "warn"
                                 ? "bg-[rgba(245,158,11,0.05)] border-[rgba(245,158,11,0.14)]"
                                 : "border-[rgba(226,232,240,0.06)] hover:bg-[rgba(255,255,255,0.035)]"
-                        }`}
+                          }`}
                         style={!status ? { background: "var(--app-expand-bg)" } : undefined}
                         onClick={() => cycleCheck(item.id)}
                       >
                         <div
-                          className={`w-[20px] h-[20px] rounded flex items-center justify-center text-[11px] shrink-0 mt-[1px] transition-all duration-150 font-bold ${
-                            status === "checked"
+                          className={`w-[20px] h-[20px] rounded flex items-center justify-center text-[11px] shrink-0 mt-[1px] transition-all duration-150 font-bold ${status === "checked"
                               ? "bg-[#22C55E] border-[#22C55E] text-white"
                               : status === "flagged"
                                 ? "bg-[#EF4444] border-[#EF4444] text-white"
                                 : status === "warn"
                                   ? "bg-[#F59E0B] border-[#F59E0B] text-white"
                                   : "border-[1.5px] border-[#64748B]"
-                          }`}
+                            }`}
                         >
                           {status === "checked" ? "\u2713" : status === "flagged" ? "\u2717" : status === "warn" ? "!" : ""}
                         </div>
@@ -682,21 +676,20 @@ export default function Home() {
                           <div className="text-[12px] font-light leading-[1.55]" style={{ color: "var(--app-text-muted)" }}>{item.desc}</div>
                         </div>
                         <span
-                          className={`font-heading text-[9px] font-bold tracking-[1px] py-[3px] px-[8px] rounded shrink-0 self-start mt-[2px] uppercase ${
-                            item.severity === "critical"
+                          className={`font-heading text-[9px] font-bold tracking-[1px] py-[3px] px-[8px] rounded shrink-0 self-start mt-[2px] uppercase ${item.severity === "critical"
                               ? "bg-[rgba(239,68,68,0.12)]"
                               : item.severity === "high"
                                 ? "bg-[rgba(245,158,11,0.12)]"
                                 : item.severity === "medium"
                                   ? "bg-[rgba(20,184,166,0.12)] text-[#14B8A6]"
                                   : "bg-[rgba(148,163,184,0.12)]"
-                          }`}
+                            }`}
                           style={{
                             color: item.severity === "critical"
                               ? "var(--app-red-alert-text)"
                               : item.severity === "high"
                                 ? "var(--app-amber-alert-text)"
-                                : item.severity === "low"
+                                : item.severity === "medium"
                                   ? "var(--app-text-secondary)"
                                   : undefined,
                           }}

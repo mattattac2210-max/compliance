@@ -204,7 +204,8 @@ export async function registerRoutes(
   });
 
   app.patch("/api/properties/:id", requireAuth, async (req, res) => {
-    const property = await storage.getPropertyById(req.params.id);
+    const propertyId = req.params.id as string;
+    const property = await storage.getPropertyById(propertyId);
     if (!property || property.userId !== req.session.userId) {
       return res.status(404).json({ message: "Property not found" });
     }
@@ -216,17 +217,18 @@ export async function registerRoutes(
       return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
     }
 
-    const updated = await storage.updateProperty(req.params.id, parsed.data);
+    const updated = await storage.updateProperty(req.params.id as string, parsed.data);
     res.json(updated);
   });
 
   app.delete("/api/properties/:id", requireAuth, async (req, res) => {
-    const property = await storage.getPropertyById(req.params.id);
+    const propertyId = req.params.id as string;
+    const property = await storage.getPropertyById(propertyId);
     if (!property || property.userId !== req.session.userId) {
       return res.status(404).json({ message: "Property not found" });
     }
 
-    await storage.softDeleteProperty(req.params.id);
+    await storage.softDeleteProperty(propertyId);
     res.json({ ok: true });
   });
 
@@ -415,7 +417,8 @@ export async function registerRoutes(
   });
 
   app.patch("/api/vault/:id", requireAuth, async (req, res) => {
-    const doc = await storage.getVaultDocumentById(req.params.id);
+    const docId = req.params.id as string;
+    const doc = await storage.getVaultDocumentById(docId);
     if (!doc) return res.status(404).json({ message: "Document not found" });
 
     const property = await storage.getPropertyById(doc.propertyId);
@@ -424,7 +427,7 @@ export async function registerRoutes(
     }
 
     const { propertyId, templateId, ...body } = req.body;
-    const updated = await storage.updateVaultDocument(req.params.id, body);
+    const updated = await storage.updateVaultDocument(docId, body);
     res.json(updated);
   });
 
@@ -475,7 +478,8 @@ export async function registerRoutes(
   });
 
   app.get("/api/vault/files/:filename", requireAuth, async (req, res) => {
-    const filename = path.basename(req.params.filename);
+    const filenameParam = req.params.filename as string;
+    const filename = path.basename(filenameParam);
     const filePath = path.join(UPLOADS_DIR, filename);
     if (!fs.existsSync(filePath)) return res.status(404).json({ message: "File not found" });
 
@@ -492,7 +496,8 @@ export async function registerRoutes(
   });
 
   app.delete("/api/vault/:id/file", requireAuth, async (req, res) => {
-    const doc = await storage.getVaultDocumentById(req.params.id);
+    const docId = req.params.id as string;
+    const doc = await storage.getVaultDocumentById(docId);
     if (!doc) return res.status(404).json({ message: "Document not found" });
 
     const property = await storage.getPropertyById(doc.propertyId);
@@ -585,42 +590,45 @@ export async function registerRoutes(
   });
 
   app.patch("/api/admin/users/:id/admin", requireAuth, requireAdmin, async (req, res) => {
+    const targetUserId = req.params.id as string;
     const { isAdmin } = req.body;
     if (typeof isAdmin !== "boolean") {
       return res.status(400).json({ message: "isAdmin must be a boolean" });
     }
-    if (req.params.id === req.session.userId) {
+    if (targetUserId === req.session.userId) {
       return res.status(400).json({ message: "Cannot change own admin status" });
     }
-    const updated = await storage.updateUserAdmin(req.params.id, isAdmin);
+    const updated = await storage.updateUserAdmin(targetUserId, isAdmin);
     if (!updated) return res.status(404).json({ message: "User not found" });
 
-    await storage.createAccessLogEntry(req.session.userId!, req.params.id, isAdmin ? "grant_admin" : "revoke_admin");
+    await storage.createAccessLogEntry(req.session.userId!, targetUserId, isAdmin ? "grant_admin" : "revoke_admin");
     res.json({ id: updated.id, email: updated.email, isAdmin: updated.isAdmin, isPro: updated.isPro || updated.isAdmin });
   });
 
   app.patch("/api/admin/users/:id/pro", requireAuth, requireAdmin, async (req, res) => {
+    const targetUserId = req.params.id as string;
     const { isPro } = req.body;
     if (typeof isPro !== "boolean") {
       return res.status(400).json({ message: "isPro must be a boolean" });
     }
-    const updated = await storage.updateUserProWithGranter(req.params.id, isPro, req.session.userId!);
+    const updated = await storage.updateUserProWithGranter(targetUserId, isPro, req.session.userId!);
     if (!updated) return res.status(404).json({ message: "User not found" });
 
-    await storage.createAccessLogEntry(req.session.userId!, req.params.id, isPro ? "grant_pro" : "revoke_pro");
+    await storage.createAccessLogEntry(req.session.userId!, targetUserId, isPro ? "grant_pro" : "revoke_pro");
     res.json({ id: updated.id, email: updated.email, isAdmin: updated.isAdmin, isPro: updated.isPro || updated.isAdmin });
   });
 
   // === Admin support mode enter/exit ===
   app.post("/api/admin/support/enter/:userId", requireAuth, requireAdmin, async (req, res) => {
-    const grant = await storage.getSupportGrant(req.params.userId);
+    const targetUserId = req.params.userId as string;
+    const grant = await storage.getSupportGrant(targetUserId);
     if (!grant?.isActive) {
       return res.status(403).json({ message: "User has not granted support access" });
     }
-    await storage.updateSupportGrantAccess(req.params.userId, req.session.userId!);
-    await storage.createAccessLogEntry(req.session.userId!, req.params.userId, "enter_support_mode");
-    req.session.supportUserId = req.params.userId;
-    res.json({ ok: true, targetUserId: req.params.userId });
+    await storage.updateSupportGrantAccess(targetUserId, req.session.userId!);
+    await storage.createAccessLogEntry(req.session.userId!, targetUserId, "enter_support_mode");
+    req.session.supportUserId = targetUserId;
+    res.json({ ok: true, targetUserId });
   });
 
   app.post("/api/admin/support/exit", requireAuth, requireAdmin, async (req, res) => {
@@ -720,17 +728,20 @@ export async function registerRoutes(
   });
 
   app.patch("/api/notifications/:id/read", requireAuth, async (req, res) => {
-    await storage.markNotificationRead(req.params.id, req.session.userId!);
+    const notifId = req.params.id as string;
+    await storage.markNotificationRead(notifId, req.session.userId!);
     res.json({ ok: true });
   });
 
   app.patch("/api/notifications/:id/dismiss", requireAuth, async (req, res) => {
-    await storage.dismissNotification(req.params.id, req.session.userId!);
+    const notifId = req.params.id as string;
+    await storage.dismissNotification(notifId, req.session.userId!);
     res.json({ ok: true });
   });
 
   app.patch("/api/notifications/:id/accept-change", requireAuth, async (req, res) => {
-    const notif = await storage.getNotificationById(req.params.id);
+    const notifId = req.params.id as string;
+    const notif = await storage.getNotificationById(notifId);
     if (!notif || notif.userId !== req.session.userId!) {
       return res.status(403).json({ message: "Forbidden" });
     }
@@ -748,7 +759,7 @@ export async function registerRoutes(
         }
       }
     }
-    await storage.markNotificationRead(req.params.id, req.session.userId!);
+    await storage.markNotificationRead(req.params.id as string, req.session.userId!);
     res.json({ ok: true });
   });
 
@@ -852,7 +863,7 @@ export async function registerRoutes(
               actionLabel: autoApply ? null : "Review & Accept",
               pendingChangeType: autoApply ? null : "filing_shift",
               pendingChangeData: autoApply ? null : { filingIds: affectedFilingIds, shiftDays: action.shiftDays },
-              changeId: req.params.id,
+              changeId: req.params.id as string,
               isRead: false,
               isDismissed: false,
             });
@@ -896,7 +907,7 @@ export async function registerRoutes(
             requiresAction: true,
             actionLabel: "Upload Document",
             actionUrl: "/vault",
-            changeId: req.params.id,
+            changeId: req.params.id as string,
             isRead: false,
             isDismissed: false,
           });
@@ -925,7 +936,7 @@ export async function registerRoutes(
             gate: req.body.gate,
             regency: regions.includes("all") ? null : regions.join(", "),
             requiresAction: false,
-            changeId: req.params.id,
+            changeId: req.params.id as string,
             isRead: false,
             isDismissed: false,
           });
@@ -940,7 +951,7 @@ export async function registerRoutes(
       }
     }
 
-    await storage.updateRegulatoryChange(req.params.id, {
+    await storage.updateRegulatoryChange(req.params.id as string, {
       status: "applied",
       actionsApplied,
       userMessage,
@@ -951,7 +962,7 @@ export async function registerRoutes(
       req.session.userId!,
       req.session.userId!,
       "apply_regulatory_change",
-      { changeId: req.params.id, actionsCount: String(actions.length) }
+      { changeId: req.params.id as string, actionsCount: String(actions.length) }
     );
 
     res.json({ ok: true, actionsApplied });
@@ -1078,7 +1089,8 @@ export async function registerRoutes(
   });
 
   app.delete("/api/banjar-contributions/:id", requireAuth, async (req, res) => {
-    await storage.deleteBanjarContribution(req.params.id);
+    const contribId = req.params.id as string;
+    await storage.deleteBanjarContribution(contribId);
     res.json({ ok: true });
   });
 
@@ -1106,14 +1118,16 @@ export async function registerRoutes(
   });
 
   app.patch("/api/staff/:id", requireAuth, async (req, res) => {
+    const staffId = req.params.id as string;
     const { propertyId, ...body } = req.body;
-    const updated = await storage.updateStaffMember(req.params.id, body);
+    const updated = await storage.updateStaffMember(staffId, body);
     if (!updated) return res.status(404).json({ message: "Staff member not found" });
     res.json(updated);
   });
 
   app.delete("/api/staff/:id", requireAuth, async (req, res) => {
-    await storage.deleteStaffMember(req.params.id);
+    const staffId = req.params.id as string;
+    await storage.deleteStaffMember(staffId);
     res.json({ ok: true });
   });
 
@@ -1141,14 +1155,16 @@ export async function registerRoutes(
   });
 
   app.patch("/api/filings/:id", requireAuth, async (req, res) => {
+    const filingId = req.params.id as string;
     const { propertyId, ...body } = req.body;
-    const updated = await storage.updateRecurringFiling(req.params.id, body);
+    const updated = await storage.updateRecurringFiling(filingId, body);
     if (!updated) return res.status(404).json({ message: "Filing not found" });
     res.json(updated);
   });
 
   app.delete("/api/filings/:id", requireAuth, async (req, res) => {
-    await storage.deleteRecurringFiling(req.params.id);
+    const filingId = req.params.id as string;
+    await storage.deleteRecurringFiling(filingId);
     res.json({ ok: true });
   });
 
@@ -1167,10 +1183,11 @@ export async function registerRoutes(
   app.patch("/api/calendar-templates/:id", requireAuth, async (req, res) => {
     const user = await storage.getUser(req.session.userId!);
     if (!user?.isAdmin && !user?.isPro) return res.status(403).json({ message: "Pro or Admin access required" });
+    const templateId = req.params.id as string;
     const partialSchema = insertCalendarEventTemplateSchema.partial();
     const parsed = partialSchema.safeParse(req.body);
     if (!parsed.success) return res.status(400).json({ message: "Invalid data", errors: parsed.error.flatten() });
-    const updated = await storage.updateCalendarEventTemplate(req.params.id, parsed.data);
+    const updated = await storage.updateCalendarEventTemplate(templateId, parsed.data);
     if (!updated) return res.status(404).json({ message: "Template not found" });
     res.json(updated);
   });
@@ -1187,7 +1204,7 @@ export async function registerRoutes(
   app.delete("/api/calendar-templates/:id", requireAuth, async (req, res) => {
     const user = await storage.getUser(req.session.userId!);
     if (!user?.isAdmin && !user?.isPro) return res.status(403).json({ message: "Pro or Admin access required" });
-    await storage.deleteCalendarEventTemplate(req.params.id);
+    await storage.deleteCalendarEventTemplate(req.params.id as string);
     res.json({ ok: true });
   });
 

@@ -297,15 +297,15 @@ function WorkflowCard({ guide, terms, lang, t }: { guide: ProcessGuide; terms: R
                       style={
                         activeInfoTab === tab.key
                           ? {
-                              color: "var(--txt)",
-                              borderColor: "var(--app-border-teal)",
-                              background: "var(--accent-tint)",
-                            }
+                            color: "var(--txt)",
+                            borderColor: "var(--app-border-teal)",
+                            background: "var(--accent-tint)",
+                          }
                           : {
-                              color: "var(--app-text-muted)",
-                              borderColor: "rgba(100,116,139,0.15)",
-                              background: "transparent",
-                            }
+                            color: "var(--app-text-muted)",
+                            borderColor: "rgba(100,116,139,0.15)",
+                            background: "transparent",
+                          }
                       }
                       data-testid={`info-tab-${tab.key}`}
                     >
@@ -361,7 +361,7 @@ export function ProcessNavigation() {
   }, [guides, gateFilter]);
 
   const gateNumbers = useMemo(() => {
-    const nums = [...new Set(guides.map(g => g.gateNumber))];
+    const nums = Array.from(new Set(guides.map(g => g.gateNumber)));
     return nums.sort((a, b) => a - b);
   }, [guides]);
 
@@ -405,15 +405,15 @@ export function ProcessNavigation() {
               style={
                 gateFilter === null
                   ? {
-                      color: "var(--txt)",
-                      borderColor: "var(--app-border-teal)",
-                      background: "var(--accent-tint)",
-                    }
+                    color: "var(--txt)",
+                    borderColor: "var(--app-border-teal)",
+                    background: "var(--accent-tint)",
+                  }
                   : {
-                      color: "var(--app-text-muted)",
-                      borderColor: "rgba(100,116,139,0.15)",
-                      background: "transparent",
-                    }
+                    color: "var(--app-text-muted)",
+                    borderColor: "rgba(100,116,139,0.15)",
+                    background: "transparent",
+                  }
               }
               data-testid="filter-all-gates"
             >
@@ -427,15 +427,15 @@ export function ProcessNavigation() {
                 style={
                   gateFilter === num
                     ? {
-                        color: "var(--txt)",
-                        borderColor: "var(--app-border-teal)",
-                        background: "var(--accent-tint)",
-                      }
+                      color: "var(--txt)",
+                      borderColor: "var(--app-border-teal)",
+                      background: "var(--accent-tint)",
+                    }
                     : {
-                        color: "var(--app-text-muted)",
-                        borderColor: "rgba(100,116,139,0.15)",
-                        background: "transparent",
-                      }
+                      color: "var(--app-text-muted)",
+                      borderColor: "rgba(100,116,139,0.15)",
+                      background: "transparent",
+                    }
                 }
                 data-testid={`filter-gate-${num}`}
               >

@@ -14,7 +14,7 @@ const GATE_ABBRS = ["PT", "ZONE", "NIB", "SLF", "TAX", "STAFF", "SAFE", "OTA"];
 type FilterType = "all" | "overdue" | "thisMonth" | "next90";
 
 export default function TimelinePage() {
-  const { t, language } = useLanguage();
+  const { t, lang: language } = useLanguage();
   const { user } = useAuth();
   const [filter, setFilter] = useState<FilterType>("all");
 
@@ -63,7 +63,7 @@ export default function TimelinePage() {
       if (!seen.has(e.id)) merged.push(e);
     }
 
-    const vaultEvents = mapVaultDocs(vaultDocs, vaultTemplates, language);
+    const vaultEvents = mapVaultDocs(vaultDocs, vaultTemplates as any, language);
     const kitasEvents = mapStaffKitas(staffMembers, language);
     const hgbEvents = mapPropertyHgb(properties, language);
 

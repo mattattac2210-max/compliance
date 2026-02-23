@@ -67,7 +67,7 @@ function loadFiled(): Set<string> {
   try { return new Set(JSON.parse(localStorage.getItem("dscvr-cal-filed") || "[]")); } catch { return new Set(); }
 }
 function saveFiled(s: Set<string>) {
-  localStorage.setItem("dscvr-cal-filed", JSON.stringify([...s]));
+  localStorage.setItem("dscvr-cal-filed", JSON.stringify(Array.from(s)));
 }
 function loadDateOverrides(): Record<string, string> {
   try { return JSON.parse(localStorage.getItem("dscvr-cal-date-overrides") || "{}"); } catch { return {}; }
@@ -79,7 +79,7 @@ function loadDismissed(): Set<string> {
   try { return new Set(JSON.parse(localStorage.getItem("dscvr-cal-dismissed") || "[]")); } catch { return new Set(); }
 }
 function saveDismissed(s: Set<string>) {
-  localStorage.setItem("dscvr-cal-dismissed", JSON.stringify([...s]));
+  localStorage.setItem("dscvr-cal-dismissed", JSON.stringify(Array.from(s)));
 }
 
 export default function ComplianceCalendar() {
@@ -198,7 +198,7 @@ export default function ComplianceCalendar() {
   const baseEvents = useMemo(() => generateEventsFromTemplates(calendarTemplates, curYear, language), [calendarTemplates, curYear, language]);
   const allEvents = useMemo(() => {
     const expanded = customEvs.flatMap(ce => expandCustomEvent(ce, curYear));
-    const vaultEvents = mapVaultDocs(vaultDocs, vaultTemplates, language);
+    const vaultEvents = mapVaultDocs(vaultDocs, vaultTemplates as any, language);
     const kitasEvents = mapStaffKitas(staffMembers, language);
     const hgbEvents = mapPropertyHgb(properties, language);
     const { events: filingEvents, overrideIds } = mapRecurringFilings(recurringFilings as RecurringFilingInput[], language);
@@ -543,7 +543,7 @@ export default function ComplianceCalendar() {
       <div style={{ display: "flex", gap: "4px", marginBottom: "14px", overflowX: "auto", WebkitOverflowScrolling: "touch", scrollbarWidth: "none", msOverflowStyle: "none" }} data-testid="year-strip">
         {t.months.map((mn, mi) => {
           const mEvts = getEventsForMonth(curYear, mi);
-          const types = [...new Set(mEvts.map(e => e.type))];
+          const types = Array.from(new Set(mEvts.map(e => e.type)));
           return (
             <div
               key={mi}

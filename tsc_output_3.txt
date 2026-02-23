@@ -1,0 +1,24 @@
+﻿client/src/components/process-navigation.tsx(364,22): error TS2802: Type 'Set<number>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/components/self-audit.tsx(149,31): error TS2367: This comparison appears to be unintentional because the types '"medium"' and '"low"' have no overlap.
+client/src/pages/admin-dashboard.tsx(945,62): error TS2339: Property 'red' does not exist on type '{ accent: string; pro: string; free: string; green: string; purple: string; t3: string; }'.
+client/src/pages/admin-dashboard.tsx(1158,127): error TS2339: Property 'red' does not exist on type '{ accent: string; pro: string; free: string; green: string; purple: string; t3: string; }'.
+client/src/pages/alerts.tsx(44,14): error TS2339: Property 'language' does not exist on type 'LanguageContextValue'.
+client/src/pages/alerts.tsx(80,73): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/pages/calendar.tsx(70,62): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/pages/calendar.tsx(82,66): error TS2802: Type 'Set<string>' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/pages/calendar.tsx(201,49): error TS2345: Argument of type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }[]' is not assignable to parameter of type 'VaultTemplateInput[]'.
+  Property 'documentName' is missing in type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }' but required in type 'VaultTemplateInput'.
+client/src/pages/calendar.tsx(546,29): error TS2802: Type 'Set<"custom" | "tax" | "bpjs" | "banjar" | "safety" | "docs" | "ops" | "ota">' can only be iterated through when using the '--downlevelIteration' flag or with a '--target' of 'es2015' or higher.
+client/src/pages/dashboard/pro.tsx(227,49): error TS2345: Argument of type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }[]' is not assignable to parameter of type 'VaultTemplateInput[]'.
+  Property 'documentName' is missing in type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }' but required in type 'VaultTemplateInput'.
+client/src/pages/home.tsx(699,35): error TS2367: This comparison appears to be unintentional because the types '"medium"' and '"low"' have no overlap.
+client/src/pages/timeline.tsx(17,14): error TS2339: Property 'language' does not exist on type 'LanguageContextValue'.
+client/src/pages/timeline.tsx(66,49): error TS2345: Argument of type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }[]' is not assignable to parameter of type 'VaultTemplateInput[]'.
+  Property 'documentName' is missing in type '{ id: string; isActive: boolean; gateNumber: number; documentSlug: string; isRequired: boolean; expiryMonths: number | null; translations: Record<string, { name: string; description: string; }>; }' but required in type 'VaultTemplateInput'.
+client/src/pages/vault.tsx(44,14): error TS2339: Property 'language' does not exist on type 'LanguageContextValue'.
+server/routes.ts(220,50): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(866,15): error TS2322: Type 'string | string[]' is not assignable to type 'string | null | undefined'.
+  Type 'string[]' is not assignable to type 'string'.
+server/routes.ts(1207,47): error TS2345: Argument of type 'string | string[]' is not assignable to parameter of type 'string'.
+  Type 'string[]' is not assignable to type 'string'.

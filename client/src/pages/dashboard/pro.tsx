@@ -167,7 +167,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
   } else {
     if (selectedProperty) {
       if (selectedProperty.otaEntityName && selectedProperty.entityName &&
-          selectedProperty.otaEntityName.toLowerCase().trim() !== selectedProperty.entityName.toLowerCase().trim()) {
+        selectedProperty.otaEntityName.toLowerCase().trim() !== selectedProperty.entityName.toLowerCase().trim()) {
         complianceAlerts++;
         attentionItems.push({ label: t.dashboard.entityMismatch.replace("{{entity}}", selectedProperty.entityName).replace("{{ota}}", selectedProperty.otaEntityName), color: "#F59E0B", link: "/profile", linkLabel: t.dashboard.goToProfile });
       }
@@ -224,7 +224,7 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
       if (!seen.has(e.id)) staticEvents.push(e);
     }
 
-    const vaultEvents = mapVaultDocs(documents, templates, lang);
+    const vaultEvents = mapVaultDocs(documents, templates as any, lang);
     const kitasEvents = mapStaffKitas(staffMembers, lang);
     const hgbEvents = mapPropertyHgb(properties, lang);
 
@@ -397,10 +397,10 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
           >
             {getGreeting(t)}, {user?.firstName || user?.email?.split("@")[0] || ""}
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" style={{ flexShrink: 0 }}>
-              <path d="M3 10C3 6 5 3 10 3C15 3 17 6 17 10" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" fill="none"/>
-              <path d="M6 10V15" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M10 10V17" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/>
-              <path d="M14 10V15" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round"/>
+              <path d="M3 10C3 6 5 3 10 3C15 3 17 6 17 10" stroke="var(--gold)" strokeWidth="2" strokeLinecap="round" fill="none" />
+              <path d="M6 10V15" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M10 10V17" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round" />
+              <path d="M14 10V15" stroke="var(--gold)" strokeWidth="1.5" strokeLinecap="round" />
             </svg>
           </h1>
           <p data-testid="text-property-subtitle" style={{ fontSize: 13, color: "var(--t2)" }}>
@@ -634,68 +634,68 @@ export default function ProDashboard({ onOpenFlow, onOpenAudit, onOpenGuide }: P
               const nextCol = i < 7 ? STATUS_COLORS[gateStatus(gateDocCounts[i + 1].pct)] : col;
               return (
                 <div key={i} style={{ display: "flex", alignItems: "flex-start", flexShrink: 0 }}>
-                <div
-                  data-testid={`gate-node-${i}`}
-                  style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 1, cursor: "pointer", width: 80, flexShrink: 0 }}
-                >
-                  <div style={{
-                    width: 56, height: 56, borderRadius: "50%",
-                    display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
-                    border: `3px solid ${col}`,
-                    background: bg,
-                    marginBottom: 10,
-                    position: "relative",
-                    transition: "all .18s",
-                  }}>
-                    <span style={{
-                      fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11, lineHeight: 1, color: col,
-                    }}>
-                      {g.pct}%
-                    </span>
+                  <div
+                    data-testid={`gate-node-${i}`}
+                    style={{ display: "flex", flexDirection: "column", alignItems: "center", position: "relative", zIndex: 1, cursor: "pointer", width: 80, flexShrink: 0 }}
+                  >
                     <div style={{
-                      position: "absolute", bottom: -3, right: -3,
-                      width: 18, height: 18, borderRadius: "50%",
-                      display: "flex", alignItems: "center", justifyContent: "center",
-                      border: "2px solid var(--surface)",
-                      background: col,
+                      width: 56, height: 56, borderRadius: "50%",
+                      display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center",
+                      border: `3px solid ${col}`,
+                      background: bg,
+                      marginBottom: 10,
+                      position: "relative",
+                      transition: "all .18s",
                     }}>
-                      {s === "done" && (
-                        <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
-                      )}
-                      {s === "warn" && (
-                        <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M4 2V5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round"/><circle cx="4" cy="6.5" r="0.5" fill="#fff"/></svg>
-                      )}
-                      {s === "crit" && (
-                        <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 2L6 6M6 2L2 6" stroke="#fff" strokeWidth="1.3" strokeLinecap="round"/></svg>
-                      )}
+                      <span style={{
+                        fontFamily: "var(--font-mono)", fontWeight: 600, fontSize: 11, lineHeight: 1, color: col,
+                      }}>
+                        {g.pct}%
+                      </span>
+                      <div style={{
+                        position: "absolute", bottom: -3, right: -3,
+                        width: 18, height: 18, borderRadius: "50%",
+                        display: "flex", alignItems: "center", justifyContent: "center",
+                        border: "2px solid var(--surface)",
+                        background: col,
+                      }}>
+                        {s === "done" && (
+                          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1.5 4L3.5 6L6.5 2" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                        )}
+                        {s === "warn" && (
+                          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M4 2V5" stroke="#fff" strokeWidth="1.5" strokeLinecap="round" /><circle cx="4" cy="6.5" r="0.5" fill="#fff" /></svg>
+                        )}
+                        {s === "crit" && (
+                          <svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M2 2L6 6M6 2L2 6" stroke="#fff" strokeWidth="1.3" strokeLinecap="round" /></svg>
+                        )}
+                      </div>
+                    </div>
+                    <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--t3)", marginBottom: 3, textAlign: "center" }}>
+                      G{i}
+                    </div>
+                    <div style={{
+                      fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 10,
+                      color: "var(--txt)", textAlign: "center", lineHeight: 1.3,
+                    }}>
+                      {GATE_NAMES[i]}
+                    </div>
+                    <div style={{ fontSize: 9, color: "var(--t3)", textAlign: "center", lineHeight: 1.4, marginTop: 2 }}>
+                      {GATE_SUBS[i]}
+                    </div>
+                    <div style={{ width: "100%", marginTop: 8 }}>
+                      <div style={{ height: 4, background: "var(--b)", borderRadius: 2, margin: "0 4px 3px" }}>
+                        <div style={{ height: "100%", width: `${g.pct}%`, background: col, borderRadius: 2, transition: "width .8s ease" }} />
+                      </div>
                     </div>
                   </div>
-                  <div style={{ fontFamily: "var(--font-mono)", fontSize: 9, color: "var(--t3)", marginBottom: 3, textAlign: "center" }}>
-                    G{i}
-                  </div>
-                  <div style={{
-                    fontFamily: "var(--font-body)", fontWeight: 700, fontSize: 10,
-                    color: "var(--txt)", textAlign: "center", lineHeight: 1.3,
-                  }}>
-                    {GATE_NAMES[i]}
-                  </div>
-                  <div style={{ fontSize: 9, color: "var(--t3)", textAlign: "center", lineHeight: 1.4, marginTop: 2 }}>
-                    {GATE_SUBS[i]}
-                  </div>
-                  <div style={{ width: "100%", marginTop: 8 }}>
-                    <div style={{ height: 4, background: "var(--b)", borderRadius: 2, margin: "0 4px 3px" }}>
-                      <div style={{ height: "100%", width: `${g.pct}%`, background: col, borderRadius: 2, transition: "width .8s ease" }} />
+                  {i < 7 && (
+                    <div style={{ display: "flex", alignItems: "center", height: 56, flexShrink: 0, width: 32 }}>
+                      <svg width="32" height="16" viewBox="0 0 32 16" fill="none" style={{ display: "block" }}>
+                        <line x1="0" y1="8" x2="24" y2="8" stroke={nextCol} strokeWidth="2" strokeLinecap="round" />
+                        <path d="M20 3L27 8L20 13" stroke={nextCol} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
+                      </svg>
                     </div>
-                  </div>
-                </div>
-                {i < 7 && (
-                  <div style={{ display: "flex", alignItems: "center", height: 56, flexShrink: 0, width: 32 }}>
-                    <svg width="32" height="16" viewBox="0 0 32 16" fill="none" style={{ display: "block" }}>
-                      <line x1="0" y1="8" x2="24" y2="8" stroke={nextCol} strokeWidth="2" strokeLinecap="round" />
-                      <path d="M20 3L27 8L20 13" stroke={nextCol} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-                    </svg>
-                  </div>
-                )}
+                  )}
                 </div>
               );
             })}

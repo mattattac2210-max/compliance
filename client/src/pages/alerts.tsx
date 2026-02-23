@@ -41,7 +41,7 @@ function getDismissedKey(userId: string) {
 }
 
 export default function AlertsPage() {
-  const { t, language } = useLanguage();
+  const { t, lang: language } = useLanguage();
   const { user } = useAuth();
   const [dismissed, setDismissed] = useState<Set<string>>(() => {
     if (!user) return new Set();
@@ -77,7 +77,7 @@ export default function AlertsPage() {
     setDismissed(prev => {
       const next = new Set(prev);
       next.add(alertId);
-      localStorage.setItem(getDismissedKey(user.id), JSON.stringify([...next]));
+      localStorage.setItem(getDismissedKey(user.id), JSON.stringify(Array.from(next)));
       return next;
     });
   }, [user]);
@@ -163,8 +163,8 @@ export default function AlertsPage() {
     }
 
     for (const prop of properties) {
-      if (prop.otaEntityName && prop.entityName && 
-          prop.otaEntityName.toLowerCase().trim() !== prop.entityName.toLowerCase().trim()) {
+      if (prop.otaEntityName && prop.entityName &&
+        prop.otaEntityName.toLowerCase().trim() !== prop.entityName.toLowerCase().trim()) {
         result.push({
           id: `entity-mismatch-${prop.id}`,
           label: t.alerts.entityMismatch,
@@ -181,8 +181,8 @@ export default function AlertsPage() {
     }
 
     const activeStaff = staffMembers.filter(s => s.isActive);
-    const bpjsGaps = activeStaff.filter(s => 
-      s.bpjsKesehatanStatus === "not_registered" || 
+    const bpjsGaps = activeStaff.filter(s =>
+      s.bpjsKesehatanStatus === "not_registered" ||
       s.bpjsKetenagakerjaanStatus === "not_registered"
     );
     if (bpjsGaps.length > 0) {

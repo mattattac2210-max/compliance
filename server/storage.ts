@@ -237,12 +237,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createTerm(term: InsertComplianceTerm): Promise<ComplianceTerm> {
-    const [created] = await db.insert(complianceTerms).values(term).returning();
+    const [created] = await db.insert(complianceTerms).values(term as any).returning();
     return created;
   }
 
   async updateTerm(id: string, updates: Partial<InsertComplianceTerm>): Promise<ComplianceTerm | undefined> {
-    const [updated] = await db.update(complianceTerms).set(updates).where(eq(complianceTerms.id, id)).returning();
+    const [updated] = await db.update(complianceTerms).set(updates as any).where(eq(complianceTerms.id, id)).returning();
     return updated;
   }
 
@@ -259,12 +259,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createGuide(guide: InsertProcessGuide): Promise<ProcessGuide> {
-    const [created] = await db.insert(processNavigationGuides).values(guide).returning();
+    const [created] = await db.insert(processNavigationGuides).values(guide as any).returning();
     return created;
   }
 
   async updateGuide(id: string, updates: Partial<InsertProcessGuide>): Promise<ProcessGuide | undefined> {
-    const [updated] = await db.update(processNavigationGuides).set(updates).where(eq(processNavigationGuides.id, id)).returning();
+    const [updated] = await db.update(processNavigationGuides).set(updates as any).where(eq(processNavigationGuides.id, id)).returning();
     return updated;
   }
 
@@ -398,7 +398,7 @@ export class DatabaseStorage implements IStorage {
       .limit(limit)
       .offset(offset);
 
-    const userIds = [...new Set(rows.flatMap(r => [r.adminId, r.targetUserId]))];
+    const userIds = Array.from(new Set(rows.flatMap(r => [r.adminId, r.targetUserId])));
     const userRows = userIds.length > 0
       ? await db.select({ id: users.id, email: users.email }).from(users).where(sql`${users.id} IN (${sql.join(userIds.map(id => sql`${id}`), sql`, `)})`)
       : [];
@@ -554,7 +554,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createRegulatoryChange(change: InsertRegulatoryChange): Promise<RegulatoryChange> {
-    const [created] = await db.insert(regulatoryChanges).values(change).returning();
+    const [created] = await db.insert(regulatoryChanges).values(change as any).returning();
     return created;
   }
 
@@ -602,12 +602,12 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createCalendarEventTemplate(template: InsertCalendarEventTemplate): Promise<CalendarEventTemplate> {
-    const [created] = await db.insert(calendarEventTemplates).values(template).returning();
+    const [created] = await db.insert(calendarEventTemplates).values(template as any).returning();
     return created;
   }
 
   async updateCalendarEventTemplate(id: string, updates: Partial<InsertCalendarEventTemplate>): Promise<CalendarEventTemplate | undefined> {
-    const [updated] = await db.update(calendarEventTemplates).set(updates).where(eq(calendarEventTemplates.id, id)).returning();
+    const [updated] = await db.update(calendarEventTemplates).set(updates as any).where(eq(calendarEventTemplates.id, id)).returning();
     return updated;
   }
 
