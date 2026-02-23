@@ -1,3 +1,7 @@
+import { sendConfirmationEmail } from "./lib/email";
+import { emailTokens } from "../shared/schema";
+import crypto from "crypto";
+import { db } from "./db";
 import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
@@ -95,8 +99,15 @@ export async function registerRoutes(
         firstName: firstName || null,
       });
 
-      req.session.userId = user.id;
-      res.status(201).json({ id: user.id, email: user.email, firstName: user.firstName, isAdmin: user.isAdmin, isPro: user.isPro || user.isAdmin });
+      const token = crypto.randomUUID();
+      await db.insert(emailTokens).values({
+        userId: user.id,
+        token,
+        type: "confirm_email",
+        expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(),
+      });
+      await sendConfirmationEmail(user.email, token);
+      return res.json({ message: "Check your email to confirm your account" });
     } catch (err) {
       console.error("Register error:", err);
       res.status(500).json({ message: "Internal server error" });
