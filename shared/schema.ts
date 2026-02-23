@@ -8,6 +8,7 @@ export const users = pgTable("users", {
   username: text("username"),
   password: text("password").notNull(),
   email: text("email").notNull().unique(),
+  emailVerified: boolean("email_verified").default(false).notNull(),
   firstName: text("first_name"),
   createdAt: text("created_at").notNull().default(sql`now()`),
   lastLogin: text("last_login"),
@@ -353,3 +354,12 @@ export const calendarEventTemplates = pgTable("calendar_event_templates", {
 export const insertCalendarEventTemplateSchema = createInsertSchema(calendarEventTemplates).omit({ id: true });
 export type InsertCalendarEventTemplate = z.infer<typeof insertCalendarEventTemplateSchema>;
 export type CalendarEventTemplate = typeof calendarEventTemplates.$inferSelect;
+
+export const emailTokens = pgTable("email_tokens", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id").notNull().references(() => users.id, { onDelete: "cascade" }),
+  token: varchar("token").notNull().unique(),
+  type: text("type").notNull(),
+  expiresAt: text("expires_at").notNull(),
+  usedAt: text("used_at"),
+});
